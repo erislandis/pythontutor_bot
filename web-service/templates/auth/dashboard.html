@@ -7,78 +7,235 @@
 {% endblock %}
 
 {% block content %}
-<div class="admin-container">
-    <div class="admin-header">
-        <h1>Panel de Administración</h1>
-        <div class="admin-nav">
-            <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
-            <a href="{{ url_for('exercises') }}">Ejercicios</a>
-            <a href="{{ url_for('add_exercise') }}">Agregar Ejercicio</a>
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="user-profile">
+            <div class="user-avatar">
+                {{ current_user.username[0]|upper }}
+            </div>
+            <div class="user-info">
+                <h3>{{ current_user.username }}</h3>
+                <p>Administrador</p>
+            </div>
         </div>
-    </div>
+        
+        <nav class="sidebar-nav">
+            <div class="sidebar-nav-section">
+                <div class="sidebar-nav-title">Panel</div>
+                <a href="{{ url_for('dashboard') }}" class="sidebar-nav-item active">
+                    <span class="sidebar-nav-icon">📊</span>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('exercises') }}" class="sidebar-nav-item">
+                    <span class="sidebar-nav-icon">📝</span>
+                    Ejercicios
+                </a>
+                <a href="{{ url_for('add_exercise') }}" class="sidebar-nav-item">
+                    <span class="sidebar-nav-icon">➕</span>
+                    Agregar Ejercicio
+                </a>
+            </div>
+            
+            <div class="sidebar-nav-section">
+                <div class="sidebar-nav-title">Cuenta</div>
+                <a href="{{ url_for('change_password') }}" class="sidebar-nav-item">
+                    <span class="sidebar-nav-icon">🔐</span>
+                    Cambiar Contraseña
+                </a>
+            </div>
+            
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <span>🚪</span>
+                Cerrar Sesión
+            </a>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Panel de Administración</h1>
+                <p>Bienvenido de nuevo, {{ current_user.username }}. Aquí tienes un resumen del sistema.</p>
+            </div>
 
-    <div class="dashboard-stats">
-        <div class="stat-card">
-            <h3>Usuarios Totales</h3>
-            <p class="stat-number">{{ total_users }}</p>
-        </div>
-        <div class="stat-card">
-            <h3>Ejercicios Totales</h3>
-            <p class="stat-number">{{ total_exercises }}</p>
-        </div>
-    </div>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3>Usuarios Totales</h3>
+                        <p class="stat-number">{{ total_users }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-content">
+                        <h3>Ejercicios Totales</h3>
+                        <p class="stat-number">{{ total_exercises }}</p>
+                    </div>
+                </div>
+            </div>
 
-    <div class="exercises-by-level">
-        <h2>Ejercicios por Nivel</h2>
-        <div class="level-stats">
-            {% set levels = {'principiante': 0, 'intermedio': 0, 'avanzado': 0, 'experto': 0} %}
-            {% for exercise in exercises_by_level %}
-                {% if levels.update({exercise.level: exercise.count}) %}{% endif %}
-            {% endfor %}
-            
-            <div class="level-stat beginner">
-                <span class="level-name">Principiante</span>
-                <span class="level-count">{{ levels['principiante'] }}/300</span>
-                <div class="progress-bar">
-                    <div class="progress" style="width: {{ (levels['principiante'] / 300 * 100)|int }}%"></div>
+            <div class="exercises-by-level">
+                <h2>Ejercicios por Nivel</h2>
+                <div class="level-stats">
+                    {% set levels = {'principiante': exercises_by_level.get('principiante', 0), 'intermedio': exercises_by_level.get('intermedio', 0), 'avanzado': exercises_by_level.get('avanzado', 0), 'experto': exercises_by_level.get('experto', 0)} %}
+                    
+                    <div class="level-stat beginner">
+                        <div class="level-info">
+                            <span class="level-name">🟢 Principiante</span>
+                            <span class="level-count">{{ levels['principiante'] }}/300</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" data-level="principiante"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="level-stat intermediate">
+                        <div class="level-info">
+                            <span class="level-name">🟡 Intermedio</span>
+                            <span class="level-count">{{ levels['intermedio'] }}/300</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" data-level="intermedio"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="level-stat advanced">
+                        <div class="level-info">
+                            <span class="level-name">🔵 Avanzado</span>
+                            <span class="level-count">{{ levels['avanzado'] }}/300</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" data-level="avanzado"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="level-stat expert">
+                        <div class="level-info">
+                            <span class="level-name">🔴 Experto</span>
+                            <span class="level-count">{{ levels['experto'] }}/300</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" data-level="experto"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="level-stat intermediate">
-                <span class="level-name">Intermedio</span>
-                <span class="level-count">{{ levels['intermedio'] }}/300</span>
-                <div class="progress-bar">
-                    <div class="progress" style="width: {{ (levels['intermedio'] / 300 * 100)|int }}%"></div>
-                </div>
-            </div>
-            
-            <div class="level-stat advanced">
-                <span class="level-name">Avanzado</span>
-                <span class="level-count">{{ levels['avanzado'] }}/300</span>
-                <div class="progress-bar">
-                    <div class="progress" style="width: {{ (levels['avanzado'] / 300 * 100)|int }}%"></div>
-                </div>
-            </div>
-            
-            <div class="level-stat expert">
-                <span class="level-name">Experto</span>
-                <span class="level-count">{{ levels['experto'] }}/300</span>
-                <div class="progress-bar">
-                    <div class="progress" style="width: {{ (levels['experto'] / 300 * 100)|int }}%"></div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="quick-actions">
-        <h2>Acciones Rápidas</h2>
-        <div class="action-buttons">
-            <a href="{{ url_for('add_exercise') }}" class="btn-primary">Agregar Nuevo Ejercicio</a>
-            <a href="{{ url_for('exercises') }}?level=principiante" class="btn-secondary">Ver Ejercicios Principiante</a>
-            <a href="{{ url_for('exercises') }}?level=intermedio" class="btn-secondary">Ver Ejercicios Intermedio</a>
-            <a href="{{ url_for('exercises') }}?level=avanzado" class="btn-secondary">Ver Ejercicios Avanzado</a>
-            <a href="{{ url_for('exercises') }}?level=experto" class="btn-secondary">Ver Ejercicios Experto</a>
+            <div class="quick-actions">
+                <h2>Acciones Rápidas</h2>
+                <div class="action-buttons">
+                    <a href="{{ url_for('add_exercise') }}" class="action-btn">
+                        <span class="action-icon">➕</span>
+                        <span class="action-text">Agregar Nuevo Ejercicio</span>
+                    </a>
+                    <a href="{{ url_for('exercises') }}?level=principiante" class="action-btn">
+                        <span class="action-icon">🟢</span>
+                        <span class="action-text">Ver Ejercicios Principiante</span>
+                    </a>
+                    <a href="{{ url_for('exercises') }}?level=intermedio" class="action-btn">
+                        <span class="action-icon">🟡</span>
+                        <span class="action-text">Ver Ejercicios Intermedio</span>
+                    </a>
+                    <a href="{{ url_for('exercises') }}?level=avanzado" class="action-btn">
+                        <span class="action-icon">🔵</span>
+                        <span class="action-text">Ver Ejercicios Avanzado</span>
+                    </a>
+                    <a href="{{ url_for('exercises') }}?level=experto" class="action-btn">
+                        <span class="action-icon">🔴</span>
+                        <span class="action-text">Ver Ejercicios Experto</span>
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
+    </main>
 </div>
+
+<!-- Mobile Menu Overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<!-- Mobile Menu Toggle -->
+<button class="mobile-menu-toggle" id="mobile-menu-toggle">☰</button>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Progress data from server
+const progressData = {{ levels|tojson }};
+
+// Set progress bar widths
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.progress');
+    
+    progressBars.forEach(function(bar) {
+        const level = bar.getAttribute('data-level');
+        if (level && progressData[level] !== undefined) {
+            const percentage = Math.round((progressData[level] / 300) * 100);
+            bar.style.width = percentage + '%';
+        }
+    });
+});
+
+// Mobile menu toggle
+document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
+    const sidebar = document.querySelector('.admin-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('active');
+});
+
+document.getElementById('sidebar-overlay').addEventListener('click', function() {
+    const sidebar = document.querySelector('.admin-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+});
+</script>
+
+<style>
+.level-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    background: var(--bg-secondary);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-normal);
+    text-align: center;
+    gap: var(--spacing-md);
+}
+
+.action-btn:hover {
+    background: var(--primary-color);
+    color: var(--text-inverse);
+    border-color: var(--primary-color);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.action-icon {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.action-text {
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+}
+</style>
 {% endblock %}

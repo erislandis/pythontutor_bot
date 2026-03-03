@@ -151,6 +151,65 @@ def logout():
     flash('Has cerrado sesión exitosamente', 'success')
     return redirect(url_for('index'))
 
+@app.route('/admin/change-password', methods=['GET', 'POST'])
+@admin_required
+def change_password():
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        # Validation
+        if not all([current_password, new_password, confirm_password]):
+            flash('Todos los campos son obligatorios', 'error')
+            return render_template('auth/change_password.html')
+        
+        if new_password != confirm_password:
+            flash('La nueva contraseña y la confirmación no coinciden', 'error')
+            return render_template('auth/change_password.html')
+        
+        if len(new_password) < 8:
+            flash('La nueva contraseña debe tener al menos 8 caracteres', 'error')
+            return render_template('auth/change_password.html')
+        
+        try:
+            if not supabase:
+                flash('Error de conexión con la base de datos', 'error')
+                return render_template('auth/change_password.html')
+            
+            # Get current user data
+            response = supabase.table('admin_users').select('*').eq('id', current_user.id).execute()
+            
+            if not response.data:
+                flash('Usuario no encontrado', 'error')
+                return render_template('auth/change_password.html')
+            
+            user_data = response.data[0]
+            
+            # Verify current password
+            if not check_password_hash(user_data['password_hash'], current_password):
+                flash('La contraseña actual es incorrecta', 'error')
+                return render_template('auth/change_password.html')
+            
+            # Update password
+            new_password_hash = generate_password_hash(new_password)
+            update_response = supabase.table('admin_users').update({
+                'password_hash': new_password_hash,
+                'updated_at': 'now()'
+            }).eq('id', current_user.id).execute()
+            
+            if update_response.data:
+                flash('Contraseña actualizada exitosamente', 'success')
+                return redirect(url_for('dashboard'))
+            else:
+                flash('Error al actualizar la contraseña', 'error')
+                
+        except Exception as e:
+            logger.error(f"Change password error: {e}")
+            flash('Error al actualizar la contraseña', 'error')
+    
+    return render_template('auth/change_password.html')
+
 # Routes - Admin Panel
 @app.route('/admin/dashboard')
 @admin_required
