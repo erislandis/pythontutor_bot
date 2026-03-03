@@ -88,8 +88,15 @@ user_sessions = {}
 exercise_cache = {}
 cache_timestamp = {}
 
-# Level order
+# Level order and progression requirements
 LEVELS = ['principiante', 'intermedio', 'avanzado', 'experto']
+LEVEL_REQUIREMENTS = {
+    'principiante': 0,      # Starting level
+    'intermedio': 50,       # Need 50 exercises to unlock
+    'avanzado': 150,        # Need 150 exercises to unlock  
+    'experto': 300,         # Need 300 exercises to unlock
+    'graduado': 500         # Need 500 exercises to graduate
+}
 
 def refresh_exercises_cache(level):
     """Refrescar cache de ejercicios"""
@@ -175,7 +182,7 @@ def update_progress_in_api(telegram_id, exercise_id, completed):
         return False
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start command handler"""
+    """Start command handler - Enhanced with progression system"""
     user = update.effective_user
     telegram_id = user.id
     
@@ -204,6 +211,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
     
+    # Check and update level based on progress
+    updated_level = check_and_update_level(telegram_id, user_data)
+    if updated_level != user_data.get('current_level'):
+        user_data['current_level'] = updated_level
+    
     # Initialize user session
     user_sessions[telegram_id] = {
         'current_level': user_data.get('current_level', 'principiante'),
@@ -212,28 +224,41 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'score': 0
     }
     
+    # Get progression info
+    current_level = user_data.get('current_level', 'principiante')
+    total_completed = user_data.get('total_exercises_completed', 0)
+    next_level_info = get_next_level_info(current_level, total_completed)
+    
     welcome_text = f"""
 🐍 ¡Bienvenido a PythonBot, {user.first_name}!
 
 Soy tu tutor personal de Python. Te ayudaré a aprender programación con ejercicios interactivos.
 
-📚 *Niveles disponibles:*
-• Principiante
-• Intermedio  
-• Avanzado
-• Experto
+📚 *Sistema de Progresión:*
+• Comienzas en nivel Principiante
+• Avanza automáticamente por logros
+• Desbloquea niveles superiores
 
-🎯 *Tu progreso actual:*
-• Nivel: {user_data.get('current_level', 'principiante').title()}
-• Ejercicios completados: {user_data.get('total_exercises_completed', 0)}
+🎯 *Tu Progreso Actual:*
+• Nivel Actual: {current_level.title()}
+• Ejercicios Completados: {total_completed}
+• Progreso del Nivel: {user_data.get('level_progress', 0)}/50
 
-Usa /help para ver todos los comandos disponibles.
+{next_level_info}
+
+⭐ *Comandos Disponibles:*
+/practice - Modo Práctica
+/stats - Mis Estadísticas
+/ranking - Ranking Mundial
+/help - Ayuda
+
 ¡Comencemos a programar! 🚀
     """
     
     keyboard = [
-        [InlineKeyboardButton("📚 Comenzar a Aprender", callback_data="start_learning")],
-        [InlineKeyboardButton("📊 Ver Mi Progreso", callback_data="view_progress")],
+        [InlineKeyboardButton("� Modo Práctica", callback_data="practice_mode")],
+        [InlineKeyboardButton("📊 Mis Estadísticas", callback_data="view_stats")],
+        [InlineKeyboardButton("🏆 Ranking Mundial", callback_data="world_ranking")],
         [InlineKeyboardButton("❓ Ayuda", callback_data="help")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -241,88 +266,73 @@ Usa /help para ver todos los comandos disponibles.
     await update.message.reply_text(welcome_text, parse_mode='Markdown', reply_markup=reply_markup)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Help command handler"""
+    """Help command handler - Updated for progression system"""
     help_text = """
 🐍 *Comandos de PythonBot*
 
 📚 *Aprendizaje:*
 /start - Iniciar o reiniciar el bot
-/level <nivel> - Cambiar de nivel (principiante/intermedio/avanzado/experto)
-/exercise - Obtener un ejercicio aleatorio
-/progress - Ver tu progreso
+/practice - Modo Práctica (ejercicios de tu nivel)
 
 📊 *Estadísticas:*
-/stats - Ver tus estadísticas generales
-/leaderboard - Ver el ranking de usuarios
+/stats - Ver tus estadísticas y progreso
+/ranking - Ver el ranking mundial de usuarios
 
-🎯 *Otros:*
-/help - Mostrar este mensaje de ayuda
-/about - Acerca de PythonBot
+🎯 *Sistema de Progresión:*
+• Comienzas automáticamente en Principiante
+• Avanza completando ejercicios
+• Desbloquea niveles superiores:
+  🌱 Principiante → Intermedio (50 ejercicios)
+  🌿 Intermedio → Avanzado (150 ejercicios)
+  🚀 Avanzado → Experto (300 ejercicios)
+  👑 Experto → Graduado (500 ejercicios)
 
-💡 *Tips:*
-• Completa ejercicios para desbloquear nuevos niveles
-• Cada nivel tiene 300 ejercicios únicos
+⭐ *Características:*
+• 1200+ ejercicios interactivos
+• Progreso automático
+• Logros y recompensas
+• Ranking global
+
+🎮 *Tips:*
+• Completa ejercicios diariamente
+• Cada respuesta correcta suma puntos
 • Tu progreso se guarda automáticamente
-• Puedes cambiar de nivel cuando quieras
+• ¡Compite con otros usuarios!
 
 ¿Listo para aprender Python? 🚀
     """
     
-    await update.message.reply_text(help_text, parse_mode='Markdown')
+    keyboard = [
+        [InlineKeyboardButton("📝 Modo Práctica", callback_data="practice_mode")],
+        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")],
+        [InlineKeyboardButton("🏆 Ranking Mundial", callback_data="world_ranking")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(help_text, parse_mode='Markdown', reply_markup=reply_markup)
 
-async def level_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Change level command handler"""
+async def practice_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Practice mode command handler"""
     telegram_id = update.effective_user.id
     
-    if telegram_id not in user_sessions:
+    # Check if user exists
+    user_data = get_user_from_api(telegram_id)
+    if not user_data:
         await update.message.reply_text(
             "❌ Por favor usa /start para inicializar tu perfil primero."
         )
         return
     
-    if not context.args:
-        keyboard = []
-        for level in LEVELS:
-            keyboard.append([InlineKeyboardButton(
-                f"📖 {level.title()}", 
-                callback_data=f"change_level_{level}"
-            )])
-        
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text(
-            "📚 *Selecciona un nivel:*",
-            parse_mode='Markdown',
-            reply_markup=reply_markup
-        )
-        return
+    # Check and update level based on progress
+    updated_level = check_and_update_level(telegram_id, user_data)
+    if updated_level != user_data.get('current_level'):
+        user_data['current_level'] = updated_level
+        # Celebrate level up!
+        await celebrate_level_up(update, user_data.get('current_level'), updated_level)
     
-    level = context.args[0].lower()
-    if level not in LEVELS:
-        await update.message.reply_text(
-            "❌ Nivel no válido. Niveles disponibles: principiante, intermedio, avanzado, experto"
-        )
-        return
-    
-    user_sessions[telegram_id]['current_level'] = level
-    user_sessions[telegram_id]['current_exercise'] = 0
-    
-    await update.message.reply_text(
-        f"✅ Nivel cambiado a *{level.title()}*.\n"
-        f"📝 Usa /exercise para obtener un ejercicio de este nivel.",
-        parse_mode='Markdown'
-    )
-
-async def exercise_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Get exercise command handler"""
-    telegram_id = update.effective_user.id
-    
-    if telegram_id not in user_sessions:
-        await update.message.reply_text(
-            "❌ Por favor usa /start para inicializar tu perfil primero."
-        )
-        return
-    
-    current_level = user_sessions[telegram_id]['current_level']
+    current_level = user_data.get('current_level', 'principiante')
+    level_progress = user_data.get('level_progress', 0)
+    total_completed = user_data.get('total_exercises_completed', 0)
     
     # Get exercises from cache
     exercises = get_cached_exercises(current_level)
@@ -338,16 +348,24 @@ async def exercise_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     exercise = random.choice(exercises)
     
     # Store current exercise in session
+    if telegram_id not in user_sessions:
+        user_sessions[telegram_id] = {}
     user_sessions[telegram_id]['current_exercise_data'] = exercise
+    user_sessions[telegram_id]['current_level'] = current_level
     
-    # Format exercise
+    # Format exercise with progress info
     question = exercise['question']
     options = json.loads(exercise['options']) if isinstance(exercise['options'], str) else exercise['options']
     
+    progress_bar = create_progress_bar(level_progress, 50)
+    
     exercise_text = f"""
-📝 *Ejercicio - Nivel {current_level.title()}*
+📝 *Modo Práctica - Nivel {current_level.title()}*
 
 {question}
+
+📊 *Progreso del Nivel:* {progress_bar} {level_progress}/50
+🏆 *Total Completados:* {total_completed} ejercicios
 
 🔘 *Opciones:*
 """
@@ -360,13 +378,82 @@ async def exercise_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             callback_data=f"answer_{exercise['id']}_{i}"
         )])
     
-    keyboard.append([InlineKeyboardButton("💡 Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
+    keyboard.append([InlineKeyboardButton("� Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
     keyboard.append([InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_exercise")])
+    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
         exercise_text,
+        parse_mode='Markdown',
+        reply_markup=reply_markup
+    )
+
+async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Ranking command handler - Global leaderboard"""
+    telegram_id = update.effective_user.id
+    
+    # Check if user exists
+    user_data = get_user_from_api(telegram_id)
+    if not user_data:
+        await update.message.reply_text(
+            "❌ Por favor usa /start para inicializar tu perfil primero."
+        )
+        return
+    
+    await update.message.reply_text(
+        "🏆 *Cargando Ranking Mundial...*\n\n⏳ Obteniendo datos de todos los usuarios...",
+        parse_mode='Markdown'
+    )
+    
+    # Get global ranking data
+    ranking_data = get_global_ranking()
+    
+    if not ranking_data:
+        await update.message.reply_text(
+            "❌ No se pudo cargar el ranking. Por favor intenta más tarde."
+        )
+        return
+    
+    # Find user's position
+    user_position = next((i+1 for i, user in enumerate(ranking_data) if user['telegram_id'] == telegram_id), None)
+    
+    ranking_text = "🏆 *Ranking Mundial de PythonBot*\n\n"
+    
+    # Show top 10 users
+    for i, user_rank in enumerate(ranking_data[:10]):
+        medal = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
+        
+        # Highlight current user
+        if user_rank['telegram_id'] == telegram_id:
+            ranking_text += f"👤 *{medal} {user_rank['first_name']}* - {user_rank['total_exercises_completed']} pts\n"
+        else:
+            ranking_text += f"{medal} {user_rank['first_name']} - {user_rank['total_exercises_completed']} pts\n"
+    
+    ranking_text += "\n"
+    
+    # Show user's position if not in top 10
+    if user_position and user_position > 10:
+        ranking_text += f"👤 *Tu Posición: #{user_position}*\n"
+        ranking_text += f"📊 *Tus Puntos: {user_data.get('total_exercises_completed', 0)}*\n\n"
+    
+    ranking_text += "📈 *Categorías del Ranking:*\n"
+    ranking_text += "• 🌱 Principiantes: 0-49 ejercicios\n"
+    ranking_text += "• 🌿 Intermedios: 50-149 ejercicios\n"
+    ranking_text += "• 🚀 Avanzados: 150-299 ejercicios\n"
+    ranking_text += "• 👑 Expertos: 300+ ejercicios\n\n"
+    ranking_text += "🔄 Ranking actualizado cada hora"
+    
+    keyboard = [
+        [InlineKeyboardButton("� Modo Práctica", callback_data="practice_mode")],
+        [InlineKeyboardButton("📊 Mis Estadísticas", callback_data="view_stats")],
+        [InlineKeyboardButton("🔄 Actualizar Ranking", callback_data="refresh_ranking")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(
+        ranking_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
@@ -408,7 +495,7 @@ async def progress_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show statistics command handler"""
+    """Show statistics command handler - Enhanced with progression info"""
     telegram_id = update.effective_user.id
     
     user_data = get_user_from_api(telegram_id)
@@ -419,31 +506,56 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
     
-    # Get exercises count per level
+    # Check and update level based on progress
+    updated_level = check_and_update_level(telegram_id, user_data)
+    if updated_level != user_data.get('current_level'):
+        user_data['current_level'] = updated_level
+    
+    current_level = user_data.get('current_level', 'principiante')
+    total_completed = user_data.get('total_exercises_completed', 0)
+    level_progress = user_data.get('level_progress', 0)
+    
+    # Calculate progression info
+    next_level_info = get_next_level_info(current_level, total_completed)
+    progress_bar = create_progress_bar(level_progress, 50)
+    completion_percentage = calculate_completion_percentage(telegram_id)
+    
+    # Get achievements
+    achievements = get_user_achievements(user_data)
+    
     stats_text = f"""
-📊 *Estadísticas Detalladas*
+📊 *Mis Estadísticas - PythonBot*
 
 👤 *Perfil:* {user_data.get('first_name', 'N/A')}
 📱 *ID:* {user_data.get('telegram_id', 'N/A')}
 
-📚 *Progreso por Niveles:*
-• Principiante: {get_level_progress(telegram_id, 'principiante')}/300
-• Intermedio: {get_level_progress(telegram_id, 'intermedio')}/300
-• Avanzado: {get_level_progress(telegram_id, 'avanzado')}/300
-• Experto: {get_level_progress(telegram_id, 'experto')}/300
+📚 *Progreso Actual:*
+• Nivel Actual: {current_level.title()}
+• Progreso del Nivel: {progress_bar} {level_progress}/50
+• Total Completados: {total_completed} ejercicios
+• Porcentaje Total: {completion_percentage}%
 
-🏆 *Logros:*
-• Ejercicios Totales: {user_data.get('total_exercises_completed', 0)}
-• Nivel Actual: {user_data.get('current_level', 'principiante').title()}
+{next_level_info}
+
+🏆 *Logros Desbloqueados:*
+{achievements}
+
+📈 *Estadísticas Detalladas:*
 • Racha Actual: 🔥 {get_current_streak(telegram_id)} días
+• Ejercicios por Nivel:
+  - 🌱 Principiante: {get_level_progress(telegram_id, 'principiante')}
+  - 🌿 Intermedio: {get_level_progress(telegram_id, 'intermedio')}
+  - 🚀 Avanzado: {get_level_progress(telegram_id, 'avanzado')}
+  - 👑 Experto: {get_level_progress(telegram_id, 'experto')}
 
-📈 *Porcentaje de Completion:*
-{calculate_completion_percentage(telegram_id)}% del curso completado
+� *Próximos Objetivos:*
+{get_next_objectives(current_level, total_completed)}
     """
     
     keyboard = [
-        [InlineKeyboardButton("🎯 Continuar Aprendiendo", callback_data="start_learning")],
-        [InlineKeyboardButton("📊 Ver Leaderboard", callback_data="leaderboard")]
+        [InlineKeyboardButton("📝 Modo Práctica", callback_data="practice_mode")],
+        [InlineKeyboardButton("🏆 Ver Ranking", callback_data="world_ranking")],
+        [InlineKeyboardButton("📊 Progreso Detallado", callback_data="detailed_progress")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -500,22 +612,29 @@ Equipo PythonTutor
 
 # Callback query handlers
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle button callbacks"""
+    """Handle button callbacks - Updated for new system"""
     query = update.callback_query
     await query.answer()
     
     telegram_id = update.effective_user.id
     data = query.data
     
-    if data == "start_learning":
-        await start_learning_callback(query, context)
-    elif data == "view_progress":
-        await progress_command(update, context)
+    if data == "practice_mode":
+        await practice_command(update, context)
     elif data == "view_stats":
         await stats_command(update, context)
-    elif data.startswith("change_level_"):
-        level = data.split("_")[2]
-        await change_level_callback(query, context, level)
+    elif data == "world_ranking":
+        await ranking_command(update, context)
+    elif data == "refresh_ranking":
+        await ranking_command(update, context)
+    elif data == "detailed_progress":
+        await progress_command(update, context)
+    elif data == "help":
+        await help_command(update, context)
+    elif data == "start_learning":
+        await practice_command(update, context)
+    elif data == "view_progress":
+        await progress_command(update, context)
     elif data.startswith("answer_"):
         parts = data.split("_")
         exercise_id = int(parts[1])
@@ -525,11 +644,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         exercise_id = int(data.split("_")[1])
         await explanation_callback(query, context, exercise_id)
     elif data == "next_exercise":
-        await exercise_command(update, context)
+        await practice_command(update, context)
     elif data == "leaderboard":
-        await leaderboard_callback(query, context)
-    elif data == "help":
-        await help_command(update, context)
+        await ranking_command(update, context)
 
 async def start_learning_callback(query, context):
     """Handle start learning callback"""
@@ -577,11 +694,12 @@ async def change_level_callback(query, context, level):
     await exercise_command(query, context)
 
 async def answer_callback(query, context, exercise_id, answer_index):
-    """Handle answer callback"""
+    """Handle answer callback - Enhanced with progression"""
     telegram_id = query.from_user.id
     
     # Get exercises from cache
-    exercises = get_cached_exercises(user_sessions[telegram_id]['current_level'])
+    current_level = user_sessions.get(telegram_id, {}).get('current_level', 'principiante')
+    exercises = get_cached_exercises(current_level)
     exercise = next((e for e in exercises if e['id'] == exercise_id), None)
     
     if not exercise:
@@ -593,6 +711,21 @@ async def answer_callback(query, context, exercise_id, answer_index):
     
     # Update progress
     update_progress_in_api(telegram_id, exercise_id, is_correct)
+    
+    # Get updated user data to check for level up
+    user_data = get_user_from_api(telegram_id)
+    if user_data:
+        old_level = user_data.get('current_level', 'principiante')
+        new_level = check_and_update_level(telegram_id, user_data)
+        
+        # Check if user leveled up
+        if new_level != old_level:
+            await celebrate_level_up(query, old_level, new_level)
+            return
+    
+    # Update session score
+    if telegram_id not in user_sessions:
+        user_sessions[telegram_id] = {'score': 0}
     
     if is_correct:
         response_text = "✅ *¡Correcto!*\n\n"
@@ -609,7 +742,8 @@ async def answer_callback(query, context, exercise_id, answer_index):
     
     keyboard = [
         [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_exercise")],
-        [InlineKeyboardButton("📊 Ver Progreso", callback_data="view_progress")]
+        [InlineKeyboardButton("📊 Ver Progreso", callback_data="view_progress")],
+        [InlineKeyboardButton("📝 Modo Práctica", callback_data="practice_mode")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -643,13 +777,147 @@ async def leaderboard_callback(query, context):
         parse_mode='Markdown'
     )
 
-# Helper functions
-def get_next_level(current_level):
-    """Get next level"""
-    current_index = LEVELS.index(current_level)
+# Helper functions for progression system
+def check_and_update_level(telegram_id, user_data):
+    """Check if user should level up and update their level"""
+    total_completed = user_data.get('total_exercises_completed', 0)
+    current_level = user_data.get('current_level', 'principiante')
+    
+    # Check each level requirement
+    for level in LEVELS:
+        if total_completed >= LEVEL_REQUIREMENTS[level]:
+            if LEVELS.index(level) > LEVELS.index(current_level):
+                # User should level up
+                return level
+    
+    # Check if user should be graduated
+    if total_completed >= LEVEL_REQUIREMENTS['graduado']:
+        return 'graduado'
+    
+    return current_level
+
+def get_next_level_info(current_level, total_completed):
+    """Get information about next level unlock"""
+    if current_level == 'graduado':
+        return "🎓 *¡Felicidades! Ya eres un graduado de PythonBot!*"
+    
+    # Find next level
+    current_index = LEVELS.index(current_level) if current_level in LEVELS else -1
     if current_index < len(LEVELS) - 1:
-        return LEVELS[current_index + 1].title()
-    return "¡Graduado!"
+        next_level = LEVELS[current_index + 1]
+        required = LEVEL_REQUIREMENTS[next_level]
+        remaining = max(0, required - total_completed)
+        
+        if remaining == 0:
+            return f"🎉 *¡{next_level.title()} desbloqueado! Usa /practice para comenzar."
+        else:
+            return f"🔓 *Siguiente Nivel:* {next_level.title()}\n📝 *Necesitas:* {remaining} ejercicios más"
+    
+    return ""
+
+def create_progress_bar(current, total, length=10):
+    """Create a text progress bar"""
+    if total == 0:
+        return "□" * length
+    
+    filled = int((current / total) * length)
+    empty = length - filled
+    
+    return "■" * filled + "□" * empty
+
+def get_user_achievements(user_data):
+    """Get user achievements based on their progress"""
+    achievements = []
+    total_completed = user_data.get('total_exercises_completed', 0)
+    
+    # Milestone achievements
+    if total_completed >= 1:
+        achievements.append("🌟 Primer Ejercicio")
+    if total_completed >= 10:
+        achievements.append("🔥 10 Ejercicios")
+    if total_completed >= 50:
+        achievements.append("🌿 Nivel Intermedio")
+    if total_completed >= 100:
+        achievements.append("💯 Centenario")
+    if total_completed >= 150:
+        achievements.append("🚀 Nivel Avanzado")
+    if total_completed >= 300:
+        achievements.append("👑 Nivel Experto")
+    if total_completed >= 500:
+        achievements.append("🎓 Graduado")
+    
+    return "\n".join(f"• {achievement}" for achievement in achievements) if achievements else "• 🎯 Sin logros aún"
+
+def get_next_objectives(current_level, total_completed):
+    """Get next objectives for the user"""
+    objectives = []
+    
+    # Next milestone
+    milestones = [10, 25, 50, 100, 150, 200, 300, 500]
+    next_milestone = next((m for m in milestones if m > total_completed), None)
+    if next_milestone:
+        objectives.append(f"📝 Alcanzar {next_milestone} ejercicios")
+    
+    # Level specific objectives
+    if current_level == 'principiante':
+        objectives.append("🌱 Desbloquear nivel Intermedio")
+    elif current_level == 'intermedio':
+        objectives.append("🌿 Desbloquear nivel Avanzado")
+    elif current_level == 'avanzado':
+        objectives.append("🚀 Desbloquear nivel Experto")
+    elif current_level == 'experto':
+        objectives.append("👑 Convertirte en Graduado")
+    
+    return "\n".join(f"• {obj}" for obj in objectives)
+
+def get_global_ranking():
+    """Get global ranking data (mock implementation)"""
+    # This would require a new API endpoint to get all users
+    # For now, return mock data
+    try:
+        # Mock ranking data - replace with actual API call
+        mock_ranking = [
+            {'telegram_id': 12345, 'first_name': 'Alex', 'total_exercises_completed': 450},
+            {'telegram_id': 67890, 'first_name': 'Maria', 'total_exercises_completed': 380},
+            {'telegram_id': 11111, 'first_name': 'Carlos', 'total_exercises_completed': 320},
+            {'telegram_id': 22222, 'first_name': 'Ana', 'total_exercises_completed': 280},
+            {'telegram_id': 33333, 'first_name': 'Luis', 'total_exercises_completed': 250},
+        ]
+        return mock_ranking
+    except Exception as e:
+        logger.error(f"Error getting global ranking: {e}")
+        return []
+
+async def celebrate_level_up(query, old_level, new_level):
+    """Celebrate when user levels up"""
+    celebration_text = f"""
+🎉 *¡FELICIDADES! 🎉*
+
+¡Has subido de nivel!
+
+🌱 {old_level.title()} → 🌿 {new_level.title()}
+
+🎯 *Nuevo desbloqueado:*
+• Ejercicios más desafiantes
+• Nuevos logros por descubrir
+• Mayor reconocimiento en el ranking
+
+📝 *¡Usa /practice para comenzar en tu nuevo nivel!*
+
+¡Sigue así! 🚀
+    """
+    
+    keyboard = [
+        [InlineKeyboardButton("🎉 ¡Comenzar Ya!", callback_data="practice_mode")],
+        [InlineKeyboardButton("📊 Ver Progreso", callback_data="view_stats")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await query.edit_message_text(
+        celebration_text,
+        parse_mode='Markdown',
+        reply_markup=reply_markup
+    )
 
 def get_level_progress(telegram_id, level):
     """Get progress for a specific level"""
@@ -714,10 +982,10 @@ def main():
     # Add handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("level", level_command))
-    application.add_handler(CommandHandler("exercise", exercise_command))
-    application.add_handler(CommandHandler("progress", progress_command))
+    application.add_handler(CommandHandler("practice", practice_command))
     application.add_handler(CommandHandler("stats", stats_command))
+    application.add_handler(CommandHandler("ranking", ranking_command))
+    application.add_handler(CommandHandler("progress", progress_command))
     application.add_handler(CommandHandler("about", about_command))
     application.add_handler(CallbackQueryHandler(button_callback))
     
