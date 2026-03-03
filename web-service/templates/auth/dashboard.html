@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Panel de Administración</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+            <a href="{{ url_for('exercises') }}">Ejercicios</a>
+            <a href="{{ url_for('add_exercise') }}">Agregar Ejercicio</a>
+        </div>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>Usuarios Totales</h3>
+            <p class="stat-number">{{ total_users }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Ejercicios Totales</h3>
+            <p class="stat-number">{{ total_exercises }}</p>
+        </div>
+    </div>
+
+    <div class="exercises-by-level">
+        <h2>Ejercicios por Nivel</h2>
+        <div class="level-stats">
+            {% set levels = {'principiante': 0, 'intermedio': 0, 'avanzado': 0, 'experto': 0} %}
+            {% for exercise in exercises_by_level %}
+                {% if levels.update({exercise.level: exercise.count}) %}{% endif %}
+            {% endfor %}
+            
+            <div class="level-stat beginner">
+                <span class="level-name">Principiante</span>
+                <span class="level-count">{{ levels['principiante'] }}/300</span>
+                <div class="progress-bar">
+                    <div class="progress" style="width: {{ (levels['principiante'] / 300 * 100)|int }}%"></div>
+                </div>
+            </div>
+            
+            <div class="level-stat intermediate">
+                <span class="level-name">Intermedio</span>
+                <span class="level-count">{{ levels['intermedio'] }}/300</span>
+                <div class="progress-bar">
+                    <div class="progress" style="width: {{ (levels['intermedio'] / 300 * 100)|int }}%"></div>
+                </div>
+            </div>
+            
+            <div class="level-stat advanced">
+                <span class="level-name">Avanzado</span>
+                <span class="level-count">{{ levels['avanzado'] }}/300</span>
+                <div class="progress-bar">
+                    <div class="progress" style="width: {{ (levels['avanzado'] / 300 * 100)|int }}%"></div>
+                </div>
+            </div>
+            
+            <div class="level-stat expert">
+                <span class="level-name">Experto</span>
+                <span class="level-count">{{ levels['experto'] }}/300</span>
+                <div class="progress-bar">
+                    <div class="progress" style="width: {{ (levels['experto'] / 300 * 100)|int }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <h2>Acciones Rápidas</h2>
+        <div class="action-buttons">
+            <a href="{{ url_for('add_exercise') }}" class="btn-primary">Agregar Nuevo Ejercicio</a>
+            <a href="{{ url_for('exercises') }}?level=principiante" class="btn-secondary">Ver Ejercicios Principiante</a>
+            <a href="{{ url_for('exercises') }}?level=intermedio" class="btn-secondary">Ver Ejercicios Intermedio</a>
+            <a href="{{ url_for('exercises') }}?level=avanzado" class="btn-secondary">Ver Ejercicios Avanzado</a>
+            <a href="{{ url_for('exercises') }}?level=experto" class="btn-secondary">Ver Ejercicios Experto</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

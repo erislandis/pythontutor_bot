@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar Ejercicio{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Agregar Nuevo Ejercicio</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('exercises') }}">Ejercicios</a>
+            <a href="{{ url_for('add_exercise') }}" class="active">Agregar Ejercicio</a>
+        </div>
+    </div>
+
+    <div class="add-exercise-form">
+        <form method="POST" action="{{ url_for('add_exercise') }}">
+            <div class="form-group">
+                <label for="level">Nivel:</label>
+                <select name="level" id="level" required>
+                    <option value="">Selecciona un nivel</option>
+                    <option value="principiante">Principiante</option>
+                    <option value="intermedio">Intermedio</option>
+                    <option value="avanzado">Avanzado</option>
+                    <option value="experto">Experto</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="question">Pregunta:</label>
+                <textarea name="question" id="question" rows="4" required 
+                          placeholder="Escribe la pregunta del ejercicio..."></textarea>
+            </div>
+
+            <div class="options-group">
+                <h3>Opciones de Respuesta</h3>
+                
+                <div class="form-group">
+                    <label for="option1">Opción 1:</label>
+                    <input type="text" name="option1" id="option1" required 
+                           placeholder="Primera opción">
+                </div>
+
+                <div class="form-group">
+                    <label for="option2">Opción 2:</label>
+                    <input type="text" name="option2" id="option2" required 
+                           placeholder="Segunda opción">
+                </div>
+
+                <div class="form-group">
+                    <label for="option3">Opción 3:</label>
+                    <input type="text" name="option3" id="option3" required 
+                           placeholder="Tercera opción">
+                </div>
+
+                <div class="form-group">
+                    <label for="option4">Opción 4:</label>
+                    <input type="text" name="option4" id="option4" required 
+                           placeholder="Cuarta opción">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="correct_answer">Respuesta Correcta (1-4):</label>
+                <select name="correct_answer" id="correct_answer" required>
+                    <option value="">Selecciona la respuesta correcta</option>
+                    <option value="1">Opción 1</option>
+                    <option value="2">Opción 2</option>
+                    <option value="3">Opción 3</option>
+                    <option value="4">Opción 4</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="explanation">Explicación (opcional):</label>
+                <textarea name="explanation" id="explanation" rows="3" 
+                          placeholder="Explica por qué esta es la respuesta correcta..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Guardar Ejercicio</button>
+                <a href="{{ url_for('exercises') }}" class="btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="bulk-upload">
+        <h3>Carga Masiva de Ejercicios</h3>
+        <p>Sube un archivo JSON con múltiples ejercicios. Formato esperado:</p>
+        <pre>
+[
+    {
+        "question": "¿Pregunta?",
+        "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+        "correct_answer": 0,
+        "explanation": "Explicación"
+    }
+]
+        </pre>
+        
+        <form method="POST" action="{{ url_for('bulk_upload') }}" enctype="multipart/form-data">
+            <input type="hidden" name="level" id="bulk_level" value="">
+            <div class="form-group">
+                <label for="file">Archivo JSON:</label>
+                <input type="file" name="file" id="file" accept=".json" required>
+            </div>
+            <button type="submit" class="btn-secondary" onclick="document.getElementById('bulk_level').value = document.getElementById('level').value">Subir Ejercicios</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

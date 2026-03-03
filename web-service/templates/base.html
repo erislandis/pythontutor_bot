@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aprende Python de forma interactiva con nuestro bot de Telegram. Más de 1200 ejercicios prácticos en 4 niveles de dificultad.">
+    <title>{% block title %}PythonBot - Aprende Python con Telegram{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <span class="logo-icon">🐍</span>
+                <span class="logo-text">PythonBot</span>
+            </a>
+            
+            <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menú">☰</button>
+            
+            <ul class="nav-menu">
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/about">Acerca de</a></li>
+                <li><a href="https://t.me/pythonpersonaltutor_bot" target="_blank">Ir al Bot</a></li>
+                {% if current_user.is_authenticated %}
+                <li><a href="/admin/dashboard" class="btn-action">Panel Admin</a></li>
+                <li><a href="/logout" class="btn-logout">Cerrar Sesión</a></li>
+                {% else %}
+                <li><a href="/login" class="btn-action">Admin</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alerts-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button type="button" class="alert-close" onclick="this.parentElement.remove()">×</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <span class="logo-icon">🐍</span>
+                    <span>PythonBot</span>
+                </div>
+                <p>Aprende Python de forma interactiva con nuestro bot de Telegram.</p>
+                <div class="footer-social">
+                    <a href="https://t.me/pythonpersonaltutor_bot" target="_blank" aria-label="Telegram">📱</a>
+                    <a href="#" aria-label="GitHub">💻</a>
+                    <a href="#" aria-label="Twitter">🐦</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="/">Inicio</a></li>
+                    <li><a href="/about">Acerca de</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Recursos</h4>
+                <ul>
+                    <li><a href="#">Documentación</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Soporte</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 PythonBot. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

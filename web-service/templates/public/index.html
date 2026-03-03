@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Aprende Python con Bot{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1>Aprende Python de forma interactiva con nuestro Bot de Telegram</h1>
+            <p class="hero-subtitle">Más de 1200 ejercicios prácticos en 4 niveles de dificultad</p>
+            <div class="hero-buttons">
+                <a href="https://t.me/pythonpersonaltutor_bot" target="_blank" class="btn-primary">Comenzar con el Bot</a>
+                <a href="#features" class="btn-secondary">Conocer más</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <svg width="300" height="300" viewBox="0 0 300 300" class="hero-bot-svg">
+                <!-- Fondo circular -->
+                <circle cx="150" cy="150" r="140" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                
+                <!-- Cuerpo del bot -->
+                <rect x="80" y="100" width="140" height="120" rx="20" fill="#ffffff" opacity="0.9"/>
+                
+                <!-- Cabeza del bot -->
+                <rect x="90" y="60" width="120" height="60" rx="15" fill="#ffffff" opacity="0.9"/>
+                
+                <!-- Antenas -->
+                <line x1="120" y1="60" x2="110" y2="40" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+                <line x1="180" y1="60" x2="190" y2="40" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="110" cy="40" r="5" fill="#fbbf24"/>
+                <circle cx="190" cy="40" r="5" fill="#fbbf24"/>
+                
+                <!-- Ojos -->
+                <circle cx="125" cy="85" r="8" fill="#10b981"/>
+                <circle cx="175" cy="85" r="8" fill="#10b981"/>
+                <circle cx="127" cy="83" r="3" fill="#ffffff"/>
+                <circle cx="177" cy="83" r="3" fill="#ffffff"/>
+                
+                <!-- Boca -->
+                <path d="M 130 105 Q 150 115 170 105" stroke="#10b981" stroke-width="3" fill="none" stroke-linecap="round"/>
+                
+                <!-- Logo Python en el pecho -->
+                <text x="150" y="165" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#3776ab" text-anchor="middle">Py</text>
+                
+                <!-- Botones -->
+                <circle cx="110" cy="190" r="8" fill="#ef4444"/>
+                <circle cx="150" cy="190" r="8" fill="#fbbf24"/>
+                <circle cx="190" cy="190" r="8" fill="#10b981"/>
+                
+                <!-- Brazos -->
+                <rect x="60" y="120" width="15" height="60" rx="7" fill="#ffffff" opacity="0.9"/>
+                <rect x="225" y="120" width="15" height="60" rx="7" fill="#ffffff" opacity="0.9"/>
+                
+                <!-- Manos -->
+                <circle cx="67" cy="185" r="10" fill="#ffffff" opacity="0.9"/>
+                <circle cx="233" cy="185" r="10" fill="#ffffff" opacity="0.9"/>
+                
+                <!-- Efecto de brillo -->
+                <ellipse cx="120" cy="80" rx="20" ry="10" fill="rgba(255,255,255,0.6)" opacity="0.7"/>
+            </svg>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="features">
+    <div class="container">
+        <h2 class="section-title">¿Cómo funciona?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>1. Inicia el Bot</h3>
+                <p>Busca nuestro bot en Telegram y presiona /start para comenzar tu aventura de aprendizaje.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>2. Elige tu nivel</h3>
+                <p>Comienza desde principiante y avanza hasta experto con 300 ejercicios por nivel.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✅</div>
+                <h3>3. Responde ejercicios</h3>
+                <p>Selecciona la respuesta correcta. Tienes 3 oportunidades por ejercicio.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3>4. Avanza de nivel</h3>
+                <p>Completa todos los ejercicios para desbloquear el siguiente nivel.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="levels">
+    <div class="container">
+        <h2 class="section-title">Niveles de Aprendizaje</h2>
+        <div class="levels-grid">
+            <div class="level-card beginner">
+                <h3>Principiante</h3>
+                <p class="level-description">Fundamentos de Python, sintaxis básica, variables y tipos de datos.</p>
+                <p class="exercise-count">300 ejercicios</p>
+            </div>
+            <div class="level-card intermediate">
+                <h3>Intermedio</h3>
+                <p class="level-description">Estructuras de control, funciones, listas y diccionarios.</p>
+                <p class="exercise-count">300 ejercicios</p>
+            </div>
+            <div class="level-card advanced">
+                <h3>Avanzado</h3>
+                <p class="level-description">Programación orientada a objetos, manejo de archivos y módulos.</p>
+                <p class="exercise-count">300 ejercicios</p>
+            </div>
+            <div class="level-card expert">
+                <h3>Experto</h3>
+                <p class="level-description">Decoradores, generadores, manejo de errores y temas avanzados.</p>
+                <p class="exercise-count">300 ejercicios</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-icon">📚</div>
+                <div class="stat-content">
+                    <span class="stat-number">1200+</span>
+                    <span class="stat-label">Ejercicios</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">Niveles</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">🆓</div>
+                <div class="stat-content">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Gratuito</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">⏰</div>
+                <div class="stat-content">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Disponible</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container">
+        <h2>¿Listo para comenzar tu viaje en Python?</h2>
+        <p>Únete a cientos de estudiantes que ya están aprendiendo con nuestro bot.</p>
+        <div style="margin-top: 30px;">
+            <a href="https://t.me/tu_bot" target="_blank" class="btn-primary btn-large" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">Iniciar ahora en Telegram</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

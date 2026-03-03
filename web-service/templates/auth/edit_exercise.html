@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Ejercicio - Panel Administrativo{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Editar Ejercicio</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('exercises', level=exercise.current_level or 'todos') }}">Ejercicios</a>
+            <a href="{{ url_for('add_exercise') }}" class="active">Editar Ejercicio</a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="edit-exercise-form">
+        <form method="POST" id="editExerciseForm">
+            <div class="form-header">
+                <h2>Editar Ejercicio #{{ exercise.id }}</h2>
+                <div class="exercise-meta">
+                    <span class="level-badge {{ exercise.level }}">{{ exercise.level }}</span>
+                    <span class="exercise-id">ID: {{ exercise.id }}</span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Información Básica</h3>
+                
+                <div class="form-group">
+                    <label for="level">Nivel</label>
+                    <select id="level" name="level" required>
+                        <option value="principiante" {% if exercise.level == 'principiante' %}selected{% endif %}>Principiante</option>
+                        <option value="intermedio" {% if exercise.level == 'intermedio' %}selected{% endif %}>Intermedio</option>
+                        <option value="avanzado" {% if exercise.level == 'avanzado' %}selected{% endif %}>Avanzado</option>
+                        <option value="experto" {% if exercise.level == 'experto' %}selected{% endif %}>Experto</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="question">Pregunta</label>
+                    <textarea id="question" name="question" rows="4" required placeholder="Escribe la pregunta del ejercicio...">{{ exercise.question }}</textarea>
+                    <div class="char-count">
+                        <span id="questionCount">{{ exercise.question|length }}</span> caracteres
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Opciones de Respuesta</h3>
+                <p class="section-description">Define las 4 opciones posibles y marca cuál es la correcta.</p>
+                
+                <div class="options-container">
+                    {% for i in range(4) %}
+                    <div class="option-group">
+                        <div class="option-header">
+                            <label>Opción {{ i + 1 }}</label>
+                            <div class="radio-wrapper">
+                                <input type="radio" name="correct_answer" value="{{ i + 1 }}" 
+                                       {% if exercise.correct_answer == i %}checked{% endif %} 
+                                       id="correct_{{ i + 1 }}">
+                                <label for="correct_{{ i + 1 }}" class="radio-label">Correcta</label>
+                            </div>
+                        </div>
+                        <input type="text" name="option{{ i + 1 }}" 
+                               value="{{ exercise.options[i] if exercise.options and i < exercise.options|length else '' }}"
+                               placeholder="Escribe la opción {{ i + 1 }}..." required>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Explicación</h3>
+                <div class="form-group">
+                    <label for="explanation">Explicación de la respuesta correcta</label>
+                    <textarea id="explanation" name="explanation" rows="4" required placeholder="Explica por qué esta respuesta es correcta...">{{ exercise.explanation }}</textarea>
+                    <div class="char-count">
+                        <span id="explanationCount">{{ exercise.explanation|length }}</span> caracteres
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h3>Vista Previa</h3>
+                <div class="exercise-preview" id="exercisePreview">
+                    <div class="preview-question">
+                        <h4>Pregunta:</h4>
+                        <p id="previewQuestion">{{ exercise.question }}</p>
+                    </div>
+                    <div class="preview-options">
+                        <h4>Opciones:</h4>
+                        <div id="previewOptions">
+                            {% for i in range(4) %}
+                            <div class="preview-option {% if exercise.correct_answer == i %}correct{% endif %}">
+                                {{ i + 1 }}. {{ exercise.options[i] if exercise.options and i < exercise.options|length else '' }}
+                                {% if exercise.correct_answer == i %} ✓{% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="preview-explanation">
+                        <h4>Explicación:</h4>
+                        <p id="previewExplanation">{{ exercise.explanation }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <span>💾 Guardar Cambios</span>
+                </button>
+                <a href="{{ url_for('exercises', level=exercise.current_level or 'todos') }}" class="btn-secondary">
+                    <span>❌ Cancelar</span>
+                </a>
+                <button type="button" class="btn-warning" onclick="confirmDelete()">
+                    <span>🗑️ Eliminar Ejercicio</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3>⚠️ Confirmar Eliminación</h3>
+        <p>¿Estás seguro de que deseas eliminar este ejercicio? Esta acción no se puede deshacer.</p>
+        <div class="modal-actions">
+            <button onclick="deleteExercise()" class="btn-danger">Eliminar</button>
+            <button onclick="closeModal()" class="btn-secondary">Cancelar</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.edit-exercise-form {
+    background: var(--white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--light-bg);
+}
+
+.form-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.exercise-meta {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.exercise-id {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.form-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.form-section h3 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--light-bg);
+}
+
+.section-description {
+    color: var(--text-light);
+    margin-bottom: var(--spacing-lg);
+    font-style: italic;
+}
+
+.options-container {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+.option-group {
+    border: 2px solid var(--light-bg);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    transition: border-color var(--transition-fast);
+}
+
+.option-group:hover {
+    border-color: var(--primary-color);
+}
+
+.option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.option-header label {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.radio-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.radio-wrapper input[type="radio"] {
+    width: auto;
+    margin: 0;
+}
+
+.radio-label {
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--text-light);
+}
+
+.option-group input[type="text"] {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-base);
+}
+
+.char-count {
+    text-align: right;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-top: var(--spacing-xs);
+}
+
+.preview-section {
+    background: var(--light-bg);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.preview-section h3 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-lg);
+}
+
+.exercise-preview {
+    background: var(--white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    border-left: 4px solid var(--primary-color);
+}
+
+.preview-question h4,
+.preview-options h4,
+.preview-explanation h4 {
+    color: var(--text-color);
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-base);
+}
+
+.preview-option {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    border-radius: var(--border-radius-sm);
+    transition: background-color var(--transition-fast);
+}
+
+.preview-option.correct {
+    background: #d4edda;
+    color: #155724;
+    font-weight: 500;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-warning,
+.btn-danger {
+    padding: var(--spacing-md) var(--spacing-xl);
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-color);
+    border: 2px solid var(--text-color);
+}
+
+.btn-secondary:hover {
+    background: var(--text-color);
+    color: var(--white);
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    color: var(--text-color);
+}
+
+.btn-warning:hover {
+    background: #e0a800;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: var(--white);
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+}
+
+.modal-content h3 {
+    color: var(--danger-color);
+    margin-bottom: var(--spacing-lg);
+}
+
+.modal-content p {
+    margin-bottom: var(--spacing-xl);
+    color: var(--text-light);
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .form-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Character counting
+document.getElementById('question').addEventListener('input', function() {
+    document.getElementById('questionCount').textContent = this.value.length;
+    updatePreview();
+});
+
+document.getElementById('explanation').addEventListener('input', function() {
+    document.getElementById('explanationCount').textContent = this.value.length;
+    updatePreview();
+});
+
+// Update preview when form changes
+document.querySelectorAll('input, textarea, select').forEach(element => {
+    element.addEventListener('input', updatePreview);
+    element.addEventListener('change', updatePreview);
+});
+
+function updatePreview() {
+    const question = document.getElementById('question').value;
+    const explanation = document.getElementById('explanation').value;
+    const level = document.getElementById('level').value;
+    
+    document.getElementById('previewQuestion').textContent = question || 'La pregunta aparecerá aquí...';
+    document.getElementById('previewExplanation').textContent = explanation || 'La explicación aparecerá aquí...';
+    
+    // Update options preview
+    let optionsHtml = '';
+    for (let i = 1; i <= 4; i++) {
+        const optionValue = document.querySelector(`input[name="option${i}"]`).value;
+        const isCorrect = document.querySelector(`input[name="correct_answer"]:checked`)?.value == i;
+        optionsHtml += `<div class="preview-option ${isCorrect ? 'correct' : ''}">${i}. ${optionValue}${isCorrect ? ' ✓' : ''}</div>`;
+    }
+    document.getElementById('previewOptions').innerHTML = optionsHtml;
+}
+
+// Modal functions
+function confirmDelete() {
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+function deleteExercise() {
+    window.location.href = `{{ url_for('delete_exercise', exercise_id=exercise.id) }}`;
+}
+
+// Initialize preview on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updatePreview();
+});
+
+// Form validation
+document.getElementById('editExerciseForm').addEventListener('submit', function(e) {
+    const options = [];
+    for (let i = 1; i <= 4; i++) {
+        const optionValue = document.querySelector(`input[name="option${i}"]`).value.trim();
+        if (!optionValue) {
+            e.preventDefault();
+            alert('Todas las opciones deben estar completas');
+            return;
+        }
+        options.push(optionValue);
+    }
+    
+    // Check for duplicate options
+    const uniqueOptions = new Set(options);
+    if (uniqueOptions.size !== options.length) {
+        e.preventDefault();
+        alert('Las opciones deben ser diferentes entre sí');
+        return;
+    }
+    
+    // Check if correct answer is selected
+    const correctAnswer = document.querySelector('input[name="correct_answer"]:checked');
+    if (!correctAnswer) {
+        e.preventDefault();
+        alert('Debes seleccionar una respuesta correcta');
+        return;
+    }
+});
+</script>
+{% endblock %}

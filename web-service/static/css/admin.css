@@ -1,0 +1,634 @@
+/* Admin Panel Styles - Professional Design System */
+
+/* Admin Container */
+.admin-container {
+    max-width: 1400px;
+    margin: var(--spacing-4xl) auto;
+    padding: 0 var(--spacing-lg);
+}
+
+/* Admin Header */
+.admin-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--white);
+    padding: var(--spacing-3xl);
+    border-radius: var(--radius-2xl);
+    margin-bottom: var(--spacing-4xl);
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    border-radius: inherit;
+}
+
+.admin-header h1 {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-extrabold);
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-nav {
+    display: flex;
+    gap: var(--spacing-md);
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+}
+
+.admin-nav a {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--white);
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-normal);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.admin-nav a:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.admin-nav a.active {
+    background: var(--white);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Dashboard Stats */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-4xl);
+}
+
+.dashboard-stats .stat-card {
+    background: var(--bg-primary);
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    text-align: center;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-stats .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transform: scaleX(0);
+    transition: transform var(--transition-normal);
+}
+
+.dashboard-stats .stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-2xl);
+    border-color: var(--primary-color);
+}
+
+.dashboard-stats .stat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.dashboard-stats .stat-card h3 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dashboard-stats .stat-number {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--primary-color);
+    margin-bottom: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Exercises by Level */
+.exercises-by-level {
+    background: var(--bg-primary);
+    padding: var(--spacing-3xl);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    margin-bottom: var(--spacing-4xl);
+}
+
+.exercises-by-level h2 {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-2xl);
+    position: relative;
+}
+
+.exercises-by-level h2::after {
+    content: '';
+    position: absolute;
+    bottom: -var(--spacing-md);
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--radius-full);
+}
+
+.level-stats {
+    display: grid;
+    gap: var(--spacing-xl);
+}
+
+.level-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--gray-200);
+    transition: all var(--transition-normal);
+}
+
+.level-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.level-name {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    font-size: var(--font-size-lg);
+}
+
+.level-count {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-lg);
+    color: var(--primary-color);
+}
+
+.progress-bar {
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: var(--radius-full);
+    margin-top: var(--spacing-sm);
+    overflow: hidden;
+    position: relative;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    border-radius: var(--radius-full);
+    transition: width var(--transition-slow);
+    position: relative;
+}
+
+.progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Level Badge Colors */
+.level-stat.beginner .level-count {
+    color: var(--success-color);
+}
+
+.level-stat.intermediate .level-count {
+    color: var(--secondary-color);
+}
+
+.level-stat.advanced .level-count {
+    color: var(--info-color);
+}
+
+.level-stat.expert .level-count {
+    color: var(--danger-color);
+}
+
+.level-stat.beginner .progress {
+    background: linear-gradient(90deg, var(--success-color), var(--accent-light));
+}
+
+.level-stat.intermediate .progress {
+    background: linear-gradient(90deg, var(--secondary-color), var(--secondary-light));
+}
+
+.level-stat.advanced .progress {
+    background: linear-gradient(90deg, var(--info-color), var(--primary-light));
+}
+
+.level-stat.expert .progress {
+    background: linear-gradient(90deg, var(--danger-color), #ef4444);
+}
+
+/* Quick Actions */
+.quick-actions {
+    background: var(--bg-primary);
+    padding: var(--spacing-3xl);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    margin-bottom: var(--spacing-4xl);
+}
+
+.quick-actions h2 {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-2xl);
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.action-buttons a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    background: var(--bg-secondary);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-normal);
+    text-align: center;
+    gap: var(--spacing-md);
+}
+
+.action-buttons a:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.action-buttons a .icon {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Exercises List */
+.exercises-list {
+    background: var(--bg-primary);
+    padding: var(--spacing-3xl);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+}
+
+.exercises-list h2 {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-2xl);
+}
+
+.exercises-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+}
+
+.exercises-table th {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--white);
+    padding: var(--spacing-lg);
+    text-align: left;
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.exercises-table td {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--text-secondary);
+}
+
+.exercises-table tr:hover {
+    background: var(--bg-secondary);
+}
+
+.exercises-table tr:last-child td {
+    border-bottom: none;
+}
+
+.level-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--white);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.level-badge.principiante {
+    background: linear-gradient(135deg, var(--success-color), var(--accent-light));
+}
+
+.level-badge.intermedio {
+    background: linear-gradient(135deg, var(--secondary-color), var(--secondary-light));
+    color: var(--text-primary);
+}
+
+.level-badge.avanzado {
+    background: linear-gradient(135deg, var(--info-color), var(--primary-light));
+}
+
+.level-badge.experto {
+    background: linear-gradient(135deg, var(--danger-color), #ef4444);
+}
+
+.options-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.options-list li {
+    padding: var(--spacing-xs) 0;
+    margin-bottom: var(--spacing-xs);
+}
+
+.options-list li.correct-option {
+    font-weight: var(--font-weight-semibold);
+    color: var(--success-color);
+}
+
+.options-list li.correct-option::before {
+    content: "✓ ";
+    margin-right: var(--spacing-xs);
+}
+
+.actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.btn-edit,
+.btn-delete {
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-normal);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-edit:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background: var(--danger-color);
+    color: var(--white);
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* Form Styles */
+.add-exercise-form {
+    background: var(--bg-primary);
+    padding: var(--spacing-3xl);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    margin-bottom: var(--spacing-4xl);
+}
+
+.add-exercise-form h2 {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-2xl);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-xl);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    font-family: var(--font-sans);
+    transition: all var(--transition-fast);
+    background: var(--bg-primary);
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.options-group {
+    background: var(--bg-secondary);
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--gray-200);
+}
+
+.options-group h3 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-2xl);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .admin-container {
+        padding: 0 var(--spacing-md);
+    }
+    
+    .dashboard-stats {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    
+    .action-buttons {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 0 var(--spacing-sm);
+    }
+    
+    .admin-header {
+        padding: var(--spacing-2xl);
+    }
+    
+    .admin-header h1 {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .admin-nav {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .level-stat {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .exercises-table {
+        font-size: var(--font-size-sm);
+    }
+    
+    .actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-header {
+        padding: var(--spacing-xl);
+    }
+    
+    .admin-header h1 {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .dashboard-stats .stat-card {
+        padding: var(--spacing-xl);
+    }
+    
+    .dashboard-stats .stat-number {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .exercises-by-level {
+        padding: var(--spacing-xl);
+    }
+    
+    .quick-actions {
+        padding: var(--spacing-xl);
+    }
+    
+    .exercises-list {
+        padding: var(--spacing-xl);
+    }
+    
+    .add-exercise-form {
+        padding: var(--spacing-xl);
+    }
+}
+
+/* No Results State */
+.no-exercises {
+    text-align: center;
+    padding: var(--spacing-4xl);
+    color: var(--text-muted);
+    font-size: var(--font-size-lg);
+}
+
+.no-exercises::before {
+    content: "📋";
+    display: block;
+    font-size: 3rem;
+    margin-bottom: var(--spacing-lg);
+    opacity: 0.5;
+}

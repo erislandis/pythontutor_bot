@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Administrar Ejercicios{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Administrar Ejercicios</h1>
+        <div class="admin-nav">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('exercises') }}" class="active">Ejercicios</a>
+            <a href="{{ url_for('add_exercise') }}">Agregar Ejercicio</a>
+        </div>
+    </div>
+
+    <div class="exercises-filter">
+        <h2>Filtrar por Nivel</h2>
+        <div class="filter-buttons">
+            <a href="{{ url_for('exercises') }}?level=todos" class="filter-btn {% if current_level == 'todos' %}active{% endif %}">Todos</a>
+            <a href="{{ url_for('exercises') }}?level=principiante" class="filter-btn {% if current_level == 'principiante' %}active{% endif %}">Principiante</a>
+            <a href="{{ url_for('exercises') }}?level=intermedio" class="filter-btn {% if current_level == 'intermedio' %}active{% endif %}">Intermedio</a>
+            <a href="{{ url_for('exercises') }}?level=avanzado" class="filter-btn {% if current_level == 'avanzado' %}active{% endif %}">Avanzado</a>
+            <a href="{{ url_for('exercises') }}?level=experto" class="filter-btn {% if current_level == 'experto' %}active{% endif %}">Experto</a>
+        </div>
+    </div>
+
+    <div class="exercises-list">
+        <h2>Lista de Ejercicios ({{ exercises|length }})</h2>
+        
+        {% if exercises %}
+        <table class="exercises-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nivel</th>
+                    <th>Pregunta</th>
+                    <th>Opciones</th>
+                    <th>Respuesta Correcta</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exercise in exercises %}
+                <tr>
+                    <td>{{ exercise.id }}</td>
+                    <td>
+                        <span class="level-badge {{ exercise.level }}">
+                            {{ exercise.level }}
+                        </span>
+                    </td>
+                    <td>{{ exercise.question[:50] }}{% if exercise.question|length > 50 %}...{% endif %}</td>
+                    <td>
+                        <ul class="options-list">
+                            {% set options = exercise.options %}
+                            {% if options is string %}
+                                {% set options = options|fromjson %}
+                            {% endif %}
+                            {% for option in options %}
+                                <li class="{% if loop.index0 == exercise.correct_answer %}correct-option{% endif %}">
+                                    {{ option }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>Opción {{ exercise.correct_answer + 1 }}</td>
+                    <td class="actions">
+                        <a href="{{ url_for('edit_exercise', exercise_id=exercise.id) }}" class="btn-edit">Editar</a>
+                        <a href="{{ url_for('delete_exercise', exercise_id=exercise.id) }}" 
+                           class="btn-delete" 
+                           onclick="return confirm('¿Estás seguro de eliminar este ejercicio?')">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-exercises">No hay ejercicios en este nivel.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Helper to parse JSON in Jinja
+document.addEventListener('DOMContentLoaded', function() {
+    // This would be handled by a custom Jinja filter normally
+    // For simplicity, we're using a data attribute approach
+});
+</script>
+{% endblock %}
