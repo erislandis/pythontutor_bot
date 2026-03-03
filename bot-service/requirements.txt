@@ -1,3 +1,10 @@
+Flask
+flask-login
+flask-cors
+supabase
+python-dotenv
+werkzeug
+gunicorn
 python-telegram-bot
 supabase
 python-dotenv
