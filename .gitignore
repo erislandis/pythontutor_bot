@@ -65,7 +65,6 @@ ehthumbs.db
 Thumbs.db
 
 # Archivos de Render
-render.yaml
 Dockerfile
 
 # Archivos temporales

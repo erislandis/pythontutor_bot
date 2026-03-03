@@ -1,0 +1,49 @@
+services:
+  # Web Service - Páginas web y API
+  - type: web
+    name: pythontutor-web
+    env: python
+    buildCommand: pip install -r web-service/requirements.txt
+    startCommand: cd web-service && gunicorn app:app --bind 0.0.0.0:$PORT
+    plan: free
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_ENV
+        value: production
+      - key: SESSION_COOKIE_SECURE
+        value: true
+      - key: SESSION_COOKIE_HTTPONLY
+        value: true
+      - key: SESSION_COOKIE_SAMESITE
+        value: Lax
+      - key: PORT
+        value: 10000
+      - key: LOG_LEVEL
+        value: INFO
+
+  # Bot Service - Bot de Telegram (AHORA COMO WEB SERVICE)
+  - type: web
+    name: pythontutor-bot
+    env: python
+    buildCommand: pip install -r bot-service/requirements.txt
+    startCommand: cd bot-service && python bot.py
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: WEB_API_URL
+        value: https://pythontutor-web.onrender.com
+      - key: LOG_LEVEL
+        value: INFO
+      - key: PORT
+        value: 10001
