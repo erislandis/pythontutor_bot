@@ -553,8 +553,8 @@
 }
 
 .admin-header h1 {
-    font-size: var(--font-size-4xl);
-    font-weight: var(--font-weight-extrabold);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
     color: var(--text-primary);
     margin-bottom: var(--spacing-md);
     background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
@@ -684,11 +684,10 @@
 }
 
 .dashboard-stats .stat-number {
-    font-size: var(--font-size-4xl);
-    font-weight: var(--font-weight-extrabold);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
     color: var(--primary-color);
     margin-bottom: 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Exercises by Level */
@@ -702,7 +701,7 @@
 }
 
 .exercises-by-level h2 {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-bold);
     color: var(--text-primary);
     margin-bottom: var(--spacing-2xl);
@@ -1026,8 +1025,10 @@
     margin-bottom: var(--spacing-2xl);
 }
 
+/* Form Group Styles */
 .form-group {
     margin-bottom: var(--spacing-xl);
+    position: relative;
 }
 
 .form-group label {
@@ -1035,42 +1036,43 @@
     margin-bottom: var(--spacing-sm);
     font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
+    font-size: var(--font-size-base);
 }
 
-.form-group input[type="text"],
 .form-group input[type="password"],
-.form-group select,
-.form-group textarea {
+.form-group input[type="text"] {
     width: 100%;
     padding: var(--spacing-md);
     border: 2px solid var(--gray-200);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     font-size: var(--font-size-base);
-    font-family: var(--font-sans);
-    transition: all var(--transition-fast);
+    transition: all var(--transition-normal);
     background: var(--bg-primary);
+    color: var(--text-primary);
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-.form-group input[type="text"]:focus,
 .form-group input[type="password"]:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.form-group input[type="text"]:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
 }
 
-.form-group textarea {
-    resize: vertical;
-    min-height: 120px;
+.form-group input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
 }
 
-.options-group {
-    background: var(--bg-secondary);
-    padding: var(--spacing-2xl);
-    border-radius: var(--radius-xl);
-    margin-bottom: var(--spacing-xl);
-    border: 1px solid var(--gray-200);
+.form-group small {
+    display: block;
+    margin-top: var(--spacing-xs);
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
 }
 
 .options-group h3 {
