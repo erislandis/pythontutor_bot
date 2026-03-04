@@ -1,75 +1,252 @@
 {% extends "base.html" %}
 
-{% block title %}Acerca de - Aprende Python con Bot{% endblock %}
-{% block og_title %}Acerca de PythonBot - Aprende Python Interactivamente{% endblock %}
-{% block twitter_title %}Acerca de PythonBot - Aprende Python Interactivamente{% endblock %}
+{% block title %}Acerca de - Python Tutor Bot{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+        }
+        
+        .hero-about {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 100px 0 50px;
+        }
+        
+        .about-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .mission-icon {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+        
+        .team-member {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .team-member img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 5px solid #f8f9fa;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 50px 0;
+            margin-top: 50px;
+        }
+    
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="about-hero">
-    <div class="container">
-        <h1>Acerca de PythonBot</h1>
-        <p>Descubre cómo nuestro bot revoluciona el aprendizaje de Python con una experiencia interactiva y moderna</p>
-    </div>
-</section>
 
-<section class="about-content">
-    <div class="container">
-        <div class="about-grid">
-            <div class="about-text">
-                <h2>Nuestra Misión</h2>
-                <p>PythonBot nace de la necesidad de hacer el aprendizaje de Python más accesible, interactivo y efectivo para todos. Creemos que la práctica constante es la clave del dominio, y nuestro bot está diseñado para proporcionarte exactamente eso.</p>
-                
-                <div class="section-separator"></div>
-                
-                <h2>¿Qué nos hace diferentes?</h2>
-                <div class="features-grid-about">
-                    <div class="feature-card-about">
-                        <div class="feature-icon-about">🎯</div>
-                        <h3>Enfoque Práctico</h3>
-                        <p>Aprende haciendo con más de 1200 ejercicios reales</p>
+    <!-- Navbar (mismo que features) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>Python Tutor Bot
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/features">Características</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/about">Acerca de</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://t.me/TuBotPython" target="_blank">
+                            <i class="fab fa-telegram"></i> Telegram
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero-about">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-4 mb-4">Acerca de Python Tutor Bot</h1>
+                    <p class="lead">Haciendo la educación en programación accesible para todos</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Content -->
+    <div class="container my-5">
+        <!-- Mission -->
+        <div class="about-card">
+            <div class="row">
+                <div class="col-lg-4 text-center">
+                    <div class="mission-icon">
+                        <i class="fas fa-bullseye"></i>
                     </div>
-                    <div class="feature-card-about">
-                        <div class="feature-icon-about">📱</div>
-                        <h3>Aprendizaje Móvil</h3>
-                        <p>Estudia desde cualquier lugar con Telegram</p>
+                    <h3>Nuestra Misión</h3>
+                </div>
+                <div class="col-lg-8">
+                    <p>En Python Tutor Bot, creemos que aprender a programar debería ser accesible, divertido y efectivo para todos. Nuestra misión es eliminar las barreras que impiden que las personas aprendan Python, proporcionando una plataforma interactiva y gratuita que se adapta a diferentes estilos de aprendizaje.</p>
+                    <p>Utilizamos la tecnología de chatbots y aplicaciones móviles para crear experiencias de aprendizaje personalizadas que pueden llegar a cualquier persona con un smartphone y conexión a internet.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story -->
+        <div class="about-card">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h3>Nuestra Historia</h3>
+                    <p>Python Tutor Bot nació en 2023 como un proyecto educativo abierto. El equipo fundador, compuesto por desarrolladores y educadores, identificó una necesidad creciente: hacer que el aprendizaje de Python fuera más accesible en países donde los recursos educativos son limitados.</p>
+                    <p>Empezamos como un simple bot de Telegram y hemos crecido hasta convertirnos en una plataforma educativa completa con:</p>
+                    <ul>
+                        <li><strong>Bot de Telegram</strong> con más de 100 lecciones interactivas</li>
+                        <li><strong>Aplicación Android</strong> con funcionalidad offline</li>
+                        <li><strong>Sistema de progreso</strong> adaptativo</li>
+                        <li><strong>Comunidad activa</strong> de aprendices</li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <div class="mission-icon">
+                        <i class="fas fa-history"></i>
                     </div>
-                    <div class="feature-card-about">
-                        <div class="feature-icon-about">📈</div>
-                        <h3>Progresión Gradual</h3>
-                        <p>Avanza a tu propio ritmo con 4 niveles de dificultad</p>
+                    <h3>Desde 2023</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Values -->
+        <div class="about-card">
+            <h3 class="text-center mb-5">Nuestros Valores</h3>
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <div class="mission-icon">
+                        <i class="fas fa-graduation-cap"></i>
                     </div>
-                    <div class="feature-card-about">
-                        <div class="feature-icon-about">🔄</div>
-                        <h3>Retroalimentación Inmediata</h3>
-                        <p>Recibe explicaciones al instante</p>
+                    <h5>Educación Accesible</h5>
+                    <p>Creemos que la educación de calidad debe ser gratuita y accesible para todos.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="mission-icon">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <div class="feature-card-about">
-                        <div class="feature-icon-about">🆓</div>
-                        <h3>Totalmente Gratuito</h3>
-                        <p>Accede a todo el contenido sin coste alguno</p>
+                    <h5>Comunidad</h5>
+                    <p>Fomentamos el aprendizaje colaborativo y el apoyo entre estudiantes.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="mission-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h5>Práctica Constante</h5>
+                    <p>Creemos en "aprender haciendo" con ejercicios prácticos y proyectos reales.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team -->
+        <div class="about-card">
+            <h3 class="text-center mb-5">Nuestro Equipo</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="team-member">
+                        <img src="https://ui-avatars.com/api/?name=Alex+Dev&background=3498db&color=fff&size=150" alt="Alex Dev">
+                        <h5>Alex Dev</h5>
+                        <p class="text-muted">Fundador & Desarrollador Principal</p>
+                        <p>Ingeniero de software con 10+ años de experiencia en Python y educación tecnológica.</p>
                     </div>
                 </div>
-                
-                <div class="section-separator"></div>
-                
-                <h2>Metodología de Aprendizaje</h2>
-                <p>Nuestra metodología se basa en los principios del aprendizaje espaciado y la práctica deliberada. Cada ejercicio está cuidadosamente diseñado para reforzar conceptos específicos de Python, permitiéndote construir una base sólida antes de avanzar a temas más complejos.</p>
-                
-                <div class="section-separator"></div>
-                
-                <h2>Compromiso con la Excelencia</h2>
-                <p>Nos comprometemos a mantener la calidad y relevancia de nuestro contenido. Actualizamos constantemente nuestros ejercicios para reflejar las mejores prácticas y las últimas tendencias en el desarrollo Python.</p>
+                <div class="col-md-4">
+                    <div class="team-member">
+                        <img src="https://ui-avatars.com/api/?name=Maria+Edu&background=e74c3c&color=fff&size=150" alt="Maria Edu">
+                        <h5>Maria Edu</h5>
+                        <p class="text-muted">Diseñadora Educativa</p>
+                        <p>Especialista en diseño instruccional y creación de contenido educativo interactivo.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="team-member">
+                        <img src="https://ui-avatars.com/api/?name=Carlos+AI&background=2ecc71&color=fff&size=150" alt="Carlos AI">
+                        <h5>Carlos AI</h5>
+                        <p class="text-muted">Especialista en IA</p>
+                        <p>Desarrollador de algoritmos de aprendizaje adaptativo y procesamiento de lenguaje natural.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</section>
 
-<section class="cta">
-    <div class="container">
-        <h2>¿Listo para comenzar tu viaje Python?</h2>
-        <p>Únete a miles de estudiantes que ya están aprendiendo Python de forma interactiva</p>
-        <div class="cta-buttons">
-            <a href="https://t.me/pythonpersonaltutor_bot" target="_blank" class="btn-primary btn-large">Comenzar Ahora</a>
+        <!-- Contact -->
+        <div class="about-card text-center">
+            <h3 class="mb-4">¿Preguntas o Sugerencias?</h3>
+            <p class="mb-4">Estamos siempre buscando mejorar. ¡Contáctanos!</p>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <i class="fas fa-envelope fa-2x text-primary me-3"></i>
+                        <span>soporte@pythontutor.com</span>
+                    </div>
+                    <div class="mb-3">
+                        <i class="fab fa-github fa-2x text-dark me-3"></i>
+                        <span>github.com/pythontutorbot</span>
+                    </div>
+                    <div class="mb-3">
+                        <i class="fab fa-telegram fa-2x text-info me-3"></i>
+                        <span>t.me/PythonTutorBot</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-robot me-2"></i>Python Tutor Bot</h5>
+                    <p class="mt-3">Educando a la próxima generación de programadores Python.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="/admin/login" class="text-white-50">
+                        <i class="fas fa-lock me-1"></i> Panel Administrativo
+                    </a>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+            <p class="text-center mb-0">&copy; 2024 Python Tutor Bot. Proyecto educativo abierto.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

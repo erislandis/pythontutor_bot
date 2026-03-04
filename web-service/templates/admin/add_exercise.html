@@ -1,0 +1,497 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Agregar Ejercicio - Panel Admin{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .exercise-form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .section-title {
+            color: #6f42c1;
+            border-bottom: 2px solid #6f42c1;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .btn-submit {
+            background: linear-gradient(90deg, #6f42c1 0%, #8e44ad 100%);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(111, 66, 193, 0.3);
+        }
+        .option-item {
+            background: #e9ecef;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #6f42c1;
+        }
+        .difficulty-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .beginner-badge {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .intermediate-badge {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .advanced-badge {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .expert-badge {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3" style="color: #6f42c1;">
+                <i class="fas fa-plus-circle me-2"></i>
+                Agregar Nuevo Ejercicio
+            </h1>
+            <a href="/admin/exercises" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Volver
+            </a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="exercise-form-card">
+            <form method="POST" id="exerciseForm">
+                <!-- ⭐⭐⭐ AÑADE ESTA LÍNEA (TOKEN CSRF) ⭐⭐⭐ -->
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <!-- Sección: Pregunta Básica -->
+                <div class="form-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-question-circle me-2"></i>
+                        Información Básica
+                    </h4>
+                    
+                    <div class="mb-3">
+                        <label for="question" class="form-label">Pregunta *</label>
+                        <textarea class="form-control" id="question" name="question" rows="4" 
+                                  required placeholder="Escribe la pregunta del ejercicio...">{{ exercise_data.question if exercise_data else '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="code_snippet" class="form-label">Código (opcional)</label>
+                        <textarea class="form-control" id="code_snippet" name="code_snippet" rows="3" 
+                                  placeholder="Código Python relacionado (si aplica)">{{ exercise_data.code_snippet if exercise_data else '' }}</textarea>
+                        <small class="text-muted">Usa markdown para formato: ```python\ncodigo\n```</small>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Categoría</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">Seleccionar categoría...</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.name }}" 
+                                            {{ 'selected' if exercise_data and exercise_data.category == category.name }}>
+                                        {{ category.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="difficulty" class="form-label">Dificultad *</label>
+                                <select class="form-select" id="difficulty" name="difficulty" required>
+                                    <option value="beginner" {{ 'selected' if not exercise_data or exercise_data.difficulty == 'beginner' }}>
+                                        🟢 Principiante
+                                    </option>
+                                    <option value="intermediate" {{ 'selected' if exercise_data and exercise_data.difficulty == 'intermediate' }}>
+                                        🔵 Intermedio
+                                    </option>
+                                    <option value="advanced" {{ 'selected' if exercise_data and exercise_data.difficulty == 'advanced' }}>
+                                        🟠 Avanzado
+                                    </option>
+                                    <option value="expert" {{ 'selected' if exercise_data and exercise_data.difficulty == 'expert' }}>
+                                        🔴 Experto
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección: Opciones -->
+                <div class="form-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-list-ol me-2"></i>
+                        Opciones de Respuesta
+                    </h4>
+                    
+                    <div class="mb-3">
+                        <label for="options" class="form-label">Opciones (una por línea) *</label>
+                        <textarea class="form-control" id="options" name="options" rows="5" required
+                                  placeholder="Escribe cada opción en una línea diferente...">
+{%- if exercise_data and exercise_data.options -%}
+{{ '\n'.join(exercise_data.options) }}
+{%- endif -%}</textarea>
+                        <small class="text-muted">Mínimo 2 opciones, máximo 6</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="correct_answer" class="form-label">Respuesta Correcta *</label>
+                        <input type="text" class="form-control" id="correct_answer" name="correct_answer" 
+                               value="{{ exercise_data.correct_answer if exercise_data else '' }}" required
+                               placeholder="Debe coincidir exactamente con una de las opciones">
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Importante:</strong> La respuesta correcta debe coincidir exactamente con una de las opciones.
+                    </div>
+                </div>
+
+                <!-- Sección: Retroalimentación -->
+                <div class="form-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-comment-dots me-2"></i>
+                        Retroalimentación
+                    </h4>
+                    
+                    <div class="mb-3">
+                        <label for="explanation" class="form-label">Explicación *</label>
+                        <textarea class="form-control" id="explanation" name="explanation" rows="4" required
+                                  placeholder="Explica por qué esta respuesta es correcta...">{{ exercise_data.explanation if exercise_data else '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="hint" class="form-label">Pista (opcional)</label>
+                        <textarea class="form-control" id="hint" name="hint" rows="2"
+                                  placeholder="Pista para ayudar al estudiante...">{{ exercise_data.hint if exercise_data else '' }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="points" class="form-label">Puntos</label>
+                                <input type="number" class="form-control" id="points" name="points" 
+                                       value="{{ exercise_data.points if exercise_data else 10 }}" min="1" max="100">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="time_limit" class="form-label">Tiempo límite (segundos)</label>
+                                <input type="number" class="form-control" id="time_limit" name="time_limit" 
+                                       value="{{ exercise_data.time_limit if exercise_data else 60 }}" min="10" max="300">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección: Configuración Avanzada -->
+                <div class="form-section">
+                    <h4 class="section-title">
+                        <i class="fas fa-cogs me-2"></i>
+                        Configuración Avanzada
+                    </h4>
+                    
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Etiquetas (separadas por comas)</label>
+                        <input type="text" class="form-control" id="tags" name="tags" 
+                               value="{{ exercise_data.tags|join(', ') if exercise_data else '' }}"
+                               placeholder="variables, bucles, funciones, ...">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="requires_explanation" 
+                                       name="requires_explanation" {{ 'checked' if exercise_data and exercise_data.requires_explanation }}>
+                                <label class="form-check-label" for="requires_explanation">
+                                    Requiere explicación del estudiante
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="is_active" 
+                                       name="is_active" {{ 'checked' if not exercise_data or exercise_data.is_active }}>
+                                <label class="form-check-label" for="is_active">
+                                    Ejercicio activo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="d-flex justify-content-between pt-3 border-top">
+                    <button type="button" class="btn btn-outline-secondary" onclick="previewExercise()">
+                        <i class="fas fa-eye me-2"></i> Vista Previa
+                    </button>
+                    
+                    <div class="d-flex gap-3">
+                        <button type="reset" class="btn btn-warning">
+                            <i class="fas fa-redo me-2"></i> Limpiar
+                        </button>
+                        <button type="submit" class="btn btn-submit text-white">
+                            <i class="fas fa-save me-2"></i> Guardar Ejercicio
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Vista Previa (Modal) -->
+        <div class="modal fade" id="previewModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-eye me-2"></i>Vista Previa del Ejercicio
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="previewContent">
+                        <!-- La vista previa se cargará aquí -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i> Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function previewExercise() {
+            const formData = new FormData(document.getElementById('exerciseForm'));
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            let previewHtml = `
+                <div class="preview-container">
+                    <h4 class="mb-3">${data.question || 'Sin pregunta'}</h4>
+                    
+                    ${data.code_snippet ? `
+                    <div class="mb-3">
+                        <pre class="bg-dark text-white p-3 rounded"><code>${data.code_snippet}</code></pre>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="mb-3">
+                        <strong>Opciones:</strong>
+                        <ul class="list-group mt-2">
+            `;
+            
+            if (data.options) {
+                const options = data.options.split('\n').filter(opt => opt.trim());
+                options.forEach((opt, index) => {
+                    const isCorrect = opt.trim() === data.correct_answer;
+                    previewHtml += `
+                        <li class="list-group-item ${isCorrect ? 'list-group-item-success' : ''}">
+                            ${opt}
+                            ${isCorrect ? '<span class="badge bg-success float-end">✓ Correcta</span>' : ''}
+                        </li>
+                    `;
+                });
+            }
+            
+            previewHtml += `
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>Explicación:</strong><br>
+                        ${data.explanation || 'Sin explicación'}
+                    </div>
+                    
+                    ${data.hint ? `
+                    <div class="alert alert-warning">
+                        <strong>Pista:</strong> ${data.hint}
+                    </div>
+                    ` : ''}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Dificultad:</strong>
+                            <span class="badge ${data.difficulty}-badge ms-2">
+                                ${data.difficulty || 'No especificada'}
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Puntos:</strong> ${data.points || 10}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('previewContent').innerHTML = previewHtml;
+            new bootstrap.Modal(document.getElementById('previewModal')).show();
+        }
+        
+        // Validación en tiempo real
+        document.getElementById('exerciseForm').addEventListener('submit', function(e) {
+            const options = document.getElementById('options').value.split('\n').filter(opt => opt.trim());
+            const correctAnswer = document.getElementById('correct_answer').value.trim();
+            
+            if (options.length < 2) {
+                e.preventDefault();
+                alert('Debe haber al menos 2 opciones');
+                return;
+            }
+            
+            if (!options.includes(correctAnswer)) {
+                e.preventDefault();
+                alert('La respuesta correcta debe coincidir con una de las opciones');
+                return;
+            }
+        });
+    </script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+        function previewExercise() {
+            const formData = new FormData(document.getElementById('exerciseForm'));
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            let previewHtml = `
+                <div class="preview-container">
+                    <h4 class="mb-3">${data.question || 'Sin pregunta'}</h4>
+                    
+                    ${data.code_snippet ? `
+                    <div class="mb-3">
+                        <pre class="bg-dark text-white p-3 rounded"><code>${data.code_snippet}</code></pre>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="mb-3">
+                        <strong>Opciones:</strong>
+                        <ul class="list-group mt-2">
+            `;
+            
+            if (data.options) {
+                const options = data.options.split('\n').filter(opt => opt.trim());
+                options.forEach((opt, index) => {
+                    const isCorrect = opt.trim() === data.correct_answer;
+                    previewHtml += `
+                        <li class="list-group-item ${isCorrect ? 'list-group-item-success' : ''}">
+                            ${opt}
+                            ${isCorrect ? '<span class="badge bg-success float-end">✓ Correcta</span>' : ''}
+                        </li>
+                    `;
+                });
+            }
+            
+            previewHtml += `
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>Explicación:</strong><br>
+                        ${data.explanation || 'Sin explicación'}
+                    </div>
+                    
+                    ${data.hint ? `
+                    <div class="alert alert-warning">
+                        <strong>Pista:</strong> ${data.hint}
+                    </div>
+                    ` : ''}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Dificultad:</strong>
+                            <span class="badge ${data.difficulty}-badge ms-2">
+                                ${data.difficulty || 'No especificada'}
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Puntos:</strong> ${data.points || 10}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('previewContent').innerHTML = previewHtml;
+            new bootstrap.Modal(document.getElementById('previewModal')).show();
+        }
+        
+        // Validación en tiempo real
+        document.getElementById('exerciseForm').addEventListener('submit', function(e) {
+            const options = document.getElementById('options').value.split('\n').filter(opt => opt.trim());
+            const correctAnswer = document.getElementById('correct_answer').value.trim();
+            
+            if (options.length < 2) {
+                e.preventDefault();
+                alert('Debe haber al menos 2 opciones');
+                return;
+            }
+            
+            if (!options.includes(correctAnswer)) {
+                e.preventDefault();
+                alert('La respuesta correcta debe coincidir con una de las opciones');
+                return;
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,948 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Notificaciones - Panel Admin{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #f57c00 0%, #e65100 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-header h4 {
+            color: #ffcc80;
+            font-weight: 600;
+        }
+        .sidebar-menu {
+            padding: 15px;
+        }
+        .sidebar-menu a {
+            color: #ffe0b2;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            margin: 5px 0;
+            transition: all 0.3s;
+        }
+        .sidebar-menu a i {
+            width: 25px;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        .sidebar-menu a:hover {
+            background: rgba(255, 204, 128, 0.1);
+            color: white;
+        }
+        .sidebar-menu a.active {
+            background: linear-gradient(90deg, #f57c00 0%, #ff9800 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 124, 0, 0.3);
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 25px;
+            min-height: 100vh;
+        }
+        .header-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notifications-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 20px rgba(0,0,0,0.07);
+        }
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #fff3e0;
+            color: #f57c00;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .notification-item {
+            padding: 15px;
+            border-left: 4px solid #ff9800;
+            background: #fff8e1;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .notification-item.unread {
+            background: #fff3e0;
+            border-left-color: #f57c00;
+        }
+        .notification-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .notification-type {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+        .type-info {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .type-warning {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        .type-danger {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .type-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .badge-notification {
+            position: relative;
+            top: -2px;
+            right: -5px;
+        }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-bell"></i> Python Tutor Bot</h4>
+            <p class="text-muted mb-0">Notificaciones</p>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="/admin/dashboard">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/admin/users">
+                <i class="fas fa-users"></i> Usuarios
+            </a>
+            <a href="/admin/bot-control">
+                <i class="fas fa-robot"></i> Control del Bot
+            </a>
+            <a href="/admin/database">
+                <i class="fas fa-database"></i> Base de Datos
+            </a>
+            <a href="/admin/logs">
+                <i class="fas fa-clipboard-list"></i> Logs
+            </a>
+            <a href="/admin/change-password">
+                <i class="fas fa-key"></i> Cambiar Contraseña
+            </a>
+            <a href="/admin/settings">
+                <i class="fas fa-cog"></i> Configuración
+            </a>
+            <a href="/admin/backup">
+                <i class="fas fa-save"></i> Backup
+            </a>
+            <a href="/admin/notifications" class="active">
+                <i class="fas fa-bell"></i> Notificaciones
+                <span class="badge bg-danger badge-notification">3</span>
+            </a>
+            <a href="/admin/profile">
+                <i class="fas fa-user"></i> Perfil
+            </a>
+            <a href="/admin/help">
+                <i class="fas fa-question-circle"></i> Ayuda
+            </a>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <a href="/admin/logout" style="color: #ef5350;">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header-bar">
+            <div>
+                <h1 class="h3 mb-2" style="color: #f57c00;">
+                    <i class="fas fa-bell me-2"></i>
+                    Gestión de Notificaciones
+                </h1>
+                <p class="text-muted mb-0">Configura y revisa las notificaciones del sistema</p>
+            </div>
+            <div class="user-badge">
+                <i class="fas fa-user-circle me-2"></i>
+                {{ current_user.username }}
+                <span class="badge bg-danger ms-2">3</span>
+            </div>
+        </div>
+
+        <!-- ⭐⭐⭐ AÑADE ESTA LÍNEA (TOKEN CSRF) ⭐⭐⭐ -->
+        <input type="hidden" id="notificationsCsrfToken" value="{{ csrf_token() }}">
+
+        <!-- Notificaciones Recientes -->
+        <div class="notifications-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 style="color: #f57c00;">
+                    <i class="fas fa-inbox me-2"></i>
+                    Notificaciones Recientes
+                </h4>
+                <button class="btn btn-sm btn-outline-warning" onclick="markAllAsRead()">
+                    <i class="fas fa-check-double me-1"></i> Marcar todas como leídas
+                </button>
+            </div>
+            
+            <div class="notification-item unread">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="notification-type type-warning">Advertencia</span>
+                        <strong>Backup automático fallido</strong>
+                        <p class="mb-1">El backup automático de anoche no pudo completarse por falta de espacio en disco.</p>
+                        <small class="text-muted">
+                            <i class="far fa-clock me-1"></i> Hace 2 horas
+                        </small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewNotification(1)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteNotification(1)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification-item unread">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="notification-type type-info">Información</span>
+                        <strong>Nuevo usuario registrado</strong>
+                        <p class="mb-1">Usuario "juan_perez" se registró a través del bot de Telegram.</p>
+                        <small class="text-muted">
+                            <i class="far fa-clock me-1"></i> Hace 5 horas
+                        </small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewNotification(2)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteNotification(2)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification-item unread">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="notification-type type-danger">Error</span>
+                        <strong>Error de conexión con API</strong>
+                        <p class="mb-1">No se pudo conectar con el servicio de análisis de ejercicios.</p>
+                        <small class="text-muted">
+                            <i class="far fa-clock me-1"></i> Hace 1 día
+                        </small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewNotification(3)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteNotification(3)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="notification-type type-success">Éxito</span>
+                        <strong>Actualización completada</strong>
+                        <p class="mb-1">El sistema se actualizó correctamente a la versión 2.0.1.</p>
+                        <small class="text-muted">
+                            <i class="far fa-clock me-1"></i> Hace 3 días
+                        </small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewNotification(4)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteNotification(4)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="notification-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="notification-type type-info">Información</span>
+                        <strong>Reporte semanal generado</strong>
+                        <p class="mb-1">Se ha generado el reporte de actividad de la semana pasada.</p>
+                        <small class="text-muted">
+                            <i class="far fa-clock me-1"></i> Hace 1 semana
+                        </small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewNotification(5)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteNotification(5)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuración de Notificaciones -->
+        <div class="notifications-card">
+            <h4 class="mb-4" style="color: #f57c00;">
+                <i class="fas fa-cog me-2"></i>
+                Configuración de Notificaciones
+            </h4>
+            
+            <!-- Formulario de configuración -->
+            <form id="notificationSettingsForm">
+                <!-- ⭐⭐⭐ AÑADE ESTA LÍNEA (TOKEN CSRF) ⭐⭐⭐ -->
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-3"><i class="fas fa-bell me-2"></i> Tipos de Notificaciones</h6>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyErrors" name="notify_errors" checked>
+                            <label class="form-check-label" for="notifyErrors">
+                                Errores del sistema
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifySecurity" name="notify_security" checked>
+                            <label class="form-check-label" for="notifySecurity">
+                                Eventos de seguridad
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyUsers" name="notify_users" checked>
+                            <label class="form-check-label" for="notifyUsers">
+                                Nuevos usuarios
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyBackup" name="notify_backup">
+                            <label class="form-check-label" for="notifyBackup">
+                                Estado de backups
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6 class="mb-3"><i class="fas fa-envelope me-2"></i> Métodos de Notificación</h6>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyPanel" name="notify_panel" checked>
+                            <label class="form-check-label" for="notifyPanel">
+                                Panel administrativo
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyEmail" name="notify_email">
+                            <label class="form-check-label" for="notifyEmail">
+                                Correo electrónico
+                            </label>
+                        </div>
+                        
+                        <div class="mb-3" id="emailSettings" style="display: none;">
+                            <label for="notificationEmail" class="form-label">Email para notificaciones</label>
+                            <input type="email" class="form-control" id="notificationEmail" name="notification_email"
+                                   placeholder="admin@ejemplo.com">
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyTelegram" name="notify_telegram">
+                            <label class="form-check-label" for="notifyTelegram">
+                                Telegram
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="button" class="btn btn-primary" onclick="saveNotificationSettings()">
+                        <i class="fas fa-save me-2"></i> Guardar Configuración
+                    </button>
+                    <button type="button" class="btn btn-outline-warning ms-2" onclick="testNotifications()">
+                        <i class="fas fa-bell me-2"></i> Probar Notificaciones
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Programación de Reportes -->
+        <div class="notifications-card">
+            <h4 class="mb-4" style="color: #f57c00;">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Programación de Reportes
+            </h4>
+            
+            <!-- Formulario de programación -->
+            <form id="reportScheduleForm">
+                <!-- ⭐⭐⭐ AÑADE ESTA LÍNEA (TOKEN CSRF) ⭐⭐⭐ -->
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Reporte Diario</label>
+                            <select class="form-select" id="dailyReport" name="daily_report">
+                                <option value="disabled">Desactivado</option>
+                                <option value="08:00">08:00 AM</option>
+                                <option value="12:00" selected>12:00 PM</option>
+                                <option value="18:00">06:00 PM</option>
+                                <option value="22:00">10:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Reporte Semanal</label>
+                            <select class="form-select" id="weeklyReport" name="weekly_report">
+                                <option value="disabled">Desactivado</option>
+                                <option value="monday">Lunes</option>
+                                <option value="friday" selected>Viernes</option>
+                                <option value="sunday">Domingo</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Reporte Mensual</label>
+                            <select class="form-select" id="monthlyReport" name="monthly_report">
+                                <option value="disabled" selected>Desactivado</option>
+                                <option value="1">Día 1</option>
+                                <option value="15">Día 15</option>
+                                <option value="last">Último día</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="button" class="btn btn-primary" onclick="saveReportSchedule()">
+                        <i class="fas fa-save me-2"></i> Guardar Programación
+                    </button>
+                </div>
+            </form>
+            
+            <div class="alert alert-info mt-3">
+                <h6><i class="fas fa-info-circle me-2"></i> Información</h6>
+                <p class="mb-0">Los reportes incluyen estadísticas de uso, errores del sistema y métricas de rendimiento.</p>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="notifications-card text-center">
+                    <div class="h2 mb-0 text-primary">15</div>
+                    <small class="text-muted">Notificaciones este mes</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="notifications-card text-center">
+                    <div class="h2 mb-0 text-warning">3</div>
+                    <small class="text-muted">Sin leer</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="notifications-card text-center">
+                    <div class="h2 mb-0 text-success">12</div>
+                    <small class="text-muted">Leídas</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // CSRF Token
+        const csrfToken = document.getElementById('notificationsCsrfToken').value;
+        
+        // Mostrar/ocultar configuración de email
+        document.getElementById('notifyEmail').addEventListener('change', function() {
+            document.getElementById('emailSettings').style.display = 
+                this.checked ? 'block' : 'none';
+        });
+        
+        function markAllAsRead() {
+            if (confirm('¿Marcar todas las notificaciones como leídas?')) {
+                // Enviar petición con CSRF token
+                fetch('/api/admin/notifications/mark-all-read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const notifications = document.querySelectorAll('.notification-item.unread');
+                        notifications.forEach(notification => {
+                            notification.classList.remove('unread');
+                        });
+                        
+                        // Actualizar contadores
+                        document.querySelectorAll('.badge').forEach(badge => {
+                            if (badge.textContent === '3') {
+                                badge.textContent = '0';
+                                badge.classList.remove('bg-danger');
+                            }
+                        });
+                        
+                        alert('✅ Todas las notificaciones marcadas como leídas.');
+                    } else {
+                        alert(`❌ Error: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Error de conexión');
+                });
+            }
+        }
+        
+        function viewNotification(id) {
+            // Enviar petición con CSRF token para marcar como leída
+            fetch(`/api/admin/notifications/${id}/mark-read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Marcar como leída visualmente
+                    const notification = document.querySelector(`.notification-item:nth-child(${id})`);
+                    if (notification) {
+                        notification.classList.remove('unread');
+                    }
+                    
+                    // Abrir modal o página con detalles
+                    alert(`Viendo notificación #${id}\n\nContenido detallado de la notificación...`);
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión');
+            });
+        }
+        
+        function deleteNotification(id) {
+            if (confirm('¿Eliminar esta notificación?')) {
+                // Enviar petición con CSRF token
+                fetch(`/api/admin/notifications/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Eliminar visualmente
+                        const notification = document.querySelector(`.notification-item:nth-child(${id})`);
+                        if (notification) {
+                            notification.style.display = 'none';
+                        }
+                        
+                        alert('✅ Notificación eliminada correctamente.');
+                    } else {
+                        alert(`❌ Error: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Error de conexión');
+                });
+            }
+        }
+        
+        function saveNotificationSettings() {
+            const formData = new FormData(document.getElementById('notificationSettingsForm'));
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (key === 'csrf_token') continue;
+                data[key] = value;
+            }
+            
+            // Enviar petición con CSRF token
+            fetch('/api/admin/notifications/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Configuración de notificaciones guardada.');
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión al guardar configuración');
+            });
+        }
+        
+        function saveReportSchedule() {
+            const formData = new FormData(document.getElementById('reportScheduleForm'));
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (key === 'csrf_token') continue;
+                data[key] = value;
+            }
+            
+            // Enviar petición con CSRF token
+            fetch('/api/admin/notifications/report-schedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Programación de reportes guardada.');
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión al guardar programación');
+            });
+        }
+        
+        function testNotifications() {
+            if (confirm('¿Enviar notificación de prueba?')) {
+                // Enviar petición con CSRF token
+                fetch('/api/admin/notifications/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('🔔 Notificación de prueba enviada.\n\nRevisa el panel de notificaciones.');
+                        // Recargar notificaciones
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        alert(`❌ Error: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Error de conexión');
+                });
+            }
+        }
+        
+        // Cargar configuración actual al iniciar (opcional)
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/admin/notifications/settings', {
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Cargar configuración en los formularios
+                    // (Implementar según la estructura de respuesta)
+                }
+            })
+            .catch(error => {
+                console.error('Error cargando configuración:', error);
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+        // CSRF Token
+        const csrfToken = document.getElementById('notificationsCsrfToken').value;
+        
+        // Mostrar/ocultar configuración de email
+        document.getElementById('notifyEmail').addEventListener('change', function() {
+            document.getElementById('emailSettings').style.display = 
+                this.checked ? 'block' : 'none';
+        });
+        
+        function markAllAsRead() {
+            if (confirm('¿Marcar todas las notificaciones como leídas?')) {
+                // Enviar petición con CSRF token
+                fetch('/api/admin/notifications/mark-all-read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const notifications = document.querySelectorAll('.notification-item.unread');
+                        notifications.forEach(notification => {
+                            notification.classList.remove('unread');
+                        });
+                        
+                        // Actualizar contadores
+                        document.querySelectorAll('.badge').forEach(badge => {
+                            if (badge.textContent === '3') {
+                                badge.textContent = '0';
+                                badge.classList.remove('bg-danger');
+                            }
+                        });
+                        
+                        alert('✅ Todas las notificaciones marcadas como leídas.');
+                    } else {
+                        alert(`❌ Error: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Error de conexión');
+                });
+            }
+        }
+        
+        function viewNotification(id) {
+            // Enviar petición con CSRF token para marcar como leída
+            fetch(`/api/admin/notifications/${id}/mark-read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Marcar como leída visualmente
+                    const notification = document.querySelector(`.notification-item:nth-child(${id})`);
+                    if (notification) {
+                        notification.classList.remove('unread');
+                    }
+                    
+                    // Abrir modal o página con detalles
+                    alert(`Viendo notificación #${id}\n\nContenido detallado de la notificación...`);
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión');
+            });
+        }
+        
+        function deleteNotification(id) {
+            if (confirm('¿Eliminar esta notificación?')) {
+                // Enviar petición con CSRF token
+                fetch(`/api/admin/notifications/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Eliminar visualmente
+                        const notification = document.querySelector(`.notification-item:nth-child(${id})`);
+                        if (notification) {
+                            notification.style.display = 'none';
+                        }
+                        
+                        alert('✅ Notificación eliminada correctamente.');
+                    } else {
+                        alert(`❌ Error: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Error de conexión');
+                });
+            }
+        }
+        
+        function saveNotificationSettings() {
+            const formData = new FormData(document.getElementById('notificationSettingsForm'));
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (key === 'csrf_token') continue;
+                data[key] = value;
+            }
+            
+            // Enviar petición con CSRF token
+            fetch('/api/admin/notifications/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Configuración de notificaciones guardada.');
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión al guardar configuración');
+            });
+        }
+        
+        function saveReportSchedule() {
+            const formData = new FormData(document.getElementById('reportScheduleForm'));
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (key === 'csrf_token') continue;
+                data[key] = value;
+            }
+            
+            // Enviar petición con CSRF token
+            fetch('/api/admin/notifications/report-schedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Programación de reportes guardada.');
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión al guardar programación');
+            });
+        }
+        
+        function testNotifications() {
+            if (confirm('¿Enviar notificación de prueba?')) {
+                // Enviar petición con CSRF token
+                fetch('/api/admin/notifications/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('🔔 Notificación de prueba enviada.\n\nRevisa el panel de notificaciones.');
+                        // Recargar notificaciones
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        alert(`❌ Error: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Error de conexión');
+                });
+            }
+        }
+        
+        // Cargar configuración actual al iniciar (opcional)
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/admin/notifications/settings', {
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Cargar configuración en los formularios
+                    // (Implementar según la estructura de respuesta)
+                }
+            })
+            .catch(error => {
+                console.error('Error cargando configuración:', error);
+            });
+        });
+    </script>
+{% endblock %}

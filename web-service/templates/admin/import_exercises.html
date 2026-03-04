@@ -1,0 +1,1263 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Importar Ejercicios - Panel Admin{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .import-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .method-card {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .method-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+        }
+        .method-card.active {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+        .method-icon {
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .import-section {
+            display: none;
+        }
+        .import-section.active {
+            display: block;
+        }
+        .format-example {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .btn-import {
+            background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+        .btn-import:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        }
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background: #f0f7ff;
+        }
+        .upload-area.dragover {
+            border-color: #28a745;
+            background: #e8f5e9;
+        }
+        .upload-icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        .file-info {
+            background: #e9ecef;
+            border-radius: 5px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .is-valid {
+            border-color: #28a745 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3" style="color: #007bff;">
+                <i class="fas fa-file-import me-2"></i>
+                Importar Ejercicios
+            </h1>
+            <a href="/admin/exercises" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Volver
+            </a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="import-card">
+            <h4 class="mb-4 text-center">Selecciona un método de importación</h4>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="method-card text-center" onclick="selectMethod('json-file')" id="jsonFileCard">
+                        <div class="method-icon">
+                            <i class="fas fa-file-code"></i>
+                        </div>
+                        <h5>Archivo JSON</h5>
+                        <p class="text-muted small">Importa desde un archivo .json</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="method-card text-center" onclick="selectMethod('json-text')" id="jsonTextCard">
+                        <div class="method-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h5>Texto JSON</h5>
+                        <p class="text-muted small">Pega el JSON directamente</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="method-card text-center" onclick="selectMethod('csv')" id="csvCard">
+                        <div class="method-icon">
+                            <i class="fas fa-file-csv"></i>
+                        </div>
+                        <h5>Archivo CSV</h5>
+                        <p class="text-muted small">Importa desde un archivo .csv</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario JSON Archivo -->
+            <div class="import-section active" id="jsonFileSection">
+                <form method="POST" enctype="multipart/form-data" id="jsonFileForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="import_type" value="json_file">
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-upload me-2"></i>Subir archivo JSON</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Selecciona o arrastra archivo JSON</label>
+                            <div class="upload-area" id="jsonUploadArea">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <h5>Arrastra y suelta tu archivo JSON aquí</h5>
+                                <p class="text-muted">o haz clic para seleccionar</p>
+                                <input type="file" id="json_file" name="json_file" accept=".json" class="d-none" required>
+                                <div id="jsonFileInfo" class="file-info" style="display: none;">
+                                    <i class="fas fa-file me-1"></i>
+                                    <span id="jsonFileName"></span>
+                                    <button type="button" class="btn btn-sm btn-link text-danger" onclick="clearJsonFile()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-2">El archivo debe contener un array de ejercicios en formato JSON</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="json_update_existing" name="update_existing" checked>
+                                <label class="form-check-label" for="json_update_existing">
+                                    <i class="fas fa-sync me-1"></i> Actualizar ejercicios existentes (por UUID)
+                                </label>
+                                <small class="text-muted d-block mt-1">Si está marcado, actualizará ejercicios con el mismo UUID. Si no, los ignorará.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Formato esperado:</h6>
+                            <pre class="format-example">{
+  "exercises": [
+    {
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "question": "¿Qué imprime print(2 + 2)?",
+      "options": ["2", "4", "22", "Error"],
+      "correct_answer": "4",
+      "explanation": "2 + 2 = 4",
+      "difficulty": "beginner",
+      "category": "Operadores",
+      "points": 10,
+      "tags": ["aritmética", "básico"]
+    }
+  ]
+}</pre>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-import text-white w-100" id="jsonSubmitBtn">
+                            <i class="fas fa-file-import me-2"></i> Importar desde JSON
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulario JSON Texto -->
+            <div class="import-section" id="jsonTextSection">
+                <form method="POST" id="jsonTextForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="import_type" value="json_text">
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-paste me-2"></i>Pegar JSON</h5>
+                        <div class="mb-3">
+                            <label for="json_text" class="form-label">Contenido JSON</label>
+                            <textarea class="form-control" id="json_text" name="json_text" rows="10" 
+                                      placeholder='Pega tu JSON aquí...
+                                      
+Ejemplo:
+{
+  "exercises": [
+    {
+      "question": "Pregunta de ejemplo",
+      "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+      "correct_answer": "Opción 2",
+      "explanation": "Explicación detallada",
+      "difficulty": "beginner"
+    }
+  ]
+}' required></textarea>
+                            <div class="form-text">
+                                <span id="jsonValidationStatus" class="d-none">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    <span>JSON válido</span>
+                                </span>
+                                <span id="jsonErrorStatus" class="d-none">
+                                    <i class="fas fa-exclamation-circle text-danger me-1"></i>
+                                    <span id="jsonErrorText"></span>
+                                </span>
+                            </div>
+                            <small class="text-muted">Puede ser un array de ejercicios o un objeto con propiedad "exercises"</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="json_text_update_existing" name="update_existing" checked>
+                                <label class="form-check-label" for="json_text_update_existing">
+                                    <i class="fas fa-sync me-1"></i> Actualizar ejercicios existentes (por UUID)
+                                </label>
+                                <small class="text-muted d-block mt-1">Si está marcado, actualizará ejercicios con el mismo UUID. Si no, los ignorará.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Importante:</strong> Verifica que el JSON esté bien formateado antes de importar.
+                        </div>
+                        
+                        <button type="submit" class="btn btn-import text-white w-100" id="jsonTextSubmitBtn" disabled>
+                            <i class="fas fa-code me-2"></i> Importar desde Texto JSON
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulario CSV -->
+            <div class="import-section" id="csvSection">
+                <form method="POST" enctype="multipart/form-data" id="csvForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="import_type" value="csv_file">
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-table me-2"></i>Subir archivo CSV</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Selecciona o arrastra archivo CSV</label>
+                            <div class="upload-area" id="csvUploadArea">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <h5>Arrastra y suelta tu archivo CSV aquí</h5>
+                                <p class="text-muted">o haz clic para seleccionar</p>
+                                <input type="file" id="csv_file" name="csv_file" accept=".csv" class="d-none" required>
+                                <div id="csvFileInfo" class="file-info" style="display: none;">
+                                    <i class="fas fa-file-csv me-1"></i>
+                                    <span id="csvFileName"></span>
+                                    <button type="button" class="btn btn-sm btn-link text-danger" onclick="clearCsvFile()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-2">El archivo CSV debe tener las columnas especificadas</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="csv_update_existing" name="update_existing" checked>
+                                <label class="form-check-label" for="csv_update_existing">
+                                    <i class="fas fa-sync me-1"></i> Actualizar ejercicios existentes (por UUID)
+                                </label>
+                                <small class="text-muted d-block mt-1">Si está marcado, actualizará ejercicios con el mismo UUID. Si no, los ignorará.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Estructura CSV requerida:</h6>
+                            <div class="format-example">
+                                <strong>Columnas recomendadas:</strong> uuid,question,options,correct_answer,explanation,difficulty,category,points,time_limit,hint,tags<br><br>
+                                <strong>Ejemplo:</strong><br>
+                                uuid,question,options,correct_answer,explanation,difficulty,category,points,time_limit,hint,tags<br>
+                                "550e8400-e29b-41d4-a716-446655440000","¿Qué imprime print(2+2)?","4|2|22|Error","4","2+2=4","beginner","Operadores",10,60,"Operación básica","aritmética,básico"<br>
+                                "550e8400-e29b-41d4-a716-446655440001","¿Qué hace len()?","Cuenta caracteres|Devuelve longitud|Suma elementos|Ordena lista","Devuelve longitud","Devuelve número de elementos","beginner","Funciones",10,45,"Usa con iterables","funciones,básico"
+                            </div>
+                            <small class="text-muted mt-2 d-block">
+                                <strong>Nota:</strong> Las opciones deben separarse por "|" y las etiquetas por ","
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-import text-white w-100" id="csvSubmitBtn">
+                            <i class="fas fa-file-csv me-2"></i> Importar desde CSV
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Información de Importación -->
+            <div class="mt-4 pt-4 border-top">
+                <h5><i class="fas fa-lightbulb me-2"></i>Recomendaciones</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Verifica el formato antes de importar</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Haz backup de la base de datos primero</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Importa en lotes pequeños primero</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Los ejercicios duplicados se actualizarán si está marcada la opción</li>
+                            <li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Revisa los logs después de importar</li>
+                            <li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Los errores se guardarán en la base de datos</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="alert alert-light">
+                    <h6><i class="fas fa-download me-2"></i>¿Necesitas una plantilla?</h6>
+                    <p class="mb-2">Puedes descargar un ejemplo de cada formato:</p>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="downloadTemplate('json')">
+                            <i class="fas fa-download me-1"></i> Plantilla JSON
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadTemplate('csv')">
+                            <i class="fas fa-download me-1"></i> Plantilla CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let currentMethod = 'json-file';
+        
+        function selectMethod(method) {
+            currentMethod = method;
+            
+            // Remover clase active de todas las tarjetas
+            document.getElementById('jsonFileCard').classList.remove('active');
+            document.getElementById('jsonTextCard').classList.remove('active');
+            document.getElementById('csvCard').classList.remove('active');
+            
+            // Remover clase active de todas las secciones
+            document.getElementById('jsonFileSection').classList.remove('active');
+            document.getElementById('jsonTextSection').classList.remove('active');
+            document.getElementById('csvSection').classList.remove('active');
+            
+            // Agregar clase active a la tarjeta seleccionada
+            document.getElementById(method + 'Card').classList.add('active');
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(method + 'Section').classList.add('active');
+        }
+        
+        function downloadTemplate(format) {
+            let content, filename, mimeType;
+            
+            if (format === 'json') {
+                content = JSON.stringify({
+                    exercises: [
+                        {
+                            "uuid": "550e8400-e29b-41d4-a716-446655440000",
+                            "question": "¿Qué imprime print(2 + 2)?",
+                            "options": ["2", "4", "22", "Error"],
+                            "correct_answer": "4",
+                            "explanation": "La suma de 2 + 2 es igual a 4 en Python.",
+                            "difficulty": "beginner",
+                            "category": "Operadores",
+                            "points": 10,
+                            "time_limit": 60,
+                            "hint": "Es una operación aritmética básica",
+                            "tags": ["aritmética", "básico"],
+                            "requires_explanation": false,
+                            "is_active": true
+                        },
+                        {
+                            "uuid": "550e8400-e29b-41d4-a716-446655440001",
+                            "question": "¿Qué hace la función len()?",
+                            "options": ["Cuenta caracteres", "Devuelve longitud", "Suma elementos", "Ordena lista"],
+                            "correct_answer": "Devuelve longitud",
+                            "explanation": "len() devuelve el número de elementos en un objeto iterable.",
+                            "difficulty": "beginner",
+                            "category": "Funciones",
+                            "points": 10,
+                            "time_limit": 45,
+                            "hint": "Se usa con listas, strings, etc.",
+                            "tags": ["funciones", "básico"],
+                            "requires_explanation": false,
+                            "is_active": true
+                        }
+                    ]
+                }, null, 2);
+                filename = 'plantilla_ejercicios.json';
+                mimeType = 'application/json';
+            } else {
+                content = 'uuid,question,options,correct_answer,explanation,difficulty,category,points,time_limit,hint,tags\n' +
+                         '"550e8400-e29b-41d4-a716-446655440000","¿Qué imprime print(2+2)?","4|2|22|Error","4","2+2=4","beginner","Operadores",10,60,"Operación básica","aritmética,básico"\n' +
+                         '"550e8400-e29b-41d4-a716-446655440001","¿Qué hace len()?","Cuenta caracteres|Devuelve longitud|Suma elementos|Ordena lista","Devuelve longitud","Devuelve número de elementos","beginner","Funciones",10,45,"Usa con iterables","funciones,básico"';
+                filename = 'plantilla_ejercicios.csv';
+                mimeType = 'text/csv';
+            }
+            
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Funciones para manejo de archivos JSON
+        function setupJsonFileUpload() {
+            const uploadArea = document.getElementById('jsonUploadArea');
+            const fileInput = document.getElementById('json_file');
+            const fileInfo = document.getElementById('jsonFileInfo');
+            const fileName = document.getElementById('jsonFileName');
+            
+            // Hacer clic en el área de carga para seleccionar archivo
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            // Manejar eventos de arrastrar y soltar
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    const files = e.dataTransfer.files;
+                    if (files.length > 1) {
+                        alert('Por favor selecciona solo un archivo JSON');
+                        return;
+                    }
+                    
+                    const file = files[0];
+                    if (!file.name.toLowerCase().endsWith('.json')) {
+                        alert('Por favor selecciona un archivo con extensión .json');
+                        return;
+                    }
+                    
+                    // Crear un DataTransfer para asignar el archivo al input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                    
+                    handleJsonFileSelected();
+                }
+            });
+            
+            fileInput.addEventListener('change', handleJsonFileSelected);
+            
+            function handleJsonFileSelected() {
+                if (fileInput.files.length) {
+                    const file = fileInput.files[0];
+                    fileName.textContent = `${file.name} (${formatBytes(file.size)})`;
+                    fileInfo.style.display = 'block';
+                    uploadArea.style.borderColor = '#28a745';
+                    
+                    // Validar tipo de archivo
+                    if (!file.name.toLowerCase().endsWith('.json')) {
+                        alert('Por favor selecciona un archivo con extensión .json');
+                        clearJsonFile();
+                        return;
+                    }
+                    
+                    // Validar tamaño (máximo 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('El archivo es demasiado grande. Máximo 10MB');
+                        clearJsonFile();
+                        return;
+                    }
+                    
+                    // Previsualizar contenido
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            JSON.parse(e.target.result);
+                            uploadArea.style.borderColor = '#28a745';
+                        } catch (error) {
+                            alert('El archivo JSON tiene formato inválido. Por favor verifícalo.');
+                            uploadArea.style.borderColor = '#dc3545';
+                        }
+                    };
+                    reader.readAsText(file);
+                } else {
+                    clearJsonFile();
+                }
+            }
+        }
+        
+        function clearJsonFile() {
+            const fileInput = document.getElementById('json_file');
+            const fileInfo = document.getElementById('jsonFileInfo');
+            const uploadArea = document.getElementById('jsonUploadArea');
+            
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            uploadArea.style.borderColor = '';
+            uploadArea.classList.remove('dragover');
+        }
+        
+        // Funciones para manejo de archivos CSV
+        function setupCsvFileUpload() {
+            const uploadArea = document.getElementById('csvUploadArea');
+            const fileInput = document.getElementById('csv_file');
+            const fileInfo = document.getElementById('csvFileInfo');
+            const fileName = document.getElementById('csvFileName');
+            
+            // Hacer clic en el área de carga para seleccionar archivo
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            // Manejar eventos de arrastrar y soltar
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    const files = e.dataTransfer.files;
+                    if (files.length > 1) {
+                        alert('Por favor selecciona solo un archivo CSV');
+                        return;
+                    }
+                    
+                    const file = files[0];
+                    if (!file.name.toLowerCase().endsWith('.csv')) {
+                        alert('Por favor selecciona un archivo con extensión .csv');
+                        return;
+                    }
+                    
+                    // Crear un DataTransfer para asignar el archivo al input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                    
+                    handleCsvFileSelected();
+                }
+            });
+            
+            fileInput.addEventListener('change', handleCsvFileSelected);
+            
+            function handleCsvFileSelected() {
+                if (fileInput.files.length) {
+                    const file = fileInput.files[0];
+                    fileName.textContent = `${file.name} (${formatBytes(file.size)})`;
+                    fileInfo.style.display = 'block';
+                    uploadArea.style.borderColor = '#28a745';
+                    
+                    // Validar tipo de archivo
+                    if (!file.name.toLowerCase().endsWith('.csv')) {
+                        alert('Por favor selecciona un archivo con extensión .csv');
+                        clearCsvFile();
+                        return;
+                    }
+                    
+                    // Validar tamaño (máximo 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('El archivo es demasiado grande. Máximo 10MB');
+                        clearCsvFile();
+                        return;
+                    }
+                } else {
+                    clearCsvFile();
+                }
+            }
+        }
+        
+        function clearCsvFile() {
+            const fileInput = document.getElementById('csv_file');
+            const fileInfo = document.getElementById('csvFileInfo');
+            const uploadArea = document.getElementById('csvUploadArea');
+            
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            uploadArea.style.borderColor = '';
+            uploadArea.classList.remove('dragover');
+        }
+        
+        // Función auxiliar para formatear bytes
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+        
+        // Validación del formulario JSON Texto
+        function setupJsonTextValidation() {
+            const textarea = document.getElementById('json_text');
+            const submitBtn = document.getElementById('jsonTextSubmitBtn');
+            const validStatus = document.getElementById('jsonValidationStatus');
+            const errorStatus = document.getElementById('jsonErrorStatus');
+            const errorText = document.getElementById('jsonErrorText');
+            
+            textarea.addEventListener('input', function(e) {
+                const value = textarea.value.trim();
+                
+                if (!value) {
+                    textarea.classList.remove('is-invalid', 'is-valid');
+                    validStatus.classList.add('d-none');
+                    errorStatus.classList.add('d-none');
+                    submitBtn.disabled = true;
+                    return;
+                }
+                
+                try {
+                    JSON.parse(value);
+                    textarea.classList.remove('is-invalid');
+                    textarea.classList.add('is-valid');
+                    validStatus.classList.remove('d-none');
+                    errorStatus.classList.add('d-none');
+                    submitBtn.disabled = false;
+                } catch (error) {
+                    textarea.classList.remove('is-valid');
+                    textarea.classList.add('is-invalid');
+                    validStatus.classList.add('d-none');
+                    errorStatus.classList.remove('d-none');
+                    errorText.textContent = error.message;
+                    submitBtn.disabled = true;
+                }
+            });
+            
+            // Validar al cargar la página si hay contenido
+            if (textarea.value.trim()) {
+                textarea.dispatchEvent(new Event('input'));
+            }
+        }
+        
+        // Validación del formulario JSON Archivo
+        document.getElementById('jsonFileForm').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('json_file');
+            const submitBtn = document.getElementById('jsonSubmitBtn');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Por favor selecciona un archivo JSON');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            if (fileExtension !== 'json') {
+                e.preventDefault();
+                alert('Por favor selecciona un archivo con extensión .json');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                e.preventDefault();
+                alert('El archivo es demasiado grande. Máximo 10MB');
+                return;
+            }
+            
+            // Mostrar progreso
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Procesando...';
+        });
+        
+        // Validación del formulario CSV
+        document.getElementById('csvForm').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('csv_file');
+            const submitBtn = document.getElementById('csvSubmitBtn');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Por favor selecciona un archivo CSV');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            if (fileExtension !== 'csv') {
+                e.preventDefault();
+                alert('Por favor selecciona un archivo con extensión .csv');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                e.preventDefault();
+                alert('El archivo es demasiado grande. Máximo 10MB');
+                return;
+            }
+            
+            // Mostrar progreso
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Procesando...';
+        });
+        
+        // Validación del formulario JSON Texto
+        document.getElementById('jsonTextForm').addEventListener('submit', function(e) {
+            const jsonText = document.getElementById('json_text');
+            const submitBtn = document.getElementById('jsonTextSubmitBtn');
+            
+            if (!jsonText.value.trim()) {
+                e.preventDefault();
+                alert('Por favor ingresa el contenido JSON');
+                return;
+            }
+            
+            try {
+                JSON.parse(jsonText.value);               
+                // Mostrar progreso
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Procesando...';
+                
+            } catch (error) {
+                e.preventDefault();
+                alert('El JSON tiene formato inválido. Por favor corrígelo.\n\nError: ' + error.message);
+            }
+        });
+        
+        // Mostrar advertencia cuando se desmarque "Actualizar existentes"
+        document.querySelectorAll('input[name="update_existing"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function(e) {
+                if (!this.checked) {
+                    if (!confirm('⚠️ Atención: Al desmarcar esta opción, los ejercicios con UUID duplicados serán ignorados en lugar de actualizarse.\n\n¿Estás seguro?')) {
+                        this.checked = true;
+                    }
+                }
+            });
+        });
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            setupJsonFileUpload();
+            setupCsvFileUpload();
+            setupJsonTextValidation();
+            selectMethod('json-file');
+        });
+    </script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+        // Variables globales
+        let currentMethod = 'json-file';
+        
+        function selectMethod(method) {
+            currentMethod = method;
+            
+            // Remover clase active de todas las tarjetas
+            document.getElementById('jsonFileCard').classList.remove('active');
+            document.getElementById('jsonTextCard').classList.remove('active');
+            document.getElementById('csvCard').classList.remove('active');
+            
+            // Remover clase active de todas las secciones
+            document.getElementById('jsonFileSection').classList.remove('active');
+            document.getElementById('jsonTextSection').classList.remove('active');
+            document.getElementById('csvSection').classList.remove('active');
+            
+            // Agregar clase active a la tarjeta seleccionada
+            document.getElementById(method + 'Card').classList.add('active');
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(method + 'Section').classList.add('active');
+        }
+        
+        function downloadTemplate(format) {
+            let content, filename, mimeType;
+            
+            if (format === 'json') {
+                content = JSON.stringify({
+                    exercises: [
+                        {
+                            "uuid": "550e8400-e29b-41d4-a716-446655440000",
+                            "question": "¿Qué imprime print(2 + 2)?",
+                            "options": ["2", "4", "22", "Error"],
+                            "correct_answer": "4",
+                            "explanation": "La suma de 2 + 2 es igual a 4 en Python.",
+                            "difficulty": "beginner",
+                            "category": "Operadores",
+                            "points": 10,
+                            "time_limit": 60,
+                            "hint": "Es una operación aritmética básica",
+                            "tags": ["aritmética", "básico"],
+                            "requires_explanation": false,
+                            "is_active": true
+                        },
+                        {
+                            "uuid": "550e8400-e29b-41d4-a716-446655440001",
+                            "question": "¿Qué hace la función len()?",
+                            "options": ["Cuenta caracteres", "Devuelve longitud", "Suma elementos", "Ordena lista"],
+                            "correct_answer": "Devuelve longitud",
+                            "explanation": "len() devuelve el número de elementos en un objeto iterable.",
+                            "difficulty": "beginner",
+                            "category": "Funciones",
+                            "points": 10,
+                            "time_limit": 45,
+                            "hint": "Se usa con listas, strings, etc.",
+                            "tags": ["funciones", "básico"],
+                            "requires_explanation": false,
+                            "is_active": true
+                        }
+                    ]
+                }, null, 2);
+                filename = 'plantilla_ejercicios.json';
+                mimeType = 'application/json';
+            } else {
+                content = 'uuid,question,options,correct_answer,explanation,difficulty,category,points,time_limit,hint,tags\n' +
+                         '"550e8400-e29b-41d4-a716-446655440000","¿Qué imprime print(2+2)?","4|2|22|Error","4","2+2=4","beginner","Operadores",10,60,"Operación básica","aritmética,básico"\n' +
+                         '"550e8400-e29b-41d4-a716-446655440001","¿Qué hace len()?","Cuenta caracteres|Devuelve longitud|Suma elementos|Ordena lista","Devuelve longitud","Devuelve número de elementos","beginner","Funciones",10,45,"Usa con iterables","funciones,básico"';
+                filename = 'plantilla_ejercicios.csv';
+                mimeType = 'text/csv';
+            }
+            
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Funciones para manejo de archivos JSON
+        function setupJsonFileUpload() {
+            const uploadArea = document.getElementById('jsonUploadArea');
+            const fileInput = document.getElementById('json_file');
+            const fileInfo = document.getElementById('jsonFileInfo');
+            const fileName = document.getElementById('jsonFileName');
+            
+            // Hacer clic en el área de carga para seleccionar archivo
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            // Manejar eventos de arrastrar y soltar
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    const files = e.dataTransfer.files;
+                    if (files.length > 1) {
+                        alert('Por favor selecciona solo un archivo JSON');
+                        return;
+                    }
+                    
+                    const file = files[0];
+                    if (!file.name.toLowerCase().endsWith('.json')) {
+                        alert('Por favor selecciona un archivo con extensión .json');
+                        return;
+                    }
+                    
+                    // Crear un DataTransfer para asignar el archivo al input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                    
+                    handleJsonFileSelected();
+                }
+            });
+            
+            fileInput.addEventListener('change', handleJsonFileSelected);
+            
+            function handleJsonFileSelected() {
+                if (fileInput.files.length) {
+                    const file = fileInput.files[0];
+                    fileName.textContent = `${file.name} (${formatBytes(file.size)})`;
+                    fileInfo.style.display = 'block';
+                    uploadArea.style.borderColor = '#28a745';
+                    
+                    // Validar tipo de archivo
+                    if (!file.name.toLowerCase().endsWith('.json')) {
+                        alert('Por favor selecciona un archivo con extensión .json');
+                        clearJsonFile();
+                        return;
+                    }
+                    
+                    // Validar tamaño (máximo 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('El archivo es demasiado grande. Máximo 10MB');
+                        clearJsonFile();
+                        return;
+                    }
+                    
+                    // Previsualizar contenido
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            JSON.parse(e.target.result);
+                            uploadArea.style.borderColor = '#28a745';
+                        } catch (error) {
+                            alert('El archivo JSON tiene formato inválido. Por favor verifícalo.');
+                            uploadArea.style.borderColor = '#dc3545';
+                        }
+                    };
+                    reader.readAsText(file);
+                } else {
+                    clearJsonFile();
+                }
+            }
+        }
+        
+        function clearJsonFile() {
+            const fileInput = document.getElementById('json_file');
+            const fileInfo = document.getElementById('jsonFileInfo');
+            const uploadArea = document.getElementById('jsonUploadArea');
+            
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            uploadArea.style.borderColor = '';
+            uploadArea.classList.remove('dragover');
+        }
+        
+        // Funciones para manejo de archivos CSV
+        function setupCsvFileUpload() {
+            const uploadArea = document.getElementById('csvUploadArea');
+            const fileInput = document.getElementById('csv_file');
+            const fileInfo = document.getElementById('csvFileInfo');
+            const fileName = document.getElementById('csvFileName');
+            
+            // Hacer clic en el área de carga para seleccionar archivo
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            // Manejar eventos de arrastrar y soltar
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    const files = e.dataTransfer.files;
+                    if (files.length > 1) {
+                        alert('Por favor selecciona solo un archivo CSV');
+                        return;
+                    }
+                    
+                    const file = files[0];
+                    if (!file.name.toLowerCase().endsWith('.csv')) {
+                        alert('Por favor selecciona un archivo con extensión .csv');
+                        return;
+                    }
+                    
+                    // Crear un DataTransfer para asignar el archivo al input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                    
+                    handleCsvFileSelected();
+                }
+            });
+            
+            fileInput.addEventListener('change', handleCsvFileSelected);
+            
+            function handleCsvFileSelected() {
+                if (fileInput.files.length) {
+                    const file = fileInput.files[0];
+                    fileName.textContent = `${file.name} (${formatBytes(file.size)})`;
+                    fileInfo.style.display = 'block';
+                    uploadArea.style.borderColor = '#28a745';
+                    
+                    // Validar tipo de archivo
+                    if (!file.name.toLowerCase().endsWith('.csv')) {
+                        alert('Por favor selecciona un archivo con extensión .csv');
+                        clearCsvFile();
+                        return;
+                    }
+                    
+                    // Validar tamaño (máximo 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('El archivo es demasiado grande. Máximo 10MB');
+                        clearCsvFile();
+                        return;
+                    }
+                } else {
+                    clearCsvFile();
+                }
+            }
+        }
+        
+        function clearCsvFile() {
+            const fileInput = document.getElementById('csv_file');
+            const fileInfo = document.getElementById('csvFileInfo');
+            const uploadArea = document.getElementById('csvUploadArea');
+            
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            uploadArea.style.borderColor = '';
+            uploadArea.classList.remove('dragover');
+        }
+        
+        // Función auxiliar para formatear bytes
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+        
+        // Validación del formulario JSON Texto
+        function setupJsonTextValidation() {
+            const textarea = document.getElementById('json_text');
+            const submitBtn = document.getElementById('jsonTextSubmitBtn');
+            const validStatus = document.getElementById('jsonValidationStatus');
+            const errorStatus = document.getElementById('jsonErrorStatus');
+            const errorText = document.getElementById('jsonErrorText');
+            
+            textarea.addEventListener('input', function(e) {
+                const value = textarea.value.trim();
+                
+                if (!value) {
+                    textarea.classList.remove('is-invalid', 'is-valid');
+                    validStatus.classList.add('d-none');
+                    errorStatus.classList.add('d-none');
+                    submitBtn.disabled = true;
+                    return;
+                }
+                
+                try {
+                    JSON.parse(value);
+                    textarea.classList.remove('is-invalid');
+                    textarea.classList.add('is-valid');
+                    validStatus.classList.remove('d-none');
+                    errorStatus.classList.add('d-none');
+                    submitBtn.disabled = false;
+                } catch (error) {
+                    textarea.classList.remove('is-valid');
+                    textarea.classList.add('is-invalid');
+                    validStatus.classList.add('d-none');
+                    errorStatus.classList.remove('d-none');
+                    errorText.textContent = error.message;
+                    submitBtn.disabled = true;
+                }
+            });
+            
+            // Validar al cargar la página si hay contenido
+            if (textarea.value.trim()) {
+                textarea.dispatchEvent(new Event('input'));
+            }
+        }
+        
+        // Validación del formulario JSON Archivo
+        document.getElementById('jsonFileForm').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('json_file');
+            const submitBtn = document.getElementById('jsonSubmitBtn');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Por favor selecciona un archivo JSON');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            if (fileExtension !== 'json') {
+                e.preventDefault();
+                alert('Por favor selecciona un archivo con extensión .json');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                e.preventDefault();
+                alert('El archivo es demasiado grande. Máximo 10MB');
+                return;
+            }
+            
+            // Mostrar progreso
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Procesando...';
+        });
+        
+        // Validación del formulario CSV
+        document.getElementById('csvForm').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('csv_file');
+            const submitBtn = document.getElementById('csvSubmitBtn');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Por favor selecciona un archivo CSV');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            if (fileExtension !== 'csv') {
+                e.preventDefault();
+                alert('Por favor selecciona un archivo con extensión .csv');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                e.preventDefault();
+                alert('El archivo es demasiado grande. Máximo 10MB');
+                return;
+            }
+            
+            // Mostrar progreso
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Procesando...';
+        });
+        
+        // Validación del formulario JSON Texto
+        document.getElementById('jsonTextForm').addEventListener('submit', function(e) {
+            const jsonText = document.getElementById('json_text');
+            const submitBtn = document.getElementById('jsonTextSubmitBtn');
+            
+            if (!jsonText.value.trim()) {
+                e.preventDefault();
+                alert('Por favor ingresa el contenido JSON');
+                return;
+            }
+            
+            try {
+                JSON.parse(jsonText.value);               
+                // Mostrar progreso
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Procesando...';
+                
+            } catch (error) {
+                e.preventDefault();
+                alert('El JSON tiene formato inválido. Por favor corrígelo.\n\nError: ' + error.message);
+            }
+        });
+        
+        // Mostrar advertencia cuando se desmarque "Actualizar existentes"
+        document.querySelectorAll('input[name="update_existing"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function(e) {
+                if (!this.checked) {
+                    if (!confirm('⚠️ Atención: Al desmarcar esta opción, los ejercicios con UUID duplicados serán ignorados en lugar de actualizarse.\n\n¿Estás seguro?')) {
+                        this.checked = true;
+                    }
+                }
+            });
+        });
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            setupJsonFileUpload();
+            setupCsvFileUpload();
+            setupJsonTextValidation();
+            selectMethod('json-file');
+        });
+    </script>
+{% endblock %}

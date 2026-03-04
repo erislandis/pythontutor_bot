@@ -1,0 +1,694 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Ejercicios - Panel Admin{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #8e24aa 0%, #6a1b9a 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-header h4 {
+            color: #e1bee7;
+            font-weight: 600;
+        }
+        .sidebar-menu {
+            padding: 15px;
+        }
+        .sidebar-menu a {
+            color: #e1bee7;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            margin: 5px 0;
+            transition: all 0.3s;
+        }
+        .sidebar-menu a i {
+            width: 25px;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        .sidebar-menu a:hover {
+            background: rgba(225, 190, 231, 0.1);
+            color: white;
+        }
+        .sidebar-menu a.active {
+            background: linear-gradient(90deg, #9c27b0 0%, #7b1fa2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 25px;
+            min-height: 100vh;
+        }
+        .header-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .exercises-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 20px rgba(0,0,0,0.07);
+        }
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #f3e5f5;
+            color: #8e24aa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .difficulty-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .beginner-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .intermediate-badge {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .advanced-badge {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        .expert-badge {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .status-badge {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+        }
+        .active-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .inactive-badge {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .exercise-preview {
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        .exercise-preview:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(transparent, white);
+        }
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin: 2px;
+        }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-robot"></i> Python Tutor Bot</h4>
+            <p class="text-muted mb-0">Gestión de Ejercicios</p>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="/admin/dashboard">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/admin/users">
+                <i class="fas fa-users"></i> Usuarios
+            </a>
+            <a href="/admin/bot-control">
+                <i class="fas fa-robot"></i> Control del Bot
+            </a>
+            <a href="/admin/exercises" class="active">
+                <i class="fas fa-book"></i> Ejercicios
+            </a>
+            <a href="/admin/database">
+                <i class="fas fa-database"></i> Base de Datos
+            </a>
+            <a href="/admin/logs">
+                <i class="fas fa-clipboard-list"></i> Logs
+            </a>
+            <a href="/admin/change-password">
+                <i class="fas fa-key"></i> Contraseña
+            </a>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <a href="/admin/logout" style="color: #ef5350;">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header-bar">
+            <div>
+                <h1 class="h3 mb-2" style="color: #8e24aa;">
+                    <i class="fas fa-book me-2"></i>
+                    Gestión de Ejercicios
+                </h1>
+                <p class="text-muted mb-0">Administra los ejercicios del sistema</p>
+            </div>
+            <div class="user-badge">
+                <i class="fas fa-user-circle me-2"></i>
+                {{ current_user.username }}
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show mb-4">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Filtros -->
+        <div class="exercises-card">
+            <h5 class="mb-3" style="color: #8e24aa;">
+                <i class="fas fa-filter me-2"></i>
+                Filtros
+            </h5>
+            
+            <form method="GET" class="row g-3">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="col-md-3">
+                    <label class="form-label">Dificultad</label>
+                    <select name="difficulty" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {{ 'selected' if current_difficulty == 'all' }}>Todas</option>
+                        <option value="beginner" {{ 'selected' if current_difficulty == 'beginner' }}>Principiante</option>
+                        <option value="intermediate" {{ 'selected' if current_difficulty == 'intermediate' }}>Intermedio</option>
+                        <option value="advanced" {{ 'selected' if current_difficulty == 'advanced' }}>Avanzado</option>
+                        <option value="expert" {{ 'selected' if current_difficulty == 'expert' }}>Experto</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Categoría</label>
+                    <select name="category" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {{ 'selected' if current_category == 'all' }}>Todas</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.name }}" {{ 'selected' if current_category == cat.name }}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="active" {{ 'selected' if current_status == 'active' }}>Activos</option>
+                        <option value="inactive" {{ 'selected' if current_status == 'inactive' }}>Inactivos</option>
+                        <option value="all" {{ 'selected' if current_status == 'all' }}>Todos</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="d-flex gap-2">
+                        <a href="/admin/exercises/add" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i> Nuevo
+                        </a>
+                        <a href="/admin/exercises/import" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i> Importar
+                        </a>
+                        <a href="/admin/exercises/export?difficulty={{ current_difficulty }}" 
+                           class="btn btn-secondary">
+                            <i class="fas fa-download me-2"></i> Exportar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Mantenimiento de Ejercicios -->
+        <div class="exercises-card">
+            <h5 class="mb-3" style="color: #8e24aa;">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Mantenimiento de Ejercicios
+            </h5>
+            <p class="text-muted">
+                Esta acción vacía las tablas de ejercicios, intentos y progreso de usuarios.
+                Úsala solo en entornos de prueba o con un respaldo reciente.
+            </p>
+            <form method="post" action="{{ url_for('admin_reset_exercises') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger"
+                        onclick="return confirm('Se eliminarán TODOS los ejercicios, intentos y progreso. Esta acción no se puede deshacer. ¿Continuar?');">
+                    <i class="fas fa-broom me-2"></i>
+                    Vaciar ejercicios y progreso
+                </button>
+            </form>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="exercises-card">
+            <h5 class="mb-3" style="color: #8e24aa;">
+                <i class="fas fa-chart-bar me-2"></i>
+                Estadísticas por Dificultad
+            </h5>
+            
+            <div class="row">
+                {% for stat in difficulty_stats %}
+                <div class="col-md-3">
+                    <div class="p-3 text-center">
+                        <div class="h3 mb-0">
+                            {{ stat.total }}
+                        </div>
+                        <span class="difficulty-badge {{ stat.difficulty }}-badge">
+                            {% if stat.difficulty == 'beginner' %}
+                            🟢 Principiante
+                            {% elif stat.difficulty == 'intermediate' %}
+                            🔵 Intermedio
+                            {% elif stat.difficulty == 'advanced' %}
+                            🟠 Avanzado
+                            {% else %}
+                            🔴 Experto
+                            {% endif %}
+                        </span>
+                        <small class="d-block text-muted mt-1">
+                            {{ stat.active }} activos
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Lista de Ejercicios -->
+        <div class="exercises-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 style="color: #8e24aa;">
+                    <i class="fas fa-list me-2"></i>
+                    Ejercicios ({{ total }})
+                </h4>
+                
+                <!-- Paginación -->
+                {% if total_pages > 1 %}
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item {{ 'disabled' if page == 1 }}">
+                            <a class="page-link" href="?page={{ page-1 }}&difficulty={{ current_difficulty }}&category={{ current_category }}&status={{ current_status }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        
+                        {% for p in range(1, total_pages + 1) %}
+                            {% if p >= page-2 and p <= page+2 %}
+                            <li class="page-item {{ 'active' if p == page }}">
+                                <a class="page-link" href="?page={{ p }}&difficulty={{ current_difficulty }}&category={{ current_category }}&status={{ current_status }}">
+                                    {{ p }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <li class="page-item {{ 'disabled' if page == total_pages }}">
+                            <a class="page-link" href="?page={{ page+1 }}&difficulty={{ current_difficulty }}&category={{ current_category }}&status={{ current_status }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead style="background: #f3e5f5;">
+                        <tr>
+                            <th><i class="fas fa-hashtag me-1"></i> ID</th>
+                            <th><i class="fas fa-question me-1"></i> Pregunta</th>
+                            <th><i class="fas fa-tags me-1"></i> Categoría/Dificultad</th>
+                            <th><i class="fas fa-star me-1"></i> Puntos</th>
+                            <th><i class="fas fa-user me-1"></i> Creador</th>
+                            <th><i class="fas fa-cogs me-1"></i> Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ex in exercises %}
+                        <tr>
+                            <td>
+                                <code>{{ ex.id }}</code>
+                                <br>
+                                <span class="status-badge {{ 'active-badge' if ex.is_active else 'inactive-badge' }}">
+                                    {{ 'Activo' if ex.is_active else 'Inactivo' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="exercise-preview">
+                                    <strong>{{ ex.question|truncate(80) }}</strong>
+                                    {% if ex.code_snippet %}
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-code"></i> Contiene código
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color: {{ ex.category_color or '#6c757d' }}; color: white;">
+                                    {{ ex.category_name or 'Sin categoría' }}
+                                </span>
+                                <br>
+                                <span class="difficulty-badge {{ ex.difficulty }}-badge">
+                                    {% if ex.difficulty == 'beginner' %}
+                                    Principiante
+                                    {% elif ex.difficulty == 'intermediate' %}
+                                    Intermedio
+                                    {% elif ex.difficulty == 'advanced' %}
+                                    Avanzado
+                                    {% else %}
+                                    Experto
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-center">
+                                    <span class="h5 text-warning">{{ ex.points }}</span>
+                                    <br>
+                                    <small class="text-muted">puntos</small>
+                                </div>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    <i class="fas fa-user-circle"></i>
+                                    {{ ex.created_by_name or 'Sistema' }}
+                                    <br>
+                                    <i class="far fa-calendar"></i>
+                                    {{ ex.created_at.strftime('%d/%m/%y') }}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <!-- Editar -->
+                                    <a href="/admin/exercises/{{ ex.id }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <!-- Activar / desactivar -->
+                                    <form method="post"
+                                          action="{{ url_for('admin_toggle_exercise', exercise_id=ex.id) }}"
+                                          style="display:inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-outline-warning"
+                                                onclick="return confirm('{{ "¿Desactivar" if ex.is_active else "¿Activar" }} ejercicio {{ ex.id }}?');">
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- Vista previa (vía AJAX si tienes la ruta JSON) -->
+                                    <button class="btn btn-outline-info" onclick="previewExercise({{ ex.id }})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+
+                                    <!-- Eliminar -->
+                                    <form method="post"
+                                          action="{{ url_for('admin_delete_exercise', exercise_id=ex.id) }}"
+                                          style="display:inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-outline-danger"
+                                                onclick="return confirm('⚠️ ¿Eliminar permanentemente el ejercicio {{ ex.id }}? Esta acción no se puede deshacer.');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mt-4 pt-4 border-top">
+                <small class="text-muted">
+                    Mostrando {{ exercises|length }} de {{ total }} ejercicios
+                </small>
+                <small class="text-muted">
+                    Página {{ page }} de {{ total_pages }}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const csrfToken = "{{ csrf_token() }}";
+        
+        function previewExercise(id) {
+            // Abrir modal con vista previa usando AJAX
+            fetch(`/admin/exercises/${id}/preview`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showPreviewModal(data.exercise);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar la vista previa');
+            });
+        }
+        
+        function showPreviewModal(exercise) {
+            const modalHtml = `
+                <div class="modal fade" id="exercisePreviewModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-eye me-2"></i>Vista previa: Ejercicio #${exercise.id}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <h5>${exercise.question}</h5>
+                                
+                                ${exercise.code_snippet ? `
+                                <div class="mb-3">
+                                    <pre class="bg-dark text-white p-3 rounded"><code>${exercise.code_snippet}</code></pre>
+                                </div>
+                                ` : ''}
+                                
+                                <div class="mb-3">
+                                    <strong>Opciones:</strong>
+                                    <ul class="list-group mt-2">
+                                        ${exercise.options.map((opt, index) => `
+                                            <li class="list-group-item ${opt === exercise.correct_answer ? 'list-group-item-success' : ''}">
+                                                ${opt}
+                                                ${opt === exercise.correct_answer ? '<span class="badge bg-success float-end">✓ Correcta</span>' : ''}
+                                            </li>
+                                        `).join('')}
+                                    </ul>
+                                </div>
+                                
+                                <div class="alert alert-info">
+                                    <strong>Explicación:</strong><br>
+                                    ${exercise.explanation}
+                                </div>
+                                
+                                ${exercise.hint ? `
+                                <div class="alert alert-warning">
+                                    <strong>Pista:</strong> ${exercise.hint}
+                                </div>
+                                ` : ''}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Dificultad:</strong>
+                                        <span class="badge ms-2 ${exercise.difficulty}-badge">
+                                            ${exercise.difficulty}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Puntos:</strong> ${exercise.points}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i> Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modalDiv = document.createElement('div');
+            modalDiv.innerHTML = modalHtml;
+            document.body.appendChild(modalDiv);
+            
+            const modal = new bootstrap.Modal(document.getElementById('exercisePreviewModal'));
+            modal.show();
+            
+            document.getElementById('exercisePreviewModal').addEventListener('hidden.bs.modal', function () {
+                document.body.removeChild(modalDiv);
+            });
+        }
+    </script>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+        const csrfToken = "{{ csrf_token() }}";
+        
+        function previewExercise(id) {
+            // Abrir modal con vista previa usando AJAX
+            fetch(`/admin/exercises/${id}/preview`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showPreviewModal(data.exercise);
+                } else {
+                    alert(`Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cargar la vista previa');
+            });
+        }
+        
+        function showPreviewModal(exercise) {
+            const modalHtml = `
+                <div class="modal fade" id="exercisePreviewModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-eye me-2"></i>Vista previa: Ejercicio #${exercise.id}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <h5>${exercise.question}</h5>
+                                
+                                ${exercise.code_snippet ? `
+                                <div class="mb-3">
+                                    <pre class="bg-dark text-white p-3 rounded"><code>${exercise.code_snippet}</code></pre>
+                                </div>
+                                ` : ''}
+                                
+                                <div class="mb-3">
+                                    <strong>Opciones:</strong>
+                                    <ul class="list-group mt-2">
+                                        ${exercise.options.map((opt, index) => `
+                                            <li class="list-group-item ${opt === exercise.correct_answer ? 'list-group-item-success' : ''}">
+                                                ${opt}
+                                                ${opt === exercise.correct_answer ? '<span class="badge bg-success float-end">✓ Correcta</span>' : ''}
+                                            </li>
+                                        `).join('')}
+                                    </ul>
+                                </div>
+                                
+                                <div class="alert alert-info">
+                                    <strong>Explicación:</strong><br>
+                                    ${exercise.explanation}
+                                </div>
+                                
+                                ${exercise.hint ? `
+                                <div class="alert alert-warning">
+                                    <strong>Pista:</strong> ${exercise.hint}
+                                </div>
+                                ` : ''}
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Dificultad:</strong>
+                                        <span class="badge ms-2 ${exercise.difficulty}-badge">
+                                            ${exercise.difficulty}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Puntos:</strong> ${exercise.points}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-2"></i> Cerrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modalDiv = document.createElement('div');
+            modalDiv.innerHTML = modalHtml;
+            document.body.appendChild(modalDiv);
+            
+            const modal = new bootstrap.Modal(document.getElementById('exercisePreviewModal'));
+            modal.show();
+            
+            document.getElementById('exercisePreviewModal').addEventListener('hidden.bs.modal', function () {
+                document.body.removeChild(modalDiv);
+            });
+        }
+    </script>
+{% endblock %}

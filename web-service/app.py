@@ -754,6 +754,144 @@ def update_user_streak(telegram_id):
         logger.error(f"API update_streak error: {e}")
         return jsonify({'error': 'Database error'}), 500
 
+# ==================== ADMIN ROUTES ====================
+
+@app.route('/admin')
+@login_required
+def admin_dashboard():
+    """Admin dashboard"""
+    return render_template('admin/dashboard.html')
+
+@app.route('/admin/dashboard')
+@login_required
+def dashboard():
+    """Admin dashboard (alias)"""
+    return render_template('admin/dashboard.html')
+
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    """Admin users management"""
+    try:
+        if not supabase:
+            flash('Error de conexión a la base de datos', 'danger')
+            return render_template('admin/users.html', users=[])
+        
+        users_response = supabase.table('users').select('*').order('created_at', desc=True).execute()
+        users = users_response.data or []
+        
+        return render_template('admin/users.html', users=users)
+    except Exception as e:
+        logger.error(f"Admin users error: {e}")
+        flash('Error al cargar usuarios', 'danger')
+        return render_template('admin/users.html', users=[])
+
+@app.route('/admin/exercises')
+@login_required
+def admin_exercises():
+    """Admin exercises management"""
+    try:
+        if not supabase:
+            flash('Error de conexión a la base de datos', 'danger')
+            return render_template('admin/exercises.html', exercises=[])
+        
+        exercises_response = supabase.table('exercises').select('*').order('id').execute()
+        exercises = exercises_response.data or []
+        
+        return render_template('admin/exercises.html', exercises=exercises)
+    except Exception as e:
+        logger.error(f"Admin exercises error: {e}")
+        flash('Error al cargar ejercicios', 'danger')
+        return render_template('admin/exercises.html', exercises=[])
+
+@app.route('/admin/settings')
+@login_required
+def admin_settings():
+    """Admin settings"""
+    return render_template('admin/settings.html')
+
+@app.route('/admin/help')
+@login_required
+def admin_help():
+    """Admin help page"""
+    return render_template('admin/help.html')
+
+@app.route('/admin/profile')
+@login_required
+def admin_profile():
+    """Admin profile page"""
+    return render_template('admin/profile.html')
+
+@app.route('/admin/logs')
+@login_required
+def admin_logs():
+    """Admin logs page"""
+    return render_template('admin/logs.html')
+
+@app.route('/admin/backup')
+@login_required
+def admin_backup():
+    """Admin backup page"""
+    return render_template('admin/backup.html')
+
+@app.route('/admin/database')
+@login_required
+def admin_database():
+    """Admin database page"""
+    return render_template('admin/database.html')
+
+@app.route('/admin/bot-control')
+@login_required
+def admin_bot_control():
+    """Admin bot control page"""
+    return render_template('admin/bot_control.html')
+
+@app.route('/admin/notifications')
+@login_required
+def admin_notifications():
+    """Admin notifications page"""
+    return render_template('admin/notifications.html')
+
+@app.route('/admin/add-exercise')
+@login_required
+def admin_add_exercise():
+    """Admin add exercise page"""
+    return render_template('admin/add_exercise.html')
+
+@app.route('/admin/edit-exercise/<int:exercise_id>')
+@login_required
+def admin_edit_exercise(exercise_id):
+    """Admin edit exercise page"""
+    try:
+        if not supabase:
+            flash('Error de conexión a la base de datos', 'danger')
+            return redirect(url_for('admin_exercises'))
+        
+        exercise_response = supabase.table('exercises').select('*').eq('id', exercise_id).execute()
+        
+        if not exercise_response.data:
+            flash('Ejercicio no encontrado', 'danger')
+            return redirect(url_for('admin_exercises'))
+        
+        exercise = exercise_response.data[0]
+        return render_template('admin/edit_exercise.html', exercise=exercise)
+    except Exception as e:
+        logger.error(f"Admin edit exercise error: {e}")
+        flash('Error al cargar ejercicio', 'danger')
+        return redirect(url_for('admin_exercises'))
+
+@app.route('/admin/import-exercises')
+@login_required
+def admin_import_exercises():
+    """Admin import exercises page"""
+    return render_template('admin/import_exercises.html')
+
+@app.route('/admin/change-password')
+@login_required
+def admin_change_password():
+    """Admin change password page"""
+    return render_template('admin/change_password.html')
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
