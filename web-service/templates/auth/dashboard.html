@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "admin_base.html" %}
 
 {% block title %}Panel de Administración{% endblock %}
 
@@ -61,64 +61,169 @@
             </div>
 
             <div class="dashboard-stats">
-                <div class="stat-card">
-                    <div class="stat-icon">👥</div>
+                <div class="stat-card modern-stat users-stat">
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon">👥</div>
+                    </div>
                     <div class="stat-content">
                         <h3>Usuarios Totales</h3>
-                        <p class="stat-number">{{ total_users }}</p>
+                        <p class="stat-number" data-target="{{ total_users }}">0</p>
+                        <div class="stat-indicator positive">
+                            <span class="indicator-arrow">↑</span>
+                            <span class="indicator-text">Activos</span>
+                        </div>
                     </div>
+                    <div class="stat-bg-effect"></div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📚</div>
+                
+                <div class="stat-card modern-stat exercises-stat">
+                    <div class="stat-icon-wrapper">
+                        <div class="stat-icon">📚</div>
+                    </div>
                     <div class="stat-content">
                         <h3>Ejercicios Totales</h3>
-                        <p class="stat-number">{{ total_exercises }}</p>
+                        <p class="stat-number" data-target="{{ total_exercises }}">0</p>
+                        <div class="stat-indicator positive">
+                            <span class="indicator-arrow">↑</span>
+                            <span class="indicator-text">Disponibles</span>
+                        </div>
                     </div>
+                    <div class="stat-bg-effect"></div>
                 </div>
             </div>
 
             <div class="exercises-by-level">
-                <h2>Ejercicios por Nivel</h2>
-                <div class="level-stats">
+                <div class="section-header">
+                    <h2>Ejercicios por Nivel</h2>
+                    <div class="section-badge">
+                        <span class="badge-icon">📊</span>
+                        <span class="badge-text">Progreso General</span>
+                    </div>
+                </div>
+                <div class="level-stats-grid">
                     {% set levels = {'principiante': exercises_by_level.get('principiante', 0), 'intermedio': exercises_by_level.get('intermedio', 0), 'avanzado': exercises_by_level.get('avanzado', 0), 'experto': exercises_by_level.get('experto', 0)} %}
                     
-                    <div class="level-stat beginner">
-                        <div class="level-info">
-                            <span class="level-name">🟢 Principiante</span>
-                            <span class="level-count">{{ levels['principiante'] }}/300</span>
+                    <div class="level-card beginner-level">
+                        <div class="level-header">
+                            <div class="level-icon">🟢</div>
+                            <div class="level-info">
+                                <h3>Principiante</h3>
+                                <p class="level-description">Conceptos básicos</p>
+                            </div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress" data-level="principiante"></div>
+                        <div class="progress-section">
+                            <div class="circular-progress">
+                                <svg class="progress-svg" viewBox="0 0 100 100">
+                                    <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                                    <circle class="progress-bar" cx="50" cy="50" r="45" 
+                                            data-level="principiante" 
+                                            data-current="{{ levels['principiante'] }}" 
+                                            data-total="300"></circle>
+                                </svg>
+                                <div class="progress-text">
+                                    <span class="progress-number">{{ levels['principiante'] }}</span>
+                                    <span class="progress-total">/300</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="level-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Completado</span>
+                                <span class="stat-value">{{ ((levels['principiante'] / 300) * 100)|round(1) }}%</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="level-stat intermediate">
-                        <div class="level-info">
-                            <span class="level-name">🟡 Intermedio</span>
-                            <span class="level-count">{{ levels['intermedio'] }}/300</span>
+                    <div class="level-card intermediate-level">
+                        <div class="level-header">
+                            <div class="level-icon">🟡</div>
+                            <div class="level-info">
+                                <h3>Intermedio</h3>
+                                <p class="level-description">Estructuras y funciones</p>
+                            </div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress" data-level="intermedio"></div>
+                        <div class="progress-section">
+                            <div class="circular-progress">
+                                <svg class="progress-svg" viewBox="0 0 100 100">
+                                    <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                                    <circle class="progress-bar" cx="50" cy="50" r="45" 
+                                            data-level="intermedio" 
+                                            data-current="{{ levels['intermedio'] }}" 
+                                            data-total="300"></circle>
+                                </svg>
+                                <div class="progress-text">
+                                    <span class="progress-number">{{ levels['intermedio'] }}</span>
+                                    <span class="progress-total">/300</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="level-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Completado</span>
+                                <span class="stat-value">{{ ((levels['intermedio'] / 300) * 100)|round(1) }}%</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="level-stat advanced">
-                        <div class="level-info">
-                            <span class="level-name">🔵 Avanzado</span>
-                            <span class="level-count">{{ levels['avanzado'] }}/300</span>
+                    <div class="level-card advanced-level">
+                        <div class="level-header">
+                            <div class="level-icon">🔵</div>
+                            <div class="level-info">
+                                <h3>Avanzado</h3>
+                                <p class="level-description">POO y módulos</p>
+                            </div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress" data-level="avanzado"></div>
+                        <div class="progress-section">
+                            <div class="circular-progress">
+                                <svg class="progress-svg" viewBox="0 0 100 100">
+                                    <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                                    <circle class="progress-bar" cx="50" cy="50" r="45" 
+                                            data-level="avanzado" 
+                                            data-current="{{ levels['avanzado'] }}" 
+                                            data-total="300"></circle>
+                                </svg>
+                                <div class="progress-text">
+                                    <span class="progress-number">{{ levels['avanzado'] }}</span>
+                                    <span class="progress-total">/300</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="level-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Completado</span>
+                                <span class="stat-value">{{ ((levels['avanzado'] / 300) * 100)|round(1) }}%</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="level-stat expert">
-                        <div class="level-info">
-                            <span class="level-name">🔴 Experto</span>
-                            <span class="level-count">{{ levels['experto'] }}/300</span>
+                    <div class="level-card expert-level">
+                        <div class="level-header">
+                            <div class="level-icon">🔴</div>
+                            <div class="level-info">
+                                <h3>Experto</h3>
+                                <p class="level-description">Temas avanzados</p>
+                            </div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress" data-level="experto"></div>
+                        <div class="progress-section">
+                            <div class="circular-progress">
+                                <svg class="progress-svg" viewBox="0 0 100 100">
+                                    <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+                                    <circle class="progress-bar" cx="50" cy="50" r="45" 
+                                            data-level="experto" 
+                                            data-current="{{ levels['experto'] }}" 
+                                            data-total="300"></circle>
+                                </svg>
+                                <div class="progress-text">
+                                    <span class="progress-number">{{ levels['experto'] }}</span>
+                                    <span class="progress-total">/300</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="level-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Completado</span>
+                                <span class="stat-value">{{ ((levels['experto'] / 300) * 100)|round(1) }}%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -164,16 +269,83 @@
 // Progress data from server
 const progressData = JSON.parse('{{ exercises_by_level|tojson }}');
 
-// Set progress bar widths
-document.addEventListener('DOMContentLoaded', function() {
-    const progressBars = document.querySelectorAll('.progress');
+// Animate counter numbers
+function animateCounter(element, target) {
+    const duration = 2000;
+    const start = 0;
+    const increment = target / (duration / 16);
+    let current = start;
     
-    progressBars.forEach(function(bar) {
-        const level = bar.getAttribute('data-level');
-        if (level && progressData[level] !== undefined) {
-            const percentage = Math.round((progressData[level] / 300) * 100);
-            bar.style.width = percentage + '%';
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            current = target;
+            clearInterval(timer);
         }
+        element.textContent = Math.floor(current).toLocaleString();
+    }, 16);
+}
+
+// Set circular progress
+function setCircularProgress(circle, current, total) {
+    const radius = 45;
+    const circumference = 2 * Math.PI * radius;
+    const percentage = (current / total) * 100;
+    const offset = circumference - (percentage / 100) * circumference;
+    
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = offset;
+}
+
+// Initialize dashboard animations
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stat counters
+    const statNumbers = document.querySelectorAll('.stat-number[data-target]');
+    statNumbers.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'));
+        animateCounter(counter, target);
+    });
+    
+    // Set circular progress bars
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(circle => {
+        const level = circle.getAttribute('data-level');
+        const current = parseInt(circle.getAttribute('data-current'));
+        const total = parseInt(circle.getAttribute('data-total'));
+        
+        if (level && progressData[level] !== undefined) {
+            setCircularProgress(circle, current, total);
+        }
+    });
+    
+    // Add hover effects to stat cards
+    const statCards = document.querySelectorAll('.modern-stat');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Add hover effects to level cards
+    const levelCards = document.querySelectorAll('.level-card');
+    levelCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            const progressCircle = this.querySelector('.progress-bar');
+            if (progressCircle) {
+                progressCircle.style.strokeWidth = '6';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            const progressCircle = this.querySelector('.progress-bar');
+            if (progressCircle) {
+                progressCircle.style.strokeWidth = '4';
+            }
+        });
     });
 });
 

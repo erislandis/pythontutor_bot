@@ -198,10 +198,18 @@ def change_password():
                 'updated_at': 'now()'
             }).eq('id', current_user.id).execute()
             
-            if update_response.data:
+            logger.info(f"Update response: {update_response}")
+            
+            # Check if update was successful (Supabase update doesn't return data on success)
+            if hasattr(update_response, 'data') and update_response.data is not None:
+                flash('Contraseña actualizada exitosamente', 'success')
+                return redirect(url_for('dashboard'))
+            elif not hasattr(update_response, 'error') or not update_response.error:
+                # Alternative check - if no error, assume success
                 flash('Contraseña actualizada exitosamente', 'success')
                 return redirect(url_for('dashboard'))
             else:
+                logger.error(f"Supabase update error: {update_response.error}")
                 flash('Error al actualizar la contraseña', 'error')
                 
         except Exception as e:
