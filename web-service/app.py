@@ -756,17 +756,6 @@ def update_user_streak(telegram_id):
 
 # ==================== ADMIN ROUTES ====================
 
-@app.route('/admin')
-@login_required
-def admin_dashboard():
-    """Admin dashboard"""
-    return render_template('admin/dashboard.html')
-
-@app.route('/admin/dashboard')
-@login_required
-def dashboard():
-    """Admin dashboard (alias)"""
-    return render_template('admin/dashboard.html')
 
 @app.route('/admin/users')
 @login_required
@@ -786,23 +775,6 @@ def admin_users():
         flash('Error al cargar usuarios', 'danger')
         return render_template('admin/users.html', users=[])
 
-@app.route('/admin/exercises')
-@login_required
-def admin_exercises():
-    """Admin exercises management"""
-    try:
-        if not supabase:
-            flash('Error de conexión a la base de datos', 'danger')
-            return render_template('admin/exercises.html', exercises=[])
-        
-        exercises_response = supabase.table('exercises').select('*').order('id').execute()
-        exercises = exercises_response.data or []
-        
-        return render_template('admin/exercises.html', exercises=exercises)
-    except Exception as e:
-        logger.error(f"Admin exercises error: {e}")
-        flash('Error al cargar ejercicios', 'danger')
-        return render_template('admin/exercises.html', exercises=[])
 
 @app.route('/admin/settings')
 @login_required
