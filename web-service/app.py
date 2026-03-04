@@ -824,33 +824,7 @@ def admin_notifications():
     """Admin notifications page"""
     return render_template('admin/notifications.html')
 
-@app.route('/admin/add-exercise')
-@login_required
-def admin_add_exercise():
-    """Admin add exercise page"""
-    return render_template('admin/add_exercise.html')
 
-@app.route('/admin/edit-exercise/<int:exercise_id>')
-@login_required
-def admin_edit_exercise(exercise_id):
-    """Admin edit exercise page"""
-    try:
-        if not supabase:
-            flash('Error de conexión a la base de datos', 'danger')
-            return redirect(url_for('admin_exercises'))
-        
-        exercise_response = supabase.table('exercises').select('*').eq('id', exercise_id).execute()
-        
-        if not exercise_response.data:
-            flash('Ejercicio no encontrado', 'danger')
-            return redirect(url_for('admin_exercises'))
-        
-        exercise = exercise_response.data[0]
-        return render_template('admin/edit_exercise.html', exercise=exercise)
-    except Exception as e:
-        logger.error(f"Admin edit exercise error: {e}")
-        flash('Error al cargar ejercicio', 'danger')
-        return redirect(url_for('admin_exercises'))
 
 @app.route('/admin/import-exercises')
 @login_required
@@ -858,11 +832,6 @@ def admin_import_exercises():
     """Admin import exercises page"""
     return render_template('admin/import_exercises.html')
 
-@app.route('/admin/change-password')
-@login_required
-def admin_change_password():
-    """Admin change password page"""
-    return render_template('admin/change_password.html')
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
