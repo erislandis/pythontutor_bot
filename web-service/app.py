@@ -216,27 +216,64 @@ def change_password():
 def dashboard():
     try:
         if not supabase:
+            logger.error("Supabase client is None")
             flash('Error de conexión con la base de datos', 'error')
             return render_template('auth/dashboard.html', total_users=0, total_exercises=0, exercises_by_level={})
-            
-        total_users = supabase.table('users').select('*', count='exact').execute()
-        total_exercises = supabase.table('exercises').select('*', count='exact').execute()
         
-        exercises_by_level = supabase.table('exercises').select('level', count='exact').execute()
-        
-        # Process exercises by level
+        # Initialize default values
+        total_users = 0
+        total_exercises = 0
         level_counts = {'principiante': 0, 'intermedio': 0, 'avanzado': 0, 'experto': 0}
-        if exercises_by_level.data:
-            for item in exercises_by_level.data:
-                if item['level'] in level_counts:
-                    level_counts[item['level']] = item['count']
+        
+        # Get total users with error handling
+        try:
+            users_response = supabase.table('users').select('*', count='exact').execute()
+            if hasattr(users_response, 'count'):
+                total_users = users_response.count
+            elif users_response.data:
+                total_users = len(users_response.data)
+            logger.info(f"Total users retrieved: {total_users}")
+        except Exception as e:
+            logger.error(f"Error getting total users: {e}")
+            total_users = 0
+        
+        # Get total exercises with error handling
+        try:
+            exercises_response = supabase.table('exercises').select('*', count='exact').execute()
+            if hasattr(exercises_response, 'count'):
+                total_exercises = exercises_response.count
+            elif exercises_response.data:
+                total_exercises = len(exercises_response.data)
+            logger.info(f"Total exercises retrieved: {total_exercises}")
+        except Exception as e:
+            logger.error(f"Error getting total exercises: {e}")
+            total_exercises = 0
+        
+        # Get exercises by level with corrected query
+        try:
+            # First get all exercises to count by level
+            all_exercises = supabase.table('exercises').select('level').execute()
+            
+            if all_exercises and all_exercises.data:
+                for exercise in all_exercises.data:
+                    level = exercise.get('level', '').lower()
+                    if level in level_counts:
+                        level_counts[level] += 1
+            
+            logger.info(f"Exercises by level: {level_counts}")
+        except Exception as e:
+            logger.error(f"Error getting exercises by level: {e}")
+            # Keep default values if query fails
         
         return render_template('auth/dashboard.html', 
-                             total_users=total_users.count if hasattr(total_users, 'count') else 0,
-                             total_exercises=total_exercises.count if hasattr(total_exercises, 'count') else 0,
+                             total_users=total_users,
+                             total_exercises=total_exercises,
                              exercises_by_level=level_counts)
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
+        logger.error(f"Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         flash('Error al cargar el dashboard', 'error')
         return render_template('auth/dashboard.html', total_users=0, total_exercises=0, exercises_by_level={})
 

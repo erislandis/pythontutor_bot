@@ -162,7 +162,7 @@
 {% block extra_js %}
 <script>
 // Progress data from server
-const progressData = {{ levels|tojson }};
+const progressData = JSON.parse('{{ exercises_by_level|tojson }}');
 
 // Set progress bar widths
 document.addEventListener('DOMContentLoaded', function() {
