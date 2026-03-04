@@ -484,6 +484,188 @@ def admin_exercises():
         flash('Error al cargar ejercicios', 'danger')
         return render_template('admin/exercises.html', exercises=[])
 
+# API Endpoints for Bot
+@app.route('/api/user/<int:telegram_id>', methods=['GET'])
+def get_user(telegram_id):
+    """Get user by telegram_id for bot"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database not connected'}), 500
+        
+        response = supabase.table('users').select('*').eq('telegram_id', telegram_id).execute()
+        
+        if response.data:
+            return jsonify(response.data[0]), 200
+        else:
+            return jsonify({'error': 'User not found'}), 404
+            
+    except Exception as e:
+        logger.error(f"API get user error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/user', methods=['POST'])
+def create_user():
+    """Create new user for bot"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database not connected'}), 500
+        
+        user_data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['telegram_id', 'username', 'first_name']
+        for field in required_fields:
+            if field not in user_data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Check if user already exists
+        existing_user = supabase.table('users').select('*').eq('telegram_id', user_data['telegram_id']).execute()
+        if existing_user.data:
+            return jsonify(existing_user.data[0]), 200
+        
+        # Create new user
+        response = supabase.table('users').insert({
+            'telegram_id': user_data['telegram_id'],
+            'username': user_data.get('username', ''),
+            'first_name': user_data.get('first_name', ''),
+            'last_name': user_data.get('last_name', ''),
+            'current_level': user_data.get('current_level', 'principiante'),
+            'level_progress': user_data.get('level_progress', 0),
+            'total_exercises_completed': user_data.get('total_exercises_completed', 0),
+            'last_activity': 'now()',
+            'created_at': 'now()'
+        }).execute()
+        
+        if response.data:
+            return jsonify(response.data[0]), 201
+        else:
+            return jsonify({'error': 'Failed to create user'}), 500
+            
+    except Exception as e:
+        logger.error(f"API create user error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/exercises/<level>', methods=['GET'])
+def get_exercises(level):
+    """Get exercises by level for bot"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database not connected'}), 500
+        
+        # Validate level
+        valid_levels = ['principiante', 'intermedio', 'avanzado', 'experto']
+        if level not in valid_levels:
+            return jsonify({'error': 'Invalid level'}), 400
+        
+        response = supabase.table('exercises').select('*').eq('level', level).execute()
+        
+        if response.data:
+            return jsonify(response.data), 200
+        else:
+            return jsonify([]), 200
+            
+    except Exception as e:
+        logger.error(f"API get exercises error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/user/progress', methods=['POST'])
+def update_progress():
+    """Update user progress for bot"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database not connected'}), 500
+        
+        progress_data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['telegram_id', 'exercise_id', 'completed']
+        for field in required_fields:
+            if field not in progress_data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Get current user
+        user_response = supabase.table('users').select('*').eq('telegram_id', progress_data['telegram_id']).execute()
+        if not user_response.data:
+            return jsonify({'error': 'User not found'}), 404
+        
+        user = user_response.data[0]
+        
+        # Update user progress
+        if progress_data['completed']:
+            new_progress = user.get('level_progress', 0) + 1
+            new_total = user.get('total_exercises_completed', 0) + 1
+        else:
+            new_progress = user.get('level_progress', 0)
+            new_total = user.get('total_exercises_completed', 0)
+        
+        response = supabase.table('users').update({
+            'level_progress': new_progress,
+            'total_exercises_completed': new_total,
+            'last_activity': 'now()'
+        }).eq('telegram_id', progress_data['telegram_id']).execute()
+        
+        if response.data:
+            return jsonify({'success': True}), 200
+        else:
+            return jsonify({'error': 'Failed to update progress'}), 500
+            
+    except Exception as e:
+        logger.error(f"API update progress error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/user/progress/<int:telegram_id>/<level>', methods=['GET'])
+def get_level_progress(telegram_id, level):
+    """Get user progress for specific level for bot"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database not connected'}), 500
+        
+        # Get user
+        user_response = supabase.table('users').select('*').eq('telegram_id', telegram_id).execute()
+        if not user_response.data:
+            return jsonify({'completed_count': 0, 'total_count': 300}), 200
+        
+        user = user_response.data[0]
+        
+        # Get completed exercises for this level
+        # This is a simplified version - in a real implementation you'd have a separate progress table
+        completed_count = user.get('level_progress', 0) if user.get('current_level') == level else 0
+        
+        return jsonify({
+            'completed_count': completed_count,
+            'total_count': 300
+        }), 200
+            
+    except Exception as e:
+        logger.error(f"API get level progress error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/user/stats/<int:telegram_id>', methods=['GET'])
+def get_user_stats(telegram_id):
+    """Get user statistics for bot"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database not connected'}), 500
+        
+        # Get user
+        user_response = supabase.table('users').select('*').eq('telegram_id', telegram_id).execute()
+        if not user_response.data:
+            return jsonify({
+                'current_streak': 0,
+                'total_completed': 0
+            }), 200
+        
+        user = user_response.data[0]
+        
+        return jsonify({
+            'current_streak': 1,  # Simplified - would calculate from activity
+            'total_completed': user.get('total_exercises_completed', 0)
+        }), 200
+            
+    except Exception as e:
+        logger.error(f"API get user stats error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
 # API Endpoints for Exercises Management
 @app.route('/api/admin/exercises', methods=['GET'])
 @admin_required
