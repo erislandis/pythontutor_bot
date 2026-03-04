@@ -2,292 +2,794 @@
 
 {% block title %}Características - Python Tutor Bot{% endblock %}
 
-{% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<style>
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fa;
-            color: #333;
-        }
-        
-        .navbar-custom {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .hero-features {
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-            color: white;
-            padding: 100px 0 50px;
-        }
-        
-        .feature-detail {
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            margin: 30px 0;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        }
-        
-        .feature-icon-lg {
-            font-size: 4rem;
-            color: #3498db;
-            margin-bottom: 20px;
-        }
-        
-        .tech-badge {
-            display: inline-block;
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 5px 15px;
-            border-radius: 20px;
-            margin: 5px;
-            font-size: 0.9rem;
-        }
-        
-        .footer {
-            background: #2c3e50;
-            color: white;
-            padding: 50px 0;
-            margin-top: 50px;
-        }
-    
-</style>
-{% endblock %}
-
 {% block content %}
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-robot me-2"></i>Python Tutor Bot
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/features">Características</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">Acerca de</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://t.me/TuBotPython" target="_blank">
-                            <i class="fab fa-telegram"></i> Telegram
-                        </a>
-                    </li>
-                </ul>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto">
+                <h1>Características del Bot</h1>
+                <p class="lead">Descubre todas las funcionalidades que hacen de nuestro bot la mejor herramienta para aprender Python.</p>
             </div>
-        </div>
-    </nav>
-
-    <!-- Hero -->
-    <section class="hero-features">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 mx-auto text-center">
-                    <h1 class="display-4 mb-4">Características Completas</h1>
-                    <p class="lead">Descubre todo lo que nuestro bot educativo puede ofrecerte</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Content -->
-    <div class="container my-5">
-        <!-- Bot Features -->
-        <div class="feature-detail">
-            <div class="row align-items-center">
-                <div class="col-lg-4 text-center">
-                    <div class="feature-icon-lg">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3>Bot de Telegram</h3>
-                </div>
-                <div class="col-lg-8">
-                    <h4>Aprendizaje Conversacional</h4>
-                    <p>Interactúa naturalmente con nuestro bot inteligente que entiende contexto y se adapta a tu nivel.</p>
-                    <ul>
-                        <li><strong>Comandos intuitivos:</strong> /start, /menu, /help, /exercise, /stats</li>
-                        <li><strong>Respuestas instantáneas:</strong> Retroalimentación inmediata en tus ejercicios</li>
-                        <li><strong>Modo conversación:</strong> Aprende como si hablaras con un tutor real</li>
-                        <li><strong>Soporte multimedia:</strong> Códigos, imágenes y explicaciones detalladas</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Learning Features -->
-        <div class="feature-detail">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h4>Contenido Educativo</h4>
-                    <p>Curso completo de Python desde cero hasta nivel intermedio.</p>
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-book me-2"></i>Módulos</h6>
-                            <ul>
-                                <li>Introducción a Python</li>
-                                <li>Variables y tipos de datos</li>
-                                <li>Estructuras de control</li>
-                                <li>Funciones y módulos</li>
-                                <li>Programación orientada a objetos</li>
-                                <li>Manejo de archivos</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-star me-2"></i>Niveles</h6>
-                            <ul>
-                                <li>Principiante (Beginner)</li>
-                                <li>Intermedio (Intermediate)</li>
-                                <li>Avanzado (Advanced)</li>
-                                <li>Proyectos prácticos</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-center">
-                    <div class="feature-icon-lg">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h3>Aprendizaje</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- Progress Features -->
-        <div class="feature-detail">
-            <div class="row align-items-center">
-                <div class="col-lg-4 text-center">
-                    <div class="feature-icon-lg">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>Seguimiento</h3>
-                </div>
-                <div class="col-lg-8">
-                    <h4>Sistema de Progreso</h4>
-                    <p>Monitorea tu aprendizaje con métricas detalladas.</p>
-                    <div class="row mt-4">
-                        <div class="col-md-4 text-center">
-                            <h2 class="text-primary">XP</h2>
-                            <p>Sistema de experiencia por ejercicios completados</p>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <h2 class="text-success">Niveles</h2>
-                            <p>Sube de nivel según tu progreso</p>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <h2 class="text-warning">Ranking</h2>
-                            <p>Compite con otros estudiantes</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile App Features -->
-        <div class="feature-detail">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h4>Aplicación Android</h4>
-                    <p>Accede a todo el contenido desde tu dispositivo móvil.</p>
-                    <div class="mt-4">
-                        <h6><i class="fas fa-check-circle text-success me-2"></i>Características de la app:</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <ul>
-                                    <li>Ejercicios offline</li>
-                                    <li>Sincronización en la nube</li>
-                                    <li>Notificaciones de recordatorio</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <ul>
-                                    <li>Modo oscuro</li>
-                                    <li>Progreso detallado</li>
-                                    <li>Soporte táctil completo</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-center">
-                    <div class="feature-icon-lg">
-                        <i class="fab fa-android"></i>
-                    </div>
-                    <h3>App Móvil</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- Technology Stack -->
-        <div class="feature-detail">
-            <div class="text-center">
-                <h3><i class="fas fa-code me-2"></i>Tecnologías Utilizadas</h3>
-                <p class="mb-4">Nuestro sistema está construido con las mejores tecnologías</p>
-                
-                <div class="mb-4">
-                    <span class="tech-badge">Python 3.10+</span>
-                    <span class="tech-badge">Flask</span>
-                    <span class="tech-badge">PostgreSQL</span>
-                    <span class="tech-badge">Telegram Bot API</span>
-                    <span class="tech-badge">REST API</span>
-                    <span class="tech-badge">JWT Authentication</span>
-                    <span class="tech-badge">Bootstrap 5</span>
-                    <span class="tech-badge">Render Cloud</span>
-                </div>
-                
-                <div class="alert alert-info mt-4">
-                    <h6><i class="fas fa-shield-alt me-2"></i>Seguridad</h6>
-                    <p class="mb-0">Todo el sistema utiliza encriptación SSL, autenticación JWT y sigue las mejores prácticas de seguridad.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- CTA -->
-        <div class="text-center my-5">
-            <h3 class="mb-4">¿Listo para comenzar?</h3>
-            <a href="https://t.me/TuBotPython" class="btn btn-primary btn-lg" target="_blank">
-                <i class="fab fa-telegram me-2"></i> Comenzar en Telegram
-            </a>
-            <p class="mt-3">
-                <small>O descarga nuestra <a href="#">app para Android</a></small>
-            </p>
         </div>
     </div>
+</section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="fas fa-robot me-2"></i>Python Tutor Bot</h5>
-                    <p class="mt-3">Educación en programación accesible para todos.</p>
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        
+<!-- Interactive Demo Section -->
+<section class="how-it-works" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 mb-3 text-white">Prueba el Bot Ahora</h2>
+                <p class="lead text-white">Experimenta con Python directamente en tu navegador. Siente la magia del aprendizaje interactivo.</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="demo-playground bg-white rounded-3 shadow-lg p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="fas fa-code me-2"></i>Python Playground</h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadExample('basico')">Básico</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadExample('intermedio')">Intermedio</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadExample('avanzado')">Avanzado</button>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Código Python:</label>
+                                <textarea id="codeInput" class="form-control font-monospace" rows="8" placeholder="# Escribe tu código aquí...&#10;print('¡Hola, Python!')&#10;&#10;# Intenta variables, bucles, funciones..."># Escribe tu código aquí...
+print('¡Hola, Python!')
+
+# Intenta variables, bucles, funciones...</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Resultado:</label>
+                                <div id="outputArea" class="form-control bg-light font-monospace" style="min-height: 200px; white-space: pre-wrap;">¡Hola, Python!</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button onclick="executeCode()" class="btn btn-primary btn-lg">
+                            <i class="fas fa-play me-2"></i>Ejecutar Código
+                        </button>
+                        <button onclick="clearCode()" class="btn btn-outline-secondary btn-lg ms-2">
+                            <i class="fas fa-eraser me-2"></i>Limpiar
+                        </button>
+                    </div>
+                    
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Este es un simulador. Para la experiencia completa con retroalimentación AI, 
+                            <a href="https://t.me/TuBotPython" target="_blank" class="text-primary">usa nuestro bot de Telegram</a>
+                        </small>
+                    </div>
                 </div>
-                <div class="col-md-6 text-end">
-                    <a href="/admin/login" class="text-white-50">
-                        <i class="fas fa-lock me-1"></i> Panel Administrativo
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technology Stack Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 mb-3">Tecnología de Vanguardia</h2>
+                <p class="lead">Infraestructura robusta diseñada para escalabilidad y rendimiento excepcional.</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <div class="feature-card text-center h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h4>Backend Python</h4>
+                    <p>Flask + FastAPI con async/await para alto rendimiento</p>
+                    <div class="mt-2">
+                        <span class="badge bg-success">99.9% Uptime</span>
+                        <span class="badge bg-primary">Microservicios</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="feature-card text-center h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h4>Base de Datos</h4>
+                    <p>PostgreSQL + Redis para caché y sesiones en tiempo real</p>
+                    <div class="mt-2">
+                        <span class="badge bg-info">SQL</span>
+                        <span class="badge bg-warning">NoSQL</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="feature-card text-center h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4>AI/ML</h4>
+                    <p>TensorFlow + NLP para análisis de código y recomendaciones</p>
+                    <div class="mt-2">
+                        <span class="badge bg-danger">Machine Learning</span>
+                        <span class="badge bg-dark">NLP</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="feature-card text-center h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h4>Cloud Infrastructure</h4>
+                    <p>Docker + Kubernetes con auto-scaling automático</p>
+                    <div class="mt-2">
+                        <span class="badge bg-primary">AWS</span>
+                        <span class="badge bg-secondary">CDN</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Learning Path Visualization -->
+<section class="how-it-works">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 mb-3">Tu Ruta de Aprendizaje</h2>
+                <p class="lead">Visualiza tu progreso y descubre qué te espera en cada nivel.</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="learning-path">
+                    <div class="path-level" data-level="1">
+                        <div class="level-header">
+                            <div class="level-number">1</div>
+                            <div class="level-info">
+                                <h5>Principiante</h5>
+                                <p>Variables, tipos de datos, operadores básicos</p>
+                            </div>
+                        </div>
+                        <div class="level-content">
+                            <div class="skill-item"><i class="fas fa-check-circle text-success"></i> Sintaxis básica</div>
+                            <div class="skill-item"><i class="fas fa-check-circle text-success"></i> Variables y tipos</div>
+                            <div class="skill-item"><i class="fas fa-check-circle text-success"></i> Operadores</div>
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Control de flujo</div>
+                        </div>
+                    </div>
+                    
+                    <div class="path-level" data-level="2">
+                        <div class="level-header">
+                            <div class="level-number">2</div>
+                            <div class="level-info">
+                                <h5>Intermedio</h5>
+                                <p>Funciones, módulos, POO básico</p>
+                            </div>
+                        </div>
+                        <div class="level-content">
+                            <div class="skill-item"><i class="fas fa-check-circle text-success"></i> Funciones</div>
+                            <div class="skill-item"><i class="fas fa-check-circle text-success"></i> Módulos</div>
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Clases y objetos</div>
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Herencia</div>
+                        </div>
+                    </div>
+                    
+                    <div class="path-level" data-level="3">
+                        <div class="level-header">
+                            <div class="level-number">3</div>
+                            <div class="level-info">
+                                <h5>Avanzado</h5>
+                                <p>Decoradores, generadores, metaprogramación</p>
+                            </div>
+                        </div>
+                        <div class="level-content">
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Decoradores</div>
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Generadores</div>
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Metaclases</div>
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Async/await</div>
+                        </div>
+                    </div>
+                    
+                    <div class="path-level" data-level="4">
+                        <div class="level-header">
+                            <div class="level-number">4</div>
+                            <div class="level-info">
+                                <h5>Experto</h5>
+                                <p>Optimización, patrones de diseño, arquitectura</p>
+                            </div>
+                        </div>
+                        <div class="level-content">
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Patrones de diseño</div>
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Optimización</div>
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Testing avanzado</div>
+                            <div class="skill-item"><i class="fas fa-circle text-muted"></i> Deploy producción</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comparison Table -->
+<section class="features-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 mb-3">Comparación con Otras Plataformas</h2>
+                <p class="lead">Descubre por qué Python Tutor Bot es la mejor opción para aprender Python.</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="table-responsive">
+                    <table class="table table-hover comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Característica</th>
+                                <th class="text-center">
+                                    <i class="fas fa-robot me-2"></i>Python Tutor Bot
+                                </th>
+                                <th class="text-center">Codecademy</th>
+                                <th class="text-center">Udemy</th>
+                                <th class="text-center">YouTube</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Interacción AI</strong></td>
+                                <td class="text-center"><i class="fas fa-check text-success fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-times text-danger fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-times text-danger fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-times text-danger fa-lg"></i></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Retroalimentación Instantánea</strong></td>
+                                <td class="text-center"><i class="fas fa-check text-success fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-check text-warning fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-times text-danger fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-times text-danger fa-lg"></i></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Aprendizaje Adaptativo</strong></td>
+                                <td class="text-center"><i class="fas fa-check text-success fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-times text-danger fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-times text-danger fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-times text-danger fa-lg"></i></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Comunidad Activa</strong></td>
+                                <td class="text-center"><i class="fas fa-check text-success fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-check text-warning fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-check text-warning fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-check text-warning fa-lg"></i></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Costo</strong></td>
+                                <td class="text-center"><span class="badge bg-success">GRATIS</span></td>
+                                <td class="text-center"><span class="badge bg-warning">Freemium</span></td>
+                                <td class="text-center"><span class="badge bg-danger">Pago</span></td>
+                                <td class="text-center"><span class="badge bg-success">GRATIS</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Disponibilidad Móvil</strong></td>
+                                <td class="text-center"><i class="fas fa-check text-success fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-check text-success fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-check text-success fa-lg"></i></td>
+                                <td class="text-center"><i class="fas fa-check text-success fa-lg"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="how-it-works">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 mb-3">Historias de Éxito</h2>
+                <p class="lead">Conoce cómo nuestros estudiantes están transformando sus carreras con Python.</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <img src="https://picsum.photos/seed/user1/60/60" alt="Usuario" class="rounded-circle">
+                        <div class="testimonial-info">
+                            <h6 class="mb-0">María González</h6>
+                            <small class="text-muted">Desarrolladora Web</small>
+                        </div>
+                    </div>
+                    <div class="testimonial-content">
+                        <p>"Gracias a Python Tutor Bot, pasé de ser principiante absolute a conseguir mi primer trabajo como desarrolladora en 6 meses. ¡El método es increíble!"</p>
+                        <div class="testimonial-stats">
+                            <span class="badge bg-primary">300+ ejercicios</span>
+                            <span class="badge bg-success">Nivel Avanzado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <img src="https://picsum.photos/seed/user2/60/60" alt="Usuario" class="rounded-circle">
+                        <div class="testimonial-info">
+                            <h6 class="mb-0">Carlos Rodríguez</h6>
+                            <small class="text-muted">Data Scientist</small>
+                        </div>
+                    </div>
+                    <div class="testimonial-content">
+                        <p>"La retroalimentación instantánea del bot es genial. Me ayudó a corregir errores que ni sabía que tenía. Ahora trabajo en análisis de datos."</p>
+                        <div class="testimonial-stats">
+                            <span class="badge bg-primary">450+ ejercicios</span>
+                            <span class="badge bg-success">Experto</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <img src="https://picsum.photos/seed/user3/60/60" alt="Usuario" class="rounded-circle">
+                        <div class="testimonial-info">
+                            <h6 class="mb-0">Ana Martínez</h6>
+                            <small class="text-muted">Estudiante Universitaria</small>
+                        </div>
+                    </div>
+                    <div class="testimonial-content">
+                        <p>"Uso el bot para complementar mis estudios de ingeniería. Es mucho más interactivo que las clases tradicionales y aprendo a mi propio ritmo."</p>
+                        <div class="testimonial-stats">
+                            <span class="badge bg-primary">200+ ejercicios</span>
+                            <span class="badge bg-warning">Intermedio</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Integration Showcase -->
+<section class="features-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 mb-3">Integraciones Poderosas</h2>
+                <p class="lead">Conecta Python Tutor Bot con tus herramientas favoritas y maximiza tu productividad.</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="integration-card">
+                    <div class="integration-header">
+                        <div class="integration-icon">
+                            <i class="fab fa-telegram fa-2x"></i>
+                        </div>
+                        <h4>Telegram Bot API</h4>
+                    </div>
+                    <div class="integration-content">
+                        <p>Integración nativa con Telegram para experiencia fluida:</p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Comandos personalizados</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Notificaciones push</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Chat en tiempo real</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Soporte multimedia</li>
+                        </ul>
+                        <div class="mt-3">
+                            <a href="https://t.me/TuBotPython" class="btn btn-primary">
+                                <i class="fab fa-telegram me-2"></i>Probar Bot
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="integration-card">
+                    <div class="integration-header">
+                        <div class="integration-icon">
+                            <i class="fas fa-code fa-2x"></i>
+                        </div>
+                        <h4>REST API</h4>
+                    </div>
+                    <div class="integration-content">
+                        <p>API completa para desarrolladores:</p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Endpoints RESTful</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Documentación OpenAPI</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Autenticación OAuth</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Rate limiting</li>
+                        </ul>
+                        <div class="mt-3">
+                            <a href="/api/docs" class="btn btn-outline-primary">
+                                <i class="fas fa-book me-2"></i>Ver Documentación
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="integration-card text-center">
+                    <div class="integration-icon">
+                        <i class="fab fa-github fa-2x"></i>
+                    </div>
+                    <h4>GitHub Integration</h4>
+                    <p>Conecta tu progreso con repositorios GitHub</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="integration-card text-center">
+                    <div class="integration-icon">
+                        <i class="fab fa-vscode fa-2x"></i>
+                    </div>
+                    <h4>VS Code Extension</h4>
+                    <p>Plugin para practicar directamente en tu editor</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="integration-card text-center">
+                    <div class="integration-icon">
+                        <i class="fab fa-slack fa-2x"></i>
+                    </div>
+                    <h4>Slack Bot</h4>
+                    <p>Integra el aprendizaje en tu workspace</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Advanced Features -->
+<section class="how-it-works">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 mb-3">Características Avanzadas</h2>
+                <p class="lead">Funcionalidades premium para llevar tu aprendizaje al siguiente nivel.</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Editor de Código Integrado</h3>
+                    <p>Escribe y ejecuta código Python directamente en el bot. Soporte completo para sintaxis highlighting y autocompletado.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>Proyectos Prácticos</h3>
+                    <p>Trabaja en proyectos reales y construye tu portafolio. Desde scripts simples hasta aplicaciones completas.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Aprendizaje Adaptativo</h3>
+                    <p>El bot se adapta a tu ritmo y estilo de aprendizaje, recomendando ejercicios personalizados.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3>Certificados de Logro</h3>
+                    <p>Obtén certificados verificables al completar niveles y proyectos especiales.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-4 mb-4">¿Listo para comenzar?</h2>
+                <p class="lead mb-4">Únete a miles de estudiantes que ya están aprendiendo Python con nuestro bot.</p>
+                <div class="d-flex justify-content-center flex-wrap gap-3">
+                    <a href="https://t.me/TuBotPython" class="btn btn-light btn-lg" target="_blank">
+                        <i class="fab fa-telegram me-2"></i> Comenzar en Telegram
+                    </a>
+                    <a href="/about" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-info-circle me-2"></i> Más Información
                     </a>
                 </div>
             </div>
-            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
-            <p class="text-center mb-0">&copy; 2024 Python Tutor Bot. Todos los derechos reservados.</p>
         </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
+    </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Python Playground functionality
+const codeExamples = {
+    basico: `# Variables y tipos de datos
+nombre = "Python Tutor Bot"
+edad = 25
+es_estudiante = True
+
+print(f"¡Hola, {nombre}!")
+print(f"Tienes {edad} años")
+print(f"¿Eres estudiante? {es_estudiante}")
+
+# Listas y bucles
+frutas = ["manzana", "banana", "naranja"]
+for fruta in frutas:
+    print(f"Me gusta la {fruta}")`,
+    
+    intermedio: `# Funciones y módulos
+import math
+
+def calcular_area_circulo(radio):
+    """Calcula el área de un círculo"""
+    return math.pi * radio ** 2
+
+def saludar(nombre, idioma="es"):
+    """Función con parámetros por defecto"""
+    saludos = {
+        "es": f"Hola, {nombre}!",
+        "en": f"Hello, {name}!",
+        "fr": f"Bonjour, {name}!"
+    }
+    return saludos.get(idioma, f"Hola, {nombre}!")
+
+# Uso de funciones
+area = calcular_area_circulo(5)
+print(f"El área del círculo es: {area:.2f}")
+print(saludar("Estudiante"))
+print(saludar("Student", "en"))`,
+    
+    avanzado: `# Programación orientada a objetos
+class Estudiante:
+    def __init__(self, nombre, edad, nivel):
+        self.nombre = nombre
+        self.edad = edad
+        self.nivel = nivel
+        self.ejercicios_completados = []
+    
+    def completar_ejercicio(self, ejercicio):
+        """Método para completar ejercicios"""
+        self.ejercicios_completados.append(ejercicio)
+        print(f"✅ {self.nombre} completó: {ejercicio}")
+    
+    def obtener_progreso(self):
+        """Método para obtener progreso"""
+        return len(self.ejercicios_completados)
+    
+    def __str__(self):
+        return f"Estudiante({self.nombre}, Nivel: {self.nivel}, Progreso: {self.obtener_progreso()})"
+
+# Herencia
+class EstudianteAvanzado(Estudiante):
+    def __init__(self, nombre, edad, nivel, especialidad):
+        super().__init__(nombre, edad, nivel)
+        self.especialidad = especialidad
+    
+    def resolver_problema_complejo(self, problema):
+        """Método específico para estudiantes avanzados"""
+        print(f"🧠 {self.nombre} está resolviendo: {problema}")
+        return f"Solución para {problema} usando {self.especialidad}"
+
+# Uso de clases
+estudiante1 = Estudiante("Ana", 20, "principiante")
+estudiante1.completar_ejercicio("Variables y tipos")
+estudiante1.completar_ejercicio("Bucles for")
+
+estudiante2 = EstudianteAvanzado("Carlos", 25, "avanzado", "Data Science")
+solucion = estudiante2.resolver_problema_complejo("Análisis de datos con Pandas")
+
+print(estudiante1)
+print(estudiante2)
+print(f"Solución: {solucion}")`
+};
+
+function loadExample(level) {
+    const codeInput = document.getElementById('codeInput');
+    const outputArea = document.getElementById('outputArea');
+    
+    codeInput.value = codeExamples[level] || '';
+    outputArea.textContent = 'Carga el ejemplo y haz clic en "Ejecutar Código"';
+    
+    // Add visual feedback
+    codeInput.style.borderColor = '#28a745';
+    setTimeout(() => {
+        codeInput.style.borderColor = '#e0e0e0';
+    }, 1000);
+}
+
+function executeCode() {
+    const codeInput = document.getElementById('codeInput');
+    const outputArea = document.getElementById('outputArea');
+    const code = codeInput.value;
+    
+    if (!code.trim()) {
+        outputArea.textContent = 'Por favor, escribe algún código para ejecutar.';
+        outputArea.style.borderColor = '#dc3545';
+        return;
+    }
+    
+    // Simulate code execution
+    outputArea.style.borderColor = '#28a745';
+    outputArea.textContent = '⚡ Ejecutando código...';
+    
+    setTimeout(() => {
+        try {
+            // Capture console.log output
+            const originalLog = console.log;
+            let output = [];
+            
+            console.log = function(...args) {
+                output.push(args.join(' '));
+            };
+            
+            // Execute the code (simplified simulation)
+            eval(code);
+            
+            // Restore console.log
+            console.log = originalLog;
+            
+            if (output.length > 0) {
+                outputArea.textContent = output.join('\n');
+                outputArea.style.borderColor = '#28a745';
+            } else {
+                outputArea.textContent = '✅ Código ejecutado correctamente (sin salida visible)';
+                outputArea.style.borderColor = '#28a745';
+            }
+        } catch (error) {
+            outputArea.textContent = `❌ Error: ${error.message}`;
+            outputArea.style.borderColor = '#dc3545';
+        }
+    }, 1500);
+}
+
+function clearCode() {
+    const codeInput = document.getElementById('codeInput');
+    const outputArea = document.getElementById('outputArea');
+    
+    codeInput.value = '';
+    outputArea.textContent = '';
+    
+    // Reset borders
+    codeInput.style.borderColor = '#e0e0e0';
+    outputArea.style.borderColor = '#e0e0e0';
+    
+    // Focus on code input
+    codeInput.focus();
+}
+
+// Interactive learning path
+document.addEventListener('DOMContentLoaded', function() {
+    const pathLevels = document.querySelectorAll('.path-level');
+    
+    pathLevels.forEach((level, index) => {
+        level.addEventListener('click', function() {
+            // Remove active class from all levels
+            pathLevels.forEach(l => l.classList.remove('active'));
+            
+            // Add active class to clicked level
+            this.classList.add('active');
+            
+            // Scroll to level details
+            this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    });
+    
+    // Add hover effects to skill items
+    const skillItems = document.querySelectorAll('.skill-item');
+    skillItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.paddingLeft = '15px';
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.paddingLeft = '8px';
+            this.style.backgroundColor = 'transparent';
+        });
+    });
+    
+    // Comparison table interactions
+    const comparisonTable = document.querySelector('.comparison-table');
+    if (comparisonTable) {
+        const rows = comparisonTable.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.02)';
+                this.style.transition = 'all 0.3s ease';
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    }
+    
+    // Testimonial animations
+    const testimonialCards = document.querySelectorAll('.testimonial-card');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    testimonialCards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s ease';
+        observer.observe(card);
+    });
+});
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + Enter to execute code
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        executeCode();
+    }
+    
+    // Ctrl/Cmd + L to clear code
+    if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+        e.preventDefault();
+        clearCode();
+    }
+});
+</script>
 {% endblock %}

@@ -3,93 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Aprende Python de forma interactiva con nuestro bot de Telegram. Más de 1200 ejercicios prácticos en 4 niveles de dificultad.">
-    <title>{% block title %}PythonBot - Aprende Python con Telegram{% endblock %}</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>{% block title %}Python Tutor Bot - Aprende Python Gratis{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="/" class="logo">
-                <span class="logo-icon">🐍</span>
-                <span class="logo-text">PythonBot</span>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>Python Tutor Bot
             </a>
-            
-            <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menú">☰</button>
-            
-            <ul class="nav-menu">
-                <li><a href="/">Inicio</a></li>
-                <li><a href="/about">Acerca de</a></li>
-                <li><a href="https://t.me/pythonpersonaltutor_bot" target="_blank">Ir al Bot</a></li>
-                {% if not current_user.is_authenticated %}
-                <li><a href="/login" class="btn-action">Admin</a></li>
-                {% endif %}
-            </ul>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/features">Características</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">Acerca de</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://t.me/TuBotPython" target="_blank">
+                            <i class="fab fa-telegram"></i> Telegram Bot
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="alerts-container">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">
-                            {{ message }}
-                            <button type="button" class="alert-close" onclick="this.parentElement.remove()">×</button>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <div class="footer-logo">
-                    <span class="logo-icon">🐍</span>
-                    <span>PythonBot</span>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <h5><i class="fas fa-robot me-2"></i>Python Tutor Bot</h5>
+                    <p class="mt-3">Plataforma educativa para aprender Python de forma interactiva mediante Telegram y aplicaciones móviles.</p>
                 </div>
-                <p>Aprende Python de forma interactiva con nuestro bot de Telegram.</p>
-                <div class="footer-social">
-                    <a href="https://t.me/pythonpersonaltutor_bot" target="_blank" aria-label="Telegram">📱</a>
-                    <a href="#" aria-label="GitHub">💻</a>
-                    <a href="#" aria-label="Twitter">🐦</a>
+                
+                <div class="col-lg-4">
+                    <h5>Enlaces Rápidos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white-50">Inicio</a></li>
+                        <li><a href="/features" class="text-white-50">Características</a></li>
+                        <li><a href="/about" class="text-white-50">Acerca de</a></li>
+                        <li><a href="https://t.me/TuBotPython" class="text-white-50" target="_blank">Telegram Bot</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-4">
+                    <h5>Contacto</h5>
+                    <p class="text-white-50">
+                        <i class="fas fa-envelope me-2"></i> soporte@pythontutor.com<br>
+                        <i class="fas fa-globe me-2"></i> https://pythontutor-bot.onrender.com
+                    </p>
+                    <div class="mt-3 social-links">
+                        <a href="#" class="text-white-50 me-3"><i class="fab fa-telegram fa-lg"></i></a>
+                        <a href="#" class="text-white-50 me-3"><i class="fab fa-github fa-lg"></i></a>
+                        <a href="#" class="text-white-50"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
                 </div>
             </div>
             
-            <div class="footer-section">
-                <h4>Enlaces Rápidos</h4>
-                <ul>
-                    <li><a href="/">Inicio</a></li>
-                    <li><a href="/about">Acerca de</a></li>
-                </ul>
-            </div>
+            <hr class="mt-4 mb-4" style="border-color: rgba(255,255,255,0.1);">
             
-            <div class="footer-section">
-                <h4>Recursos</h4>
-                <ul>
-                    <li><a href="#">Documentación</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Soporte</a></li>
-                </ul>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0 text-white-50">
+                        &copy; 2024 Python Tutor Bot. Todos los derechos reservados.
+                    </p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="/login" class="admin-link">
+                        <i class="fas fa-lock me-1"></i> Panel Administrativo
+                    </a>
+                </div>
             </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2024 PythonBot. Todos los derechos reservados.</p>
         </div>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-custom');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                navbar.style.boxShadow = '0 2px 15px rgba(0,0,0,0.1)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

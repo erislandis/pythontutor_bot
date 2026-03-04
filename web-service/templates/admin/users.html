@@ -1,127 +1,19 @@
-{% extends "admin_base.html" %}
-
-{% block title %}Usuarios - Panel Admin{% endblock %}
-
-{% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<style>
-
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .sidebar {
-            background: linear-gradient(180deg, #1565c0 0%, #0d47a1 100%);
-            color: white;
-            height: 100vh;
-            position: fixed;
-            width: 250px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .sidebar-header h4 {
-            color: #90caf9;
-            font-weight: 600;
-        }
-        .sidebar-menu {
-            padding: 15px;
-        }
-        .sidebar-menu a {
-            color: #bbdefb;
-            text-decoration: none;
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            border-radius: 8px;
-            margin: 5px 0;
-            transition: all 0.3s;
-        }
-        .sidebar-menu a i {
-            width: 25px;
-            margin-right: 10px;
-            font-size: 1.1rem;
-        }
-        .sidebar-menu a:hover {
-            background: rgba(144, 202, 249, 0.1);
-            color: white;
-        }
-        .sidebar-menu a.active {
-            background: linear-gradient(90deg, #2196f3 0%, #1976d2 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 25px;
-            min-height: 100vh;
-        }
-        .header-bar {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .users-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 3px 20px rgba(0,0,0,0.07);
-        }
-        .user-badge {
-            display: inline-flex;
-            align-items: center;
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: 500;
-        }
-        .status-badge {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        .status-active {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-        .status-inactive {
-            background: #ffebee;
-            color: #c62828;
-        }
-        .role-badge {
-            background: #fff3e0;
-            color: #ef6c00;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-        }
-        .action-btn {
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-        }
-    
-</style>
-{% endblock %}
-
-{% block content %}
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - Panel Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
+</head>
+<body>
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h4><i class="fas fa-robot"></i> Python Tutor Bot</h4>
-            <p class="text-muted mb-0">Gestión de Usuarios</p>
+            <h4><i class="fas fa-robot"></i> Panel de Control</h4>
+            <p class="text-muted mb-0">Panel Administrativo</p>
         </div>
         
         <div class="sidebar-menu">
@@ -137,10 +29,6 @@
             <a href="/admin/exercises">
                 <i class="fas fa-book"></i> Ejercicios
             </a>
-            <a href="/admin/database">
-                <i class="fas fa-database"></i> Base de Datos
-            </a>
-     
             <a href="/admin/change-password">
                 <i class="fas fa-key"></i> Cambiar Contraseña
             </a>
@@ -158,814 +46,835 @@
         <!-- Header -->
         <div class="header-bar">
             <div>
-                <h1 class="h3 mb-2" style="color: #1565c0;">
-                    <i class="fas fa-users me-2"></i>
-                    Gestión de Usuarios
+                <h1 class="h3 mb-2" style="color: #2c3e50;">
+                    <i class="fas fa-users me-2"></i>Gestión de Usuarios
                 </h1>
-                <p class="text-muted mb-0">Administra los usuarios del sistema</p>
+                <p class="text-muted mb-0">Administra los usuarios del Telegram Bot</p>
             </div>
             <div class="user-badge">
                 <i class="fas fa-user-circle me-2"></i>
                 {{ current_user.username }}
+                <span class="status-badge status-online ms-2">
+                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Activo
+                </span>
             </div>
         </div>
 
-        <!-- ⭐⭐⭐ AÑADE ESTA LÍNEA (TOKEN CSRF) ⭐⭐⭐ -->
-        <input type="hidden" id="usersCsrfToken" value="{{ csrf_token() }}">
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show mb-4">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <!-- Estadísticas de Usuarios -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card users">
+                    <div class="stat-icon text-primary">
+                        <i class="fas fa-users"></i>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+                    <h6 class="text-muted">Total Usuarios</h6>
+                    <div class="stat-number" id="total-users">{{ stats.total or 0 }}</div>
+                    <small class="text-muted">Usuarios registrados</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card active">
+                    <div class="stat-icon text-success">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h6 class="text-muted">Usuarios Activos</h6>
+                    <div class="stat-number" id="active-users">{{ stats.active or 0 }}</div>
+                    <small class="text-muted">Usuarios activos</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card inactive">
+                    <div class="stat-icon text-warning">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <h6 class="text-muted">Usuarios Inactivos</h6>
+                    <div class="stat-number" id="inactive-users">{{ stats.inactive or 0 }}</div>
+                    <small class="text-muted">Usuarios inactivos</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card recent">
+                    <div class="stat-icon text-info">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h6 class="text-muted">Usuarios Recientes</h6>
+                    <div class="stat-number" id="recent-users">{{ stats.recent or 0 }}</div>
+                    <small class="text-muted">Últimos 7 días</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros y Búsqueda -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card filter-controls-card">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="search-input" 
+                                           placeholder="Buscar por nombre o username...">
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-3">
+                                <select class="form-select" id="status-filter">
+                                    <option value="all">Todos los estados</option>
+                                    <option value="active">Activos</option>
+                                    <option value="inactive">Inactivos</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2 col-md-3">
+                                <select class="form-select" id="per-page">
+                                    <option value="10">10 por página</option>
+                                    <option value="20" selected>20 por página</option>
+                                    <option value="50">50 por página</option>
+                                    <option value="100">100 por página</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-md-12">
+                                <div class="filter-buttons d-flex gap-2 justify-content-end flex-wrap">
+                                    <button class="btn btn-primary flex-shrink-0" id="refresh-btn">
+                                        <i class="fas fa-sync-alt me-1"></i> Actualizar
+                                    </button>
+                                    <button class="btn btn-success flex-shrink-0" id="export-btn">
+                                        <i class="fas fa-download me-1"></i> Exportar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Tabla de Usuarios -->
-        <div class="users-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 style="color: #1565c0;">
-                    <i class="fas fa-list me-2"></i>
-                    Lista de Usuarios
-                </h4>
-                <button class="btn btn-primary" onclick="addUser()">
-                    <i class="fas fa-user-plus me-2"></i> Agregar Usuario
-                </button>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead style="background: #e3f2fd;">
-                        <tr>
-                            <th><i class="fas fa-id-card me-1"></i> ID</th>
-                            <th><i class="fas fa-user me-1"></i> Usuario</th>
-                            <th><i class="fas fa-envelope me-1"></i> Email</th>
-                            <th><i class="fas fa-shield-alt me-1"></i> Rol</th>
-                            <th><i class="fas fa-chart-line me-1"></i> Progreso</th>
-                            <th><i class="fas fa-calendar me-1"></i> Registro</th>
-                            <th><i class="fas fa-cogs me-1"></i> Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr>
-                            <td>
-                                <code>{{ user.id }}</code>
-                            </td>
-                            <td>
-                                <strong>{{ user.username }}</strong>
-                                <br>
-                                <span class="status-badge {{ 'status-active' if user.is_active else 'status-inactive' }}">
-                                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
-                                    {{ 'Activo' if user.is_active else 'Inactivo' }}
-                                </span>
-                            </td>
-                            <td>
-                                <small>{{ user.email or 'Sin email' }}</small>
-                            </td>
-                            <td>
-                                {% if user.is_admin %}
-                                <span class="role-badge">
-                                    <i class="fas fa-crown me-1"></i> Administrador
-                                </span>
-                                {% else %}
-                                <span class="badge bg-secondary">Usuario</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if user.current_level %}
-                                <small>
-                                    <i class="fas fa-level-up-alt text-success me-1"></i>
-                                    {{ user.current_level }}
-                                    <br>
-                                    <i class="fas fa-star text-warning me-1"></i>
-                                    {{ user.total_xp or 0 }} XP
-                                </small>
-                                {% else %}
-                                <small class="text-muted">Sin progreso</small>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <small class="text-muted">
-                                    <i class="far fa-clock me-1"></i>
-                                    {{ user.created_at.strftime('%d/%m/%y') }}
-                                </small>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" onclick="editUser({{ user.id }})">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-outline-success" onclick="viewStats({{ user.id }})">
-                                        <i class="fas fa-chart-bar"></i>
-                                    </button>
-                                    <button class="btn btn-outline-warning" onclick="toggleUser({{ user.id }}, {{ user.is_active|lower }})">
-                                        <i class="fas fa-power-off"></i>
-                                    </button>
-                                    {% if not user.is_admin %}
-                                    <button class="btn btn-outline-danger" onclick="deleteUser({{ user.id }})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Estadísticas -->
-            <div class="row mt-4 pt-4 border-top">
-                <div class="col-md-3 text-center">
-                    <div class="p-3">
-                        <div class="h2 text-primary mb-0">{{ users|length }}</div>
-                        <small class="text-muted">Usuarios totales</small>
-                    </div>
-                </div>
-                <div class="col-md-3 text-center">
-                    <div class="p-3">
-                        <div class="h2 text-success mb-0">{{ users|selectattr('is_active')|list|length }}</div>
-                        <small class="text-muted">Usuarios activos</small>
-                    </div>
-                </div>
-                <div class="col-md-3 text-center">
-                    <div class="p-3">
-                        <div class="h2 text-warning mb-0">{{ users|selectattr('is_admin')|list|length }}</div>
-                        <small class="text-muted">Administradores</small>
-                    </div>
-                </div>
-                <div class="col-md-3 text-center">
-                    <div class="p-3">
-                        <div class="h2 text-info mb-0">
-                            {% set total_xp = namespace(value=0) %}
-                            {% for user in users %}
-                                {% set total_xp.value = total_xp.value + (user.total_xp or 0) %}
-                            {% endfor %}
-                            {{ total_xp.value }}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="logs-table">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <h5 style="color: #2c3e50;" class="mb-0">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            Lista de Usuarios
+                        </h5>
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted me-3" id="users-count">
+                                Mostrando <span id="showing-count">0</span> de <span id="total-count">0</span> usuarios
+                            </span>
                         </div>
-                        <small class="text-muted">XP Total</small>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div id="loading-state" class="text-center py-5" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Cargando usuarios...</p>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-state" class="text-center py-5" style="display: none;">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No se encontraron usuarios</h5>
+                        <p class="text-muted">No hay usuarios que coincidan con los filtros seleccionados.</p>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div id="users-table-container">
+                        <div class="table-responsive users-table-wrapper">
+                            <table class="table table-hover users-table" id="users-table">
+                                <thead style="background: #f5f7fa;">
+                                    <tr>
+                                        <th style="width: 50px;">
+                                            <input type="checkbox" class="form-check-input" id="select-all">
+                                        </th>
+                                        <th style="min-width: 200px;"><i class="fas fa-user me-1"></i> Usuario</th>
+                                        <th style="min-width: 140px;"><i class="fab fa-telegram me-1"></i> Telegram ID</th>
+                                        <th style="min-width: 120px;"><i class="fas fa-chart-line me-1"></i> Progreso</th>
+                                        <th style="min-width: 140px;"><i class="fas fa-calendar me-1"></i> Registro</th>
+                                        <th style="min-width: 140px;"><i class="fas fa-clock me-1"></i> Última Actividad</th>
+                                        <th style="width: 100px;"><i class="fas fa-toggle-on me-1"></i> Estado</th>
+                                        <th style="width: 120px;"><i class="fas fa-cog me-1"></i> Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-tbody">
+                                    <!-- Users will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3" id="pagination-container">
+                        <div class="text-muted" id="pagination-info">
+                            Página <span id="current-page">1</span> de <span id="total-pages">1</span>
+                        </div>
+                        <nav>
+                            <ul class="pagination mb-0" id="pagination">
+                                <!-- Pagination will be generated here -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="row mt-3" id="bulk-actions" style="display: none;">
+            <div class="col-12">
+                <div class="card border-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-warning text-dark">
+                                    <span id="selected-count">0</span> usuarios seleccionados
+                                </span>
+                            </div>
+                            <div>
+                                <button class="btn btn-success btn-sm" id="bulk-activate">
+                                    <i class="fas fa-user-check me-1"></i> Activar
+                                </button>
+                                <button class="btn btn-warning btn-sm ms-2" id="bulk-deactivate">
+                                    <i class="fas fa-user-times me-1"></i> Desactivar
+                                </button>
+                                <button class="btn btn-danger btn-sm ms-2" id="bulk-delete">
+                                    <i class="fas fa-trash me-1"></i> Eliminar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal para agregar/editar usuario -->
-    <div class="modal fade" id="userModal" tabindex="-1">
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="userModalTitle">
-                        <i class="fas fa-user me-2"></i>Agregar Usuario
+                <div class="modal-header border-danger">
+                    <h5 class="modal-title text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmar Eliminación
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="userForm">
-                        <input type="hidden" id="userId" name="user_id">
-                        <!-- ⭐⭐⭐ AÑADE ESTA LÍNEA (TOKEN CSRF) ⭐⭐⭐ -->
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Nombre de Usuario *</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control" id="email" name="email">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Contraseña *</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                            <small class="text-muted">Mínimo 8 caracteres</small>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="confirmPassword" class="form-label">Confirmar Contraseña *</label>
-                            <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Rol</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="is_admin" id="roleUser" value="false" checked>
-                                <label class="form-check-label" for="roleUser">
-                                    Usuario Normal
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="is_admin" id="roleAdmin" value="true">
-                                <label class="form-check-label" for="roleAdmin">
-                                    Administrador
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="isActive" name="is_active" checked>
-                            <label class="form-check-label" for="isActive">
-                                Usuario activo
-                            </label>
-                        </div>
-                        
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Importante:</strong> Los usuarios administradores tienen acceso completo al panel.
-                        </div>
-                    </form>
+                    <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Esta acción no se puede deshacer.</strong> El usuario perderá todo su progreso y no podrá recuperar su cuenta.
+                    </div>
+                    <div id="delete-user-info" class="mb-3">
+                        <!-- User info will be shown here -->
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancelar
+                        <i class="fas fa-times me-1"></i> Cancelar
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="saveUser()">
-                        <i class="fas fa-save me-2"></i> Guardar Usuario
+                    <button type="button" class="btn btn-danger" id="confirm-delete">
+                        <i class="fas fa-trash me-1"></i> Eliminar Usuario
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <strong class="me-auto">Notificación</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                <!-- Message will be shown here -->
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // CSRF Token
-        const csrfToken = document.getElementById('usersCsrfToken').value;
-        
-        let currentAction = 'add';
-        let currentUserId = null;
-        
-        function addUser() {
-            currentAction = 'add';
-            document.getElementById('userModalTitle').innerHTML = '<i class="fas fa-user-plus me-2"></i>Agregar Usuario';
-            document.getElementById('userForm').reset();
-            document.getElementById('userId').value = '';
-            document.getElementById('password').required = true;
-            document.getElementById('confirmPassword').required = true;
+        // Global variables
+        let currentPage = 1;
+        let totalPages = 1;
+        let selectedUsers = new Set();
+        let deleteUserId = null;
+
+        // DOM elements
+        const searchInput = document.getElementById('search-input');
+        const statusFilter = document.getElementById('status-filter');
+        const perPageSelect = document.getElementById('per-page');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const loadingState = document.getElementById('loading-state');
+        const emptyState = document.getElementById('empty-state');
+        const usersTableContainer = document.getElementById('users-table-container');
+        const paginationContainer = document.getElementById('pagination-container');
+        const bulkActions = document.getElementById('bulk-actions');
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+            loadStats();
             
-            const modal = new bootstrap.Modal(document.getElementById('userModal'));
-            modal.show();
-        }
-        
-        function editUser(userId) {
-            currentAction = 'edit';
-            currentUserId = userId;
+            // Event listeners
+            searchInput.addEventListener('input', debounce(loadUsers, 300));
+            statusFilter.addEventListener('change', loadUsers);
+            perPageSelect.addEventListener('change', loadUsers);
+            refreshBtn.addEventListener('click', loadUsers);
+            exportBtn.addEventListener('click', exportUsers);
             
-            // Cargar datos del usuario
-            fetch(`/api/admin/users/${userId}`, {
-                headers: {
-                    'X-CSRF-Token': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const user = data.user;
-                    document.getElementById('userModalTitle').innerHTML = `<i class="fas fa-edit me-2"></i>Editar Usuario: ${user.username}`;
-                    document.getElementById('userId').value = user.id;
-                    document.getElementById('username').value = user.username;
-                    document.getElementById('email').value = user.email || '';
-                    document.getElementById('password').required = false;
-                    document.getElementById('confirmPassword').required = false;
-                    
-                    if (user.is_admin) {
-                        document.getElementById('roleAdmin').checked = true;
+            // Select all checkbox
+            document.getElementById('select-all').addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.user-checkbox');
+                checkboxes.forEach(cb => {
+                    cb.checked = this.checked;
+                    const userId = parseInt(cb.value);
+                    if (this.checked) {
+                        selectedUsers.add(userId);
                     } else {
-                        document.getElementById('roleUser').checked = true;
+                        selectedUsers.delete(userId);
                     }
-                    
-                    document.getElementById('isActive').checked = user.is_active;
-                    
-                    const modal = new bootstrap.Modal(document.getElementById('userModal'));
-                    modal.show();
-                } else {
-                    alert(`❌ Error: ${data.error}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Error de conexión al cargar usuario');
+                });
+                updateBulkActions();
             });
-        }
-        
-        function saveUser() {
-            const form = document.getElementById('userForm');
-            const formData = new FormData(form);
-            const data = {};
             
-            for (let [key, value] of formData.entries()) {
-                if (key === 'csrf_token') continue;
+            // Bulk actions
+            document.getElementById('bulk-activate').addEventListener('click', () => bulkUpdateStatus(true));
+            document.getElementById('bulk-deactivate').addEventListener('click', () => bulkUpdateStatus(false));
+            document.getElementById('bulk-delete').addEventListener('click', bulkDelete);
+            
+            // Delete modal
+            document.getElementById('confirm-delete').addEventListener('click', confirmDeleteUser);
+        });
+
+        // Load users from API
+        async function loadUsers() {
+            showLoading();
+            
+            try {
+                const search = searchInput.value;
+                const status = statusFilter.value;
+                const perPage = perPageSelect.value;
                 
-                // Convertir valores
-                if (key === 'is_admin') {
-                    data[key] = value === 'true';
-                } else if (key === 'is_active') {
-                    data[key] = value === 'on';
+                const params = new URLSearchParams({
+                    search: search,
+                    status: status,
+                    page: currentPage,
+                    per_page: perPage
+                });
+                
+                const response = await fetch(`/api/admin/users?${params}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    renderUsers(data.users);
+                    renderPagination(data.pagination);
+                    updateCounts(data.pagination);
                 } else {
-                    data[key] = value;
+                    showToast('Error al cargar usuarios: ' + data.error, 'danger');
+                    showEmpty();
                 }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showToast('Error de conexión al cargar usuarios', 'danger');
+                showEmpty();
             }
+        }
+
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/admin/users/stats');
+                const stats = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('total-users').textContent = stats.total;
+                    document.getElementById('active-users').textContent = stats.active;
+                    document.getElementById('inactive-users').textContent = stats.inactive;
+                    document.getElementById('recent-users').textContent = stats.recent;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Render users table
+        function renderUsers(users) {
+            const tbody = document.getElementById('users-tbody');
             
-            // Validar contraseña si se está agregando o cambiando
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (currentAction === 'add' && (!password || password.length < 8)) {
-                alert('❌ La contraseña debe tener al menos 8 caracteres');
+            if (users.length === 0) {
+                showEmpty();
                 return;
             }
             
-            if (password && password !== confirmPassword) {
-                alert('❌ Las contraseñas no coinciden');
-                return;
-            }
-            
-            if (password) {
-                data.password = password;
-            }
-            
-            // Determinar endpoint
-            const endpoint = currentAction === 'add' ? '/api/admin/users' : `/api/admin/users/${currentUserId}`;
-            const method = currentAction === 'add' ? 'POST' : 'PUT';
-            
-            // Mostrar loading
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Guardando...';
-            btn.disabled = true;
-            
-            // Enviar petición con CSRF token
-            fetch(endpoint, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                
-                if (data.success) {
-                    alert(`✅ Usuario ${currentAction === 'add' ? 'agregado' : 'actualizado'} correctamente`);
-                    bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
-                    location.reload();
-                } else {
-                    alert(`❌ Error: ${data.error}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                alert('❌ Error de conexión al guardar usuario');
-            });
-        }
-        
-        function viewStats(userId) {
-            // Enviar petición con CSRF token
-            fetch(`/api/admin/users/${userId}/stats`, {
-                headers: {
-                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Mostrar estadísticas en modal
-                    showStatsModal(data.stats, data.user);
-                } else {
-                    alert(`❌ Error: ${data.error}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Error de conexión al cargar estadísticas');
-            });
-        }
-        
-        function toggleUser(userId, isActive) {
-            const action = isActive ? 'desactivar' : 'activar';
-            if (confirm(`¿${action.charAt(0).toUpperCase() + action.slice(1)} usuario ID: ${userId}?`)) {
-                // Enviar petición con CSRF token
-                fetch(`/api/admin/users/${userId}/toggle`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`✅ Usuario ${data.is_active ? 'activado' : 'desactivado'} correctamente`);
-                        location.reload();
-                    } else {
-                        alert(`❌ Error: ${data.error}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('❌ Error de conexión al cambiar estado del usuario');
-                });
-            }
-        }
-        
-        function deleteUser(userId) {
-            if (confirm(`⚠️ ¿Eliminar permanentemente usuario ID: ${userId}?\n\nEsta acción no se puede deshacer.`)) {
-                // Enviar petición con CSRF token
-                fetch(`/api/admin/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('✅ Usuario eliminado correctamente');
-                        location.reload();
-                    } else {
-                        alert(`❌ Error: ${data.error}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('❌ Error de conexión al eliminar usuario');
-                });
-            }
-        }
-        
-        function showStatsModal(stats, user) {
-            const modalHtml = `
-                <div class="modal fade" id="statsModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-chart-bar me-2"></i>Estadísticas: ${user.username}
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            tbody.innerHTML = users.map(user => `
+                <tr data-user-id="${user.id}">
+                    <td>
+                        <input type="checkbox" class="form-check-input user-checkbox" 
+                               value="${user.id}" onchange="toggleUserSelection(${user.id})">
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="user-avatar-sm me-3">
+                                ${user.first_name ? user.first_name[0].toUpperCase() : 'U'}
                             </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <h6 class="card-title">Progreso General</h6>
-                                                <div class="h2 mb-0 text-primary">${stats.total_exercises || 0}</div>
-                                                <small class="text-muted">Ejercicios completados</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <h6 class="card-title">Nivel</h6>
-                                                <div class="h2 mb-0 text-success">${stats.current_level || 'Beginner'}</div>
-                                                <small class="text-muted">Nivel actual</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6 class="card-title">Actividad Reciente</h6>
-                                        <ul class="list-group list-group-flush">
-                                            ${stats.recent_activity && stats.recent_activity.length > 0 ? 
-                                                stats.recent_activity.map(activity => `
-                                                    <li class="list-group-item">
-                                                        <i class="fas fa-book me-2 text-info"></i>
-                                                        ${activity}
-                                                    </li>
-                                                `).join('') : 
-                                                '<li class="list-group-item text-muted text-center">No hay actividad reciente</li>'
-                                            }
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i> Cerrar
-                                </button>
+                            <div>
+                                <div class="fw-semibold">${user.first_name || 'N/A'} ${user.last_name || ''}</div>
+                                <small class="text-muted">@${user.username || 'N/A'}</small>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </td>
+                    <td>
+                        <code class="code-telegram">${user.telegram_id || 'N/A'}</code>
+                    </td>
+                    <td>
+                        <div class="user-progress-mini">
+                            <span class="user-level-badge">Nivel ${user.current_level || 1}</span>
+                            <small class="user-exercises-count">${user.total_exercises_completed || 0} ejercicios</small>
+                        </div>
+                    </td>
+                    <td>
+                        <small class="text-muted">
+                            ${formatDate(user.created_at)}
+                        </small>
+                    </td>
+                    <td>
+                        <small class="text-muted">
+                            ${formatDate(user.last_interaction) || 'Nunca'}
+                        </small>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="user-status-toggle">
+                                <input type="checkbox" 
+                                       ${user.is_active ? 'checked' : ''}
+                                       onchange="toggleUserStatus(${user.id}, this.checked)">
+                                <span class="user-status-slider"></span>
+                            </label>
+                            <span class="badge ${user.is_active ? 'bg-success' : 'bg-warning'}" style="font-size: 0.7rem;">
+                                ${user.is_active ? 'Activo' : 'Inactivo'}
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-outline-primary" 
+                                    onclick="viewUserDetails(${user.id})" 
+                                    title="Ver detalles del usuario">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" 
+                                    onclick="deleteUser(${user.id}, '${user.username || user.first_name || 'Unknown'}')" 
+                                    title="Eliminar usuario">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            hideLoading();
+            usersTableContainer.style.display = 'block';
+            paginationContainer.style.display = 'flex';
+            
+            // Add animation to newly added rows
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+        }
+
+        // Render pagination
+        function renderPagination(pagination) {
+            currentPage = pagination.page;
+            totalPages = pagination.pages;
+            
+            document.getElementById('current-page').textContent = currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+            
+            const paginationEl = document.getElementById('pagination');
+            let html = '';
+            
+            // Previous
+            html += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
             `;
             
-            // Crear y mostrar modal
-            const modalDiv = document.createElement('div');
-            modalDiv.innerHTML = modalHtml;
-            document.body.appendChild(modalDiv);
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                        </li>
+                    `;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += '<li class="page-item disabled"><a class="page-link">...</a></li>';
+                }
+            }
             
-            const modal = new bootstrap.Modal(document.getElementById('statsModal'));
-            modal.show();
+            // Next
+            html += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `;
             
-            // Eliminar modal después de cerrar
-            document.getElementById('statsModal').addEventListener('hidden.bs.modal', function () {
-                document.body.removeChild(modalDiv);
+            paginationEl.innerHTML = html;
+        }
+
+        // Toggle user status
+        async function toggleUserStatus(userId, isActive) {
+            // Find the row and add loading state
+            const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+            const toggle = row.querySelector('.user-status-toggle input');
+            const badge = row.querySelector('.badge');
+            
+            // Add loading state
+            toggle.disabled = true;
+            row.style.opacity = '0.6';
+            
+            try {
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ is_active: isActive })
+                });
+                
+                if (response.ok) {
+                    // Success feedback
+                    showToast(`Usuario ${isActive ? 'activado' : 'desactivado'} exitosamente`, 'success');
+                    await loadStats();
+                    
+                    // Update UI with animation
+                    badge.className = `badge ${isActive ? 'bg-success' : 'bg-warning'}`;
+                    badge.textContent = isActive ? 'Activo' : 'Inactivo';
+                    
+                    // Add success animation
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.background = isActive ? 
+                        'linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%)' :
+                        'linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%)';
+                    
+                    setTimeout(() => {
+                        row.style.background = '';
+                    }, 1000);
+                } else {
+                    const data = await response.json();
+                    showToast('Error: ' + data.error, 'danger');
+                    // Revert checkbox
+                    toggle.checked = !isActive;
+                }
+            } catch (error) {
+                console.error('Error updating user:', error);
+                showToast('Error de conexión', 'danger');
+                // Revert checkbox
+                toggle.checked = !isActive;
+            } finally {
+                // Remove loading state
+                toggle.disabled = false;
+                row.style.opacity = '1';
+            }
+        }
+
+        // Delete user
+        function deleteUser(userId, username) {
+            deleteUserId = userId;
+            document.getElementById('delete-user-info').innerHTML = `
+                <strong>Usuario:</strong> ${username}<br>
+                <strong>ID:</strong> ${userId}
+            `;
+            deleteModal.show();
+        }
+
+        // Confirm delete user
+        async function confirmDeleteUser() {
+            if (!deleteUserId) return;
+            
+            // Add loading state to modal
+            const confirmBtn = document.getElementById('confirm-delete');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Eliminando...';
+            
+            try {
+                const response = await fetch(`/api/admin/users/${deleteUserId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // Success feedback
+                    showToast('Usuario eliminado exitosamente', 'success');
+                    deleteModal.hide();
+                    
+                    // Find and animate row removal
+                    const row = document.querySelector(`tr[data-user-id="${deleteUserId}"]`);
+                    if (row) {
+                        row.style.transition = 'all 0.5s ease';
+                        row.style.transform = 'translateX(-100%)';
+                        row.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            row.remove();
+                            // Update counts
+                            const showingCount = document.getElementById('showing-count');
+                            const totalCount = document.getElementById('total-count');
+                            const currentShowing = parseInt(showingCount.textContent);
+                            const currentTotal = parseInt(totalCount.textContent);
+                            
+                            showingCount.textContent = Math.max(0, currentShowing - 1);
+                            totalCount.textContent = Math.max(0, currentTotal - 1);
+                            
+                            // Show empty state if no users left
+                            if (currentShowing - 1 === 0) {
+                                showEmpty();
+                            }
+                        }, 500);
+                    }
+                    
+                    await loadStats();
+                } else {
+                    const data = await response.json();
+                    showToast('Error: ' + data.error, 'danger');
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showToast('Error de conexión', 'danger');
+            } finally {
+                // Reset button state
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalText;
+                deleteUserId = null;
+            }
+        }
+
+        // Bulk operations
+        function toggleUserSelection(userId) {
+            if (selectedUsers.has(userId)) {
+                selectedUsers.delete(userId);
+            } else {
+                selectedUsers.add(userId);
+            }
+            updateBulkActions();
+        }
+
+        function updateBulkActions() {
+            const count = selectedUsers.size;
+            document.getElementById('selected-count').textContent = count;
+            document.getElementById('bulk-actions').style.display = count > 0 ? 'block' : 'none';
+        }
+
+        async function bulkUpdateStatus(isActive) {
+            if (selectedUsers.size === 0) return;
+            
+            try {
+                const promises = Array.from(selectedUsers).map(userId => 
+                    fetch(`/api/admin/users/${userId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ is_active: isActive })
+                    })
+                );
+                
+                await Promise.all(promises);
+                
+                showToast(`${selectedUsers.size} usuarios ${isActive ? 'activados' : 'desactivados'} exitosamente`, 'success');
+                selectedUsers.clear();
+                updateBulkActions();
+                loadUsers();
+                loadStats();
+            } catch (error) {
+                console.error('Error in bulk update:', error);
+                showToast('Error en la actualización masiva', 'danger');
+            }
+        }
+
+        async function bulkDelete() {
+            if (selectedUsers.size === 0) return;
+            
+            if (!confirm(`¿Estás seguro de eliminar ${selectedUsers.size} usuarios? Esta acción no se puede deshacer.`)) {
+                return;
+            }
+            
+            try {
+                const promises = Array.from(selectedUsers).map(userId => 
+                    fetch(`/api/admin/users/${userId}`, { method: 'DELETE' })
+                );
+                
+                await Promise.all(promises);
+                
+                showToast(`${selectedUsers.size} usuarios eliminados exitosamente`, 'success');
+                selectedUsers.clear();
+                updateBulkActions();
+                loadUsers();
+                loadStats();
+            } catch (error) {
+                console.error('Error in bulk delete:', error);
+                showToast('Error en la eliminación masiva', 'danger');
+            }
+        }
+
+        // Utility functions
+        function changePage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            loadUsers();
+        }
+
+        function showLoading() {
+            loadingState.style.display = 'block';
+            emptyState.style.display = 'none';
+            usersTableContainer.style.display = 'none';
+            paginationContainer.style.display = 'none';
+        }
+
+        function showEmpty() {
+            loadingState.style.display = 'none';
+            emptyState.style.display = 'block';
+            usersTableContainer.style.display = 'none';
+            paginationContainer.style.display = 'none';
+        }
+
+        function hideLoading() {
+            loadingState.style.display = 'none';
+            emptyState.style.display = 'none';
+        }
+
+        function updateCounts(pagination) {
+            document.getElementById('showing-count').textContent = pagination.page * pagination.per_page;
+            document.getElementById('total-count').textContent = pagination.total;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return null;
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
+        }
+
+        function showToast(message, type = 'info') {
+            const toastEl = document.getElementById('liveToast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastHeader = toastEl.querySelector('.toast-header i');
+            
+            toastMessage.textContent = message;
+            toastHeader.className = `fas me-2 text-${type === 'danger' ? 'danger' : type === 'success' ? 'success' : 'primary'}`;
+            
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function viewUserDetails(userId) {
+            // Placeholder for user details view
+            showToast(`Ver detalles del usuario ${userId}`, 'info');
+        }
+
+        function exportUsers() {
+            // Placeholder for export functionality
+            showToast('Función de exportación próximamente', 'info');
         }
     </script>
 
-{% endblock %}
+    <style>
+        .user-avatar-sm {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-        // CSRF Token
-        const csrfToken = document.getElementById('usersCsrfToken').value;
-        
-        let currentAction = 'add';
-        let currentUserId = null;
-        
-        function addUser() {
-            currentAction = 'add';
-            document.getElementById('userModalTitle').innerHTML = '<i class="fas fa-user-plus me-2"></i>Agregar Usuario';
-            document.getElementById('userForm').reset();
-            document.getElementById('userId').value = '';
-            document.getElementById('password').required = true;
-            document.getElementById('confirmPassword').required = true;
-            
-            const modal = new bootstrap.Modal(document.getElementById('userModal'));
-            modal.show();
+        .form-check-input:checked {
+            background-color: #10b981;
+            border-color: #10b981;
         }
-        
-        function editUser(userId) {
-            currentAction = 'edit';
-            currentUserId = userId;
-            
-            // Cargar datos del usuario
-            fetch(`/api/admin/users/${userId}`, {
-                headers: {
-                    'X-CSRF-Token': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const user = data.user;
-                    document.getElementById('userModalTitle').innerHTML = `<i class="fas fa-edit me-2"></i>Editar Usuario: ${user.username}`;
-                    document.getElementById('userId').value = user.id;
-                    document.getElementById('username').value = user.username;
-                    document.getElementById('email').value = user.email || '';
-                    document.getElementById('password').required = false;
-                    document.getElementById('confirmPassword').required = false;
-                    
-                    if (user.is_admin) {
-                        document.getElementById('roleAdmin').checked = true;
-                    } else {
-                        document.getElementById('roleUser').checked = true;
-                    }
-                    
-                    document.getElementById('isActive').checked = user.is_active;
-                    
-                    const modal = new bootstrap.Modal(document.getElementById('userModal'));
-                    modal.show();
-                } else {
-                    alert(`❌ Error: ${data.error}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Error de conexión al cargar usuario');
-            });
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #2c3e50;
         }
-        
-        function saveUser() {
-            const form = document.getElementById('userForm');
-            const formData = new FormData(form);
-            const data = {};
-            
-            for (let [key, value] of formData.entries()) {
-                if (key === 'csrf_token') continue;
-                
-                // Convertir valores
-                if (key === 'is_admin') {
-                    data[key] = value === 'true';
-                } else if (key === 'is_active') {
-                    data[key] = value === 'on';
-                } else {
-                    data[key] = value;
-                }
-            }
-            
-            // Validar contraseña si se está agregando o cambiando
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (currentAction === 'add' && (!password || password.length < 8)) {
-                alert('❌ La contraseña debe tener al menos 8 caracteres');
-                return;
-            }
-            
-            if (password && password !== confirmPassword) {
-                alert('❌ Las contraseñas no coinciden');
-                return;
-            }
-            
-            if (password) {
-                data.password = password;
-            }
-            
-            // Determinar endpoint
-            const endpoint = currentAction === 'add' ? '/api/admin/users' : `/api/admin/users/${currentUserId}`;
-            const method = currentAction === 'add' ? 'POST' : 'PUT';
-            
-            // Mostrar loading
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Guardando...';
-            btn.disabled = true;
-            
-            // Enviar petición con CSRF token
-            fetch(endpoint, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                
-                if (data.success) {
-                    alert(`✅ Usuario ${currentAction === 'add' ? 'agregado' : 'actualizado'} correctamente`);
-                    bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
-                    location.reload();
-                } else {
-                    alert(`❌ Error: ${data.error}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                alert('❌ Error de conexión al guardar usuario');
-            });
+
+        .badge {
+            font-size: 0.75em;
         }
-        
-        function viewStats(userId) {
-            // Enviar petición con CSRF token
-            fetch(`/api/admin/users/${userId}/stats`, {
-                headers: {
-                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Mostrar estadísticas en modal
-                    showStatsModal(data.stats, data.user);
-                } else {
-                    alert(`❌ Error: ${data.error}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Error de conexión al cargar estadísticas');
-            });
+
+        .btn-group-sm > .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
         }
-        
-        function toggleUser(userId, isActive) {
-            const action = isActive ? 'desactivar' : 'activar';
-            if (confirm(`¿${action.charAt(0).toUpperCase() + action.slice(1)} usuario ID: ${userId}?`)) {
-                // Enviar petición con CSRF token
-                fetch(`/api/admin/users/${userId}/toggle`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`✅ Usuario ${data.is_active ? 'activado' : 'desactivado'} correctamente`);
-                        location.reload();
-                    } else {
-                        alert(`❌ Error: ${data.error}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('❌ Error de conexión al cambiar estado del usuario');
-                });
-            }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: translateX(2px);
+            transition: all 0.2s ease;
         }
-        
-        function deleteUser(userId) {
-            if (confirm(`⚠️ ¿Eliminar permanentemente usuario ID: ${userId}?\n\nEsta acción no se puede deshacer.`)) {
-                // Enviar petición con CSRF token
-                fetch(`/api/admin/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('✅ Usuario eliminado correctamente');
-                        location.reload();
-                    } else {
-                        alert(`❌ Error: ${data.error}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('❌ Error de conexión al eliminar usuario');
-                });
-            }
+
+        .page-link {
+            color: #1e3a8a;
         }
-        
-        function showStatsModal(stats, user) {
-            const modalHtml = `
-                <div class="modal fade" id="statsModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">
-                                    <i class="fas fa-chart-bar me-2"></i>Estadísticas: ${user.username}
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <h6 class="card-title">Progreso General</h6>
-                                                <div class="h2 mb-0 text-primary">${stats.total_exercises || 0}</div>
-                                                <small class="text-muted">Ejercicios completados</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <h6 class="card-title">Nivel</h6>
-                                                <div class="h2 mb-0 text-success">${stats.current_level || 'Beginner'}</div>
-                                                <small class="text-muted">Nivel actual</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h6 class="card-title">Actividad Reciente</h6>
-                                        <ul class="list-group list-group-flush">
-                                            ${stats.recent_activity && stats.recent_activity.length > 0 ? 
-                                                stats.recent_activity.map(activity => `
-                                                    <li class="list-group-item">
-                                                        <i class="fas fa-book me-2 text-info"></i>
-                                                        ${activity}
-                                                    </li>
-                                                `).join('') : 
-                                                '<li class="list-group-item text-muted text-center">No hay actividad reciente</li>'
-                                            }
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                    <i class="fas fa-times me-2"></i> Cerrar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Crear y mostrar modal
-            const modalDiv = document.createElement('div');
-            modalDiv.innerHTML = modalHtml;
-            document.body.appendChild(modalDiv);
-            
-            const modal = new bootstrap.Modal(document.getElementById('statsModal'));
-            modal.show();
-            
-            // Eliminar modal después de cerrar
-            document.getElementById('statsModal').addEventListener('hidden.bs.modal', function () {
-                document.body.removeChild(modalDiv);
-            });
+
+        .page-link:hover {
+            color: #1e40af;
+            background-color: #e8f0fe;
         }
-    </script>
-{% endblock %}
+
+        .page-item.active .page-link {
+            background-color: #1e3a8a;
+            border-color: #1e3a8a;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .toast {
+            min-width: 300px;
+        }
+    </style>
+</body>
+</html>

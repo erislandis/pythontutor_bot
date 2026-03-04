@@ -1,660 +1,341 @@
-{% extends "admin_base.html" %}
-
-{% block title %}Logs de Seguridad - Panel Admin{% endblock %}
-
-{% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<style>
-
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .logs-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        }
-        .log-item {
-            border-left: 4px solid #6c757d;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: #f8f9fa;
-            border-radius: 0 8px 8px 0;
-            transition: all 0.3s;
-        }
-        .log-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
-        }
-        .log-item.success {
-            border-left-color: #28a745;
-        }
-        .log-item.warning {
-            border-left-color: #ffc107;
-        }
-        .log-item.danger {
-            border-left-color: #dc3545;
-        }
-        .log-item.info {
-            border-left-color: #17a2b8;
-        }
-        .log-action {
-            font-weight: 600;
-            color: #343a40;
-        }
-        .log-details {
-            font-size: 0.85rem;
-            color: #6c757d;
-        }
-        .log-time {
-            font-size: 0.8rem;
-            color: #adb5bd;
-        }
-        .filter-badge {
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .filter-badge:hover {
-            transform: scale(1.1);
-        }
-        .filter-badge.active {
-            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
-        }
-    
-</style>
-{% endblock %}
-
-{% block content %}
-
-    <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h1 class="h3" style="color: #343a40;">
-                    <i class="fas fa-shield-alt me-2"></i>
-                    Logs de Seguridad
-                </h1>
-                <p class="text-muted mb-0">Registro de actividades del sistema</p>
-            </div>
-            <a href="/admin/dashboard" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i> Volver al Dashboard
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs del Sistema - Panel Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-robot"></i> Python Tutor Bot</h4>
+            <p class="text-muted mb-0">Panel Administrativo</p>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="/admin/dashboard">
+                <i class="fas fa-home"></i> Dashboard
             </a>
-        </div>
-
-        <!-- ⭐⭐⭐ AÑADE ESTA LÍNEA (TOKEN CSRF) ⭐⭐⭐ -->
-        <input type="hidden" id="logsCsrfToken" value="{{ csrf_token() }}">
-
-        <!-- Filtros -->
-        <div class="logs-card mb-4">
-            <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filtrar por Tipo</h5>
-            <div class="d-flex flex-wrap gap-2 mb-3">
-                <span class="badge bg-primary filter-badge active" data-filter="all">
-                    <i class="fas fa-layer-group me-1"></i> Todos
-                </span>
-                <span class="badge bg-success filter-badge" data-filter="login">
-                    <i class="fas fa-sign-in-alt me-1"></i> Login
-                </span>
-                <span class="badge bg-warning filter-badge" data-filter="password">
-                    <i class="fas fa-key me-1"></i> Contraseñas
-                </span>
-                <span class="badge bg-danger filter-badge" data-filter="security">
-                    <i class="fas fa-exclamation-triangle me-1"></i> Seguridad
-                </span>
-                <span class="badge bg-info filter-badge" data-filter="exercise">
-                    <i class="fas fa-book me-1"></i> Ejercicios
-                </span>
-                <span class="badge bg-secondary filter-badge" data-filter="bot">
-                    <i class="fas fa-robot me-1"></i> Bot
-                </span>
-            </div>
+            <a href="/admin/users">
+                <i class="fas fa-users"></i> Usuarios
+            </a>
+            <a href="/admin/bot-control">
+                <i class="fas fa-robot"></i> Control del Bot
+            </a>
             
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" class="form-control" id="searchInput" placeholder="Buscar en logs...">
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">
-                            <i class="fas fa-calendar"></i>
-                        </span>
-                        <input type="date" class="form-control" id="dateFilter">
-                        <button class="btn btn-outline-secondary" onclick="clearFilters()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Estadísticas -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h2 class="text-primary mb-0">{{ total }}</h2>
-                        <small class="text-muted">Total de logs</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h2 class="text-success mb-0">
-                            {% set today = namespace(count=0) %}
-                            {% for log in logs %}
-                                {% if log.created_at.date() == current_date %}
-                                    {% set today.count = today.count + 1 %}
-                                {% endif %}
-                            {% endfor %}
-                            {{ today.count }}
-                        </h2>
-                        <small class="text-muted">Hoy</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h2 class="text-warning mb-0">
-                            {% set users = namespace(count=0) %}
-                            {% set seen = [] %}
-                            {% for log in logs %}
-                                {% if log.user_id and log.user_id not in seen %}
-                                    {% set seen.append(log.user_id) %}
-                                    {% set users.count = users.count + 1 %}
-                                {% endif %}
-                            {% endfor %}
-                            {{ users.count }}
-                        </h2>
-                        <small class="text-muted">Usuarios activos</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h2 class="text-danger mb-0">
-                            {% set failed = namespace(count=0) %}
-                            {% for log in logs %}
-                                {% if 'failed' in log.action or 'error' in log.action %}
-                                    {% set failed.count = failed.count + 1 %}
-                                {% endif %}
-                            {% endfor %}
-                            {{ failed.count }}
-                        </h2>
-                        <small class="text-muted">Errores</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lista de Logs -->
-        <div class="logs-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5>
-                    <i class="fas fa-list me-2"></i>
-                    Registros Recientes
-                </h5>
-                <div class="d-flex align-items-center">
-                    <small class="text-muted me-3">
-                        Mostrando {{ logs|length }} de {{ total }}
-                    </small>
-                    
-                    <!-- Paginación -->
-                    {% if total_pages > 1 %}
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item {{ 'disabled' if page == 1 }}">
-                                <a class="page-link" href="?page={{ page-1 }}">
-                                    <i class="fas fa-chevron-left"></i>
-                                </a>
-                            </li>
-                            
-                            {% for p in range(1, total_pages + 1) %}
-                                {% if p >= page-2 and p <= page+2 %}
-                                <li class="page-item {{ 'active' if p == page }}">
-                                    <a class="page-link" href="?page={{ p }}">{{ p }}</a>
-                                </li>
-                                {% endif %}
-                            {% endfor %}
-                            
-                            <li class="page-item {{ 'disabled' if page == total_pages }}">
-                                <a class="page-link" href="?page={{ page+1 }}">
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                    {% endif %}
-                </div>
-            </div>
+            <a href="/admin/exercises">
+                <i class="fas fa-book"></i> Ejercicios
+            </a>
             
-            <div id="logsContainer">
-                {% for log in logs %}
-                <div class="log-item 
-                    {% if 'success' in log.action or 'login_success' in log.action %}success
-                    {% elif 'failed' in log.action or 'error' in log.action or 'blocked' in log.action %}danger
-                    {% elif 'warning' in log.action %}warning
-                    {% else %}info{% endif %}" 
-                    data-action="{{ log.action }}"
-                    data-date="{{ log.created_at.strftime('%Y-%m-%d') }}"
-                    data-user="{{ log.username or '' }}">
-                    
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <div class="log-action mb-1">
-                                <i class="fas fa-{% if 'login' in log.action %}sign-in-alt
-                                                {% elif 'logout' in log.action %}sign-out-alt
-                                                {% elif 'password' in log.action %}key
-                                                {% elif 'exercise' in log.action %}book
-                                                {% elif 'bot' in log.action %}robot
-                                                {% else %}info-circle{% endif %} me-2"></i>
-                                {{ log.action|replace('_', ' ')|title }}
-                            </div>
-                            
-                            <div class="log-details mb-1">
-                                <i class="fas fa-user me-1"></i>
-                                <strong>Usuario:</strong> {{ log.username or 'Sistema' }}
-                                {% if log.ip_address %}
-                                <span class="ms-3">
-                                    <i class="fas fa-globe me-1"></i>
-                                    <strong>IP:</strong> {{ log.ip_address }}
-                                </span>
-                                {% endif %}
-                            </div>
-                            
-                            {% if log.user_agent %}
-                            <div class="log-details">
-                                <i class="fas fa-desktop me-1"></i>
-                                <strong>Dispositivo:</strong> 
-                                <span class="font-monospace" style="font-size: 0.8rem;">
-                                    {{ log.user_agent|truncate(80) }}
-                                </span>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="text-end">
-                            <div class="log-time mb-2">
-                                <i class="far fa-clock me-1"></i>
-                                {{ log.created_at.strftime('%d/%m/%Y %H:%M:%S') }}
-                            </div>
-                            <span class="badge 
-                                {% if 'success' in log.action %}bg-success
-                                {% elif 'failed' in log.action %}bg-danger
-                                {% elif 'warning' in log.action %}bg-warning
-                                {% else %}bg-info{% endif %}">
-                                {{ 'login' if 'login' in log.action else
-                                   'security' if 'failed' in log.action else
-                                   'password' if 'password' in log.action else
-                                   'exercise' if 'exercise' in log.action else
-                                   'bot' if 'bot' in log.action else
-                                   'system' }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No hay logs disponibles</h5>
-                    <p class="text-muted">Los registros aparecerán aquí cuando haya actividad.</p>
-                </div>
-                {% endfor %}
-            </div>
+            <a href="/admin/database">
+                <i class="fas fa-database"></i> Base de Datos
+            </a>
             
-            <!-- Acciones -->
-            <div class="mt-4 pt-4 border-top d-flex justify-content-between">
-                <div>
-                    <button class="btn btn-outline-danger btn-sm" onclick="clearLogs()">
-                        <i class="fas fa-trash me-2"></i> Limpiar Logs Antiguos
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm ms-2" onclick="exportLogs()">
-                        <i class="fas fa-download me-2"></i> Exportar Logs
-                    </button>
-                </div>
-                
-                {% if total_pages > 1 %}
-                <div>
-                    <small class="text-muted me-3">
-                        Página {{ page }} de {{ total_pages }}
-                    </small>
-                    <select class="form-select form-select-sm d-inline-block w-auto" onchange="window.location.href='?page=' + this.value">
-                        {% for p in range(1, total_pages + 1) %}
-                        <option value="{{ p }}" {{ 'selected' if p == page }}>Página {{ p }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% endif %}
+            <a href="/admin/change-password">
+                <i class="fas fa-key"></i> Cambiar Contraseña
+            </a>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <a href="/admin/logout" style="color: #ef5350;">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
             </div>
         </div>
     </div>
 
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header-bar">
+            <div>
+                <h1 class="h3 mb-2" style="color: #2c3e50;">
+                    <i class="fas fa-file-alt text-primary me-2"></i>
+                    Logs del Sistema
+                </h1>
+                <p class="text-muted mb-0">Monitorear y analizar logs del sistema</p>
+            </div>
+            <div class="user-badge">
+                <i class="fas fa-user-circle me-2"></i>
+                {{ current_user.username }}
+                <span class="status-badge status-online ms-2">
+                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Activo
+                </span>
+            </div>
+        </div>
+
+        <!-- Filter Box -->
+        <div class="filter-box">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label">Nivel de Log:</label>
+                    <select class="form-select" id="levelFilter" onchange="filterLogs()">
+                        <option value="all">Todos los niveles</option>
+                        <option value="info">Info</option>
+                        <option value="success">Success</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                        <option value="debug">Debug</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fuente:</label>
+                    <select class="form-select" id="sourceFilter" onchange="filterLogs()">
+                        <option value="all">Todas las fuentes</option>
+                        <option value="bot">Bot</option>
+                        <option value="web">Web Service</option>
+                        <option value="database">Base de Datos</option>
+                        <option value="auth">Autenticación</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Rango de tiempo:</label>
+                    <select class="form-select" id="timeFilter" onchange="filterLogs()">
+                        <option value="1h">Última hora</option>
+                        <option value="24h">Últimas 24 horas</option>
+                        <option value="7d">Últimos 7 días</option>
+                        <option value="30d">Últimos 30 días</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Buscar:</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Buscar logs..." id="searchInput" onkeyup="searchLogs()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card info">
+                    <div class="stat-icon text-primary">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h6 class="text-muted">Info</h6>
+                    <div class="stat-number" id="infoCount">0</div>
+                    <small class="text-muted">Mensajes informativos</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card success">
+                    <div class="stat-icon text-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h6 class="text-muted">Success</h6>
+                    <div class="stat-number" id="successCount">0</div>
+                    <small class="text-muted">Operaciones exitosas</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card warning">
+                    <div class="stat-icon text-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h6 class="text-muted">Warning</h6>
+                    <div class="stat-number" id="warningCount">0</div>
+                    <small class="text-muted">Advertencias</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card error">
+                    <div class="stat-icon text-danger">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <h6 class="text-muted">Error</h6>
+                    <div class="stat-number" id="errorCount">0</div>
+                    <small class="text-muted">Errores críticos</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Console -->
+        <div class="logs-panel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 style="color: #2c3e50;">
+                    <i class="fas fa-terminal text-primary me-2"></i>
+                    Consola en Vivo
+                </h5>
+                <div>
+                    <button class="btn btn-sm btn-success me-2" id="liveToggle" onclick="toggleLive()">
+                        <i class="fas fa-play"></i> Iniciar Live
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary me-2" onclick="refreshLogs()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" onclick="clearConsole()">
+                        <i class="fas fa-trash"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="log-console" id="liveConsole">
+                <div class="log-entry log-info">[2024-03-04 15:30:00] INFO: Sistema iniciado correctamente</div>
+                <div class="log-entry log-success">[2024-03-04 15:30:15] SUCCESS: Conexión a base de datos establecida</div>
+                <div class="log-entry log-info">[2024-03-04 15:30:30] INFO: Bot Telegram conectado</div>
+                <div class="log-entry log-warning">[2024-03-04 15:30:45] WARNING: Alta carga de CPU detectada (85%)</div>
+                <div class="log-entry log-info">[2024-03-04 15:31:00] INFO: Usuario 123456 inició sesión</div>
+                <div class="log-entry log-success">[2024-03-04 15:31:15] SUCCESS: Ejercicio #1 completado por usuario</div>
+                <div class="log-entry log-error">[2024-03-04 15:31:30] ERROR: Fallo al procesar mensaje del usuario 789012</div>
+                <div class="log-entry log-warning">[2024-03-04 15:31:45] WARNING: Intento de acceso no autorizado desde IP 192.168.1.100</div>
+                <div class="log-entry log-info">[2024-03-04 15:32:00] INFO: Backup automático completado</div>
+                <div class="log-entry log-success">[2024-03-04 15:32:15] SUCCESS: 50 usuarios activos actualmente</div>
+                <div class="log-entry log-debug">[2024-03-04 15:32:30] DEBUG: Query ejecutado en 23ms</div>
+                <div class="log-entry log-info">[2024-03-04 15:32:45] INFO: Nuevo ejercicio agregado al sistema</div>
+                <div class="log-entry log-warning">[2024-03-04 15:33:00] WARNING: Memoria disponible baja (15%)</div>
+                <div class="log-entry log-success">[2024-03-04 15:33:15] SUCCESS: Cache limpiado exitosamente</div>
+                <div class="log-entry log-error">[2024-03-04 15:33:30] ERROR: Timeout en conexión externa</div>
+                <div class="log-entry log-info">[2024-03-04 15:33:45] INFO: Sistema funcionando normalmente</div>
+            </div>
+        </div>
+
+        <!-- Logs Table -->
+        <div class="log-table">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 style="color: #2c3e50;">
+                    <i class="fas fa-list text-primary me-2"></i>
+                    Historial de Logs
+                </h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary me-2" onclick="exportLogs()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="clearAllLogs()">
+                        <i class="fas fa-trash"></i> Limpiar Todo
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover" id="logsTable">
+                    <thead style="background: #f5f7fa;">
+                        <tr>
+                            <th><i class="fas fa-clock me-1"></i> Timestamp</th>
+                            <th><i class="fas fa-tag me-1"></i> Nivel</th>
+                            <th><i class="fas fa-server me-1"></i> Fuente</th>
+                            <th><i class="fas fa-file-alt me-1"></i> Mensaje</th>
+                            <th><i class="fas fa-user me-1"></i> Usuario</th>
+                            <th><i class="fas fa-cog me-1"></i> Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody">
+                        <tr>
+                            <td><small class="text-muted">2024-03-04 15:33:45</small></td>
+                            <td><span class="level-badge level-info">INFO</span></td>
+                            <td><small>Web Service</small></td>
+                            <td>Sistema funcionando normalmente</td>
+                            <td><small class="text-muted">Sistema</small></td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewLogDetails(1)" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="shareLog(1)" title="Compartir">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><small class="text-muted">2024-03-04 15:33:30</small></td>
+                            <td><span class="level-badge level-error">ERROR</span></td>
+                            <td><small>Bot</small></td>
+                            <td>Timeout en conexión externa</td>
+                            <td><small class="text-muted">Bot</small></td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewLogDetails(2)" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="shareLog(2)" title="Compartir">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><small class="text-muted">2024-03-04 15:33:15</small></td>
+                            <td><span class="level-badge level-success">SUCCESS</span></td>
+                            <td><small>Database</small></td>
+                            <td>Cache limpiado exitosamente</td>
+                            <td><small class="text-muted">Admin</small></td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewLogDetails(3)" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="shareLog(3)" title="Compartir">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><small class="text-muted">2024-03-04 15:33:00</small></td>
+                            <td><span class="level-badge level-warning">WARNING</span></td>
+                            <td><small>Web Service</small></td>
+                            <td>Memoria disponible baja (15%)</td>
+                            <td><small class="text-muted">Sistema</small></td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewLogDetails(4)" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="shareLog(4)" title="Compartir">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><small class="text-muted">2024-03-04 15:32:45</small></td>
+                            <td><span class="level-badge level-info">INFO</span></td>
+                            <td><small>Web Service</small></td>
+                            <td>Nuevo ejercicio agregado al sistema</td>
+                            <td><small class="text-muted">Admin</small></td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewLogDetails(5)" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="shareLog(5)" title="Compartir">
+                                        <i class="fas fa-share"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Paginación de logs" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // CSRF Token
-        const csrfToken = document.getElementById('logsCsrfToken').value;
-        
-        // Filtros
-        const filterBadges = document.querySelectorAll('.filter-badge');
-        const logs = document.querySelectorAll('.log-item');
-        const searchInput = document.getElementById('searchInput');
-        const dateFilter = document.getElementById('dateFilter');
-        
-        let currentFilter = 'all';
-        
-        filterBadges.forEach(badge => {
-            badge.addEventListener('click', function() {
-                // Remover active de todos
-                filterBadges.forEach(b => b.classList.remove('active'));
-                // Agregar active al clickeado
-                this.classList.add('active');
-                
-                currentFilter = this.getAttribute('data-filter');
-                applyFilters();
-            });
-        });
-        
-        function applyFilters() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const selectedDate = dateFilter.value;
-            
-            logs.forEach(log => {
-                const action = log.getAttribute('data-action').toLowerCase();
-                const date = log.getAttribute('data-date');
-                const user = log.getAttribute('data-user').toLowerCase();
-                
-                let matchesFilter = currentFilter === 'all' || 
-                    (currentFilter === 'login' && action.includes('login')) ||
-                    (currentFilter === 'password' && action.includes('password')) ||
-                    (currentFilter === 'security' && (action.includes('failed') || action.includes('error') || action.includes('blocked'))) ||
-                    (currentFilter === 'exercise' && action.includes('exercise')) ||
-                    (currentFilter === 'bot' && action.includes('bot'));
-                
-                const matchesSearch = !searchTerm || 
-                    action.includes(searchTerm) || 
-                    user.includes(searchTerm) ||
-                    log.textContent.toLowerCase().includes(searchTerm);
-                
-                const matchesDate = !selectedDate || date === selectedDate;
-                
-                if (matchesFilter && matchesSearch && matchesDate) {
-                    log.style.display = 'block';
-                } else {
-                    log.style.display = 'none';
-                }
-            });
-        }
-        
-        searchInput.addEventListener('input', applyFilters);
-        dateFilter.addEventListener('change', applyFilters);
-        
-        function clearFilters() {
-            filterBadges.forEach(b => b.classList.remove('active'));
-            document.querySelector('[data-filter="all"]').classList.add('active');
-            currentFilter = 'all';
-            searchInput.value = '';
-            dateFilter.value = '';
-            applyFilters();
-        }
-        
-        function clearLogs() {
-            if (confirm('¿Eliminar logs con más de 30 días?\n\nEsta acción no se puede deshacer.')) {
-                // Enviar petición con CSRF token
-                fetch('/api/admin/logs/clean', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                    },
-                    body: JSON.stringify({
-                        days: 30
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`✅ ${data.deleted_count} logs eliminados correctamente`);
-                        location.reload();
-                    } else {
-                        alert(`❌ Error: ${data.error}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('❌ Error de conexión al limpiar logs');
-                });
-            }
-        }
-        
-        function exportLogs() {
-            // Enviar petición con CSRF token
-            fetch('/api/admin/logs/export', {
-                method: 'GET',
-                headers: {
-                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.blob();
-                }
-                throw new Error('Error al exportar logs');
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `security_logs_${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Error al exportar logs');
-            });
-        }
-        
-        // Aplicar filtros iniciales
-        applyFilters();
-        
-        // Función para buscar logs en tiempo real (opcional)
-        function searchLogs() {
-            const searchTerm = searchInput.value.toLowerCase();
-            
-            fetch(`/api/admin/logs/search?q=${encodeURIComponent(searchTerm)}`, {
-                method: 'GET',
-                headers: {
-                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateLogsList(data.logs);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-        
-        // Debounce para búsqueda en tiempo real
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(searchLogs, 500);
-        });
-    </script>
-
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-        // CSRF Token
-        const csrfToken = document.getElementById('logsCsrfToken').value;
-        
-        // Filtros
-        const filterBadges = document.querySelectorAll('.filter-badge');
-        const logs = document.querySelectorAll('.log-item');
-        const searchInput = document.getElementById('searchInput');
-        const dateFilter = document.getElementById('dateFilter');
-        
-        let currentFilter = 'all';
-        
-        filterBadges.forEach(badge => {
-            badge.addEventListener('click', function() {
-                // Remover active de todos
-                filterBadges.forEach(b => b.classList.remove('active'));
-                // Agregar active al clickeado
-                this.classList.add('active');
-                
-                currentFilter = this.getAttribute('data-filter');
-                applyFilters();
-            });
-        });
-        
-        function applyFilters() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const selectedDate = dateFilter.value;
-            
-            logs.forEach(log => {
-                const action = log.getAttribute('data-action').toLowerCase();
-                const date = log.getAttribute('data-date');
-                const user = log.getAttribute('data-user').toLowerCase();
-                
-                let matchesFilter = currentFilter === 'all' || 
-                    (currentFilter === 'login' && action.includes('login')) ||
-                    (currentFilter === 'password' && action.includes('password')) ||
-                    (currentFilter === 'security' && (action.includes('failed') || action.includes('error') || action.includes('blocked'))) ||
-                    (currentFilter === 'exercise' && action.includes('exercise')) ||
-                    (currentFilter === 'bot' && action.includes('bot'));
-                
-                const matchesSearch = !searchTerm || 
-                    action.includes(searchTerm) || 
-                    user.includes(searchTerm) ||
-                    log.textContent.toLowerCase().includes(searchTerm);
-                
-                const matchesDate = !selectedDate || date === selectedDate;
-                
-                if (matchesFilter && matchesSearch && matchesDate) {
-                    log.style.display = 'block';
-                } else {
-                    log.style.display = 'none';
-                }
-            });
-        }
-        
-        searchInput.addEventListener('input', applyFilters);
-        dateFilter.addEventListener('change', applyFilters);
-        
-        function clearFilters() {
-            filterBadges.forEach(b => b.classList.remove('active'));
-            document.querySelector('[data-filter="all"]').classList.add('active');
-            currentFilter = 'all';
-            searchInput.value = '';
-            dateFilter.value = '';
-            applyFilters();
-        }
-        
-        function clearLogs() {
-            if (confirm('¿Eliminar logs con más de 30 días?\n\nEsta acción no se puede deshacer.')) {
-                // Enviar petición con CSRF token
-                fetch('/api/admin/logs/clean', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                    },
-                    body: JSON.stringify({
-                        days: 30
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`✅ ${data.deleted_count} logs eliminados correctamente`);
-                        location.reload();
-                    } else {
-                        alert(`❌ Error: ${data.error}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('❌ Error de conexión al limpiar logs');
-                });
-            }
-        }
-        
-        function exportLogs() {
-            // Enviar petición con CSRF token
-            fetch('/api/admin/logs/export', {
-                method: 'GET',
-                headers: {
-                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.blob();
-                }
-                throw new Error('Error al exportar logs');
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `security_logs_${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Error al exportar logs');
-            });
-        }
-        
-        // Aplicar filtros iniciales
-        applyFilters();
-        
-        // Función para buscar logs en tiempo real (opcional)
-        function searchLogs() {
-            const searchTerm = searchInput.value.toLowerCase();
-            
-            fetch(`/api/admin/logs/search?q=${encodeURIComponent(searchTerm)}`, {
-                method: 'GET',
-                headers: {
-                    'X-CSRF-Token': csrfToken  // ⭐⭐⭐ AÑADIDO CSRF TOKEN ⭐⭐⭐
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateLogsList(data.logs);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-        
-        // Debounce para búsqueda en tiempo real
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(searchLogs, 500);
-        });
-    </script>
-{% endblock %}
+</body>
+</html>

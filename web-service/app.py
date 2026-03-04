@@ -56,10 +56,18 @@ class AdminUser(UserMixin):
         self.id = id
         self.username = username
 
+# Global user cache for invalidation
+user_cache = {}
+
 @login_manager.user_loader
 def load_user(user_id):
     if not supabase:
         return None
+    
+    # Verificar si el usuario está en la lista de invalidados
+    if str(user_id) in user_cache.get('invalidated', set()):
+        return None
+    
     try:
         response = supabase.table('admin_users').select('*').eq('id', user_id).execute()
         if response.data:
@@ -72,10 +80,27 @@ def load_user(user_id):
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash('Por favor inicia sesión para acceder a esta página', 'warning')
-            return redirect(url_for('login', next=request.url))
-        return f(*args, **kwargs)
+        try:
+            # Verificación básica
+            if not current_user.is_authenticated:
+                logger.info("Admin_required: User not authenticated")
+                return redirect(url_for('login'))
+            
+            # Verificación de ID
+            if not hasattr(current_user, 'id') or not current_user.id:
+                logger.info("Admin_required: User has no valid ID")
+                return redirect(url_for('login'))
+            
+            # Temporalmente desactivar verificación de cache para debugging
+            # if str(current_user.id) in user_cache.get('invalidated', set()):
+            #     logger.info(f"Admin_required: User {current_user.id} in invalidation cache")
+            #     return redirect(url_for('login'))
+            
+            logger.info(f"Admin_required: User {current_user.username} passed all checks")
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Admin_required error: {e}")
+            return redirect(url_for('login'))
     return decorated_function
 
 # Custom Jinja filters
@@ -103,6 +128,10 @@ def internal_server_error(e):
 def index():
     return render_template('public/index.html')
 
+@app.route('/features')
+def features():
+    return render_template('public/features.html')
+
 @app.route('/about')
 def about():
     return render_template('public/about.html')
@@ -111,26 +140,37 @@ def about():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        logger.info(f"User already authenticated: {current_user.username}")
         return redirect(url_for('dashboard'))
         
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         
+        logger.info(f"Login attempt: {username}")
+        
         if not username or not password:
             flash('Por favor completa todos los campos', 'error')
-            return render_template('auth/login.html')
+            return render_template('public/login.html')
         
         try:
             if not supabase:
                 flash('Error de conexión con la base de datos', 'error')
-                return render_template('auth/login.html')
+                return render_template('public/login.html')
                 
             response = supabase.table('admin_users').select('*').eq('username', username).execute()
             
             if response.data and check_password_hash(response.data[0]['password_hash'], password):
                 user = AdminUser(response.data[0]['id'], response.data[0]['username'])
+                
+                # Limpiar cache de invalidación si existe
+                if str(user.id) in user_cache.get('invalidated', set()):
+                    user_cache['invalidated'].remove(str(user.id))
+                    logger.info(f"User {user.id} removed from invalidation cache")
+                
                 login_user(user, remember=request.form.get('remember') == 'on')
+                
+                logger.info(f"Login successful: {username}")
                 
                 next_page = request.args.get('next')
                 if next_page:
@@ -138,651 +178,241 @@ def login():
                 return redirect(url_for('dashboard'))
             
             flash('Credenciales inválidas', 'error')
+            logger.warning(f"Login failed: {username}")
         except Exception as e:
             logger.error(f"Login error: {e}")
             flash('Error al conectar con la base de datos', 'error')
     
-    return render_template('auth/login.html')
+    return render_template('public/login.html')
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('Has cerrado sesión exitosamente', 'success')
-    return redirect(url_for('index'))
-
-@app.route('/admin/change-password', methods=['GET', 'POST'])
-@admin_required
-def change_password():
-    if request.method == 'POST':
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
-        confirm_password = request.form.get('confirm_password')
+@app.route('/debug/logout')
+def debug_logout():
+    """Debug logout endpoint to identify the exact problem"""
+    try:
+        logger.info("=== DEBUG LOGOUT START ===")
+        logger.info(f"Current user object: {current_user}")
+        logger.info(f"Is authenticated: {current_user.is_authenticated}")
+        logger.info(f"Session data: {dict(session)}")
+        logger.info(f"Session keys: {list(session.keys())}")
         
-        # Validation
-        if not all([current_password, new_password, confirm_password]):
-            flash('Todos los campos son obligatorios', 'error')
-            return render_template('auth/change_password.html')
-        
-        if new_password != confirm_password:
-            flash('La nueva contraseña y la confirmación no coinciden', 'error')
-            return render_template('auth/change_password.html')
-        
-        if len(new_password) < 8:
-            flash('La nueva contraseña debe tener al menos 8 caracteres', 'error')
-            return render_template('auth/change_password.html')
+        # Test individual components
+        try:
+            logout_user()
+            logger.info("logout_user() successful")
+        except Exception as e:
+            logger.error(f"logout_user() failed: {e}")
+            return f"logout_user error: {e}", 500
         
         try:
-            if not supabase:
-                flash('Error de conexión con la base de datos', 'error')
-                return render_template('auth/change_password.html')
-            
-            # Get current user data
-            response = supabase.table('admin_users').select('*').eq('id', current_user.id).execute()
-            
-            if not response.data:
-                flash('Usuario no encontrado', 'error')
-                return render_template('auth/change_password.html')
-            
-            user_data = response.data[0]
-            
-            # Verify current password
-            if not check_password_hash(user_data['password_hash'], current_password):
-                flash('La contraseña actual es incorrecta', 'error')
-                return render_template('auth/change_password.html')
-            
-            # Update password
-            new_password_hash = generate_password_hash(new_password)
-            update_response = supabase.table('admin_users').update({
-                'password_hash': new_password_hash,
-                'updated_at': 'now()'
-            }).eq('id', current_user.id).execute()
-            
-            logger.info(f"Update response: {update_response}")
-            
-            # Check if update was successful (Supabase update doesn't return data on success)
-            if hasattr(update_response, 'data') and update_response.data is not None:
-                flash('Contraseña actualizada exitosamente', 'success')
-                return redirect(url_for('dashboard'))
-            elif not hasattr(update_response, 'error') or not update_response.error:
-                # Alternative check - if no error, assume success
-                flash('Contraseña actualizada exitosamente', 'success')
-                return redirect(url_for('dashboard'))
-            else:
-                logger.error(f"Supabase update error: {update_response.error}")
-                flash('Error al actualizar la contraseña', 'error')
-                
+            target_url = url_for('index')
+            logger.info(f"url_for('index') successful: {target_url}")
         except Exception as e:
-            logger.error(f"Change password error: {e}")
-            flash('Error al actualizar la contraseña', 'error')
-    
-    return render_template('auth/change_password.html')
+            logger.error(f"url_for('index') failed: {e}")
+            return f"url_for error: {e}", 500
+        
+        try:
+            flash('Debug logout successful', 'success')
+            logger.info("flash() successful")
+        except Exception as e:
+            logger.error(f"flash() failed: {e}")
+            # Continue without flash
+        
+        return "Debug logout completed successfully", 200
+        
+    except Exception as e:
+        logger.error(f"Debug logout error: {e}")
+        return f"Debug error: {e}", 500
+
+@app.route('/admin/logout')
+def admin_logout():
+    """Complete logout with cookie cleanup and user cache invalidation"""
+    try:
+        # 1. Invalidar usuario actual en el cache
+        if current_user.is_authenticated:
+            user_cache.setdefault('invalidated', set()).add(str(current_user.id))
+        
+        # 2. Forzar logout de Flask-Login
+        from flask_login import logout_user
+        logout_user()
+        
+        # 3. Limpiar sesión completamente
+        from flask import session
+        session.clear()
+        session.modified = True
+        
+        # 4. Eliminar cookies específicas de Flask-Login
+        from flask import make_response, redirect, url_for
+        response = make_response(redirect(url_for('index')))
+        response.delete_cookie('remember_token')
+        response.delete_cookie('session')
+        response.delete_cookie('_user_id')
+        
+        # 5. Mensaje de éxito
+        try:
+            flash('Has cerrado sesión exitosamente', 'success')
+        except:
+            pass  # Continuar sin flash si hay problemas
+        
+        return response
+        
+    except Exception as e:
+        # Fallback completo con limpieza forzada
+        try:
+            from flask import session, redirect, url_for
+            session.clear()
+            session.modified = True
+            return redirect(url_for('index'))
+        except Exception as e2:
+            # Último recurso: redirección manual
+            from flask import Response
+            return Response('', status=302, headers={'Location': '/'})
+
+@app.route('/debug/session-status')
+def debug_session_status():
+    """Debug endpoint to check session status"""
+    try:
+        from flask import session
+        from flask_login import current_user
+        
+        status = {
+            'session_keys': list(session.keys()),
+            'session_user_id': session.get('_user_id'),
+            'current_user_authenticated': current_user.is_authenticated,
+            'current_user_id': getattr(current_user, 'id', None),
+            'current_user_username': getattr(current_user, 'username', None),
+            'session_modified': getattr(session, 'modified', False)
+        }
+        
+        return status, 200
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+@app.route('/debug/login-flow')
+def debug_login_flow():
+    """Debug endpoint to check login flow"""
+    try:
+        from flask_login import current_user
+        
+        flow_info = {
+            'current_user_authenticated': current_user.is_authenticated,
+            'current_user_id': getattr(current_user, 'id', None),
+            'current_user_username': getattr(current_user, 'username', None),
+            'session_keys': list(session.keys()),
+            'session_user_id': session.get('_user_id'),
+            'user_cache_invalidated': list(user_cache.get('invalidated', set())),
+            'dashboard_url': url_for('dashboard'),
+            'login_url': url_for('login')
+        }
+        
+        return flow_info, 200
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+@app.route('/debug/session-deep')
+def debug_session_deep():
+    """Deep debug of session state"""
+    try:
+        from flask import session, request
+        from flask_login import current_user
+        
+        debug_info = {
+            'request_cookies': dict(request.cookies),
+            'session_data': dict(session),
+            'session_keys': list(session.keys()),
+            'session_user_id': session.get('_user_id'),
+            'session_modified': getattr(session, 'modified', False),
+            'current_user': {
+                'is_authenticated': current_user.is_authenticated,
+                'id': getattr(current_user, 'id', None),
+                'username': getattr(current_user, 'username', None),
+                'is_active': getattr(current_user, 'is_active', None),
+            },
+            'user_cache_invalidated': list(user_cache.get('invalidated', set())),
+            'flask_login_config': {
+                'login_view': login_manager.login_view,
+                'session_protection': getattr(login_manager, 'session_protection', 'unknown'),
+                'refresh_view': getattr(login_manager, 'refresh_view', None),
+            }
+        }
+        
+        return debug_info, 200
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+@app.route('/debug/invalidate-user/<int:user_id>')
+def debug_invalidate_user(user_id):
+    """Debug endpoint to invalidate a specific user"""
+    try:
+        user_cache.setdefault('invalidated', set()).add(str(user_id))
+        return f"User {user_id} invalidated", 200
+    except Exception as e:
+        return {'error': str(e)}, 500
+
+@app.route('/debug/test-flask')
+def debug_test_flask():
+    """Test if Flask is working"""
+    return "Flask is working", 200
+
+@app.route('/debug/test-session')
+def debug_test_session():
+    """Test if session is working"""
+    try:
+        from flask import session
+        return f"Session working: {bool(session)}", 200
+    except Exception as e:
+        return f"Session error: {e}", 500
+
+@app.route('/debug/test-current-user')
+def debug_test_current_user():
+    """Test if current_user is working"""
+    try:
+        from flask_login import current_user
+        return f"Current user working: {bool(current_user)}", 200
+    except Exception as e:
+        return f"Current user error: {e}", 500
+
+@app.route('/debug/test-logout-user')
+def debug_test_logout_user():
+    """Test if logout_user is working"""
+    try:
+        from flask_login import logout_user
+        return "logout_user working", 200
+    except Exception as e:
+        return f"logout_user error: {e}", 500
+
+@app.route('/debug/test-url-for')
+def debug_test_url_for():
+    """Test if url_for is working"""
+    try:
+        from flask import url_for
+        index_url = url_for('index')
+        return f"url_for working: {index_url}", 200
+    except Exception as e:
+        return f"url_for error: {e}", 500
 
 # Routes - Admin Panel
 @app.route('/admin/dashboard')
 @admin_required
 def dashboard():
     try:
-        if not supabase:
-            logger.error("Supabase client is None")
-            flash('Error de conexión con la base de datos', 'error')
-            return render_template('auth/dashboard.html', total_users=0, total_exercises=0, exercises_by_level={})
-        
-        # Initialize default values
-        total_users = 0
-        total_exercises = 0
-        level_counts = {'principiante': 0, 'intermedio': 0, 'avanzado': 0, 'experto': 0}
-        
-        # Get total users with error handling
-        try:
-            users_response = supabase.table('users').select('*', count='exact').execute()
-            if hasattr(users_response, 'count'):
-                total_users = users_response.count
-            elif users_response.data:
-                total_users = len(users_response.data)
-            logger.info(f"Total users retrieved: {total_users}")
-        except Exception as e:
-            logger.error(f"Error getting total users: {e}")
-            total_users = 0
-        
-        # Get total exercises with error handling
-        try:
-            exercises_response = supabase.table('exercises').select('*', count='exact').execute()
-            if hasattr(exercises_response, 'count'):
-                total_exercises = exercises_response.count
-            elif exercises_response.data:
-                total_exercises = len(exercises_response.data)
-            logger.info(f"Total exercises retrieved: {total_exercises}")
-        except Exception as e:
-            logger.error(f"Error getting total exercises: {e}")
-            total_exercises = 0
-        
-        # Get exercises by level with corrected query
-        try:
-            # First get all exercises to count by level
-            all_exercises = supabase.table('exercises').select('level').execute()
-            
-            if all_exercises and all_exercises.data:
-                for exercise in all_exercises.data:
-                    level = exercise.get('level', '').lower()
-                    if level in level_counts:
-                        level_counts[level] += 1
-            
-            logger.info(f"Exercises by level: {level_counts}")
-        except Exception as e:
-            logger.error(f"Error getting exercises by level: {e}")
-            # Keep default values if query fails
-        
-        return render_template('auth/dashboard.html', 
-                             total_users=total_users,
-                             total_exercises=total_exercises,
-                             exercises_by_level=level_counts)
+        return render_template('admin/dashboard.html')
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
         logger.error(f"Error type: {type(e).__name__}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
         flash('Error al cargar el dashboard', 'error')
-        return render_template('auth/dashboard.html', total_users=0, total_exercises=0, exercises_by_level={})
+        return render_template('admin/dashboard.html')
 
-@app.route('/admin/exercises')
-@admin_required
-def exercises():
-    level = request.args.get('level', 'todos')
-    
-    try:
-        if not supabase:
-            flash('Error de conexión con la base de datos', 'error')
-            return render_template('auth/exercises.html', exercises=[], current_level=level)
-            
-        if level and level != 'todos':
-            response = supabase.table('exercises').select('*').eq('level', level).execute()
-        else:
-            response = supabase.table('exercises').select('*').execute()
-        
-        exercises_list = response.data if response.data else []
-        
-        # Parse options for each exercise
-        for exercise in exercises_list:
-            if isinstance(exercise.get('options'), str):
-                try:
-                    exercise['options'] = json.loads(exercise['options'])
-                except:
-                    exercise['options'] = []
-        
-        return render_template('auth/exercises.html', exercises=exercises_list, current_level=level)
-    except Exception as e:
-        logger.error(f"Exercises error: {e}")
-        flash('Error al cargar los ejercicios', 'error')
-        return render_template('auth/exercises.html', exercises=[], current_level=level)
 
-@app.route('/admin/add-exercise', methods=['GET', 'POST'])
-@admin_required
-def add_exercise():
-    if request.method == 'POST':
-        level = request.form.get('level')
-        question = request.form.get('question')
-        options = [
-            request.form.get('option1', '').strip(),
-            request.form.get('option2', '').strip(),
-            request.form.get('option3', '').strip(),
-            request.form.get('option4', '').strip()
-        ]
-        correct_answer = int(request.form.get('correct_answer', 1)) - 1
-        explanation = request.form.get('explanation', '').strip()
-        
-        # Validate
-        if not all([level, question, all(options)]):
-            flash('Todos los campos obligatorios deben estar completos', 'error')
-            return redirect(url_for('add_exercise'))
-        
-        try:
-            if not supabase:
-                flash('Error de conexión con la base de datos', 'error')
-                return redirect(url_for('add_exercise'))
-                
-            # Check count per level
-            current_count = supabase.table('exercises').select('*', count='exact').eq('level', level).execute()
-            
-            if current_count.count >= 300:
-                flash(f'El nivel {level} ya tiene 300 ejercicios', 'error')
-                return redirect(url_for('add_exercise'))
-            
-            # Insert exercise
-            exercise_data = {
-                'level': level,
-                'question': question,
-                'options': json.dumps(options),
-                'correct_answer': correct_answer,
-                'explanation': explanation
-            }
-            
-            response = supabase.table('exercises').insert(exercise_data).execute()
-            
-            if response.data:
-                flash('Ejercicio agregado exitosamente', 'success')
-                return redirect(url_for('exercises', level=level))
-            else:
-                flash('Error al agregar el ejercicio', 'error')
-        except Exception as e:
-            logger.error(f"Add exercise error: {e}")
-            flash('Error al guardar el ejercicio', 'error')
-    
-    return render_template('auth/add_exercise.html')
 
-@app.route('/admin/edit-exercise/<int:exercise_id>', methods=['GET', 'POST'])
-@admin_required
-def edit_exercise(exercise_id):
-    if request.method == 'POST':
-        level = request.form.get('level')
-        question = request.form.get('question')
-        options = [
-            request.form.get('option1', '').strip(),
-            request.form.get('option2', '').strip(),
-            request.form.get('option3', '').strip(),
-            request.form.get('option4', '').strip()
-        ]
-        correct_answer = int(request.form.get('correct_answer', 1)) - 1
-        explanation = request.form.get('explanation', '').strip()
-        
-        try:
-            if not supabase:
-                flash('Error de conexión con la base de datos', 'error')
-                return redirect(url_for('exercises'))
-                
-            exercise_data = {
-                'level': level,
-                'question': question,
-                'options': json.dumps(options),
-                'correct_answer': correct_answer,
-                'explanation': explanation,
-                'updated_at': 'now()'
-            }
-            
-            response = supabase.table('exercises').update(exercise_data).eq('id', exercise_id).execute()
-            
-            if response.data:
-                flash('Ejercicio actualizado exitosamente', 'success')
-                return redirect(url_for('exercises', level=level))
-            else:
-                flash('Error al actualizar el ejercicio', 'error')
-        except Exception as e:
-            logger.error(f"Edit exercise error: {e}")
-            flash('Error al actualizar el ejercicio', 'error')
-    
-    # Get exercise data
-    try:
-        if not supabase:
-            flash('Error de conexión con la base de datos', 'error')
-            return redirect(url_for('exercises'))
-            
-        response = supabase.table('exercises').select('*').eq('id', exercise_id).execute()
-        exercise = response.data[0] if response.data else None
-        
-        if not exercise:
-            flash('Ejercicio no encontrado', 'error')
-            return redirect(url_for('exercises'))
-        
-        # Parse options
-        if isinstance(exercise.get('options'), str):
-            try:
-                exercise['options'] = json.loads(exercise['options'])
-            except:
-                exercise['options'] = []
-        
-        exercise['current_level'] = request.args.get('level', 'todos')
-        
-        return render_template('auth/edit_exercise.html', exercise=exercise)
-    except Exception as e:
-        logger.error(f"Get exercise error: {e}")
-        flash('Error al cargar el ejercicio', 'error')
-        return redirect(url_for('exercises'))
 
-@app.route('/admin/delete-exercise/<int:exercise_id>')
-@admin_required
-def delete_exercise(exercise_id):
-    try:
-        if not supabase:
-            flash('Error de conexión con la base de datos', 'error')
-            return redirect(url_for('exercises'))
-            
-        response = supabase.table('exercises').delete().eq('id', exercise_id).execute()
-        
-        if response.data:
-            flash('Ejercicio eliminado exitosamente', 'success')
-        else:
-            flash('Error al eliminar el ejercicio', 'error')
-    except Exception as e:
-        logger.error(f"Delete exercise error: {e}")
-        flash('Error al eliminar el ejercicio', 'error')
-    
-    return redirect(url_for('exercises'))
-
-@app.route('/admin/bulk-upload', methods=['POST'])
-@admin_required
-def bulk_upload():
-    if 'file' not in request.files:
-        flash('No se seleccionó ningún archivo', 'error')
-        return redirect(url_for('add_exercise'))
-    
-    file = request.files['file']
-    level = request.form.get('level')
-    
-    if not level:
-        flash('Debes seleccionar un nivel', 'error')
-        return redirect(url_for('add_exercise'))
-    
-    if file.filename == '':
-        flash('No se seleccionó ningún archivo', 'error')
-        return redirect(url_for('add_exercise'))
-    
-    if file and file.filename.endswith('.json'):
-        try:
-            if not supabase:
-                flash('Error de conexión con la base de datos', 'error')
-                return redirect(url_for('add_exercise'))
-                
-            exercises = json.load(file)
-            
-            if not isinstance(exercises, list):
-                flash('El archivo debe contener un array de ejercicios', 'error')
-                return redirect(url_for('add_exercise'))
-            
-            # Validate count
-            current_count = supabase.table('exercises').select('*', count='exact').eq('level', level).execute()
-            available_slots = 300 - (current_count.count if hasattr(current_count, 'count') else 0)
-            
-            if len(exercises) > available_slots:
-                flash(f'Solo hay {available_slots} espacios disponibles para el nivel {level}', 'error')
-                return redirect(url_for('add_exercise'))
-            
-            # Prepare exercises for insertion
-            for exercise in exercises:
-                if not all(k in exercise for k in ['question', 'options', 'correct_answer']):
-                    flash('Formato de ejercicio inválido', 'error')
-                    return redirect(url_for('add_exercise'))
-                
-                exercise['level'] = level
-                exercise['options'] = json.dumps(exercise['options'])
-                exercise['explanation'] = exercise.get('explanation', '')
-            
-            response = supabase.table('exercises').insert(exercises).execute()
-            
-            if response.data:
-                flash(f'{len(exercises)} ejercicios agregados exitosamente', 'success')
-            else:
-                flash('Error al agregar los ejercicios', 'error')
-        
-        except json.JSONDecodeError:
-            flash('Archivo JSON inválido', 'error')
-        except Exception as e:
-            logger.error(f"Bulk upload error: {e}")
-            flash(f'Error al procesar el archivo: {str(e)}', 'error')
-    else:
-        flash('Por favor sube un archivo JSON válido', 'error')
-    
-    return redirect(url_for('exercises', level=level))
-
-# API endpoints for bot
-@app.route('/api/user/<int:telegram_id>', methods=['GET'])
-def get_user(telegram_id):
-    try:
-        if not supabase:
-            return jsonify({'error': 'Database connection error'}), 500
-            
-        response = supabase.table('users').select('*').eq('telegram_id', telegram_id).execute()
-        
-        if response.data:
-            return jsonify(response.data[0])
-        else:
-            return jsonify({'error': 'User not found'}), 404
-    except Exception as e:
-        logger.error(f"API get_user error: {e}")
-        return jsonify({'error': 'Database error'}), 500
-
-@app.route('/api/user', methods=['POST'])
-def create_user():
-    try:
-        if not supabase:
-            return jsonify({'error': 'Database connection error'}), 500
-            
-        data = request.json
-        response = supabase.table('users').insert(data).execute()
-        
-        if response.data:
-            return jsonify(response.data[0]), 201
-        else:
-            return jsonify({'error': 'Failed to create user'}), 400
-    except Exception as e:
-        logger.error(f"API create_user error: {e}")
-        return jsonify({'error': 'Database error'}), 500
-
-@app.route('/api/exercises/<level>', methods=['GET'])
-def get_exercises_by_level(level):
-    try:
-        if not supabase:
-            return jsonify({'error': 'Database connection error'}), 500
-            
-        response = supabase.table('exercises').select('*').eq('level', level).execute()
-        return jsonify(response.data if response.data else [])
-    except Exception as e:
-        logger.error(f"API get_exercises error: {e}")
-        return jsonify({'error': 'Database error'}), 500
-
-@app.route('/api/user/progress', methods=['POST'])
-def update_user_progress():
-    try:
-        if not supabase:
-            return jsonify({'error': 'Database connection error'}), 500
-            
-        data = request.json
-        telegram_id = data.get('telegram_id')
-        exercise_id = data.get('exercise_id')
-        completed = data.get('completed', False)
-        
-        # Check if progress exists
-        check = supabase.table('user_progress').select('*')\
-            .eq('user_id', telegram_id)\
-            .eq('exercise_id', exercise_id)\
-            .execute()
-        
-        if check.data:
-            # Update existing progress
-            response = supabase.table('user_progress')\
-                .update({'completed': completed, 'last_attempt': 'now()'})\
-                .eq('user_id', telegram_id)\
-                .eq('exercise_id', exercise_id)\
-                .execute()
-        else:
-            # Create new progress
-            progress_data = {
-                'user_id': telegram_id,
-                'exercise_id': exercise_id,
-                'completed': completed
-            }
-            response = supabase.table('user_progress').insert(progress_data).execute()
-        
-        if completed:
-            # Get current progress
-            user_response = supabase.table('users').select('level_progress').eq('telegram_id', telegram_id).execute()
-            if user_response.data:
-                current_progress = user_response.data[0].get('level_progress', 0)
-                # Update user stats
-                supabase.table('users')\
-                    .update({
-                        'level_progress': current_progress + 1,
-                        'last_activity': 'now()'
-                    })\
-                    .eq('telegram_id', telegram_id)\
-                    .execute()
-        
-        return jsonify({'success': True})
-    except Exception as e:
-        logger.error(f"API update_progress error: {e}")
-        return jsonify({'error': 'Database error'}), 500
-
-@app.route('/api/user/progress/<int:telegram_id>/<level>', methods=['GET'])
-def get_user_progress_by_level(telegram_id, level):
-    """Get user progress for a specific level"""
-    try:
-        if not supabase:
-            return jsonify({'error': 'Database connection error'}), 500
-            
-        # Count completed exercises for this level
-        response = supabase.table('user_progress')\
-            .select('exercise_id')\
-            .eq('user_id', telegram_id)\
-            .eq('completed', True)\
-            .execute()
-        
-        # Get exercise IDs for this level
-        exercises_response = supabase.table('exercises')\
-            .select('id')\
-            .eq('level', level)\
-            .execute()
-        
-        if exercises_response.data and response.data:
-            level_exercise_ids = [ex['id'] for ex in exercises_response.data]
-            completed_exercises = [prog['exercise_id'] for prog in response.data]
-            
-            # Count completed exercises in this level
-            completed_in_level = len([ex_id for ex_id in completed_exercises if ex_id in level_exercise_ids])
-            
-            return jsonify({
-                'completed_count': completed_in_level,
-                'total_count': len(level_exercise_ids)
-            })
-        
-        return jsonify({'completed_count': 0, 'total_count': 0})
-    except Exception as e:
-        logger.error(f"API get_progress_by_level error: {e}")
-        return jsonify({'error': 'Database error'}), 500
-
-@app.route('/api/user/stats/<int:telegram_id>', methods=['GET'])
-def get_user_stats(telegram_id):
-    """Get comprehensive user statistics"""
-    try:
-        if not supabase:
-            return jsonify({'error': 'Database connection error'}), 500
-            
-        # Get user data
-        user_response = supabase.table('users').select('*').eq('telegram_id', telegram_id).execute()
-        
-        if not user_response.data:
-            return jsonify({'error': 'User not found'}), 404
-            
-        user_data = user_response.data[0]
-        
-        # Get progress by level
-        levels = ['principiante', 'intermedio', 'avanzado', 'experto']
-        progress_by_level = {}
-        
-        for level in levels:
-            progress_response = supabase.table('user_progress')\
-                .select('exercise_id')\
-                .eq('user_id', telegram_id)\
-                .eq('completed', True)\
-                .execute()
-            
-            # Get exercise IDs for this level
-            exercises_response = supabase.table('exercises')\
-                .select('id')\
-                .eq('level', level)\
-                .execute()
-            
-            if exercises_response.data and progress_response.data:
-                level_exercise_ids = [ex['id'] for ex in exercises_response.data]
-                completed_exercises = [prog['exercise_id'] for prog in progress_response.data]
-                
-                completed_in_level = len([ex_id for ex_id in completed_exercises if ex_id in level_exercise_ids])
-                progress_by_level[level] = {
-                    'completed': completed_in_level,
-                    'total': len(level_exercise_ids)
-                }
-            else:
-                progress_by_level[level] = {'completed': 0, 'total': 0}
-        
-        # Calculate current streak (simplified - days since last activity)
-        current_streak = 0
-        if user_data.get('last_activity'):
-            try:
-                from datetime import datetime
-                last_activity = datetime.fromisoformat(user_data['last_activity'].replace('Z', '+00:00'))
-                today = datetime.now()
-                days_diff = (today - last_activity).days
-                current_streak = 1 if days_diff <= 1 else 0
-            except:
-                current_streak = 0
-        
-        return jsonify({
-            'user_data': user_data,
-            'progress_by_level': progress_by_level,
-            'current_streak': current_streak,
-            'total_completed': user_data.get('total_exercises_completed', 0),
-            'current_level': user_data.get('current_level', 'principiante')
-        })
-    except Exception as e:
-        logger.error(f"API get_user_stats error: {e}")
-        return jsonify({'error': 'Database error'}), 500
-
-@app.route('/api/user/streak/<int:telegram_id>', methods=['POST'])
-def update_user_streak(telegram_id):
-    """Update user streak"""
-    try:
-        if not supabase:
-            return jsonify({'error': 'Database connection error'}), 500
-            
-        # Get current user data
-        user_response = supabase.table('users').select('*').eq('telegram_id', telegram_id).execute()
-        
-        if not user_response.data:
-            return jsonify({'error': 'User not found'}), 404
-            
-        user_data = user_response.data[0]
-        current_streak = user_data.get('current_streak', 0)
-        
-        # Update streak (simplified logic)
-        new_streak = current_streak + 1
-        
-        supabase.table('users')\
-            .update({'current_streak': new_streak})\
-            .eq('telegram_id', telegram_id)\
-            .execute()
-        
-        return jsonify({'success': True, 'new_streak': new_streak})
-    except Exception as e:
-        logger.error(f"API update_streak error: {e}")
-        return jsonify({'error': 'Database error'}), 500
 
 # ==================== ADMIN ROUTES ====================
 
 
-@app.route('/admin/users')
-@login_required
-def admin_users():
-    """Admin users management"""
-    try:
-        if not supabase:
-            flash('Error de conexión a la base de datos', 'danger')
-            return render_template('admin/users.html', users=[])
-        
-        users_response = supabase.table('users').select('*').order('created_at', desc=True).execute()
-        users = users_response.data or []
-        
-        return render_template('admin/users.html', users=users)
-    except Exception as e:
-        logger.error(f"Admin users error: {e}")
-        flash('Error al cargar usuarios', 'danger')
-        return render_template('admin/users.html', users=[])
 
 
-@app.route('/admin/settings')
-@login_required
-def admin_settings():
-    """Admin settings"""
-    return render_template('admin/settings.html')
-
-@app.route('/admin/help')
 @login_required
 def admin_help():
     """Admin help page"""
@@ -795,7 +425,7 @@ def admin_profile():
     return render_template('admin/profile.html')
 
 @app.route('/admin/logs')
-@login_required
+@admin_required
 def admin_logs():
     """Admin logs page"""
     return render_template('admin/logs.html')
@@ -806,31 +436,520 @@ def admin_backup():
     """Admin backup page"""
     return render_template('admin/backup.html')
 
-@app.route('/admin/database')
-@login_required
-def admin_database():
-    """Admin database page"""
-    return render_template('admin/database.html')
 
 @app.route('/admin/bot-control')
-@login_required
+@admin_required
 def admin_bot_control():
     """Admin bot control page"""
-    return render_template('admin/bot_control.html')
+    try:
+        # Check if Supabase is available for bot operations
+        if not supabase:
+            flash('Conexión a la base de datos no disponible', 'warning')
+        return render_template('admin/bot_control.html', db_connected=(supabase is not None))
+    except Exception as e:
+        logger.error(f"Admin bot control error: {e}")
+        flash('Error al cargar la página de control del bot', 'error')
+        return render_template('admin/bot_control.html', db_connected=False)
 
 @app.route('/admin/notifications')
-@login_required
+@admin_required
 def admin_notifications():
     """Admin notifications page"""
-    return render_template('admin/notifications.html')
+    try:
+        # Check if Supabase is available for notifications
+        if not supabase:
+            flash('Conexión a la base de datos no disponible', 'warning')
+        return render_template('admin/notifications.html', db_connected=(supabase is not None))
+    except Exception as e:
+        logger.error(f"Admin notifications error: {e}")
+        flash('Error al cargar la página de notificaciones', 'error')
+        return render_template('admin/notifications.html', db_connected=False)
 
+@app.route('/admin/exercises')
+@admin_required
+def admin_exercises():
+    """Admin exercises management page"""
+    try:
+        if not supabase:
+            flash('Error de conexión a la base de datos', 'danger')
+            return render_template('admin/exercises.html', exercises=[])
+        
+        # Get all exercises
+        exercises_response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
+        exercises = exercises_response.data or []
+        
+        return render_template('admin/exercises.html', exercises=exercises)
+    except Exception as e:
+        logger.error(f"Admin exercises error: {e}")
+        flash('Error al cargar ejercicios', 'danger')
+        return render_template('admin/exercises.html', exercises=[])
 
+# API Endpoints for Exercises Management
+@app.route('/api/admin/exercises', methods=['GET'])
+@admin_required
+def api_get_exercises():
+    """Get all exercises"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        level = request.args.get('level')
+        search = request.args.get('search')
+        
+        query = supabase.table('exercises').select('*')
+        
+        if level:
+            query = query.eq('level', level)
+        
+        if search:
+            query = query.ilike('question', f'%{search}%')
+        
+        response = query.order('created_at', desc=True).execute()
+        
+        return jsonify({'exercises': response.data or []})
+    except Exception as e:
+        logger.error(f"API get exercises error: {e}")
+        return jsonify({'error': 'Database error'}), 500
 
-@app.route('/admin/import-exercises')
-@login_required
-def admin_import_exercises():
-    """Admin import exercises page"""
-    return render_template('admin/import_exercises.html')
+@app.route('/api/admin/exercises', methods=['POST'])
+@admin_required
+def api_create_exercise():
+    """Create new exercise"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ['question', 'level', 'options', 'correct_answer']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Create exercise
+        exercise_data = {
+            'question': data['question'],
+            'level': data['level'],
+            'options': data['options'],
+            'correct_answer': data['correct_answer'],
+            'explanation': data.get('explanation', ''),
+            'created_at': 'now()'
+        }
+        
+        response = supabase.table('exercises').insert(exercise_data).execute()
+        
+        if response.data:
+            return jsonify(response.data[0]), 201
+        else:
+            return jsonify({'error': 'Failed to create exercise'}), 400
+    except Exception as e:
+        logger.error(f"API create exercise error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/admin/exercises/<int:exercise_id>', methods=['PUT'])
+@admin_required
+def api_update_exercise(exercise_id):
+    """Update exercise"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        data = request.json
+        
+        # Update exercise
+        update_data = {
+            'question': data.get('question'),
+            'level': data.get('level'),
+            'options': data.get('options'),
+            'correct_answer': data.get('correct_answer'),
+            'explanation': data.get('explanation', ''),
+            'updated_at': 'now()'
+        }
+        
+        response = supabase.table('exercises').update(update_data).eq('id', exercise_id).execute()
+        
+        if response.data:
+            return jsonify(response.data[0])
+        else:
+            return jsonify({'error': 'Exercise not found'}), 404
+    except Exception as e:
+        logger.error(f"API update exercise error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/admin/exercises/<int:exercise_id>', methods=['DELETE'])
+@admin_required
+def api_delete_exercise(exercise_id):
+    """Delete exercise"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        response = supabase.table('exercises').delete().eq('id', exercise_id).execute()
+        
+        if response.data:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'error': 'Exercise not found'}), 404
+    except Exception as e:
+        logger.error(f"API delete exercise error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/admin/exercises/import', methods=['POST'])
+@admin_required
+def api_import_exercises():
+    """Import exercises from JSON"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        data = request.json
+        exercises = data.get('exercises', [])
+        
+        if not isinstance(exercises, list):
+            return jsonify({'error': 'Exercises must be an array'}), 400
+        
+        imported_count = 0
+        errors = []
+        
+        for exercise in exercises:
+            try:
+                # Validate exercise structure
+                required_fields = ['question', 'level', 'options', 'correct_answer']
+                if not all(field in exercise for field in required_fields):
+                    errors.append(f"Invalid exercise structure: {exercise.get('question', 'Unknown')}")
+                    continue
+                
+                exercise_data = {
+                    'question': exercise['question'],
+                    'level': exercise['level'],
+                    'options': exercise['options'],
+                    'correct_answer': exercise['correct_answer'],
+                    'explanation': exercise.get('explanation', ''),
+                    'created_at': 'now()'
+                }
+                
+                supabase.table('exercises').insert(exercise_data).execute()
+                imported_count += 1
+            except Exception as e:
+                errors.append(f"Error importing exercise: {str(e)}")
+        
+        return jsonify({
+            'imported': imported_count,
+            'total': len(exercises),
+            'errors': errors
+        })
+    except Exception as e:
+        logger.error(f"API import exercises error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/admin/users')
+@admin_required
+def admin_users():
+    """Admin users management page"""
+    try:
+        if not supabase:
+            flash('Error de conexión a la base de datos', 'danger')
+            return render_template('admin/users.html', users=[], stats={})
+        
+        # Get user statistics
+        try:
+            total_users_response = supabase.table('bot_users').select('id', count='exact').execute()
+            active_users_response = supabase.table('bot_users').select('id', count='exact').eq('is_active', True).execute()
+            inactive_users_response = supabase.table('bot_users').select('id', count='exact').eq('is_active', False).execute()
+            
+            stats = {
+                'total': total_users_response.count or 0,
+                'active': active_users_response.count or 0,
+                'inactive': inactive_users_response.count or 0
+            }
+        except Exception as e:
+            logger.error(f"Error getting user stats: {e}")
+            stats = {'total': 0, 'active': 0, 'inactive': 0}
+        
+        # Get recent users (last 10)
+        try:
+            users_response = supabase.table('bot_users').select('*').order('created_at', desc=True).limit(10).execute()
+            users = users_response.data or []
+        except Exception as e:
+            logger.error(f"Error getting users: {e}")
+            users = []
+        
+        return render_template('admin/users.html', users=users, stats=stats)
+    except Exception as e:
+        logger.error(f"Admin users error: {e}")
+        flash('Error al cargar la página de usuarios', 'danger')
+        return render_template('admin/users.html', users=[], stats={})
+
+@app.route('/api/admin/users', methods=['GET'])
+@admin_required
+def api_get_users():
+    """Get all users with filters"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get query parameters
+        search = request.args.get('search', '')
+        status = request.args.get('status', 'all')
+        page = int(request.args.get('page', 1))
+        per_page = min(int(request.args.get('per_page', 20)), 100)
+        
+        # Build query
+        query = supabase.table('bot_users').select('*')
+        
+        # Apply filters
+        if search:
+            query = query.or_(f"username.ilike.%{search}%,first_name.ilike.%{search}%,last_name.ilike.%{search}%")
+        
+        if status == 'active':
+            query = query.eq('is_active', True)
+        elif status == 'inactive':
+            query = query.eq('is_active', False)
+        
+        # Get total count
+        count_query = query
+        count_response = count_query.select('id', count='exact').execute()
+        total = count_response.count or 0
+        
+        # Apply pagination
+        offset = (page - 1) * per_page
+        query = query.order('created_at', desc=True).range(offset, offset + per_page - 1)
+        
+        response = query.execute()
+        users = response.data or []
+        
+        return jsonify({
+            'users': users,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': total,
+                'pages': (total + per_page - 1) // per_page
+            }
+        })
+    except Exception as e:
+        logger.error(f"API get users error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/admin/users/<int:user_id>', methods=['PUT'])
+@admin_required
+def api_update_user(user_id):
+    """Update user status (activate/deactivate)"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        data = request.json
+        is_active = data.get('is_active')
+        
+        if is_active is None:
+            return jsonify({'error': 'Missing is_active field'}), 400
+        
+        # Update user
+        response = supabase.table('bot_users').update({
+            'is_active': is_active,
+            'updated_at': 'now()'
+        }).eq('id', user_id).execute()
+        
+        if response.data:
+            action = 'activado' if is_active else 'desactivado'
+            logger.info(f"User {user_id} {action} by admin {current_user.username}")
+            return jsonify(response.data[0])
+        else:
+            return jsonify({'error': 'User not found'}), 404
+    except Exception as e:
+        logger.error(f"API update user error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
+@admin_required
+def api_delete_user(user_id):
+    """Delete user"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get user info for logging
+        user_response = supabase.table('bot_users').select('username, telegram_id').eq('id', user_id).execute()
+        
+        # Delete user
+        response = supabase.table('bot_users').delete().eq('id', user_id).execute()
+        
+        if response.data:
+            user_info = user_response.data[0] if user_response.data else {}
+            logger.info(f"User {user_id} ({user_info.get('username', 'Unknown')}) deleted by admin {current_user.username}")
+            return jsonify({'success': True})
+        else:
+            return jsonify({'error': 'User not found'}), 404
+    except Exception as e:
+        logger.error(f"API delete user error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/admin/users/stats', methods=['GET'])
+@admin_required
+def api_get_user_stats():
+    """Get user statistics"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get basic stats
+        total_response = supabase.table('bot_users').select('id', count='exact').execute()
+        active_response = supabase.table('bot_users').select('id', count='exact').eq('is_active', True).execute()
+        
+        # Get recent users (last 7 days)
+        import datetime
+        week_ago = (datetime.datetime.now() - datetime.timedelta(days=7)).isoformat()
+        recent_response = supabase.table('bot_users').select('id', count='exact').gte('created_at', week_ago).execute()
+        
+        stats = {
+            'total': total_response.count or 0,
+            'active': active_response.count or 0,
+            'inactive': (total_response.count or 0) - (active_response.count or 0),
+            'recent': recent_response.count or 0
+        }
+        
+        return jsonify(stats)
+    except Exception as e:
+        logger.error(f"API get user stats error: {e}")
+        return jsonify({'error': 'Database error'}), 500
+
+@app.route('/admin/change-password', methods=['GET', 'POST'])
+@admin_required
+def change_password():
+    """Change admin user password"""
+    if not supabase:
+        flash('Error de conexión a la base de datos', 'error')
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'GET':
+        return render_template('admin/change_password.html')
+    
+    # Logging detallado para debugging
+    logger.info(f"Change password attempt for user: {current_user}")
+    logger.info(f"Form data received: {list(request.form.keys())}")
+    
+    # Verificar que el ID de usuario sea válido
+    try:
+        user_id = int(current_user.id)
+        logger.info(f"Valid user ID: {user_id}")
+    except (ValueError, TypeError) as e:
+        logger.error(f"Invalid user ID: {current_user.id} (type: {type(current_user.id)})")
+        flash('Error de autenticación', 'error')
+        return render_template('admin/change_password.html')
+    
+    try:
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        logger.info(f"Form values - current_password: {'provided' if current_password else 'missing'}, "
+                    f"new_password: {'provided' if new_password else 'missing'}, "
+                    f"confirm_password: {'provided' if confirm_password else 'missing'}")
+        
+        # Validate form inputs
+        if not all([current_password, new_password, confirm_password]):
+            logger.warning("Missing required fields in password change")
+            flash('Todos los campos son requeridos', 'error')
+            return render_template('admin/change_password.html')
+        
+        # Check if new passwords match
+        if new_password != confirm_password:
+            logger.warning("New passwords do not match")
+            flash('Las contraseñas nuevas no coinciden', 'error')
+            return render_template('admin/change_password.html')
+        
+        # Check password length
+        if len(new_password) < 8:
+            logger.warning("New password too short")
+            flash('La nueva contraseña debe tener al menos 8 caracteres', 'error')
+            return render_template('admin/change_password.html')
+        
+        # Get current user data
+        logger.info(f"Fetching user data for ID: {user_id}")
+        response = supabase.table('admin_users').select('*').eq('id', user_id).execute()
+        
+        logger.info(f"Supabase response success: {response.data is not None}")
+        logger.info(f"Response data length: {len(response.data) if response.data else 0}")
+        
+        if not response.data:
+            logger.error("No user data returned from database")
+            flash('Error al obtener datos del usuario', 'error')
+            return render_template('admin/change_password.html')
+        
+        user_data = response.data[0]
+        logger.info(f"User data keys: {list(user_data.keys())}")
+        logger.info(f"User data available fields: {[k for k in user_data.keys() if 'password' in k.lower()]}")
+        
+        # Verificar que el campo password_hash exista
+        if 'password_hash' not in user_data:
+            logger.error(f"password_hash field not found. Available fields: {list(user_data.keys())}")
+            flash('Error en la estructura de datos del usuario', 'error')
+            return render_template('admin/change_password.html')
+        
+        logger.info("Attempting to verify current password...")
+        # Verify current password
+        if not check_password_hash(user_data['password_hash'], current_password):
+            logger.warning("Current password verification failed")
+            flash('La contraseña actual es incorrecta', 'error')
+            return render_template('admin/change_password.html')
+        
+        logger.info("Current password verified successfully")
+        
+        # Check if new password is same as current
+        if check_password_hash(user_data['password_hash'], new_password):
+            logger.warning("New password is same as current password")
+            flash('La nueva contraseña debe ser diferente a la contraseña actual', 'error')
+            return render_template('admin/change_password.html')
+        
+        logger.info("Generating new password hash...")
+        # Hash new password
+        new_password_hash = generate_password_hash(new_password)
+        
+        logger.info("Updating password in database...")
+        # Update password in database (solo campos que existen en Supabase)
+        update_response = supabase.table('admin_users').update({
+            'password_hash': new_password_hash
+        }).eq('id', user_id).execute()
+        
+        logger.info(f"Update response success: {update_response.data is not None}")
+        logger.info(f"Update response data: {update_response.data}")
+        
+        if update_response.data:
+            logger.info(f"Password updated successfully for user: {current_user.username}")
+            flash('Contraseña actualizada exitosamente', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            logger.error("Database update returned no data")
+            logger.error(f"Supabase error details: {getattr(update_response, 'error', 'No error info')}")
+            flash('Error al actualizar la contraseña', 'error')
+            return render_template('admin/change_password.html')
+            
+    except KeyError as e:
+        logger.error(f"KeyError in change_password: {e}")
+        logger.error(f"Available keys: {list(user_data.keys()) if 'user_data' in locals() else 'N/A'}")
+        flash('Error en los datos del usuario', 'error')
+        return render_template('admin/change_password.html')
+    except AttributeError as e:
+        logger.error(f"AttributeError in change_password: {e}")
+        logger.error(f"User data type: {type(user_data) if 'user_data' in locals() else 'N/A'}")
+        flash('Error en el procesamiento de datos', 'error')
+        return render_template('admin/change_password.html')
+    except ValueError as e:
+        logger.error(f"ValueError in change_password: {e}")
+        flash('Error en el formato de los datos', 'error')
+        return render_template('admin/change_password.html')
+    except Exception as e:
+        logger.error(f"Unexpected error in change_password: {e}")
+        logger.error(f"Error type: {type(e).__name__}")
+        logger.error(f"Error args: {e.args}")
+        logger.error(f"User data available: {'user_data' in locals()}")
+        if 'user_data' in locals():
+            logger.error(f"User data keys: {list(user_data.keys())}")
+        logger.error(f"Current user ID: {current_user.id}")
+        flash('Error al procesar la solicitud', 'error')
+        return render_template('admin/change_password.html')
 
 
 if __name__ == '__main__':
