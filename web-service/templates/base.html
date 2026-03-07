@@ -25,8 +25,9 @@
             <a class="navbar-brand" href="/">
                 <i class="fas fa-robot me-2"></i>Python Tutor Bot
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler mobile-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
+                <span class="mobile-menu-text">Menú</span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
@@ -135,16 +136,28 @@
             const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
             const navbarCollapse = document.querySelector('.navbar-collapse');
             const navbarToggler = document.querySelector('.navbar-toggler');
+            const mobileNavOverlay = document.getElementById('mobileNavOverlay');
             
             navLinks.forEach(link => {
                 link.addEventListener('click', () => {
                     if (window.innerWidth < 992) {
                         navbarCollapse.classList.remove('show');
-                        navbarToggler.classList.remove('collapsed');
+                        navbarToggler.classList.add('collapsed');
                         navbarToggler.setAttribute('aria-expanded', 'false');
+                        mobileNavOverlay.classList.remove('active');
                     }
                 });
             });
+            
+            // Mobile overlay click to close menu
+            if (mobileNavOverlay) {
+                mobileNavOverlay.addEventListener('click', () => {
+                    navbarCollapse.classList.remove('show');
+                    navbarToggler.classList.add('collapsed');
+                    navbarToggler.setAttribute('aria-expanded', 'false');
+                    mobileNavOverlay.classList.remove('active');
+                });
+            }
             
             // Touch feedback for mobile
             if ('ontouchstart' in window) {
