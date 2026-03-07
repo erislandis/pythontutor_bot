@@ -445,6 +445,10 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=reply_markup
     )
 
+async def practice_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Practice command handler - Redirect to practice menu"""
+    await practice_menu(update, context)
+
 async def practice_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Practice menu handler - Choose practice session size"""
     telegram_id = update.effective_user.id
