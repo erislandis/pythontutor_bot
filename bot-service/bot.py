@@ -300,7 +300,7 @@ Soy tu tutor personal de Python. Te ayudaré a aprender programación con ejerci
     # Duolingo-style main menu
     keyboard = [
         [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
-        [InlineKeyboardButton("📝 Modo Práctica", callback_data="practice_menu")],
+        [InlineKeyboardButton("� Modo Práctica", callback_data="practice_menu")],
         [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")],
         [InlineKeyboardButton("🏆 Ranking Mundial", callback_data="world_ranking")],
         [InlineKeyboardButton("❓ Ayuda", callback_data="help")]
@@ -800,14 +800,14 @@ Equipo PythonTutor
 
 # Callback query handlers
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle button callbacks - Enhanced with new learning system"""
+    """Handle button callbacks - Fixed structure"""
     query = update.callback_query
     await query.answer()
     
     telegram_id = update.effective_user.id
     data = query.data
     
-    # Main menu options
+    # Single if-elif chain for all callbacks
     if data == "learning_mode":
         await learning_mode(update, context)
     elif data == "practice_menu":
@@ -817,8 +817,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await setup_practice(update, context, count)
     elif data == "main_menu":
         await main_menu(update, context)
-    
-    # Learning mode callbacks
     elif data == "view_stats":
         await stats_command(update, context)
     elif data == "world_ranking":
@@ -829,8 +827,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await progress_command(update, context)
     elif data == "help":
         await help_command(update, context)
-    
-    # Learning mode specific
     elif data == "next_learning_exercise":
         await learning_mode(update, context)
     elif data.startswith("learning_answer_"):
@@ -838,8 +834,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         exercise_id = int(parts[2])
         answer_index = int(parts[3])
         await learning_answer_callback(query, context, exercise_id, answer_index)
-    
-    # Practice mode callbacks
     elif data == "practice_mode":
         await practice_command(update, context)
     elif data == "next_practice_exercise":
@@ -849,8 +843,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         exercise_id = int(parts[2])
         answer_index = int(parts[3])
         await practice_answer_callback(query, context, exercise_id, answer_index)
-    
-    # General callbacks
     elif data.startswith("answer_"):
         parts = data.split("_")
         exercise_id = int(parts[1])
@@ -859,8 +851,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data.startswith("explanation_"):
         exercise_id = int(data.split("_")[1])
         await explanation_callback(query, context, exercise_id)
-    
-    # Legacy callbacks (for compatibility)
+    # Legacy callbacks
     elif data == "start_learning":
         await learning_mode(update, context)
     elif data == "view_progress":
@@ -1239,7 +1230,7 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard = [
         [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
-        [InlineKeyboardButton("📝 Modo Práctica", callback_data="practice_menu")],
+        [InlineKeyboardButton("� Modo Práctica", callback_data="practice_menu")],
         [InlineKeyboardButton("🔄 Actualizar Ranking", callback_data="refresh_ranking")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
