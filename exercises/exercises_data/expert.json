@@ -1,0 +1,1202 @@
+[
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 2) % (5 + 2)",
+    "options": [
+      "3",
+      "8",
+      "4",
+      "5"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (5^2) % (5 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 7) % (5 + 7)",
+    "options": [
+      "4",
+      "10",
+      "6",
+      "5"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (5^7) % (5 + 7) = 5"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 3) % (10 + 3)",
+    "options": [
+      "13",
+      "12",
+      "24",
+      "11"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (10^3) % (10 + 3) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 10) % (8 + 10)",
+    "options": [
+      "9",
+      "20",
+      "10",
+      "11"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (8^10) % (8 + 10) = 10"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 5) % (4 + 5)",
+    "options": [
+      "6",
+      "14",
+      "8",
+      "7"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (4^5) % (4 + 5) = 7"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 4) % (2 + 4)",
+    "options": [
+      "5",
+      "8",
+      "3",
+      "4"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (2^4) % (2 + 4) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 9) % (2 + 9)",
+    "options": [
+      "12",
+      "5",
+      "7",
+      "6"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (2^9) % (2 + 9) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 6) % (8 + 6)",
+    "options": [
+      "9",
+      "7",
+      "8",
+      "16"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (8^6) % (8 + 6) = 8"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 9) % (10 + 9)",
+    "options": [
+      "17",
+      "18",
+      "36",
+      "19"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (10^9) % (10 + 9) = 18"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 4) % (2 + 4)",
+    "options": [
+      "3",
+      "8",
+      "4",
+      "5"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (2^4) % (2 + 4) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 8) % (8 + 8)",
+    "options": [
+      "0",
+      "-1",
+      "1",
+      "5"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (8^8) % (8 + 8) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (7 ** 6) % (7 + 6)",
+    "options": [
+      "13",
+      "11",
+      "24",
+      "12"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (7^6) % (7 + 6) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (9 ** 5) % (9 + 5)",
+    "options": [
+      "11",
+      "10",
+      "22",
+      "12"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (9^5) % (9 + 5) = 11"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 2) % (4 + 2)",
+    "options": [
+      "5",
+      "3",
+      "8",
+      "4"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (4^2) % (4 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 3) % (5 + 3)",
+    "options": [
+      "10",
+      "6",
+      "4",
+      "5"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (5^3) % (5 + 3) = 5"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (9 ** 10) % (9 + 10)",
+    "options": [
+      "8",
+      "9",
+      "18",
+      "10"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (9^10) % (9 + 10) = 9"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 9) % (2 + 9)",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "12"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (2^9) % (2 + 9) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 4) % (8 + 4)",
+    "options": [
+      "3",
+      "8",
+      "5",
+      "4"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (8^4) % (8 + 4) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (6 ** 6) % (6 + 6)",
+    "options": [
+      "0",
+      "1",
+      "5",
+      "-1"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (6^6) % (6 + 6) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 5) % (4 + 5)",
+    "options": [
+      "8",
+      "14",
+      "7",
+      "6"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (4^5) % (4 + 5) = 7"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 9) % (2 + 9)",
+    "options": [
+      "5",
+      "6",
+      "12",
+      "7"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (2^9) % (2 + 9) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 9) % (4 + 9)",
+    "options": [
+      "24",
+      "12",
+      "11",
+      "13"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (4^9) % (4 + 9) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 10) % (5 + 10)",
+    "options": [
+      "10",
+      "9",
+      "20",
+      "11"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (5^10) % (5 + 10) = 10"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 3) % (10 + 3)",
+    "options": [
+      "12",
+      "13",
+      "11",
+      "24"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (10^3) % (10 + 3) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 9) % (5 + 9)",
+    "options": [
+      "13",
+      "12",
+      "26",
+      "14"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (5^9) % (5 + 9) = 13"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 10) % (5 + 10)",
+    "options": [
+      "10",
+      "9",
+      "20",
+      "11"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (5^10) % (5 + 10) = 10"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (3 ** 5) % (3 + 5)",
+    "options": [
+      "2",
+      "6",
+      "4",
+      "3"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (3^5) % (3 + 5) = 3"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (6 ** 9) % (6 + 9)",
+    "options": [
+      "7",
+      "12",
+      "6",
+      "5"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (6^9) % (6 + 9) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 3) % (10 + 3)",
+    "options": [
+      "24",
+      "12",
+      "11",
+      "13"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (10^3) % (10 + 3) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (3 ** 3) % (3 + 3)",
+    "options": [
+      "2",
+      "3",
+      "6",
+      "4"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (3^3) % (3 + 3) = 3"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 3) % (4 + 3)",
+    "options": [
+      "1",
+      "2",
+      "0",
+      "4"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (4^3) % (4 + 3) = 1"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 2) % (4 + 2)",
+    "options": [
+      "8",
+      "3",
+      "5",
+      "4"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (4^2) % (4 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (7 ** 10) % (7 + 10)",
+    "options": [
+      "3",
+      "2",
+      "1",
+      "4"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (7^10) % (7 + 10) = 2"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 4) % (8 + 4)",
+    "options": [
+      "4",
+      "5",
+      "8",
+      "3"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (8^4) % (8 + 4) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 3) % (5 + 3)",
+    "options": [
+      "5",
+      "4",
+      "10",
+      "6"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (5^3) % (5 + 3) = 5"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 7) % (5 + 7)",
+    "options": [
+      "4",
+      "6",
+      "5",
+      "10"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (5^7) % (5 + 7) = 5"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (3 ** 9) % (3 + 9)",
+    "options": [
+      "3",
+      "4",
+      "2",
+      "6"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (3^9) % (3 + 9) = 3"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 9) % (10 + 9)",
+    "options": [
+      "17",
+      "19",
+      "18",
+      "36"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (10^9) % (10 + 9) = 18"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 4) % (2 + 4)",
+    "options": [
+      "8",
+      "5",
+      "4",
+      "3"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (2^4) % (2 + 4) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 10) % (2 + 10)",
+    "options": [
+      "8",
+      "3",
+      "4",
+      "5"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (2^10) % (2 + 10) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 2) % (5 + 2)",
+    "options": [
+      "3",
+      "4",
+      "8",
+      "5"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (5^2) % (5 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 6) % (10 + 6)",
+    "options": [
+      "0",
+      "1",
+      "-1",
+      "5"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (10^6) % (10 + 6) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (9 ** 6) % (9 + 6)",
+    "options": [
+      "6",
+      "7",
+      "12",
+      "5"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (9^6) % (9 + 6) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 10) % (8 + 10)",
+    "options": [
+      "20",
+      "11",
+      "9",
+      "10"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (8^10) % (8 + 10) = 10"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 8) % (5 + 8)",
+    "options": [
+      "0",
+      "1",
+      "4",
+      "2"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (5^8) % (5 + 8) = 1"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 2) % (4 + 2)",
+    "options": [
+      "4",
+      "5",
+      "8",
+      "3"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (4^2) % (4 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 2) % (2 + 2)",
+    "options": [
+      "0",
+      "-1",
+      "5",
+      "1"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (2^2) % (2 + 2) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 4) % (4 + 4)",
+    "options": [
+      "5",
+      "-1",
+      "1",
+      "0"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (4^4) % (4 + 4) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 6) % (4 + 6)",
+    "options": [
+      "5",
+      "12",
+      "7",
+      "6"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (4^6) % (4 + 6) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 6) % (4 + 6)",
+    "options": [
+      "6",
+      "12",
+      "5",
+      "7"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (4^6) % (4 + 6) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 7) % (10 + 7)",
+    "options": [
+      "4",
+      "6",
+      "10",
+      "5"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (10^7) % (10 + 7) = 5"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (3 ** 6) % (3 + 6)",
+    "options": [
+      "1",
+      "5",
+      "0",
+      "-1"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (3^6) % (3 + 6) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 3) % (2 + 3)",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "6"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (2^3) % (2 + 3) = 3"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 4) % (2 + 4)",
+    "options": [
+      "3",
+      "8",
+      "4",
+      "5"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (2^4) % (2 + 4) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 7) % (2 + 7)",
+    "options": [
+      "1",
+      "3",
+      "2",
+      "4"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (2^7) % (2 + 7) = 2"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 3) % (10 + 3)",
+    "options": [
+      "12",
+      "11",
+      "13",
+      "24"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (10^3) % (10 + 3) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 6) % (2 + 6)",
+    "options": [
+      "0",
+      "1",
+      "5",
+      "-1"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (2^6) % (2 + 6) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 9) % (4 + 9)",
+    "options": [
+      "12",
+      "24",
+      "11",
+      "13"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (4^9) % (4 + 9) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (6 ** 6) % (6 + 6)",
+    "options": [
+      "1",
+      "5",
+      "-1",
+      "0"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (6^6) % (6 + 6) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 5) % (2 + 5)",
+    "options": [
+      "5",
+      "4",
+      "8",
+      "3"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (2^5) % (2 + 5) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (9 ** 5) % (9 + 5)",
+    "options": [
+      "11",
+      "10",
+      "22",
+      "12"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (9^5) % (9 + 5) = 11"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (9 ** 9) % (9 + 9)",
+    "options": [
+      "18",
+      "8",
+      "9",
+      "10"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (9^9) % (9 + 9) = 9"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 9) % (2 + 9)",
+    "options": [
+      "12",
+      "5",
+      "6",
+      "7"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (2^9) % (2 + 9) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (6 ** 5) % (6 + 5)",
+    "options": [
+      "20",
+      "9",
+      "10",
+      "11"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (6^5) % (6 + 5) = 10"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (9 ** 4) % (9 + 4)",
+    "options": [
+      "10",
+      "18",
+      "8",
+      "9"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (9^4) % (9 + 4) = 9"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 9) % (4 + 9)",
+    "options": [
+      "13",
+      "24",
+      "12",
+      "11"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (4^9) % (4 + 9) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (6 ** 8) % (6 + 8)",
+    "options": [
+      "9",
+      "8",
+      "16",
+      "7"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (6^8) % (6 + 8) = 8"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (6 ** 8) % (6 + 8)",
+    "options": [
+      "9",
+      "16",
+      "8",
+      "7"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (6^8) % (6 + 8) = 8"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (3 ** 8) % (3 + 8)",
+    "options": [
+      "4",
+      "10",
+      "5",
+      "6"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (3^8) % (3 + 8) = 5"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 8) % (2 + 8)",
+    "options": [
+      "6",
+      "7",
+      "12",
+      "5"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (2^8) % (2 + 8) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 9) % (2 + 9)",
+    "options": [
+      "5",
+      "7",
+      "12",
+      "6"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (2^9) % (2 + 9) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 5) % (2 + 5)",
+    "options": [
+      "8",
+      "4",
+      "5",
+      "3"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (2^5) % (2 + 5) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (3 ** 5) % (3 + 5)",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "6"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (3^5) % (3 + 5) = 3"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (9 ** 6) % (9 + 6)",
+    "options": [
+      "7",
+      "6",
+      "12",
+      "5"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (9^6) % (9 + 6) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (7 ** 4) % (7 + 4)",
+    "options": [
+      "3",
+      "6",
+      "4",
+      "2"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (7^4) % (7 + 4) = 3"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (9 ** 8) % (9 + 8)",
+    "options": [
+      "1",
+      "2",
+      "4",
+      "0"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (9^8) % (9 + 8) = 1"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 2) % (8 + 2)",
+    "options": [
+      "5",
+      "8",
+      "4",
+      "3"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (8^2) % (8 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (7 ** 4) % (7 + 4)",
+    "options": [
+      "2",
+      "6",
+      "3",
+      "4"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (7^4) % (7 + 4) = 3"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (3 ** 4) % (3 + 4)",
+    "options": [
+      "4",
+      "8",
+      "3",
+      "5"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (3^4) % (3 + 4) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 3) % (10 + 3)",
+    "options": [
+      "11",
+      "24",
+      "12",
+      "13"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (10^3) % (10 + 3) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 9) % (4 + 9)",
+    "options": [
+      "13",
+      "24",
+      "12",
+      "11"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (4^9) % (4 + 9) = 12"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 2) % (8 + 2)",
+    "options": [
+      "8",
+      "3",
+      "4",
+      "5"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (8^2) % (8 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 8) % (2 + 8)",
+    "options": [
+      "5",
+      "12",
+      "6",
+      "7"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (2^8) % (2 + 8) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 8) % (5 + 8)",
+    "options": [
+      "0",
+      "4",
+      "2",
+      "1"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (5^8) % (5 + 8) = 1"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (7 ** 8) % (7 + 8)",
+    "options": [
+      "1",
+      "0",
+      "2",
+      "4"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (7^8) % (7 + 8) = 1"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 9) % (2 + 9)",
+    "options": [
+      "5",
+      "7",
+      "6",
+      "12"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (2^9) % (2 + 9) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 2) % (10 + 2)",
+    "options": [
+      "3",
+      "5",
+      "4",
+      "8"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (10^2) % (10 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 10) % (8 + 10)",
+    "options": [
+      "11",
+      "10",
+      "20",
+      "9"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (8^10) % (8 + 10) = 10"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (3 ** 10) % (3 + 10)",
+    "options": [
+      "6",
+      "4",
+      "2",
+      "3"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (3^10) % (3 + 10) = 3"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 2) % (5 + 2)",
+    "options": [
+      "5",
+      "3",
+      "8",
+      "4"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (5^2) % (5 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (4 ** 8) % (4 + 8)",
+    "options": [
+      "3",
+      "5",
+      "4",
+      "8"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (4^8) % (4 + 8) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (8 ** 9) % (8 + 9)",
+    "options": [
+      "16",
+      "8",
+      "7",
+      "9"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (8^9) % (8 + 9) = 8"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (5 ** 10) % (5 + 10)",
+    "options": [
+      "20",
+      "10",
+      "9",
+      "11"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (5^10) % (5 + 10) = 10"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 2) % (2 + 2)",
+    "options": [
+      "5",
+      "0",
+      "1",
+      "-1"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (2^2) % (2 + 2) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (3 ** 2) % (3 + 2)",
+    "options": [
+      "8",
+      "4",
+      "5",
+      "3"
+    ],
+    "correct_answer": 2,
+    "explanation": "Operación experta: (3^2) % (3 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (10 ** 10) % (10 + 10)",
+    "options": [
+      "5",
+      "1",
+      "-1",
+      "0"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (10^10) % (10 + 10) = 0"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (6 ** 4) % (6 + 4)",
+    "options": [
+      "5",
+      "12",
+      "7",
+      "6"
+    ],
+    "correct_answer": 4,
+    "explanation": "Operación experta: (6^4) % (6 + 4) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (2 ** 8) % (2 + 8)",
+    "options": [
+      "12",
+      "7",
+      "6",
+      "5"
+    ],
+    "correct_answer": 3,
+    "explanation": "Operación experta: (2^8) % (2 + 8) = 6"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (7 ** 2) % (7 + 2)",
+    "options": [
+      "4",
+      "5",
+      "3",
+      "8"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (7^2) % (7 + 2) = 4"
+  },
+  {
+    "level": "experto",
+    "question": "¿Qué devuelve el siguiente código?\n\nresultado = (7 ** 2) % (7 + 2)",
+    "options": [
+      "4",
+      "8",
+      "3",
+      "5"
+    ],
+    "correct_answer": 1,
+    "explanation": "Operación experta: (7^2) % (7 + 2) = 4"
+  }
+]

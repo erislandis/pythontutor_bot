@@ -1,0 +1,1802 @@
+[
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "1\n2\n3",
+      "NameError",
+      "ValueError",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "IndexError",
+      "0",
+      "Hola, soy Ana",
+      "None"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "{}",
+      "[]",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "[]",
+      "1",
+      "{}"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "KeyError",
+      "SyntaxError",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "NameError",
+      "SyntaxError",
+      "[]",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "None",
+      "Error",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "Error",
+      "1\n2\n3\n4\n5",
+      "{}",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "TypeError",
+      "NameError",
+      "Hola, soy Ana",
+      "SyntaxError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(4):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4",
+      "1",
+      "0",
+      "IndexError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 4."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "1",
+      "TypeError",
+      "[]",
+      "1\n2\n3"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4\n5\n6",
+      "None",
+      "0",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "1",
+      "ValueError",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "SyntaxError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "1",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Error",
+      "[]",
+      "Hola, soy Ana",
+      "{}"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "SyntaxError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "{}",
+      "0"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "0",
+      "NameError",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Error",
+      "[]",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "{}"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4\n5\n6",
+      "SyntaxError",
+      "IndexError",
+      "1"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4\n5",
+      "None",
+      "0",
+      "1"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "IndexError",
+      "0",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "0",
+      "None",
+      "Error",
+      "1\n2\n3\n4\n5"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "Error",
+      "{}",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "NameError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "{}",
+      "1"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "NameError",
+      "SyntaxError",
+      "KeyError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "{}",
+      "Error",
+      "Hola, soy Ana",
+      "IndexError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "Error",
+      "{}",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(7):\n    print(numero)",
+    "options": [
+      "0",
+      "NameError",
+      "[]",
+      "1\n2\n3\n4\n5\n6\n7"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 7."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4\n5",
+      "Error",
+      "NameError",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "KeyError",
+      "None",
+      "1\n2\n3\n4\n5",
+      "IndexError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "SyntaxError",
+      "TypeError",
+      "[]",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "IndexError",
+      "Hola, soy Ana",
+      "Error",
+      "TypeError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "KeyError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "IndexError",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "NameError",
+      "{}",
+      "Hola, soy Ana",
+      "1"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "ValueError",
+      "{}",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "0",
+      "NameError",
+      "Hola, soy Ana",
+      "1"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "NameError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "None",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "ValueError",
+      "KeyError",
+      "None",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "None",
+      "KeyError",
+      "1\n2\n3\n4\n5",
+      "NameError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "KeyError",
+      "Hola, soy Ana",
+      "[]",
+      "None"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "1\n2\n3",
+      "NameError",
+      "IndexError",
+      "TypeError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "SyntaxError",
+      "1\n2\n3",
+      "{}",
+      "None"
+    ],
+    "correct_answer": 2,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "{}",
+      "1",
+      "0"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "NameError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "TypeError",
+      "KeyError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "ValueError",
+      "1",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "NameError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "ValueError",
+      "IndexError",
+      "1\n2\n3",
+      "NameError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "None",
+      "0",
+      "Hola, soy Ana",
+      "1"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "[]",
+      "Hola, soy Ana",
+      "Error",
+      "{}"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "1",
+      "TypeError",
+      "NameError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "SyntaxError",
+      "1\n2\n3\n4\n5\n6",
+      "[]",
+      "None"
+    ],
+    "correct_answer": 2,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "[]",
+      "None",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "SyntaxError",
+      "TypeError",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "NameError",
+      "TypeError",
+      "{}",
+      "Antes de la función\n¡Hola!\nDespués de la función"
+    ],
+    "correct_answer": 4,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "SyntaxError",
+      "Hola, soy Ana",
+      "TypeError",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Error",
+      "0",
+      "Hola, soy Ana",
+      "[]"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "IndexError",
+      "ValueError",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "[]",
+      "IndexError",
+      "Hola, soy Ana",
+      "1"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "SyntaxError",
+      "{}",
+      "[]",
+      "Antes de la función\n¡Hola!\nDespués de la función"
+    ],
+    "correct_answer": 4,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "IndexError",
+      "NameError",
+      "Hola, soy Ana",
+      "1"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "{}",
+      "Hola, soy Ana",
+      "[]",
+      "KeyError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "IndexError",
+      "[]",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "SyntaxError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "[]",
+      "1\n2\n3\n4\n5\n6",
+      "ValueError",
+      "1"
+    ],
+    "correct_answer": 2,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "TypeError",
+      "KeyError",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "[]",
+      "IndexError",
+      "KeyError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "{}",
+      "SyntaxError",
+      "1\n2\n3",
+      "None"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "None",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "TypeError",
+      "{}"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "SyntaxError",
+      "1",
+      "Hola, soy Ana",
+      "NameError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(7):\n    print(numero)",
+    "options": [
+      "NameError",
+      "Error",
+      "TypeError",
+      "1\n2\n3\n4\n5\n6\n7"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 7."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "SyntaxError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "TypeError",
+      "NameError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4\n5",
+      "KeyError",
+      "NameError",
+      "1"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "0",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "NameError",
+      "KeyError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "[]",
+      "KeyError",
+      "Hola, soy Ana",
+      "{}"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "SyntaxError",
+      "None",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "TypeError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "ValueError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "Error",
+      "TypeError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "NameError",
+      "Error",
+      "IndexError",
+      "1\n2\n3\n4\n5\n6"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "ValueError",
+      "Hola, soy Ana",
+      "KeyError",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "None",
+      "1",
+      "KeyError",
+      "1\n2\n3\n4\n5"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "NameError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "{}",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "IndexError",
+      "{}",
+      "1\n2\n3",
+      "NameError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "IndexError",
+      "0",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "NameError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "IndexError",
+      "0",
+      "NameError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "IndexError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "0",
+      "1"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "TypeError",
+      "KeyError",
+      "1",
+      "1\n2\n3\n4\n5"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "[]",
+      "0",
+      "None",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "None",
+      "Hola, soy Ana",
+      "1",
+      "IndexError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "NameError",
+      "{}",
+      "KeyError",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "None",
+      "Hola, soy Ana",
+      "0",
+      "Error"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "None",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "IndexError",
+      "0"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(7):\n    print(numero)",
+    "options": [
+      "NameError",
+      "SyntaxError",
+      "None",
+      "1\n2\n3\n4\n5\n6\n7"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 7."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "IndexError",
+      "SyntaxError",
+      "KeyError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "NameError",
+      "TypeError",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "0",
+      "IndexError",
+      "KeyError",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "NameError",
+      "IndexError",
+      "{}"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(4):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4",
+      "IndexError",
+      "None",
+      "KeyError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 4."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "ValueError",
+      "NameError",
+      "Hola, soy Ana",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "[]",
+      "ValueError",
+      "NameError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "ValueError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "{}",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "ValueError",
+      "Hola, soy Ana",
+      "SyntaxError",
+      "{}"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "None",
+      "IndexError",
+      "1\n2\n3\n4\n5\n6",
+      "[]"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "1",
+      "{}",
+      "ValueError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(7):\n    print(numero)",
+    "options": [
+      "1",
+      "1\n2\n3\n4\n5\n6\n7",
+      "IndexError",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El generador produce números del 1 al 7."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "[]",
+      "SyntaxError",
+      "1",
+      "1\n2\n3\n4\n5"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "None",
+      "Error",
+      "1\n2\n3\n4\n5",
+      "IndexError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "None",
+      "ValueError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "KeyError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(4):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4",
+      "0",
+      "ValueError",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 4."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "NameError",
+      "TypeError",
+      "{}",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "KeyError",
+      "NameError",
+      "[]",
+      "1\n2\n3\n4\n5\n6"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "NameError",
+      "Error",
+      "Hola, soy Ana",
+      "IndexError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "NameError",
+      "None",
+      "TypeError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "None",
+      "{}",
+      "SyntaxError",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Error",
+      "Hola, soy Ana",
+      "0",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "None",
+      "{}",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "TypeError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "IndexError",
+      "KeyError",
+      "TypeError",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "TypeError",
+      "[]",
+      "ValueError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "0",
+      "None",
+      "IndexError",
+      "1\n2\n3\n4\n5\n6"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "None",
+      "TypeError",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "1",
+      "Error",
+      "{}"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(4):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4",
+      "{}",
+      "SyntaxError",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 4."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "KeyError",
+      "1",
+      "TypeError",
+      "Antes de la función\n¡Hola!\nDespués de la función"
+    ],
+    "correct_answer": 4,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(4):\n    print(numero)",
+    "options": [
+      "KeyError",
+      "IndexError",
+      "Error",
+      "1\n2\n3\n4"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 4."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "None",
+      "SyntaxError",
+      "Error",
+      "Antes de la función\n¡Hola!\nDespués de la función"
+    ],
+    "correct_answer": 4,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "TypeError",
+      "{}",
+      "IndexError",
+      "1\n2\n3\n4\n5\n6"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Error",
+      "TypeError",
+      "SyntaxError",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "{}",
+      "Hola, soy Ana",
+      "TypeError",
+      "[]"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "{}",
+      "SyntaxError",
+      "1\n2\n3\n4\n5\n6",
+      "TypeError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "NameError",
+      "TypeError",
+      "Hola, soy Ana",
+      "1"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "NameError",
+      "Error",
+      "1",
+      "1\n2\n3\n4\n5"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(7):\n    print(numero)",
+    "options": [
+      "None",
+      "1\n2\n3\n4\n5\n6\n7",
+      "IndexError",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El generador produce números del 1 al 7."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "[]",
+      "0",
+      "None",
+      "Hola, soy Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "Error",
+      "ValueError",
+      "KeyError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "1\n2\n3",
+      "Error",
+      "KeyError",
+      "NameError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "0",
+      "1\n2\n3",
+      "SyntaxError",
+      "None"
+    ],
+    "correct_answer": 2,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "NameError",
+      "IndexError",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(7):\n    print(numero)",
+    "options": [
+      "1\n2\n3\n4\n5\n6\n7",
+      "KeyError",
+      "None",
+      "NameError"
+    ],
+    "correct_answer": 1,
+    "explanation": "El generador produce números del 1 al 7."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "[]",
+      "{}",
+      "IndexError",
+      "1\n2\n3\n4\n5"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 5."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Error",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "0",
+      "{}"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "{}",
+      "Hola, soy Ana",
+      "SyntaxError",
+      "TypeError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "Hola, soy Ana",
+      "[]",
+      "IndexError",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "KeyError",
+      "TypeError",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "None"
+    ],
+    "correct_answer": 3,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "IndexError",
+      "Error",
+      "Hola, soy Ana",
+      "SyntaxError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(7):\n    print(numero)",
+    "options": [
+      "0",
+      "NameError",
+      "ValueError",
+      "1\n2\n3\n4\n5\n6\n7"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 7."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "TypeError",
+      "KeyError",
+      "Hola, soy Ana",
+      "{}"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "1",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "{}",
+      "NameError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(6):\n    print(numero)",
+    "options": [
+      "Error",
+      "1",
+      "1\n2\n3\n4\n5\n6",
+      "0"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 6."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "None",
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "Error",
+      "TypeError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(4):\n    print(numero)",
+    "options": [
+      "[]",
+      "1\n2\n3\n4",
+      "KeyError",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "El generador produce números del 1 al 4."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef decorador(func):\n    def wrapper():\n        print(\"Antes de la función\")\n        func()\n        print(\"Después de la función\")\n    return wrapper\n\n@decorador\ndef saludar():\n    print(\"¡Hola!\")\n\nsaludar()",
+    "options": [
+      "Antes de la función\n¡Hola!\nDespués de la función",
+      "IndexError",
+      "TypeError",
+      "[]"
+    ],
+    "correct_answer": 1,
+    "explanation": "El decorador envuelve la función y añade funcionalidad antes y después."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\nclass Persona:\n    def __init__(self, nombre):\n        self.nombre = nombre\n\n    def saludar(self):\n        return f\"Hola, soy {self.nombre}\"\n\np = Persona(\"Ana\")\nprint(p.saludar())",
+    "options": [
+      "NameError",
+      "0",
+      "Hola, soy Ana",
+      "ValueError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Se crea una instancia de Persona y se llama al método saludar."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(3):\n    print(numero)",
+    "options": [
+      "{}",
+      "TypeError",
+      "[]",
+      "1\n2\n3"
+    ],
+    "correct_answer": 4,
+    "explanation": "El generador produce números del 1 al 3."
+  },
+  {
+    "level": "avanzado",
+    "question": "¿Qué se imprime por pantalla?\n\ndef contador(maximo):\n    n = 1\n    while n <= maximo:\n        yield n\n        n += 1\n\nfor numero in contador(5):\n    print(numero)",
+    "options": [
+      "IndexError",
+      "[]",
+      "1\n2\n3\n4\n5",
+      "ValueError"
+    ],
+    "correct_answer": 3,
+    "explanation": "El generador produce números del 1 al 5."
+  }
+]

@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from functools import wraps
 import logging
+import random
 from datetime import datetime
 
 # Cargar variables de entorno al inicio
@@ -829,7 +830,7 @@ def api_delete_exercise(exercise_id):
 @app.route('/api/admin/exercises/import', methods=['POST'])
 @admin_required
 def api_import_exercises():
-    """Import exercises from JSON"""
+    """Import exercises from JSON - MEJORADO"""
     try:
         if not supabase:
             return jsonify({'error': 'Database connection error'}), 500
@@ -843,27 +844,40 @@ def api_import_exercises():
         imported_count = 0
         errors = []
         
-        for exercise in exercises:
+        for index, exercise in enumerate(exercises):
             try:
-                # Validate exercise structure
-                required_fields = ['question', 'level', 'options', 'correct_answer']
-                if not all(field in exercise for field in required_fields):
-                    errors.append(f"Invalid exercise structure: {exercise.get('question', 'Unknown')}")
+                # Mapear y normalizar el ejercicio
+                normalized_exercise = normalize_exercise_data(exercise)
+                
+                # Validar estructura requerida
+                validation_result = validate_exercise_structure(normalized_exercise)
+                if not validation_result['valid']:
+                    errors.append(f"Ejercicio {index + 1}: {validation_result['error']}")
                     continue
                 
+                # Verificar duplicados por pregunta
+                if is_duplicate_exercise(normalized_exercise['question']):
+                    errors.append(f"Ejercicio {index + 1}: Pregunta duplicada")
+                    continue
+                
+                # Insertar en la base de datos
                 exercise_data = {
-                    'question': exercise['question'],
-                    'level': exercise['level'],
-                    'options': exercise['options'],
-                    'correct_answer': exercise['correct_answer'],
-                    'explanation': exercise.get('explanation', ''),
+                    'question': normalized_exercise['question'],
+                    'level': normalized_exercise['level'],
+                    'options': normalized_exercise['options'],
+                    'correct_answer': normalized_exercise['correct_answer'],
+                    'explanation': normalized_exercise.get('explanation', ''),
                     'created_at': 'now()'
                 }
                 
-                supabase.table('exercises').insert(exercise_data).execute()
-                imported_count += 1
+                result = supabase.table('exercises').insert(exercise_data).execute()
+                if result.data:
+                    imported_count += 1
+                else:
+                    errors.append(f"Ejercicio {index + 1}: Error al insertar en base de datos")
+                    
             except Exception as e:
-                errors.append(f"Error importing exercise: {str(e)}")
+                errors.append(f"Ejercicio {index + 1}: {str(e)}")
         
         return jsonify({
             'imported': imported_count,
@@ -873,6 +887,134 @@ def api_import_exercises():
     except Exception as e:
         logger.error(f"API import exercises error: {e}")
         return jsonify({'error': 'Database error'}), 500
+
+def normalize_exercise_data(exercise):
+    """Normaliza los datos del ejercicio al formato esperado"""
+    normalized = {}
+    
+    # Mapear level/difficulty
+    if 'level' in exercise:
+        normalized['level'] = exercise['level']
+    elif 'difficulty' in exercise:
+        normalized['level'] = map_difficulty_to_level(exercise['difficulty'])
+    else:
+        normalized['level'] = 'principiante'  # Default
+    
+    # Copiar campos directos
+    normalized['question'] = exercise.get('question', '')
+    normalized['explanation'] = exercise.get('explanation', '')
+    
+    # Procesar opciones
+    options = exercise.get('options', [])
+    if isinstance(options, list) and len(options) >= 4:
+        normalized['options'] = options[:4]  # Tomar solo las primeras 4
+    else:
+        # Generar opciones si no existen
+        answer = exercise.get('answer', '1')
+        normalized['options'] = generate_fallback_options(answer)
+    
+    # Procesar correct_answer
+    correct_answer = exercise.get('correct_answer')
+    if isinstance(correct_answer, str) and correct_answer.isdigit():
+        correct_answer = int(correct_answer)
+    elif not isinstance(correct_answer, int):
+        # Intentar encontrar el índice de la respuesta correcta
+        answer = exercise.get('answer', str(normalized['options'][0]))
+        correct_answer = find_correct_answer_index(normalized['options'], answer)
+    
+    # Asegurar que correct_answer esté en rango válido
+    if not isinstance(correct_answer, int) or correct_answer < 1 or correct_answer > 4:
+        correct_answer = 1
+    
+    normalized['correct_answer'] = correct_answer
+    
+    return normalized
+
+def map_difficulty_to_level(difficulty):
+    """Convierte difficulty numérico a level string"""
+    if isinstance(difficulty, str):
+        if difficulty.isdigit():
+            difficulty = int(difficulty)
+        else:
+            return difficulty.lower()  # Asumir que ya es un level
+    
+    level_mapping = {
+        1: 'principiante',
+        2: 'intermedio', 
+        3: 'avanzado',
+        4: 'experto'
+    }
+    return level_mapping.get(difficulty, 'principiante')
+
+def validate_exercise_structure(exercise):
+    """Valida la estructura del ejercicio"""
+    required_fields = ['question', 'level', 'options', 'correct_answer']
+    
+    # Verificar campos requeridos
+    for field in required_fields:
+        if field not in exercise or not exercise[field]:
+            return {'valid': False, 'error': f'Campo requerido faltante: {field}'}
+    
+    # Validar level
+    valid_levels = ['principiante', 'intermedio', 'avanzado', 'experto']
+    if exercise['level'] not in valid_levels:
+        return {'valid': False, 'error': f'Level inválido: {exercise["level"]}'}
+    
+    # Validar opciones
+    if not isinstance(exercise['options'], list) or len(exercise['options']) != 4:
+        return {'valid': False, 'error': 'Debe tener exactamente 4 opciones'}
+    
+    # Validar que las opciones no estén vacías
+    for i, option in enumerate(exercise['options']):
+        if not option or str(option).strip() == '':
+            return {'valid': False, 'error': f'Opción {i+1} está vacía'}
+    
+    # Validar correct_answer
+    if not isinstance(exercise['correct_answer'], int) or not (1 <= exercise['correct_answer'] <= 4):
+        return {'valid': False, 'error': 'correct_answer debe ser un número entre 1 y 4'}
+    
+    # Validar longitud de la pregunta
+    if len(exercise['question'].strip()) < 10:
+        return {'valid': False, 'error': 'La pregunta es demasiado corta'}
+    
+    return {'valid': True, 'error': None}
+
+def is_duplicate_exercise(question):
+    """Verifica si ya existe un ejercicio con la misma pregunta"""
+    try:
+        if not supabase:
+            return False
+        
+        result = supabase.table('exercises').select('id').ilike('question', question).limit(1).execute()
+        return len(result.data) > 0
+    except:
+        return False
+
+def generate_fallback_options(answer):
+    """Genera opciones de respaldo cuando no se proporcionan"""
+    answer_str = str(answer)
+    options = [answer_str]
+    
+    # Generar 3 opciones incorrectas
+    incorrect_options = ['0', '1', 'Error', 'None', 'True', 'False', 'SyntaxError']
+    
+    while len(options) < 4:
+        opt = random.choice(incorrect_options)
+        if opt not in options:
+            options.append(opt)
+    
+    random.shuffle(options)
+    return options
+
+def find_correct_answer_index(options, answer):
+    """Encuentra el índice de la respuesta correcta"""
+    answer_str = str(answer).strip()
+    
+    for i, option in enumerate(options):
+        if str(option).strip() == answer_str:
+            return i + 1  # Índice base 1
+    
+    return 1  # Default a primera opción
 
 @app.route('/admin/users')
 @admin_required

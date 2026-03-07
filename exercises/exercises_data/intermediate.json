@@ -1,0 +1,3602 @@
+[
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.strip()",
+    "options": [
+      "{}",
+      "None",
+      "python, java, c++",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [1, 9, 5, 18, 6]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "0",
+      "SyntaxError",
+      "[18, 6]",
+      "{}"
+    ],
+    "correct_answer": 3,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.split()",
+    "options": [
+      "1",
+      "ValueError",
+      "['uno', 'dos', 'tres']",
+      "KeyError"
+    ],
+    "correct_answer": 3,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.strip()",
+    "options": [
+      "TypeError",
+      "uno dos tres",
+      "KeyError",
+      "[]"
+    ],
+    "correct_answer": 2,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.split()",
+    "options": [
+      "['uno', 'dos', 'tres']",
+      "NameError",
+      "None",
+      "[]"
+    ],
+    "correct_answer": 1,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [14, 11, 6, 8, 16]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "SyntaxError",
+      "1",
+      "IndexError",
+      "[14, 6, 8, 16]"
+    ],
+    "correct_answer": 4,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (30, 40, 15, 32, 28)\nresultado = len(mi_tupla)",
+    "options": [
+      "5",
+      "4",
+      "10",
+      "6"
+    ],
+    "correct_answer": 1,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 10 / 4\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "3.5",
+      "5.0",
+      "1.5",
+      "2.5"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (48, 20, 39, 35, 47)\nresultado = mi_tupla[0]",
+    "options": [
+      "48",
+      "96",
+      "47",
+      "49"
+    ],
+    "correct_answer": 1,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(4)",
+    "options": [
+      "16",
+      "9",
+      "8",
+      "7"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda multiplica por 2: 4 * 2 = 8"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(10, 5)",
+    "options": [
+      "15",
+      "14",
+      "30",
+      "16"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda suma dos números: 10 + 5 = 15"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [20, 1, 14, 12, 6]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "{}",
+      "NameError",
+      "[40, 2, 28, 24, 12]",
+      "SyntaxError"
+    ],
+    "correct_answer": 3,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.strip()",
+    "options": [
+      "TypeError",
+      "ValueError",
+      "Error",
+      "python es genial"
+    ],
+    "correct_answer": 4,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [1, 4, 13, 16, 3]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "None",
+      "IndexError",
+      "[4, 16]",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.split()",
+    "options": [
+      "SyntaxError",
+      "IndexError",
+      "Error",
+      "['HOLA', 'MUNDO']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.split()",
+    "options": [
+      "SyntaxError",
+      "TypeError",
+      "['python,', 'java,', 'c++']",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [14, 9, 12, 1, 7]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "TypeError",
+      "[28, 18, 24, 2, 14]",
+      "None",
+      "KeyError"
+    ],
+    "correct_answer": 2,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(9)",
+    "options": [
+      "18",
+      "19",
+      "36",
+      "17"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda multiplica por 2: 9 * 2 = 18"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [12, 10, 12, 18, 6]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "SyntaxError",
+      "IndexError",
+      "TypeError",
+      "[24, 20, 24, 36, 12]"
+    ],
+    "correct_answer": 4,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 9 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1",
+      "[]",
+      "Error: división por cero",
+      "{}"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Carlos', 'edad': '22', 'ciudad': 'Valencia', 'profesion': 'Profesor'}\nresultado = list(persona.keys())",
+    "options": [
+      "0",
+      "1",
+      "[]",
+      "['nombre', 'edad', 'ciudad', 'profesion']"
+    ],
+    "correct_answer": 4,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [7, 14, 10, 6, 2]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "ValueError",
+      "KeyError",
+      "{}",
+      "[14, 28, 20, 12, 4]"
+    ],
+    "correct_answer": 4,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.split()",
+    "options": [
+      "Error",
+      "NameError",
+      "['python', 'es', 'genial']",
+      "IndexError"
+    ],
+    "correct_answer": 3,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 5 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "-0.16666666666666663",
+      "0.8333333333333334",
+      "1.6666666666666667",
+      "1.8333333333333335"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.split()",
+    "options": [
+      "TypeError",
+      "NameError",
+      "KeyError",
+      "['HOLA', 'MUNDO']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [16, 4, 7, 15, 18]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "[16, 4, 18]",
+      "Error",
+      "1",
+      "0"
+    ],
+    "correct_answer": 1,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (27, 40, 39, 25, 13)\nresultado = len(mi_tupla)",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "10"
+    ],
+    "correct_answer": 2,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 6 / 3\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "3.0",
+      "2.0",
+      "1.0",
+      "4.0"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "Error",
+      "Juan",
+      "1",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [4, 3, 19, 1, 10]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "SyntaxError",
+      "[4, 10]",
+      "None",
+      "TypeError"
+    ],
+    "correct_answer": 2,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 7 / 2\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "2.5",
+      "3.5",
+      "4.5",
+      "7.0"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(9)",
+    "options": [
+      "18",
+      "17",
+      "19",
+      "36"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda multiplica por 2: 9 * 2 = 18"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.split()",
+    "options": [
+      "['uno', 'dos', 'tres']",
+      "{}",
+      "NameError",
+      "ValueError"
+    ],
+    "correct_answer": 1,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.split()",
+    "options": [
+      "ValueError",
+      "KeyError",
+      "['HOLA', 'MUNDO']",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 2 / 10\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "0.2",
+      "1.2",
+      "0.4",
+      "-0.8"
+    ],
+    "correct_answer": 1,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.strip()",
+    "options": [
+      "{}",
+      "0",
+      "uno dos tres",
+      "NameError"
+    ],
+    "correct_answer": 3,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 7 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "NameError",
+      "Error: división por cero",
+      "ValueError",
+      "{}"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.strip()",
+    "options": [
+      "SyntaxError",
+      "1",
+      "ValueError",
+      "HOLA MUNDO"
+    ],
+    "correct_answer": 4,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.strip()",
+    "options": [
+      "{}",
+      "HOLA MUNDO",
+      "Error",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.strip()",
+    "options": [
+      "0",
+      "None",
+      "uno dos tres",
+      "ValueError"
+    ],
+    "correct_answer": 3,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.strip()",
+    "options": [
+      "0",
+      "[]",
+      "python, java, c++",
+      "ValueError"
+    ],
+    "correct_answer": 3,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [3, 20, 5, 8, 18]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "[]",
+      "[20, 8, 18]",
+      "{}",
+      "0"
+    ],
+    "correct_answer": 2,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 3 / 4\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.5",
+      "-0.25",
+      "1.75",
+      "0.75"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (39, 36, 21, 44, 28)\nresultado = mi_tupla[0]",
+    "options": [
+      "39",
+      "38",
+      "78",
+      "40"
+    ],
+    "correct_answer": 1,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(6, 21) if x % 2 == 0]",
+    "options": [
+      "NameError",
+      "0",
+      "TypeError",
+      "[6, 8, 10, 12, 14, 16, 18, 20]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 6 al 20"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(2, 16) if x % 2 == 0]",
+    "options": [
+      "[2, 4, 6, 8, 10, 12, 14]",
+      "KeyError",
+      "Error",
+      "ValueError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Genera una lista con los números pares del 2 al 15"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(5, 10)]",
+    "options": [
+      "1",
+      "Error",
+      "[25, 36, 49, 64, 81]",
+      "None"
+    ],
+    "correct_answer": 3,
+    "explanation": "Genera una lista con los cuadrados de los números del 5 al 9"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Carlos', 'edad': '22', 'ciudad': 'Valencia', 'profesion': 'Profesor'}\nresultado = list(persona.keys())",
+    "options": [
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "0",
+      "{}",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [6, 9, 10, 11, 6]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "[12, 18, 20, 22, 12]",
+      "SyntaxError",
+      "0",
+      "NameError"
+    ],
+    "correct_answer": 1,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (46, 35, 5, 47, 28)\nresultado = len(mi_tupla)",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "10"
+    ],
+    "correct_answer": 2,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 6 / 10\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.2",
+      "1.6",
+      "0.6",
+      "-0.4"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(5, 19)]",
+    "options": [
+      "Error",
+      "ValueError",
+      "[25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324]",
+      "KeyError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Genera una lista con los cuadrados de los números del 5 al 18"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.strip()",
+    "options": [
+      "None",
+      "[]",
+      "ValueError",
+      "python, java, c++"
+    ],
+    "correct_answer": 4,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Carlos', 'edad': '22', 'ciudad': 'Valencia', 'profesion': 'Profesor'}\nresultado = list(persona.keys())",
+    "options": [
+      "None",
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "{}",
+      "0"
+    ],
+    "correct_answer": 2,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (14, 7, 18, 24, 8)\nresultado = len(mi_tupla)",
+    "options": [
+      "6",
+      "10",
+      "5",
+      "4"
+    ],
+    "correct_answer": 3,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.strip()",
+    "options": [
+      "python, java, c++",
+      "SyntaxError",
+      "0",
+      "IndexError"
+    ],
+    "correct_answer": 1,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 2 / 9\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "0.2222222222222222",
+      "1.2222222222222223",
+      "-0.7777777777777778",
+      "0.4444444444444444"
+    ],
+    "correct_answer": 1,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 1 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "SyntaxError",
+      "Error: división por cero",
+      "NameError",
+      "[]"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (29, 32, 20, 14, 5)\nresultado = len(mi_tupla)",
+    "options": [
+      "4",
+      "6",
+      "5",
+      "10"
+    ],
+    "correct_answer": 3,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 5 / 1\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "4.0",
+      "6.0",
+      "5.0",
+      "10.0"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = list(persona.keys())",
+    "options": [
+      "0",
+      "[]",
+      "Error",
+      "['nombre', 'edad', 'ciudad', 'profesion']"
+    ],
+    "correct_answer": 4,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.split()",
+    "options": [
+      "{}",
+      "IndexError",
+      "[]",
+      "['python', 'es', 'genial']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 10 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "Error",
+      "[]",
+      "1",
+      "Error: división por cero"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (23, 32, 12, 39, 43)\nresultado = len(mi_tupla)",
+    "options": [
+      "4",
+      "10",
+      "5",
+      "6"
+    ],
+    "correct_answer": 3,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 10 / 2\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "4.0",
+      "6.0",
+      "5.0",
+      "10.0"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (34, 12, 32, 28, 47)\nresultado = mi_tupla[0]",
+    "options": [
+      "33",
+      "35",
+      "68",
+      "34"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 7 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.1666666666666667",
+      "2.166666666666667",
+      "2.3333333333333335",
+      "0.16666666666666674"
+    ],
+    "correct_answer": 1,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.strip()",
+    "options": [
+      "[]",
+      "python, java, c++",
+      "KeyError",
+      "1"
+    ],
+    "correct_answer": 2,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (39, 10, 14, 5, 28)\nresultado = len(mi_tupla)",
+    "options": [
+      "4",
+      "10",
+      "5",
+      "6"
+    ],
+    "correct_answer": 3,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [6, 6, 14, 11, 6]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "[6, 6, 14, 6]",
+      "0",
+      "NameError",
+      "1"
+    ],
+    "correct_answer": 1,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "Juan",
+      "TypeError",
+      "{}",
+      "1"
+    ],
+    "correct_answer": 1,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 2 / 9\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "0.2222222222222222",
+      "1.2222222222222223",
+      "0.4444444444444444",
+      "-0.7777777777777778"
+    ],
+    "correct_answer": 1,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(10, 6)",
+    "options": [
+      "15",
+      "32",
+      "16",
+      "17"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda suma dos números: 10 + 6 = 16"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(5, 1)",
+    "options": [
+      "5",
+      "12",
+      "6",
+      "7"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda suma dos números: 5 + 1 = 6"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(7, 17)]",
+    "options": [
+      "TypeError",
+      "0",
+      "[]",
+      "[49, 64, 81, 100, 121, 144, 169, 196, 225, 256]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los cuadrados de los números del 7 al 16"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.strip()",
+    "options": [
+      "TypeError",
+      "uno dos tres",
+      "[]",
+      "NameError"
+    ],
+    "correct_answer": 2,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "0",
+      "KeyError",
+      "ValueError",
+      "Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (6, 12, 19, 31, 47)\nresultado = mi_tupla[0]",
+    "options": [
+      "5",
+      "6",
+      "12",
+      "7"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(2)",
+    "options": [
+      "8",
+      "3",
+      "4",
+      "5"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda multiplica por 2: 2 * 2 = 4"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (2, 35, 36, 45, 25)\nresultado = mi_tupla[0]",
+    "options": [
+      "3",
+      "2",
+      "1",
+      "4"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "1",
+      "{}",
+      "ValueError",
+      "María"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 10 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1",
+      "{}",
+      "Error: división por cero",
+      "ValueError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(5, 16) if x % 2 == 0]",
+    "options": [
+      "[6, 8, 10, 12, 14]",
+      "None",
+      "[]",
+      "IndexError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Genera una lista con los números pares del 5 al 15"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(9, 17)]",
+    "options": [
+      "NameError",
+      "1",
+      "None",
+      "[81, 100, 121, 144, 169, 196, 225, 256]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los cuadrados de los números del 9 al 16"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(2, 1)",
+    "options": [
+      "4",
+      "3",
+      "2",
+      "6"
+    ],
+    "correct_answer": 2,
+    "explanation": "La función lambda suma dos números: 2 + 1 = 3"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.split()",
+    "options": [
+      "Error",
+      "['python,', 'java,', 'c++']",
+      "NameError",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (10, 17, 11, 16, 49)\nresultado = mi_tupla[0]",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "20"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(1, 14)]",
+    "options": [
+      "Error",
+      "[]",
+      "KeyError",
+      "[1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los cuadrados de los números del 1 al 13"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(10, 16) if x % 2 == 0]",
+    "options": [
+      "0",
+      "[10, 12, 14]",
+      "{}",
+      "TypeError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Genera una lista con los números pares del 10 al 15"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(6, 13)]",
+    "options": [
+      "[36, 49, 64, 81, 100, 121, 144]",
+      "0",
+      "NameError",
+      "TypeError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Genera una lista con los cuadrados de los números del 6 al 12"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.split()",
+    "options": [
+      "ValueError",
+      "['python', 'es', 'genial']",
+      "{}",
+      "[]"
+    ],
+    "correct_answer": 2,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.strip()",
+    "options": [
+      "IndexError",
+      "NameError",
+      "python es genial",
+      "[]"
+    ],
+    "correct_answer": 3,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "TypeError",
+      "IndexError",
+      "Error",
+      "María"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(4, 18) if x % 2 == 0]",
+    "options": [
+      "KeyError",
+      "None",
+      "0",
+      "[4, 6, 8, 10, 12, 14, 16]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 4 al 17"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "KeyError",
+      "TypeError",
+      "Juan",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(9, 20) if x % 2 == 0]",
+    "options": [
+      "KeyError",
+      "[]",
+      "Error",
+      "[10, 12, 14, 16, 18]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 9 al 19"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(6)",
+    "options": [
+      "13",
+      "24",
+      "12",
+      "11"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda multiplica por 2: 6 * 2 = 12"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(10)",
+    "options": [
+      "21",
+      "19",
+      "40",
+      "20"
+    ],
+    "correct_answer": 4,
+    "explanation": "La función lambda multiplica por 2: 10 * 2 = 20"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(1, 16) if x % 2 == 0]",
+    "options": [
+      "Error",
+      "NameError",
+      "[2, 4, 6, 8, 10, 12, 14]",
+      "SyntaxError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Genera una lista con los números pares del 1 al 15"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(4, 18) if x % 2 == 0]",
+    "options": [
+      "{}",
+      "IndexError",
+      "[4, 6, 8, 10, 12, 14, 16]",
+      "[]"
+    ],
+    "correct_answer": 3,
+    "explanation": "Genera una lista con los números pares del 4 al 17"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.split()",
+    "options": [
+      "SyntaxError",
+      "{}",
+      "NameError",
+      "['python', 'es', 'genial']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(9)",
+    "options": [
+      "36",
+      "19",
+      "18",
+      "17"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda multiplica por 2: 9 * 2 = 18"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(6, 14) if x % 2 == 0]",
+    "options": [
+      "[6, 8, 10, 12]",
+      "NameError",
+      "[]",
+      "1"
+    ],
+    "correct_answer": 1,
+    "explanation": "Genera una lista con los números pares del 6 al 13"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [13, 7, 12, 17, 20]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "1",
+      "TypeError",
+      "[26, 14, 24, 34, 40]",
+      "KeyError"
+    ],
+    "correct_answer": 3,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 8 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "None",
+      "{}",
+      "0",
+      "Error: división por cero"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(8, 13) if x % 2 == 0]",
+    "options": [
+      "Error",
+      "[8, 10, 12]",
+      "{}",
+      "TypeError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Genera una lista con los números pares del 8 al 12"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(3, 8)",
+    "options": [
+      "11",
+      "10",
+      "22",
+      "12"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda suma dos números: 3 + 8 = 11"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (5, 45, 8, 4, 33)\nresultado = len(mi_tupla)",
+    "options": [
+      "5",
+      "6",
+      "10",
+      "4"
+    ],
+    "correct_answer": 1,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.split()",
+    "options": [
+      "1",
+      "['python,', 'java,', 'c++']",
+      "0",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (2, 30, 3, 19, 11)\nresultado = mi_tupla[0]",
+    "options": [
+      "2",
+      "1",
+      "4",
+      "3"
+    ],
+    "correct_answer": 1,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(9)",
+    "options": [
+      "18",
+      "36",
+      "19",
+      "17"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda multiplica por 2: 9 * 2 = 18"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(2, 4)",
+    "options": [
+      "5",
+      "7",
+      "6",
+      "12"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda suma dos números: 2 + 4 = 6"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = list(persona.keys())",
+    "options": [
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "KeyError",
+      "SyntaxError",
+      "TypeError"
+    ],
+    "correct_answer": 1,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(1)",
+    "options": [
+      "4",
+      "3",
+      "1",
+      "2"
+    ],
+    "correct_answer": 4,
+    "explanation": "La función lambda multiplica por 2: 1 * 2 = 2"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (20, 40, 8, 23, 34)\nresultado = mi_tupla[0]",
+    "options": [
+      "40",
+      "20",
+      "21",
+      "19"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = list(persona.keys())",
+    "options": [
+      "Error",
+      "None",
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "TypeError"
+    ],
+    "correct_answer": 3,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(7, 7)",
+    "options": [
+      "15",
+      "28",
+      "13",
+      "14"
+    ],
+    "correct_answer": 4,
+    "explanation": "La función lambda suma dos números: 7 + 7 = 14"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [5, 14, 11, 14, 20]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "[]",
+      "0",
+      "TypeError",
+      "[10, 28, 22, 28, 40]"
+    ],
+    "correct_answer": 4,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(2, 15)]",
+    "options": [
+      "{}",
+      "1",
+      "TypeError",
+      "[4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los cuadrados de los números del 2 al 14"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [2, 18, 6, 1, 8]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "IndexError",
+      "Error",
+      "[4, 36, 12, 2, 16]",
+      "0"
+    ],
+    "correct_answer": 3,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (7, 11, 5, 14, 16)\nresultado = len(mi_tupla)",
+    "options": [
+      "5",
+      "10",
+      "6",
+      "4"
+    ],
+    "correct_answer": 1,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Carlos', 'edad': '22', 'ciudad': 'Valencia', 'profesion': 'Profesor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "0",
+      "None",
+      "Carlos",
+      "1"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [7, 19, 18, 8, 19]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "[14, 38, 36, 16, 38]",
+      "ValueError",
+      "KeyError",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [20, 2, 1, 9, 10]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "SyntaxError",
+      "1",
+      "[20, 2, 10]",
+      "0"
+    ],
+    "correct_answer": 3,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(4, 5)",
+    "options": [
+      "18",
+      "8",
+      "10",
+      "9"
+    ],
+    "correct_answer": 4,
+    "explanation": "La función lambda suma dos números: 4 + 5 = 9"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(10, 24)]",
+    "options": [
+      "{}",
+      "IndexError",
+      "TypeError",
+      "[100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400, 441, 484, 529]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los cuadrados de los números del 10 al 23"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (18, 26, 21, 43, 8)\nresultado = len(mi_tupla)",
+    "options": [
+      "4",
+      "6",
+      "10",
+      "5"
+    ],
+    "correct_answer": 4,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = list(persona.keys())",
+    "options": [
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "[]",
+      "0",
+      "KeyError"
+    ],
+    "correct_answer": 1,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.strip()",
+    "options": [
+      "1",
+      "KeyError",
+      "ValueError",
+      "python, java, c++"
+    ],
+    "correct_answer": 4,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 4 / 8\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.0",
+      "0.5",
+      "-0.5",
+      "1.5"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.split()",
+    "options": [
+      "['python', 'es', 'genial']",
+      "ValueError",
+      "0",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 3 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "-0.5",
+      "1.5",
+      "1.0",
+      "0.5"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [11, 11, 14, 6, 18]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "IndexError",
+      "SyntaxError",
+      "[22, 22, 28, 12, 36]",
+      "0"
+    ],
+    "correct_answer": 3,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "Error",
+      "NameError",
+      "{}",
+      "Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(10)",
+    "options": [
+      "21",
+      "20",
+      "40",
+      "19"
+    ],
+    "correct_answer": 2,
+    "explanation": "La función lambda multiplica por 2: 10 * 2 = 20"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (15, 34, 26, 35, 12)\nresultado = mi_tupla[0]",
+    "options": [
+      "30",
+      "14",
+      "15",
+      "16"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(4)",
+    "options": [
+      "8",
+      "9",
+      "7",
+      "16"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda multiplica por 2: 4 * 2 = 8"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(3, 18) if x % 2 == 0]",
+    "options": [
+      "None",
+      "TypeError",
+      "SyntaxError",
+      "[4, 6, 8, 10, 12, 14, 16]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 3 al 17"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = list(persona.keys())",
+    "options": [
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "NameError",
+      "SyntaxError",
+      "IndexError"
+    ],
+    "correct_answer": 1,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [5, 4, 11, 17, 18]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "TypeError",
+      "None",
+      "[4, 18]",
+      "0"
+    ],
+    "correct_answer": 3,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 5 / 9\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.1111111111111112",
+      "1.5555555555555556",
+      "0.5555555555555556",
+      "-0.4444444444444444"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Carlos', 'edad': '22', 'ciudad': 'Valencia', 'profesion': 'Profesor'}\nresultado = list(persona.keys())",
+    "options": [
+      "ValueError",
+      "None",
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "[]"
+    ],
+    "correct_answer": 3,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 2 / 3\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.3333333333333333",
+      "-0.33333333333333337",
+      "1.6666666666666665",
+      "0.6666666666666666"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 1 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "SyntaxError",
+      "None",
+      "Error: división por cero",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.split()",
+    "options": [
+      "['python', 'es', 'genial']",
+      "1",
+      "ValueError",
+      "[]"
+    ],
+    "correct_answer": 1,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (35, 9, 47, 33, 29)\nresultado = mi_tupla[0]",
+    "options": [
+      "35",
+      "70",
+      "34",
+      "36"
+    ],
+    "correct_answer": 1,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Carlos', 'edad': '22', 'ciudad': 'Valencia', 'profesion': 'Profesor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "ValueError",
+      "KeyError",
+      "Carlos",
+      "SyntaxError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = list(persona.keys())",
+    "options": [
+      "IndexError",
+      "None",
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "1"
+    ],
+    "correct_answer": 3,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(8)",
+    "options": [
+      "16",
+      "15",
+      "17",
+      "32"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda multiplica por 2: 8 * 2 = 16"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 6 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "IndexError",
+      "ValueError",
+      "NameError",
+      "Error: división por cero"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (5, 29, 38, 31, 11)\nresultado = len(mi_tupla)",
+    "options": [
+      "6",
+      "10",
+      "5",
+      "4"
+    ],
+    "correct_answer": 3,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(1, 7)]",
+    "options": [
+      "[1, 4, 9, 16, 25, 36]",
+      "1",
+      "IndexError",
+      "KeyError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Genera una lista con los cuadrados de los números del 1 al 6"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [6, 7, 4, 16, 13]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "Error",
+      "[]",
+      "[6, 4, 16]",
+      "KeyError"
+    ],
+    "correct_answer": 3,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.strip()",
+    "options": [
+      "[]",
+      "{}",
+      "IndexError",
+      "HOLA MUNDO"
+    ],
+    "correct_answer": 4,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (47, 20, 40, 12, 41)\nresultado = mi_tupla[0]",
+    "options": [
+      "47",
+      "46",
+      "94",
+      "48"
+    ],
+    "correct_answer": 1,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [12, 9, 9, 6, 14]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "[12, 6, 14]",
+      "Error",
+      "0",
+      "{}"
+    ],
+    "correct_answer": 1,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 7 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.1666666666666667",
+      "2.3333333333333335",
+      "0.16666666666666674",
+      "2.166666666666667"
+    ],
+    "correct_answer": 1,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "María",
+      "0",
+      "KeyError",
+      "1"
+    ],
+    "correct_answer": 1,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(3, 15) if x % 2 == 0]",
+    "options": [
+      "[4, 6, 8, 10, 12, 14]",
+      "KeyError",
+      "None",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Genera una lista con los números pares del 3 al 14"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (28, 47, 33, 14, 12)\nresultado = mi_tupla[0]",
+    "options": [
+      "28",
+      "29",
+      "27",
+      "56"
+    ],
+    "correct_answer": 1,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(10, 23)]",
+    "options": [
+      "[100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400, 441, 484]",
+      "0",
+      "SyntaxError",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "Genera una lista con los cuadrados de los números del 10 al 22"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 6 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "None",
+      "Error: división por cero",
+      "IndexError",
+      "1"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "KeyError",
+      "NameError",
+      "TypeError",
+      "Juan"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "IndexError",
+      "Error",
+      "María",
+      "ValueError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 7 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "Error",
+      "0",
+      "ValueError",
+      "Error: división por cero"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(5, 5)",
+    "options": [
+      "10",
+      "9",
+      "20",
+      "11"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda suma dos números: 5 + 5 = 10"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.split()",
+    "options": [
+      "TypeError",
+      "ValueError",
+      "KeyError",
+      "['python,', 'java,', 'c++']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "None",
+      "1",
+      "TypeError",
+      "María"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.split()",
+    "options": [
+      "IndexError",
+      "Error",
+      "['HOLA', 'MUNDO']",
+      "SyntaxError"
+    ],
+    "correct_answer": 3,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(5, 17)]",
+    "options": [
+      "NameError",
+      "KeyError",
+      "1",
+      "[25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los cuadrados de los números del 5 al 16"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(10, 17) if x % 2 == 0]",
+    "options": [
+      "[10, 12, 14, 16]",
+      "NameError",
+      "ValueError",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "Genera una lista con los números pares del 10 al 16"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 8 / 4\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "4.0",
+      "1.0",
+      "2.0",
+      "3.0"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.split()",
+    "options": [
+      "IndexError",
+      "0",
+      "{}",
+      "['python', 'es', 'genial']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 6 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "ValueError",
+      "None",
+      "0",
+      "Error: división por cero"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.strip()",
+    "options": [
+      "HOLA MUNDO",
+      "Error",
+      "None",
+      "0"
+    ],
+    "correct_answer": 1,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(4, 10) if x % 2 == 0]",
+    "options": [
+      "{}",
+      "SyntaxError",
+      "[4, 6, 8]",
+      "IndexError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Genera una lista con los números pares del 4 al 9"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "SyntaxError",
+      "Ana",
+      "Error",
+      "0"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.split()",
+    "options": [
+      "['python,', 'java,', 'c++']",
+      "[]",
+      "1",
+      "0"
+    ],
+    "correct_answer": 1,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(2, 16) if x % 2 == 0]",
+    "options": [
+      "1",
+      "[2, 4, 6, 8, 10, 12, 14]",
+      "Error",
+      "[]"
+    ],
+    "correct_answer": 2,
+    "explanation": "Genera una lista con los números pares del 2 al 15"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [6, 7, 3, 5, 2]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "0",
+      "[12, 14, 6, 10, 4]",
+      "TypeError",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "1",
+      "Juan",
+      "IndexError",
+      "None"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(8, 16)]",
+    "options": [
+      "IndexError",
+      "[64, 81, 100, 121, 144, 169, 196, 225]",
+      "1",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Genera una lista con los cuadrados de los números del 8 al 15"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.strip()",
+    "options": [
+      "IndexError",
+      "None",
+      "SyntaxError",
+      "python es genial"
+    ],
+    "correct_answer": 4,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (27, 38, 16, 4, 41)\nresultado = len(mi_tupla)",
+    "options": [
+      "6",
+      "4",
+      "10",
+      "5"
+    ],
+    "correct_answer": 4,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (37, 44, 11, 30, 15)\nresultado = mi_tupla[0]",
+    "options": [
+      "74",
+      "38",
+      "37",
+      "36"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 6 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.0",
+      "2.0",
+      "0.0",
+      "0"
+    ],
+    "correct_answer": 1,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 1 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.1666666666666667",
+      "-0.8333333333333334",
+      "0.3333333333333333",
+      "0.16666666666666666"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [13, 15, 4, 19, 4]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "[4, 4]",
+      "None",
+      "IndexError",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(5, 19)]",
+    "options": [
+      "KeyError",
+      "[25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324]",
+      "IndexError",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Genera una lista con los cuadrados de los números del 5 al 18"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 8 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "2.333333333333333",
+      "2.6666666666666665",
+      "1.3333333333333333",
+      "0.33333333333333326"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(9, 17)]",
+    "options": [
+      "[81, 100, 121, 144, 169, 196, 225, 256]",
+      "0",
+      "Error",
+      "TypeError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Genera una lista con los cuadrados de los números del 9 al 16"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 10 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "{}",
+      "TypeError",
+      "[]",
+      "Error: división por cero"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (17, 49, 13, 41, 39)\nresultado = len(mi_tupla)",
+    "options": [
+      "10",
+      "5",
+      "6",
+      "4"
+    ],
+    "correct_answer": 2,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "{}",
+      "[]",
+      "1",
+      "Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = list(persona.keys())",
+    "options": [
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "[]",
+      "0",
+      "Error"
+    ],
+    "correct_answer": 1,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.split()",
+    "options": [
+      "0",
+      "1",
+      "SyntaxError",
+      "['HOLA', 'MUNDO']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.strip()",
+    "options": [
+      "0",
+      "SyntaxError",
+      "{}",
+      "python es genial"
+    ],
+    "correct_answer": 4,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "0",
+      "KeyError",
+      "María",
+      "{}"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(1, 5)",
+    "options": [
+      "12",
+      "5",
+      "6",
+      "7"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda suma dos números: 1 + 5 = 6"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 6 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "{}",
+      "TypeError",
+      "Error: división por cero",
+      "[]"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 4 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.3333333333333333",
+      "0.6666666666666666",
+      "1.6666666666666665",
+      "-0.33333333333333337"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(9, 22) if x % 2 == 0]",
+    "options": [
+      "ValueError",
+      "TypeError",
+      "[10, 12, 14, 16, 18, 20]",
+      "IndexError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Genera una lista con los números pares del 9 al 21"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "1",
+      "Error",
+      "Ana",
+      "ValueError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (17, 11, 10, 29, 35)\nresultado = mi_tupla[0]",
+    "options": [
+      "18",
+      "17",
+      "16",
+      "34"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 9 / 7\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "2.2857142857142856",
+      "0.2857142857142858",
+      "2.5714285714285716",
+      "1.2857142857142858"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [19, 10, 16, 20, 11]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "{}",
+      "Error",
+      "[10, 16, 20]",
+      "0"
+    ],
+    "correct_answer": 3,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(3)",
+    "options": [
+      "12",
+      "7",
+      "6",
+      "5"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda multiplica por 2: 3 * 2 = 6"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(7, 19) if x % 2 == 0]",
+    "options": [
+      "IndexError",
+      "1",
+      "NameError",
+      "[8, 10, 12, 14, 16, 18]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 7 al 18"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 7 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "2.3333333333333335",
+      "1.1666666666666667",
+      "0.16666666666666674",
+      "2.166666666666667"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(3, 7)",
+    "options": [
+      "10",
+      "11",
+      "20",
+      "9"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda suma dos números: 3 + 7 = 10"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(3, 10)",
+    "options": [
+      "12",
+      "13",
+      "26",
+      "14"
+    ],
+    "correct_answer": 2,
+    "explanation": "La función lambda suma dos números: 3 + 10 = 13"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (19, 47, 4, 29, 45)\nresultado = mi_tupla[0]",
+    "options": [
+      "18",
+      "38",
+      "19",
+      "20"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (12, 40, 35, 10, 34)\nresultado = len(mi_tupla)",
+    "options": [
+      "10",
+      "5",
+      "6",
+      "4"
+    ],
+    "correct_answer": 2,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [10, 13, 20, 19, 16]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "{}",
+      "0",
+      "[20, 26, 40, 38, 32]",
+      "[]"
+    ],
+    "correct_answer": 3,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [9, 6, 11, 1, 2]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "None",
+      "[18, 12, 22, 2, 4]",
+      "[]",
+      "1"
+    ],
+    "correct_answer": 2,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(1, 6) if x % 2 == 0]",
+    "options": [
+      "NameError",
+      "[2, 4]",
+      "ValueError",
+      "0"
+    ],
+    "correct_answer": 2,
+    "explanation": "Genera una lista con los números pares del 1 al 5"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [13, 3, 8, 4, 20]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "Error",
+      "ValueError",
+      "1",
+      "[26, 6, 16, 8, 40]"
+    ],
+    "correct_answer": 4,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.strip()",
+    "options": [
+      "{}",
+      "None",
+      "SyntaxError",
+      "HOLA MUNDO"
+    ],
+    "correct_answer": 4,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(10, 1)",
+    "options": [
+      "10",
+      "11",
+      "22",
+      "12"
+    ],
+    "correct_answer": 2,
+    "explanation": "La función lambda suma dos números: 10 + 1 = 11"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(2, 4)",
+    "options": [
+      "12",
+      "5",
+      "7",
+      "6"
+    ],
+    "correct_answer": 4,
+    "explanation": "La función lambda suma dos números: 2 + 4 = 6"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 9 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "IndexError",
+      "Error: división por cero",
+      "ValueError",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "ValueError",
+      "Ana",
+      "SyntaxError",
+      "0"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(2, 5)",
+    "options": [
+      "6",
+      "14",
+      "7",
+      "8"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda suma dos números: 2 + 5 = 7"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "SyntaxError",
+      "María",
+      "[]",
+      "IndexError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = list(persona.keys())",
+    "options": [
+      "Error",
+      "1",
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "{}"
+    ],
+    "correct_answer": 3,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [20, 1, 1, 5, 7]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "None",
+      "ValueError",
+      "[40, 2, 2, 10, 14]",
+      "0"
+    ],
+    "correct_answer": 3,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(3, 11) if x % 2 == 0]",
+    "options": [
+      "KeyError",
+      "[4, 6, 8, 10]",
+      "0",
+      "{}"
+    ],
+    "correct_answer": 2,
+    "explanation": "Genera una lista con los números pares del 3 al 10"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 10 / 2\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "4.0",
+      "6.0",
+      "10.0",
+      "5.0"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.strip()",
+    "options": [
+      "NameError",
+      "uno dos tres",
+      "IndexError",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 7 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "NameError",
+      "ValueError",
+      "0",
+      "Error: división por cero"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [6, 18, 11, 13, 10]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "None",
+      "TypeError",
+      "NameError",
+      "[12, 36, 22, 26, 20]"
+    ],
+    "correct_answer": 4,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 6 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "IndexError",
+      "TypeError",
+      "SyntaxError",
+      "Error: división por cero"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (11, 33, 12, 38, 8)\nresultado = len(mi_tupla)",
+    "options": [
+      "6",
+      "10",
+      "5",
+      "4"
+    ],
+    "correct_answer": 3,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (18, 22, 21, 32, 20)\nresultado = len(mi_tupla)",
+    "options": [
+      "10",
+      "6",
+      "4",
+      "5"
+    ],
+    "correct_answer": 4,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.split()",
+    "options": [
+      "None",
+      "['uno', 'dos', 'tres']",
+      "1",
+      "KeyError"
+    ],
+    "correct_answer": 2,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 4 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.6666666666666665",
+      "0.6666666666666666",
+      "1.3333333333333333",
+      "-0.33333333333333337"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "1",
+      "Error",
+      "SyntaxError",
+      "María"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(9, 8)",
+    "options": [
+      "17",
+      "34",
+      "18",
+      "16"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda suma dos números: 9 + 8 = 17"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 3 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "IndexError",
+      "Error: división por cero",
+      "[]",
+      "ValueError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(10)",
+    "options": [
+      "40",
+      "19",
+      "20",
+      "21"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda multiplica por 2: 10 * 2 = 20"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 8 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "KeyError",
+      "Error: división por cero",
+      "1",
+      "0"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (27, 11, 22, 41, 40)\nresultado = len(mi_tupla)",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "10"
+    ],
+    "correct_answer": 2,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (30, 16, 15, 38, 31)\nresultado = len(mi_tupla)",
+    "options": [
+      "5",
+      "6",
+      "4",
+      "10"
+    ],
+    "correct_answer": 1,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = list(persona.keys())",
+    "options": [
+      "SyntaxError",
+      "[]",
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "1"
+    ],
+    "correct_answer": 3,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [14, 7, 11, 2, 11]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "KeyError",
+      "IndexError",
+      "[28, 14, 22, 4, 22]",
+      "NameError"
+    ],
+    "correct_answer": 3,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 5 / 8\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "1.25",
+      "0.625",
+      "1.625",
+      "-0.375"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Juan', 'edad': '25', 'ciudad': 'Madrid', 'profesion': 'Ingeniero'}\nresultado = list(persona.keys())",
+    "options": [
+      "None",
+      "ValueError",
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'María', 'edad': '35', 'ciudad': 'Sevilla', 'profesion': 'Arquitecto'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "NameError",
+      "María",
+      "Error",
+      "[]"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [19, 3, 8, 18, 4]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "[8, 18, 4]",
+      "SyntaxError",
+      "0",
+      "ValueError"
+    ],
+    "correct_answer": 1,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (44, 39, 46, 18, 34)\nresultado = mi_tupla[0]",
+    "options": [
+      "43",
+      "88",
+      "44",
+      "45"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [10, 4, 1, 10, 10]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "ValueError",
+      "[10, 4, 10, 10]",
+      "TypeError",
+      "1"
+    ],
+    "correct_answer": 2,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (19, 44, 16, 6, 34)\nresultado = mi_tupla[0]",
+    "options": [
+      "20",
+      "18",
+      "19",
+      "38"
+    ],
+    "correct_answer": 3,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [9, 4, 11, 10, 15]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "ValueError",
+      "[18, 8, 22, 20, 30]",
+      "TypeError",
+      "Error"
+    ],
+    "correct_answer": 2,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [6, 9, 1, 17, 9]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "NameError",
+      "TypeError",
+      "1",
+      "[12, 18, 2, 34, 18]"
+    ],
+    "correct_answer": 4,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 1 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "Error",
+      "Error: división por cero",
+      "{}",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Carlos', 'edad': '22', 'ciudad': 'Valencia', 'profesion': 'Profesor'}\nresultado = list(persona.keys())",
+    "options": [
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "IndexError",
+      "0",
+      "1"
+    ],
+    "correct_answer": 1,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 7 / 3\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "4.666666666666667",
+      "2.3333333333333335",
+      "1.3333333333333335",
+      "3.3333333333333335"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 5 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "KeyError",
+      "TypeError",
+      "Error: división por cero",
+      "Error"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.split()",
+    "options": [
+      "Error",
+      "[]",
+      "SyntaxError",
+      "['python,', 'java,', 'c++']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 3 / 3\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "0",
+      "1.0",
+      "2.0",
+      "0.0"
+    ],
+    "correct_answer": 2,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(6, 17)]",
+    "options": [
+      "None",
+      "NameError",
+      "[36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256]",
+      "[]"
+    ],
+    "correct_answer": 3,
+    "explanation": "Genera una lista con los cuadrados de los números del 6 al 16"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = list(persona.keys())",
+    "options": [
+      "{}",
+      "IndexError",
+      "0",
+      "['nombre', 'edad', 'ciudad', 'profesion']"
+    ],
+    "correct_answer": 4,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(6, 10)",
+    "options": [
+      "15",
+      "16",
+      "32",
+      "17"
+    ],
+    "correct_answer": 2,
+    "explanation": "La función lambda suma dos números: 6 + 10 = 16"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Carlos', 'edad': '22', 'ciudad': 'Valencia', 'profesion': 'Profesor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "0",
+      "IndexError",
+      "KeyError",
+      "Carlos"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(1, 1)",
+    "options": [
+      "3",
+      "1",
+      "2",
+      "4"
+    ],
+    "correct_answer": 3,
+    "explanation": "La función lambda suma dos números: 1 + 1 = 2"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(5, 3)",
+    "options": [
+      "9",
+      "8",
+      "16",
+      "7"
+    ],
+    "correct_answer": 2,
+    "explanation": "La función lambda suma dos números: 5 + 3 = 8"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(10, 20) if x % 2 == 0]",
+    "options": [
+      "Error",
+      "ValueError",
+      "[]",
+      "[10, 12, 14, 16, 18]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 10 al 19"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (37, 13, 9, 34, 28)\nresultado = len(mi_tupla)",
+    "options": [
+      "4",
+      "6",
+      "10",
+      "5"
+    ],
+    "correct_answer": 4,
+    "explanation": "Devuelve la longitud de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [8, 6, 8, 11, 6]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "[8, 6, 8, 6]",
+      "{}",
+      "[]",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 8 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "Error: división por cero",
+      "[]",
+      "Error",
+      "SyntaxError"
+    ],
+    "correct_answer": 1,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ndoble = lambda x: x * 2\nresultado = doble(10)",
+    "options": [
+      "40",
+      "19",
+      "21",
+      "20"
+    ],
+    "correct_answer": 4,
+    "explanation": "La función lambda multiplica por 2: 10 * 2 = 20"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"  python es genial  \"\nresultado = texto.split()",
+    "options": [
+      "Error",
+      "1",
+      "[]",
+      "['python', 'es', 'genial']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (39, 29, 2, 8, 13)\nresultado = mi_tupla[0]",
+    "options": [
+      "38",
+      "78",
+      "40",
+      "39"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(4, 4)",
+    "options": [
+      "16",
+      "8",
+      "9",
+      "7"
+    ],
+    "correct_answer": 2,
+    "explanation": "La función lambda suma dos números: 4 + 4 = 8"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [17, 12, 20, 8, 9]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "None",
+      "{}",
+      "KeyError",
+      "[34, 24, 40, 16, 18]"
+    ],
+    "correct_answer": 4,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(5, 1)",
+    "options": [
+      "6",
+      "5",
+      "7",
+      "12"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda suma dos números: 5 + 1 = 6"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [5, 16, 11, 14, 11]\nresultado = list(filter(lambda x: x % 2 == 0, numeros))",
+    "options": [
+      "KeyError",
+      "1",
+      "0",
+      "[16, 14]"
+    ],
+    "correct_answer": 4,
+    "explanation": "filter selecciona solo los números pares."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [2, 17, 3, 19, 19]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "Error",
+      "[4, 34, 6, 38, 38]",
+      "[]",
+      "SyntaxError"
+    ],
+    "correct_answer": 2,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [5, 1, 7, 14, 11]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "[10, 2, 14, 28, 22]",
+      "SyntaxError",
+      "KeyError",
+      "0"
+    ],
+    "correct_answer": 1,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 2 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "KeyError",
+      "1",
+      "Error: división por cero",
+      "[]"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 7 / 5\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "2.4",
+      "0.3999999999999999",
+      "1.4",
+      "2.8"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"python, java, c++\"\nresultado = texto.split()",
+    "options": [
+      "[]",
+      "ValueError",
+      "NameError",
+      "['python,', 'java,', 'c++']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce la siguiente list comprehension?\n\ncuadrados = [x**2 for x in range(9, 14)]",
+    "options": [
+      "[]",
+      "1",
+      "IndexError",
+      "[81, 100, 121, 144, 169]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los cuadrados de los números del 9 al 13"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 1 / 0\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "NameError",
+      "KeyError",
+      "Error: división por cero",
+      "TypeError"
+    ],
+    "correct_answer": 3,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nsuma = lambda x, y: x + y\nresultado = suma(4, 9)",
+    "options": [
+      "13",
+      "14",
+      "12",
+      "26"
+    ],
+    "correct_answer": 1,
+    "explanation": "La función lambda suma dos números: 4 + 9 = 13"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(5, 14) if x % 2 == 0]",
+    "options": [
+      "ValueError",
+      "Error",
+      "0",
+      "[6, 8, 10, 12]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 5 al 13"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.strip()",
+    "options": [
+      "HOLA MUNDO",
+      "SyntaxError",
+      "KeyError",
+      "None"
+    ],
+    "correct_answer": 1,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(1, 10) if x % 2 == 0]",
+    "options": [
+      "0",
+      "NameError",
+      "TypeError",
+      "[2, 4, 6, 8]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 1 al 9"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = list(persona.keys())",
+    "options": [
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "NameError",
+      "{}",
+      "[]"
+    ],
+    "correct_answer": 1,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nnumeros = [16, 15, 3, 19, 17]\nresultado = list(map(lambda x: x * 2, numeros))",
+    "options": [
+      "TypeError",
+      "{}",
+      "Error",
+      "[32, 30, 6, 38, 34]"
+    ],
+    "correct_answer": 4,
+    "explanation": "map aplica la función lambda (multiplicar por 2) a cada elemento."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"uno dos tres\"\nresultado = texto.split()",
+    "options": [
+      "KeyError",
+      "ValueError",
+      "1",
+      "['uno', 'dos', 'tres']"
+    ],
+    "correct_answer": 4,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = list(persona.keys())",
+    "options": [
+      "KeyError",
+      "['nombre', 'edad', 'ciudad', 'profesion']",
+      "TypeError",
+      "1"
+    ],
+    "correct_answer": 2,
+    "explanation": "persona.keys() devuelve las claves del diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "None",
+      "1",
+      "Error",
+      "Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\nmi_tupla = (12, 34, 31, 46, 30)\nresultado = mi_tupla[0]",
+    "options": [
+      "13",
+      "12",
+      "24",
+      "11"
+    ],
+    "correct_answer": 2,
+    "explanation": "Accede al primer elemento de la tupla."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.split()",
+    "options": [
+      "['HOLA', 'MUNDO']",
+      "Error",
+      "[]",
+      "{}"
+    ],
+    "correct_answer": 1,
+    "explanation": "split() divide el string en una lista usando espacios como separador."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\ntexto = \"HOLA MUNDO\"\nresultado = texto.strip()",
+    "options": [
+      "Error",
+      "KeyError",
+      "1",
+      "HOLA MUNDO"
+    ],
+    "correct_answer": 4,
+    "explanation": "strip() elimina espacios en blanco al inicio y final."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué devuelve el siguiente código?\n\npersona = {'nombre': 'Ana', 'edad': '30', 'ciudad': 'Barcelona', 'profesion': 'Doctor'}\nresultado = persona[\"nombre\"]",
+    "options": [
+      "[]",
+      "SyntaxError",
+      "1",
+      "Ana"
+    ],
+    "correct_answer": 4,
+    "explanation": "Accede al valor de la clave \"nombre\" en el diccionario."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué se imprime por pantalla?\n\ntry:\n    resultado = 8 / 6\n    print(resultado)\nexcept ZeroDivisionError:\n    print(\"Error: división por cero\")",
+    "options": [
+      "2.333333333333333",
+      "0.33333333333333326",
+      "2.6666666666666665",
+      "1.3333333333333333"
+    ],
+    "correct_answer": 4,
+    "explanation": "Si b = 0, se produce ZeroDivisionError y se ejecuta el except."
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(8, 20) if x % 2 == 0]",
+    "options": [
+      "TypeError",
+      "NameError",
+      "SyntaxError",
+      "[8, 10, 12, 14, 16, 18]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 8 al 19"
+  },
+  {
+    "level": "intermedio",
+    "question": "¿Qué produce esta list comprehension?\n\npares = [x for x in range(2, 15) if x % 2 == 0]",
+    "options": [
+      "1",
+      "{}",
+      "KeyError",
+      "[2, 4, 6, 8, 10, 12, 14]"
+    ],
+    "correct_answer": 4,
+    "explanation": "Genera una lista con los números pares del 2 al 14"
+  }
+]
