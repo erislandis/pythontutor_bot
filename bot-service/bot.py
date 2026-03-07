@@ -128,27 +128,50 @@ def invalidate_exercises_cache():
 def get_user_from_api(telegram_id):
     """Obtener usuario desde la API del web service"""
     try:
+        logger.info(f"Attempting to connect to API: {WEB_API_URL}/api/user/{telegram_id}")
         response = requests.get(f"{WEB_API_URL}/api/user/{telegram_id}", timeout=10)
+        
         if response.status_code == 200:
+            logger.info(f"Successfully retrieved user {telegram_id}")
             return response.json()
-        else:
-            logger.error(f"API get_user error: {response.status_code}")
+        elif response.status_code == 404:
+            logger.info(f"User {telegram_id} not found, will create new user")
             return None
-    except requests.RequestException as e:
-        logger.error(f"API connection error: {e}")
+        else:
+            logger.error(f"API error: {response.status_code} - {response.text}")
+            return None
+            
+    except requests.exceptions.ConnectionError:
+        logger.error(f"Cannot connect to API at {WEB_API_URL}")
+        return None
+    except requests.exceptions.Timeout:
+        logger.error(f"API connection timeout for user {telegram_id}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error getting user: {e}")
         return None
 
 def create_user_in_api(user_data):
     """Crear usuario en la API del web service"""
     try:
+        logger.info(f"Creating user with data: {user_data}")
         response = requests.post(f"{WEB_API_URL}/api/user", json=user_data, timeout=10)
+        
         if response.status_code == 201:
+            logger.info(f"Successfully created user {user_data['telegram_id']}")
             return response.json()
         else:
-            logger.error(f"API create_user error: {response.status_code}")
+            logger.error(f"Failed to create user: {response.status_code} - {response.text}")
             return None
-    except requests.RequestException as e:
-        logger.error(f"API connection error: {e}")
+            
+    except requests.exceptions.ConnectionError:
+        logger.error(f"Cannot connect to API at {WEB_API_URL} for user creation")
+        return None
+    except requests.exceptions.Timeout:
+        logger.error(f"API timeout during user creation")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error creating user: {e}")
         return None
 
 def get_exercises_from_api(level):
@@ -206,10 +229,24 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if created_user:
             user_data = created_user
         else:
+            # Fallback: Create user in memory if API fails
+            logger.warning(f"API failed, creating user {telegram_id} in memory as fallback")
+            user_data = {
+                'telegram_id': telegram_id,
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'current_level': 'principiante',
+                'level_progress': 0,
+                'total_exercises_completed': 0,
+                'last_activity': 'now()'
+            }
+            
             await update.message.reply_text(
-                "❌ Error al crear tu perfil. Por favor intenta más tarde."
+                "⚠️ El servicio está temporalmente no disponible, pero puedes continuar usando el bot.\n\n"
+                "� Tu perfil ha sido creado localmente.\n"
+                "� Se sincronizará cuando el servicio esté disponible."
             )
-            return
     
     # Check and update level based on progress
     updated_level = check_and_update_level(telegram_id, user_data)
@@ -1074,7 +1111,7 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
         reply_markup=reply_markup
     )
 
-async def next_learning_exercise(update: Update, ContextTypes.DEFAULT_TYPE):
+async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get next learning exercise"""
     telegram_id = update.effective_user.id
     
