@@ -300,7 +300,7 @@ Soy tu tutor personal de Python. Te ayudaré a aprender programación con ejerci
     # Duolingo-style main menu
     keyboard = [
         [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
-        [InlineKeyboardButton("� Modo Práctica", callback_data="practice_menu")],
+        [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_menu")],
         [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")],
         [InlineKeyboardButton("🏆 Ranking Mundial", callback_data="world_ranking")],
         [InlineKeyboardButton("❓ Ayuda", callback_data="help")]
@@ -634,7 +634,7 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ranking_text += "🔄 Ranking actualizado cada hora"
     
     keyboard = [
-        [InlineKeyboardButton("� Modo Práctica", callback_data="practice_mode")],
+        [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_mode")],
         [InlineKeyboardButton("📊 Mis Estadísticas", callback_data="view_stats")],
         [InlineKeyboardButton("🔄 Actualizar Ranking", callback_data="refresh_ranking")]
     ]
@@ -1230,7 +1230,7 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard = [
         [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
-        [InlineKeyboardButton("� Modo Práctica", callback_data="practice_menu")],
+        [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_menu")],
         [InlineKeyboardButton("🔄 Actualizar Ranking", callback_data="refresh_ranking")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
