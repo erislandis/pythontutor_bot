@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Response
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from functools import wraps
 import logging
+from datetime import datetime
 
 # Cargar variables de entorno al inicio
 load_dotenv()
@@ -665,6 +666,54 @@ def get_user_stats(telegram_id):
     except Exception as e:
         logger.error(f"API get user stats error: {e}")
         return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/notify-bot-changes', methods=['POST'])
+def notify_bot_changes():
+    """Notify bot that exercises have changed"""
+    try:
+        # Aquí podrías agregar lógica para notificar al bot
+        # Por ahora, solo registramos la notificación
+        logger.info("Bot notified of exercise changes")
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        logger.error(f"Error notifying bot: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/exercises/export/csv')
+@admin_required
+def export_exercises_csv():
+    """Export exercises in CSV format"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database not connected'}), 500
+        
+        exercises_response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
+        exercises = exercises_response.data or []
+        
+        # Create CSV content
+        csv_content = 'ID,Nivel,Pregunta,Opción1,Opción2,Opción3,Opción4,Respuesta,Explicación\n'
+        
+        for exercise in exercises:
+            # Escape quotes and commas for CSV
+            def escape_csv(text):
+                if not text:
+                    return ''
+                return f'"{str(text).replace('"', '""')}"'
+            
+            csv_content += f"{exercise.id},{exercise.level},"
+            csv_content += f"{escape_csv(exercise.question)},"
+            csv_content += f"{escape_csv(exercise.options[0])},{escape_csv(exercise.options[1])},"
+            csv_content += f"{escape_csv(exercise.options[2])},{escape_csv(exercise.options[3])},"
+            csv_content += f"{exercise.correct_answer},{escape_csv(exercise.explanation)}\n"
+        
+        from flask import Response
+        response = Response(csv_content, mimetype='text/csv')
+        response.headers['Content-Disposition'] = f'attachment; filename=ejercicios_{datetime.now().strftime("%Y-%m-%d")}.csv'
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error exporting exercises to CSV: {e}")
+        return jsonify({'error': str(e)}), 500
 
 # API Endpoints for Exercises Management
 @app.route('/api/admin/exercises', methods=['GET'])

@@ -122,27 +122,38 @@
             </div>
             
             <div class="row">
-                <div class="col-md-4">
-                    <button class="quick-action-btn import w-100" onclick="importExercises()">
+                <div class="col-md-3">
+                    <button class="quick-action-btn import w-100" onclick="document.getElementById('bulkFile').click()">
                         <i class="fas fa-upload fa-lg"></i>
                         <div class="text-start">
                             <strong>Importar Ejercicios</strong>
                             <br>
-                            <small>Carga múltiples ejercicios desde JSON</small>
+                            <small>Carga múltiples ejercicios desde JSON o CSV</small>
                         </div>
                     </button>
+                    <input type="file" id="bulkFile" accept=".json,.csv" style="display: none;" onchange="handleBulkUpload(event)">
                 </div>
-                <div class="col-md-4">
-                    <button class="quick-action-btn export w-100" onclick="exportExercises()">
+                <div class="col-md-3">
+                    <button class="quick-action-btn export w-100" onclick="exportExercisesByFormat('json')">
                         <i class="fas fa-download fa-lg"></i>
                         <div class="text-start">
-                            <strong>Exportar Ejercicios</strong>
+                            <strong>Exportar JSON</strong>
                             <br>
                             <small>Descarga todos los ejercicios en JSON</small>
                         </div>
                     </button>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <button class="quick-action-btn export w-100" onclick="exportExercisesByFormat('csv')">
+                        <i class="fas fa-file-csv fa-lg"></i>
+                        <div class="text-start">
+                            <strong>Exportar CSV</strong>
+                            <br>
+                            <small>Descarga todos los ejercicios en CSV</small>
+                        </div>
+                    </button>
+                </div>
+                <div class="col-md-3">
                     <button class="quick-action-btn template w-100" onclick="downloadTemplate()">
                         <i class="fas fa-file-code fa-lg"></i>
                         <div class="text-start">

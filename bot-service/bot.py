@@ -11,6 +11,7 @@ import signal
 import sys
 import threading
 from flask import Flask, jsonify
+from datetime import datetime, timedelta
 
 # Cargar variables de entorno
 load_dotenv()
@@ -83,8 +84,38 @@ WEB_API_URL = os.getenv('WEB_API_URL')
 # User session storage (en memoria, se perderá al reiniciar)
 user_sessions = {}
 
+# Exercise cache management
+exercise_cache = {}
+cache_timestamp = {}
+
 # Level order
 LEVELS = ['principiante', 'intermedio', 'avanzado', 'experto']
+
+def refresh_exercises_cache(level):
+    """Refrescar cache de ejercicios"""
+    exercises = get_exercises_from_api(level)
+    exercise_cache[level] = exercises
+    cache_timestamp[level] = datetime.now()
+    logger.info(f"Exercise cache refreshed for level: {level}")
+    return exercises
+
+def get_cached_exercises(level):
+    """Obtener ejercicios desde cache con timeout"""
+    from datetime import timedelta
+    
+    # Verificar si cache existe y no está expirada (30 minutos)
+    if level not in exercise_cache or \
+       datetime.now() - cache_timestamp[level] > timedelta(minutes=30):
+        return refresh_exercises_cache(level)
+    
+    return exercise_cache[level]
+
+def invalidate_exercises_cache():
+    """Invalidar toda la cache de ejercicios"""
+    global exercise_cache, cache_timestamp
+    exercise_cache.clear()
+    cache_timestamp.clear()
+    logger.info("Exercise cache invalidated")
 
 # API functions
 def get_user_from_api(telegram_id):
@@ -293,8 +324,8 @@ async def exercise_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     current_level = user_sessions[telegram_id]['current_level']
     
-    # Get exercises from API
-    exercises = get_exercises_from_api(current_level)
+    # Get exercises from cache
+    exercises = get_cached_exercises(current_level)
     
     if not exercises:
         await update.message.reply_text(
@@ -549,8 +580,8 @@ async def answer_callback(query, context, exercise_id, answer_index):
     """Handle answer callback"""
     telegram_id = query.from_user.id
     
-    # Get exercise from API
-    exercises = get_exercises_from_api(user_sessions[telegram_id]['current_level'])
+    # Get exercises from cache
+    exercises = get_cached_exercises(user_sessions[telegram_id]['current_level'])
     exercise = next((e for e in exercises if e['id'] == exercise_id), None)
     
     if not exercise:
@@ -590,8 +621,8 @@ async def answer_callback(query, context, exercise_id, answer_index):
 
 async def explanation_callback(query, context, exercise_id):
     """Handle explanation callback"""
-    # Get exercise from API
-    exercises = get_exercises_from_api(user_sessions[query.from_user.id]['current_level'])
+    # Get exercises from cache
+    exercises = get_cached_exercises(user_sessions[query.from_user.id]['current_level'])
     exercise = next((e for e in exercises if e['id'] == exercise_id), None)
     
     if not exercise or not exercise.get('explanation'):

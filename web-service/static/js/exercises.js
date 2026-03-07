@@ -329,6 +329,7 @@ async function saveExercise() {
                 'success'
             );
             await loadExercises(); // Reload exercises
+            notifyBotOfChanges(); // Notify bot of changes
         } else {
             showNotification('Error al guardar ejercicio: ' + data.error, 'danger');
         }
@@ -468,6 +469,47 @@ function exportExercises() {
     }
 }
 
+function exportExercisesCSV() {
+    try {
+        let csv = 'ID,Nivel,Pregunta,Opción1,Opción2,Opción3,Opción4,Respuesta,Explicación\n';
+        
+        allExercises.forEach(exercise => {
+            // Escapar comillas y comas para CSV
+            const escapeCSV = (str) => {
+                if (!str) return '';
+                return `"${str.toString().replace(/"/g, '""')}"`;
+            };
+            
+            csv += `${exercise.id},${exercise.level},`;
+            csv += `${escapeCSV(exercise.question)},`;
+            csv += `${escapeCSV(exercise.options[0])},${escapeCSV(exercise.options[1])},`;
+            csv += `${escapeCSV(exercise.options[2])},${escapeCSV(exercise.options[3])},`;
+            csv += `${exercise.correct_answer},${escapeCSV(exercise.explanation)}\n`;
+        });
+        
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `ejercicios_${new Date().toISOString().slice(0,10)}.csv`);
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        showNotification(`${allExercises.length} ejercicios exportados a CSV`, 'success');
+    } catch (error) {
+        console.error('Error exporting exercises to CSV:', error);
+        showNotification('Error al exportar ejercicios a CSV', 'danger');
+    }
+}
+
+function exportExercisesByFormat(format) {
+    if (format === 'csv') {
+        exportExercisesCSV();
+    } else {
+        exportExercises();
+    }
+}
+
 function downloadTemplate() {
     const template = [
         {
@@ -499,16 +541,34 @@ async function handleBulkUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
     
-    if (!file.name.endsWith('.json')) {
-        showNotification('Por favor selecciona un archivo JSON válido', 'danger');
+    const fileName = file.name.toLowerCase();
+    
+    if (fileName.endsWith('.json')) {
+        await handleJSONUpload(file);
+    } else if (fileName.endsWith('.csv')) {
+        await handleCSVUpload(file);
+    } else {
+        showNotification('Por favor selecciona un archivo JSON o CSV válido', 'danger');
         return;
     }
     
+    // Reset file input
+    event.target.value = '';
+}
+
+async function handleJSONUpload(file) {
     const reader = new FileReader();
     reader.onload = async function(e) {
         try {
             const exercises = JSON.parse(e.target.result);
             if (Array.isArray(exercises) && exercises.length > 0) {
+                // Validar ejercicios
+                const validation = validateExercises(exercises);
+                if (!validation.valid) {
+                    showNotification(`Errores de validación: ${validation.errors.join(', ')}`, 'danger');
+                    return;
+                }
+                
                 showLoading(true);
                 
                 const response = await fetch('/api/admin/exercises/import', {
@@ -532,6 +592,7 @@ async function handleBulkUpload(event) {
                     }
                     
                     await loadExercises(); // Reload exercises
+                    notifyBotOfChanges(); // Notify bot
                 } else {
                     showNotification('Error al importar ejercicios: ' + data.error, 'danger');
                 }
@@ -546,9 +607,174 @@ async function handleBulkUpload(event) {
         }
     };
     reader.readAsText(file);
+}
+
+async function handleCSVUpload(file) {
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const csvText = e.target.result;
+            const exercises = parseCSVToExercises(csvText);
+            
+            if (exercises.length > 0) {
+                // Validar ejercicios
+                const validation = validateExercises(exercises);
+                if (!validation.valid) {
+                    showNotification(`Errores de validación: ${validation.errors.join(', ')}`, 'danger');
+                    return;
+                }
+                
+                showLoading(true);
+                
+                const response = await fetch('/api/admin/exercises/import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ exercises })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification(
+                        `${data.imported} de ${data.total} ejercicios importados exitosamente desde CSV`, 
+                        data.errors.length > 0 ? 'warning' : 'success'
+                    );
+                    
+                    if (data.errors.length > 0) {
+                        console.warn('Import errors:', data.errors);
+                    }
+                    
+                    await loadExercises(); // Reload exercises
+                    notifyBotOfChanges(); // Notify bot
+                } else {
+                    showNotification('Error al importar ejercicios: ' + data.error, 'danger');
+                }
+            } else {
+                showNotification('El archivo CSV no contiene ejercicios válidos', 'danger');
+            }
+        } catch (error) {
+            console.error('Error reading CSV file:', error);
+            showNotification('Error al leer el archivo CSV: ' + error.message, 'danger');
+        } finally {
+            showLoading(false);
+        }
+    };
+    reader.readAsText(file);
+}
+
+function parseCSVToExercises(csvText) {
+    const lines = csvText.split('\n').filter(line => line.trim());
+    if (lines.length < 2) return []; // Need header + at least one data row
     
-    // Reset file input
-    event.target.value = '';
+    const exercises = [];
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    
+    for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        if (values.length >= 8) { // Minimum required columns
+            const exercise = {
+                level: values[1] || 'principiante',
+                question: values[2] || '',
+                options: [
+                    values[3] || '',
+                    values[4] || '',
+                    values[5] || '',
+                    values[6] || ''
+                ],
+                correct_answer: parseInt(values[7]) || 1,
+                explanation: values[8] || ''
+            };
+            
+            // Validar respuesta correcta
+            if (exercise.correct_answer < 1 || exercise.correct_answer > 4) {
+                exercise.correct_answer = 1;
+            }
+            
+            exercises.push(exercise);
+        }
+    }
+    
+    return exercises;
+}
+
+function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+                current += '"';
+                i++; // Skip next quote
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === ',' && !inQuotes) {
+            result.push(current.trim());
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    
+    result.push(current.trim());
+    return result;
+}
+
+function validateExercises(exercises) {
+    const errors = [];
+    const validLevels = ['principiante', 'intermedio', 'avanzado', 'experto'];
+    
+    exercises.forEach((exercise, index) => {
+        const exerciseNum = index + 1;
+        
+        // Validar nivel
+        if (!exercise.level || !validLevels.includes(exercise.level)) {
+            errors.push(`Ejercicio ${exerciseNum}: nivel inválido`);
+        }
+        
+        // Validar pregunta
+        if (!exercise.question || exercise.question.trim().length < 10) {
+            errors.push(`Ejercicio ${exerciseNum}: pregunta demasiado corta`);
+        }
+        
+        // Validar opciones
+        if (!Array.isArray(exercise.options) || exercise.options.length !== 4) {
+            errors.push(`Ejercicio ${exerciseNum}: debe tener 4 opciones`);
+        } else {
+            const hasEmptyOptions = exercise.options.some(opt => !opt || opt.trim().length === 0);
+            if (hasEmptyOptions) {
+                errors.push(`Ejercicio ${exerciseNum}: todas las opciones deben tener contenido`);
+            }
+        }
+        
+        // Validar respuesta correcta
+        if (!exercise.correct_answer || exercise.correct_answer < 1 || exercise.correct_answer > 4) {
+            errors.push(`Ejercicio ${exerciseNum}: respuesta correcta inválida`);
+        }
+    });
+    
+    return {
+        valid: errors.length === 0,
+        errors: errors
+    };
+}
+
+function notifyBotOfChanges() {
+    // Notificar al bot que los ejercicios han cambiado
+    fetch('/api/notify-bot-changes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).catch(error => {
+        console.log('No se pudo notificar al bot:', error);
+    });
 }
 
 function setupDragAndDrop(bulkArea) {
