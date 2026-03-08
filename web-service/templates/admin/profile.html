@@ -1,30 +1,204 @@
-{% extends "admin_base_new.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}Perfil de Usuario - Panel Admin{% endblock %}
+{% block title %}Perfil de Administrador - Panel Administrativo{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Mi Perfil</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshProfile()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+            </button>
+            <button type="button" class="btn btn-sm btn-primary" onclick="enableEditMode()">
+                <i class="bi bi-pencil me-1"></i>Editar Perfil
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
-    <!-- Professional Header -->
-    <div class="page-header">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="mb-0">
-                        <i class="fas fa-user-circle me-3"></i>
-                        Perfil de Usuario
-                    </h1>
-                    <p class="mb-0 opacity-75">Gestionar tu información de perfil</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <div class="d-flex align-items-center justify-content-md-end">
-                        <div class="me-3">
-                            <small class="d-block text-white-50">Usuario actual</small>
-                            <strong>{{ current_user.username }}</strong>
+<div class="row">
+    <!-- Profile Information -->
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-gradient-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-circle me-2"></i>Información del Perfil
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="profileForm">
+                    <!-- Avatar Section -->
+                    <div class="text-center mb-4">
+                        <div class="avatar-container position-relative d-inline-block">
+                            <div class="avatar-circle bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                                 style="width: 120px; height: 120px;">
+                                <i class="bi bi-person-fill display-1"></i>
+                            </div>
+                            <div class="avatar-upload position-absolute bottom-0 end-0">
+                                <button type="button" class="btn btn-sm btn-primary rounded-circle" onclick="document.getElementById('avatarInput').click()">
+                                    <i class="bi bi-camera"></i>
+                                </button>
+                                <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarChange(event)">
+                            </div>
                         </div>
-                        <div class="status-indicator">
-                            <span class="badge bg-success">
-                                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
-                                En línea
-                            </span>
+                        <small class="text-muted d-block mt-2">
+                            Formatos permitidos: JPG, PNG, GIF (Máx. 2MB)
+                        </small>
+                    </div>
+
+                    <!-- Basic Information -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="username" class="form-label fw-semibold">Usuario</label>
+                            <input type="text" class="form-control" id="username" value="admin" disabled>
+                            <small class="text-muted">El usuario no puede ser modificado</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label fw-semibold">Email</label>
+                            <input type="email" class="form-control" id="email" value="admin@pythontutorbot.com" disabled>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="firstName" class="form-label fw-semibold">Nombre</label>
+                            <input type="text" class="form-control" id="firstName" value="Administrador" disabled>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="lastName" class="form-label fw-semibold">Apellido</label>
+                            <input type="text" class="form-control" id="lastName" value="Sistema" disabled>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label fw-semibold">Teléfono</label>
+                            <input type="tel" class="form-control" id="phone" value="+1 (555) 123-4567" disabled>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="role" class="form-label fw-semibold">Rol</label>
+                            <input type="text" class="form-control" id="role" value="Super Administrador" disabled>
+                        </div>
+                    </div>
+
+                    <!-- Editable Fields -->
+                    <div class="row" id="editableFields" style="display: none;">
+                        <div class="col-md-12 mb-3">
+                            <label for="bio" class="form-label fw-semibold">Biografía</label>
+                            <textarea class="form-control" id="bio" rows="3" placeholder="Cuéntanos sobre ti...">Administrador principal del sistema Python Tutor Bot con más de 5 años de experiencia en desarrollo de software educativo.</textarea>
+                        </div>
+                    </div>
+
+                    <div class="row" id="editableFields2" style="display: none;">
+                        <div class="col-md-6 mb-3">
+                            <label for="timezone" class="form-label fw-semibold">Zona Horaria</label>
+                            <select class="form-select" id="timezone">
+                                <option value="UTC-5" selected>UTC-5 (Eastern Time)</option>
+                                <option value="UTC-6">UTC-6 (Central Time)</option>
+                                <option value="UTC-7">UTC-7 (Mountain Time)</option>
+                                <option value="UTC-8">UTC-8 (Pacific Time)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="language" class="form-label fw-semibold">Idioma</label>
+                            <select class="form-select" id="language">
+                                <option value="es" selected>Español</option>
+                                <option value="en">English</option>
+                                <option value="pt">Português</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Preferences -->
+                    <div class="row" id="editableFields3" style="display: none;">
+                        <div class="col-md-12 mb-3">
+                            <h6 class="fw-semibold mb-3">
+                                <i class="bi bi-gear me-2"></i>Preferencias de Notificación
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                        <label class="form-check-label" for="emailNotifications">
+                                            Notificaciones por Email
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="pushNotifications" checked>
+                                        <label class="form-check-label" for="pushNotifications">
+                                            Notificaciones Push
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="weeklyReports">
+                                        <label class="form-check-label" for="weeklyReports">
+                                            Reportes Semanales
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="securityAlerts" checked>
+                                        <label class="form-check-label" for="securityAlerts">
+                                            Alertas de Seguridad
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2" id="actionButtons" style="display: none;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Guardar Cambios
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelEdit()">
+                            <i class="bi bi-x-circle me-2"></i>Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Account Statistics -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Estadísticas de la Cuenta
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <div class="stat-item">
+                            <h4 class="text-primary fw-bold">247</h4>
+                            <p class="text-muted mb-0">Días Activo</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stat-item">
+                            <h4 class="text-success fw-bold">1,842</h4>
+                            <p class="text-muted mb-0">Accesos al Panel</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stat-item">
+                            <h4 class="text-info fw-bold">523</h4>
+                            <p class="text-muted mb-0">Ejercicios Creados</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stat-item">
+                            <h4 class="text-warning fw-bold">98.5%</h4>
+                            <p class="text-muted mb-0">Tiempo de Actividad</p>
                         </div>
                     </div>
                 </div>
@@ -32,343 +206,344 @@
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="container-fluid">
-        <div class="row g-4">
-            <!-- Profile Information -->
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <h5 class="mb-0">
-                            <i class="fas fa-user text-primary me-2"></i>
-                            Información del Perfil
-                        </h5>
-                    </div>
-                    <div class="card-body text-center">
-                        <div class="mb-4">
-                            <div class="user-avatar mx-auto" style="width: 120px; height: 120px; font-size: 3rem;">
-                                {{ current_user.username[0]|upper }}
-                            </div>
-                        </div>
-                        <h4 class="mb-1">{{ current_user.username }}</h4>
-                        <p class="text-muted mb-3">Administrador del Sistema</p>
-                        
-                        <div class="row g-2 text-start">
-                            <div class="col-6">
-                                <small class="text-muted">ID de Usuario:</small>
-                                <div class="fw-bold">{{ current_user.id or 'N/A' }}</div>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted">Rol:</small>
-                                <div class="fw-bold">Administrador</div>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted">Estado:</small>
-                                <div class="fw-bold text-success">Activo</div>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted">Último Acceso:</small>
-                                <div class="fw-bold">Hoy</div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3 pt-3 border-top">
-                            <button class="btn btn-outline-primary btn-sm me-2">
-                                <i class="fas fa-camera me-1"></i> Cambiar Foto
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-download me-1"></i> Exportar Datos
-                            </button>
-                        </div>
-                    </div>
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightning me-2"></i>Acciones Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/admin/change-password" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-key me-2"></i>Cambiar Contraseña
+                    </a>
+                    <button type="button" class="btn btn-outline-info w-100" onclick="exportProfileData()">
+                        <i class="bi bi-download me-2"></i>Exportar Datos
+                    </button>
+                    <button type="button" class="btn btn-outline-warning w-100" onclick="viewLoginHistory()">
+                        <i class="bi bi-clock-history me-2"></i>Historial de Acceso
+                    </button>
+                    <button type="button" class="btn btn-outline-success w-100" onclick="generateAPIKey()">
+                        <i class="bi bi-key me-2"></i>Generar API Key
+                    </button>
                 </div>
             </div>
-            
-            <!-- Edit Profile Form -->
-            <div class="col-lg-8">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <h5 class="mb-0">
-                            <i class="fas fa-edit text-primary me-2"></i>
-                            Editar Perfil
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                        
-                        <form id="profile-form">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="username" class="form-label">
-                                        <i class="fas fa-user me-1"></i>
-                                        Nombre de Usuario
-                                    </label>
-                                    <input type="text" class="form-control" id="username" value="{{ current_user.username }}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="email" class="form-label">
-                                        <i class="fas fa-envelope me-1"></i>
-                                        Correo Electrónico
-                                    </label>
-                                    <input type="email" class="form-control" id="email" value="{{ current_user.email or '' }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="first-name" class="form-label">
-                                        <i class="fas fa-user me-1"></i>
-                                        Nombre
-                                    </label>
-                                    <input type="text" class="form-control" id="first-name" placeholder="Tu nombre">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="last-name" class="form-label">
-                                        <i class="fas fa-user me-1"></i>
-                                        Apellido
-                                    </label>
-                                    <input type="text" class="form-control" id="last-name" placeholder="Tu apellido">
-                                </div>
-                                <div class="col-12">
-                                    <label for="bio" class="form-label">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Biografía
-                                    </label>
-                                    <textarea class="form-control" id="bio" rows="3" placeholder="Cuéntanos sobre ti..."></textarea>
-                                </div>
-                            </div>
-                            
-                            <div class="border-top pt-3 mt-4">
-                                <h6 class="mb-3">
-                                    <i class="fas fa-bell me-2"></i>
-                                    Preferencias de Notificación
-                                </h6>
-                                <div class="row g-2">
-                                    <div class="col-md-4">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="email-notifications" checked>
-                                            <label class="form-check-label" for="email-notifications">
-                                                Notificaciones por Email
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="push-notifications" checked>
-                                            <label class="form-check-label" for="push-notifications">
-                                                Notificaciones Push
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="sms-notifications">
-                                            <label class="form-check-label" for="sms-notifications">
-                                                Notificaciones SMS
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="border-top pt-3 mt-4">
-                                <h6 class="mb-3">
-                                    <i class="fas fa-palette me-2"></i>
-                                    Preferencias de Interfaz
-                                </h6>
-                                <div class="row g-2">
-                                    <div class="col-md-4">
-                                        <label for="theme" class="form-label">Tema</label>
-                                        <select class="form-select" id="theme">
-                                            <option value="light">Claro</option>
-                                            <option value="dark">Oscuro</option>
-                                            <option value="auto">Automático</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="language" class="form-label">Idioma</label>
-                                        <select class="form-select" id="language">
-                                            <option value="es">Español</option>
-                                            <option value="en">English</option>
-                                            <option value="pt">Português</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="timezone" class="form-label">Zona Horaria</label>
-                                        <select class="form-select" id="timezone">
-                                            <option value="UTC">UTC</option>
-                                            <option value="America/Mexico_City">Ciudad de México</option>
-                                            <option value="America/Argentina/Buenos_Aires">Buenos Aires</option>
-                                            <option value="Europe/Madrid">Madrid</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex gap-2 mt-4">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>
-                                    Guardar Cambios
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
-                                    <i class="fas fa-undo me-2"></i>
-                                    Cancelar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-clock me-2"></i>Actividad Reciente
+                </h6>
             </div>
-            
-            <!-- Activity History -->
-            <div class="col-12">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <h5 class="mb-0">
-                            <i class="fas fa-history text-primary me-2"></i>
-                            Historial de Actividad
-                        </h5>
+            <div class="card-body">
+                <div class="activity-timeline">
+                    <div class="activity-item mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="activity-icon bg-success text-white rounded-circle p-2 me-3">
+                                <i class="bi bi-check small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Sesión iniciada</div>
+                                <small class="text-muted">Hace 2 horas</small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="activity-timeline">
-                            <div class="activity-item">
-                                <small class="text-muted">Hoy, 10:30 AM</small>
-                                <div class="text-success">Iniciaste sesión en el panel administrativo</div>
+                    <div class="activity-item mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="activity-icon bg-info text-white rounded-circle p-2 me-3">
+                                <i class="bi bi-person-plus small"></i>
                             </div>
-                            <div class="activity-item">
-                                <small class="text-muted">Hoy, 09:45 AM</small>
-                                <div class="text-info">Modificaste la configuración del sistema</div>
+                            <div>
+                                <div class="fw-bold">Nuevo usuario agregado</div>
+                                <small class="text-muted">Hace 5 horas</small>
                             </div>
-                            <div class="activity-item">
-                                <small class="text-muted">Ayer, 03:20 PM</small>
-                                <div class="text-warning">Actualizaste tu perfil de usuario</div>
+                        </div>
+                    </div>
+                    <div class="activity-item mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="activity-icon bg-warning text-white rounded-circle p-2 me-3">
+                                <i class="bi bi-exclamation small"></i>
                             </div>
-                            <div class="activity-item">
-                                <small class="text-muted">Ayer, 11:15 AM</small>
-                                <div class="text-primary">Creaste un nuevo ejercicio</div>
+                            <div>
+                                <div class="fw-bold">Configuración actualizada</div>
+                                <small class="text-muted">Hace 1 día</small>
                             </div>
-                            <div class="activity-item">
-                                <small class="text-muted">Hace 2 días</small>
-                                <div class="text-info">Cambiaste tu contraseña</div>
+                        </div>
+                    </div>
+                    <div class="activity-item mb-0">
+                        <div class="d-flex align-items-start">
+                            <div class="activity-icon bg-primary text-white rounded-circle p-2 me-3">
+                                <i class="bi bi-shield-check small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Contraseña cambiada</div>
+                                <small class="text-muted">Hace 3 días</small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- System Information -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Información del Sistema
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="system-info">
+                    <div class="info-item mb-2">
+                        <small class="text-muted">Versión del Panel:</small>
+                        <div class="fw-bold">v2.1.0</div>
+                    </div>
+                    <div class="info-item mb-2">
+                        <small class="text-muted">Último Acceso:</small>
+                        <div class="fw-bold">Hace 2 horas</div>
+                    </div>
+                    <div class="info-item mb-2">
+                        <small class="text-muted">Dirección IP:</small>
+                        <div class="fw-bold">192.168.1.100</div>
+                    </div>
+                    <div class="info-item mb-0">
+                        <small class="text-muted">Navegador:</small>
+                        <div class="fw-bold">Chrome 120.0.0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Profile management JavaScript
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('profile-form');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                if (validateForm()) {
-                    saveProfile();
-                }
-            });
-        }
+let isEditMode = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission
+    document.getElementById('profileForm').addEventListener('submit', saveProfile);
+});
+
+function enableEditMode() {
+    isEditMode = true;
+    
+    // Enable editable fields
+    const editableFields = ['firstName', 'lastName', 'phone'];
+    editableFields.forEach(fieldId => {
+        document.getElementById(fieldId).disabled = false;
     });
     
-    function validateForm() {
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
-        
-        if (!username || username.length < 3) {
-            showNotification('El nombre de usuario debe tener al menos 3 caracteres', 'danger');
-            return false;
-        }
-        
-        if (email && !isValidEmail(email)) {
-            showNotification('El correo electrónico no es válido', 'danger');
-            return false;
-        }
-        
-        return true;
-    }
+    // Show editable sections
+    document.getElementById('editableFields').style.display = 'block';
+    document.getElementById('editableFields2').style.display = 'block';
+    document.getElementById('editableFields3').style.display = 'block';
+    document.getElementById('actionButtons').style.display = 'flex';
+}
+
+function cancelEdit() {
+    isEditMode = false;
     
-    function isValidEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-    }
+    // Disable all fields
+    const fields = ['username', 'email', 'firstName', 'lastName', 'phone', 'role'];
+    fields.forEach(fieldId => {
+        document.getElementById(fieldId).disabled = true;
+    });
     
-    function saveProfile() {
-        showNotification('Guardando perfil...', 'info');
+    // Hide editable sections
+    document.getElementById('editableFields').style.display = 'none';
+    document.getElementById('editableFields2').style.display = 'none';
+    document.getElementById('editableFields3').style.display = 'none';
+    document.getElementById('actionButtons').style.display = 'none';
+    
+    // Reset form to original values
+    document.getElementById('profileForm').reset();
+    // Set original values back
+    document.getElementById('username').value = 'admin';
+    document.getElementById('email').value = 'admin@pythontutorbot.com';
+    document.getElementById('firstName').value = 'Administrador';
+    document.getElementById('lastName').value = 'Sistema';
+    document.getElementById('phone').value = '+1 (555) 123-4567';
+    document.getElementById('role').value = 'Super Administrador';
+}
+
+async function saveProfile(e) {
+    e.preventDefault();
+    
+    const formData = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        phone: document.getElementById('phone').value,
+        bio: document.getElementById('bio').value,
+        timezone: document.getElementById('timezone').value,
+        language: document.getElementById('language').value,
+        emailNotifications: document.getElementById('emailNotifications').checked,
+        pushNotifications: document.getElementById('pushNotifications').checked,
+        weeklyReports: document.getElementById('weeklyReports').checked,
+        securityAlerts: document.getElementById('securityAlerts').checked
+    };
+    
+    try {
+        showAlert('info', 'Actualizando perfil...');
         
         // Simulate API call
-        setTimeout(() => {
-            showNotification('Perfil actualizado exitosamente', 'success');
-        }, 1500);
-    }
-    
-    function resetForm() {
-        if (confirm('¿Estás seguro de que quieres cancelar los cambios?')) {
-            document.getElementById('profile-form').reset();
-            showNotification('Cambios cancelados', 'info');
-        }
-    }
-    
-    function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.body.appendChild(notification);
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 5000);
+        showAlert('success', 'Perfil actualizado correctamente');
+        cancelEdit(); // Exit edit mode
+        
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        // Loading state would be hidden here
     }
+}
+
+function handleAvatarChange(event) {
+    const file = event.target.files[0];
+    if (file) {
+        // Check file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            showAlert('danger', 'El archivo es demasiado grande. Máximo 2MB.');
+            return;
+        }
+        
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+            showAlert('danger', 'El archivo debe ser una imagen.');
+            return;
+        }
+        
+        // Preview image (in real implementation, this would upload to server)
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const avatarCircle = document.querySelector('.avatar-circle');
+            avatarCircle.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function refreshProfile() {
+    showAlert('info', 'Perfil actualizado');
+    location.reload();
+}
+
+function exportProfileData() {
+    const profileData = {
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        phone: document.getElementById('phone').value,
+        role: document.getElementById('role').value,
+        exportDate: new Date().toISOString()
+    };
+    
+    // Export functionality would be implemented here
+    showAlert('success', 'Datos del perfil exportados');
+}
+
+function viewLoginHistory() {
+    showAlert('info', 'Función de historial de acceso en desarrollo');
+}
+
+function generateAPIKey() {
+    const apiKey = 'sk-' + Math.random().toString(36).substring(2, 15);
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(apiKey).then(() => {
+        showAlert('success', 'API Key generada y copiada al portapapeles');
+    }).catch(err => {
+        console.error('Error copying to clipboard:', err);
+        showAlert('danger', 'Error al copiar API Key');
+    });
+}
 </script>
 
 <style>
-.activity-timeline {
+.avatar-container {
     position: relative;
-    padding-left: 1.5rem;
 }
 
-.activity-timeline::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 2px;
-    background: linear-gradient(180deg, #667eea, #764ba2);
+.avatar-upload {
+    bottom: 5px;
+    right: 5px;
+}
+
+.avatar-circle {
+    transition: all 0.3s ease;
+}
+
+.avatar-circle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stat-item {
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: #f8f9fc;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
 }
 
 .activity-item {
-    position: relative;
-    margin-bottom: 1.5rem;
-    padding-left: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e3e6f0;
 }
 
-.activity-item::before {
-    content: '';
-    position: absolute;
-    left: -1.75rem;
-    top: 0.5rem;
-    width: 12px;
-    height: 12px;
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
-    background: #667eea;
-    border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    font-size: 0.875rem;
+}
+
+.system-info .info-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.system-info .info-item:last-child {
+    border-bottom: none;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+@media (max-width: 768px) {
+    .col-lg-4 {
+        margin-top: 2rem;
+    }
 }
 </style>
 {% endblock %}

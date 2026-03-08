@@ -1,451 +1,509 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Respaldo - Panel Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4><i class="fas fa-robot"></i> Python Tutor Bot</h4>
-            <p class="text-muted mb-0">Panel Administrativo</p>
+{% extends "admin_base.html" %}
+
+{% block title %}Backup - Panel Administrativo{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Sistema de Backup</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshBackups()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="cleanupOldBackups()">
+                <i class="bi bi-trash me-1"></i>Limpiar Antiguos
+            </button>
         </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createBackupModal">
+                <i class="bi bi-plus-circle me-1"></i>Crear Backup
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Backup Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Backups
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">24</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-cloud-download fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Tamaño Total
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">8.4 GB</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-hdd fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Último Backup
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">Hace 2h</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Próximo Automático
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">En 22h</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-calendar-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backup Configuration -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-gradient-primary text-white">
+        <h5 class="mb-0">
+            <i class="bi bi-gear me-2"></i>Configuración de Backup Automático
+        </h5>
+    </div>
+    <div class="card-body">
+        <form id="backupConfigForm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="autoBackup" checked>
+                        <label class="form-check-label" for="autoBackup">
+                            Backup Automático Habilitado
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="backupFrequency" class="form-label">Frecuencia</label>
+                    <select class="form-select" id="backupFrequency">
+                        <option value="daily" selected>Diario</option>
+                        <option value="weekly">Semanal</option>
+                        <option value="monthly">Mensual</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="backupTime" class="form-label">Hora del Backup</label>
+                    <input type="time" class="form-control" id="backupTime" value="02:00">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="retentionDays" class="form-label">Retención (días)</label>
+                    <input type="number" class="form-control" id="retentionDays" value="30" min="1" max="365">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="compressBackups" checked>
+                        <label class="form-check-label" for="compressBackups">
+                            Comprimir Backups
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                        <label class="form-check-label" for="emailNotifications">
+                            Notificaciones por Email
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-2"></i>Guardar Configuración
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Backup History -->
+<div class="card shadow">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Historial de Backups</h6>
+        <div class="d-flex align-items-center">
+            <input type="text" class="form-control form-control-sm me-2" placeholder="Buscar backups..." id="backupSearch">
+            <select class="form-select form-select-sm me-2" id="backupFilter">
+                <option value="">Todos los tipos</option>
+                <option value="manual">Manual</option>
+                <option value="automatic">Automático</option>
+                <option value="scheduled">Programado</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Tamaño</th>
+                        <th>Estado</th>
+                        <th>Duración</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#BK001</td>
+                        <td>2026-03-08 04:00:00</td>
+                        <td><span class="badge bg-success">Automático</span></td>
+                        <td>1.2 GB</td>
+                        <td><span class="badge bg-success">Completado</span></td>
+                        <td>2m 34s</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="downloadBackup('BK001')">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewBackupDetails('BK001')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteBackup('BK001')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#BK002</td>
+                        <td>2026-03-07 04:00:00</td>
+                        <td><span class="badge bg-success">Automático</span></td>
+                        <td>1.1 GB</td>
+                        <td><span class="badge bg-success">Completado</span></td>
+                        <td>2m 12s</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="downloadBackup('BK002')">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewBackupDetails('BK002')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteBackup('BK002')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#BK003</td>
+                        <td>2026-03-06 14:30:00</td>
+                        <td><span class="badge bg-primary">Manual</span></td>
+                        <td>1.0 GB</td>
+                        <td><span class="badge bg-success">Completado</span></td>
+                        <td>1m 45s</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="downloadBackup('BK003')">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewBackupDetails('BK003')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteBackup('BK003')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#BK004</td>
+                        <td>2026-03-05 04:00:00</td>
+                        <td><span class="badge bg-warning">Programado</span></td>
+                        <td>980 MB</td>
+                        <td><span class="badge bg-danger">Fallido</span></td>
+                        <td>-</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary" disabled>
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewBackupDetails('BK004')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteBackup('BK004')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission
+    document.getElementById('backupConfigForm').addEventListener('submit', saveBackupConfig);
+    
+    // Search functionality
+    document.getElementById('backupSearch').addEventListener('input', filterBackups);
+    document.getElementById('backupFilter').addEventListener('change', filterBackups);
+});
+
+function saveBackupConfig(e) {
+    e.preventDefault();
+    
+    const config = {
+        autoBackup: document.getElementById('autoBackup').checked,
+        frequency: document.getElementById('backupFrequency').value,
+        time: document.getElementById('backupTime').value,
+        retentionDays: document.getElementById('retentionDays').value,
+        compress: document.getElementById('compressBackups').checked,
+        emailNotifications: document.getElementById('emailNotifications').checked
+    };
+    
+    AdminUtils.showLoading(e.target.querySelector('button[type="submit"]'));
+    
+    setTimeout(() => {
+        AdminUtils.hideLoading(e.target.querySelector('button[type="submit"]'));
+        AdminUtils.showNotification('Configuración de backup guardada exitosamente', 'success');
+    }, 2000);
+}
+
+function refreshBackups() {
+    AdminUtils.showNotification('Lista de backups actualizada', 'info');
+    location.reload();
+}
+
+function cleanupOldBackups() {
+    if (!confirm('¿Estás seguro de que quieres eliminar los backups antiguos? Esta acción eliminará todos los backups anteriores al período de retención configurado.')) {
+        return;
+    }
+    
+    AdminUtils.showLoading(event.target);
+    
+    setTimeout(() => {
+        AdminUtils.hideLoading(event.target);
+        AdminUtils.showNotification('Backups antiguos eliminados exitosamente', 'success');
+        refreshBackups();
+    }, 3000);
+}
+
+function downloadBackup(backupId) {
+    AdminUtils.showNotification(`Descargando backup ${backupId}...`, 'info');
+    
+    // Simulate download
+    setTimeout(() => {
+        const blob = new Blob(['Backup data'], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${backupId}.backup`;
+        a.click();
+        URL.revokeObjectURL(url);
         
-        <div class="sidebar-menu">
-            <a href="/admin/dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a href="/admin/users">
-                <i class="fas fa-users"></i> Usuarios
-            </a>
-            <a href="/admin/bot-control">
-                <i class="fas fa-robot"></i> Control del Bot
-            </a>
-            
-            <a href="/admin/exercises">
-                <i class="fas fa-book"></i> Ejercicios
-            </a>
-            
-            <a href="/admin/database">
-                <i class="fas fa-database"></i> Base de Datos
-            </a>
-            
-            <a href="/admin/change-password">
-                <i class="fas fa-key"></i> Cambiar Contraseña
-            </a>
-            
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <a href="/admin/logout" style="color: #ef5350;">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </a>
-            </div>
-        </div>
-    </div>
+        AdminUtils.showNotification(`Backup ${backupId} descargado exitosamente`, 'success');
+    }, 1500);
+}
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <div class="header-bar">
-            <div>
-                <h1 class="h3 mb-2" style="color: #2c3e50;">
-                    <i class="fas fa-download text-primary me-2"></i>
-                    Sistema de Respaldo
-                </h1>
-                <p class="text-muted mb-0">Gestiona y automatiza los respaldos del sistema</p>
-            </div>
-            <div class="user-badge">
-                <i class="fas fa-user-circle me-2"></i>
-                {{ current_user.username }}
-                <span class="status-badge status-online ms-2">
-                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Activo
-                </span>
-            </div>
-        </div>
-
-        <!-- Backup Status -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="backup-card success">
-                    <div class="backup-icon text-success">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h6 class="text-muted">Último Respaldo</h6>
-                    <div class="backup-stat-number">Hace 2 horas</div>
-                    <small class="text-muted">Completado exitosamente</small>
+function viewBackupDetails(backupId) {
+    const details = {
+        'BK001': {
+            id: 'BK001',
+            date: '2026-03-08 04:00:00',
+            type: 'Automático',
+            size: '1.2 GB',
+            duration: '2m 34s',
+            tables: ['users', 'exercises', 'user_progress', 'notifications'],
+            compression: 'gzip',
+            checksum: 'a1b2c3d4e5f6'
+        },
+        'BK002': {
+            id: 'BK002',
+            date: '2026-03-07 04:00:00',
+            type: 'Automático',
+            size: '1.1 GB',
+            duration: '2m 12s',
+            tables: ['users', 'exercises', 'user_progress', 'notifications'],
+            compression: 'gzip',
+            checksum: 'f6e5d4c3b2a1'
+        },
+        'BK003': {
+            id: 'BK003',
+            date: '2026-03-06 14:30:00',
+            type: 'Manual',
+            size: '1.0 GB',
+            duration: '1m 45s',
+            tables: ['users', 'exercises', 'user_progress'],
+            compression: 'gzip',
+            checksum: 'c3d4e5f6a7b8'
+        },
+        'BK004': {
+            id: 'BK004',
+            date: '2026-03-05 04:00:00',
+            type: 'Programado',
+            size: '980 MB',
+            duration: '-',
+            tables: [],
+            compression: 'none',
+            error: 'Connection timeout after 30 seconds'
+        }
+    };
+    
+    const backup = details[backupId];
+    if (!backup) return;
+    
+    let content = `
+        <h6>Detalles del Backup ${backup.id}</h6>
+        <table class="table table-sm">
+            <tr><td><strong>ID:</strong></td><td>${backup.id}</td></tr>
+            <tr><td><strong>Fecha:</strong></td><td>${backup.date}</td></tr>
+            <tr><td><strong>Tipo:</strong></td><td>${backup.type}</td></tr>
+            <tr><td><strong>Tamaño:</strong></td><td>${backup.size}</td></tr>
+            <tr><td><strong>Duración:</strong></td><td>${backup.duration}</td></tr>
+            <tr><td><strong>Compresión:</strong></td><td>${backup.compression}</td></tr>
+            <tr><td><strong>Checksum:</strong></td><td><code>${backup.checksum}</code></td></tr>
+    `;
+    
+    if (backup.tables && backup.tables.length > 0) {
+        content += `<tr><td><strong>Tablas:</strong></td><td>${backup.tables.join(', ')}</td></tr>`;
+    }
+    
+    if (backup.error) {
+        content += `<tr><td><strong>Error:</strong></td><td><span class="text-danger">${backup.error}</span></td></tr>`;
+    }
+    
+    content += '</table>';
+    
+    // Show in modal
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles del Backup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="backup-card warning">
-                    <div class="backup-icon text-warning">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h6 class="text-muted">Próximo Respaldo</h6>
-                    <div class="backup-stat-number">En 22 horas</div>
-                    <small class="text-muted">Programado automáticamente</small>
+                <div class="modal-body">
+                    ${content}
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="backup-card">
-                    <div class="backup-icon text-primary">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <h6 class="text-muted">Total Respaldos</h6>
-                    <div class="backup-stat-number">47</div>
-                    <small class="text-muted">En los últimos 30 días</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="backup-card danger">
-                    <div class="backup-icon text-danger">
-                        <i class="fas fa-hdd"></i>
-                    </div>
-                    <h6 class="text-muted">Espacio Usado</h6>
-                    <div class="backup-stat-number">2.3 GB</div>
-                    <small class="text-muted">De 10 GB disponibles</small>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    modal.addEventListener('hidden.bs.modal', () => {
+        document.body.removeChild(modal);
+    });
+}
 
-        <!-- Quick Actions -->
-        <div class="backup-panel">
-            <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                <i class="fas fa-bolt text-primary me-2"></i>
-                Acciones Rápidas
-            </h5>
-            
-            <div class="row">
-                <div class="col-md-3">
-                    <button class="btn btn-primary action-btn w-100" onclick="createBackup('full')">
-                        <i class="fas fa-download me-2"></i>
-                        Respaldo Completo
-                    </button>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-success action-btn w-100" onclick="createBackup('database')">
-                        <i class="fas fa-database me-2"></i>
-                        Solo Base de Datos
-                    </button>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-info action-btn w-100" onclick="createBackup('files')">
-                        <i class="fas fa-file me-2"></i>
-                        Solo Archivos
-                    </button>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-warning action-btn w-100" onclick="restoreBackup()">
-                        <i class="fas fa-upload me-2"></i>
-                        Restaurar
-                    </button>
-                </div>
-            </div>
-        </div>
+function deleteBackup(backupId) {
+    if (!confirm(`¿Estás seguro de que quieres eliminar el backup ${backupId}? Esta acción no se puede deshacer.`)) {
+        return;
+    }
+    
+    AdminUtils.showLoading(event.target);
+    
+    setTimeout(() => {
+        AdminUtils.hideLoading(event.target);
+        AdminUtils.showNotification(`Backup ${backupId} eliminado exitosamente`, 'success');
+        refreshBackups();
+    }, 1500);
+}
 
-        <!-- Current Backup Progress -->
-        <div class="backup-panel" id="backupProgress" style="display: none;">
-            <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                <i class="fas fa-spinner fa-spin text-primary me-2"></i>
-                Progreso de Respaldo
-            </h5>
-            
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="text-center">
-                        <svg class="progress-ring" width="120" height="120">
-                            <circle class="progress-ring-circle"
-                                stroke="#e9ecef"
-                                stroke-width="8"
-                                fill="transparent"
-                                r="52"
-                                cx="60"
-                                cy="60"/>
-                            <circle class="progress-ring-circle"
-                                id="progressCircle"
-                                stroke="#2196f3"
-                                stroke-width="8"
-                                fill="transparent"
-                                r="52"
-                                cx="60"
-                                cy="60"
-                                stroke-dasharray="326.73"
-                                stroke-dashoffset="326.73"/>
-                        </svg>
-                        <h4 id="progressPercent">0%</h4>
-                        <p class="text-muted">Completado</p>
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="backup-stats">
-                        <div class="backup-stat">
-                            <div class="backup-stat-number" id="filesProcessed">0</div>
-                            <div class="backup-stat-label">Archivos Procesados</div>
-                        </div>
-                        <div class="backup-stat">
-                            <div class="backup-stat-number" id="dataSize">0 MB</div>
-                            <div class="backup-stat-label">Datos Procesados</div>
-                        </div>
-                        <div class="backup-stat">
-                            <div class="backup-stat-number" id="timeElapsed">0s</div>
-                            <div class="backup-stat-label">Tiempo Transcurrido</div>
-                        </div>
-                        <div class="backup-stat">
-                            <div class="backup-stat-number" id="estimatedTime">--</div>
-                            <div class="backup-stat-label">Tiempo Estimado</div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <h6>Archivos en proceso:</h6>
-                        <div id="currentFiles" class="text-muted">
-                            <small>Iniciando proceso de respaldo...</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+function filterBackups() {
+    const searchTerm = document.getElementById('backupSearch').value.toLowerCase();
+    const filterType = document.getElementById('backupFilter').value;
+    
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const matchesSearch = !searchTerm || text.includes(searchTerm);
+        const matchesFilter = !filterType || text.includes(filterType);
+        
+        row.style.display = matchesSearch && matchesFilter ? '' : 'none';
+    });
+}
+</script>
 
-        <!-- Backup Schedule -->
-        <div class="backup-panel">
-            <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                <i class="fas fa-calendar-alt text-primary me-2"></i>
-                Programación de Respaldos
-            </h5>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-4">
-                        <h6 style="color: #2c3e50; margin-bottom: 20px;">Configuración Automática</h6>
-                        
-                        <div class="schedule-item">
-                            <div>
-                                <strong>Respaldo Automático</strong>
-                                <br>
-                                <small class="text-muted">Crear respaldos programados</small>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="autoBackup" checked>
-                            </div>
-                        </div>
-                        
-                        <div class="schedule-item">
-                            <div>
-                                <strong>Frecuencia</strong>
-                                <br>
-                                <small class="text-muted">Cada cuánto tiempo respaldar</small>
-                            </div>
-                            <select class="form-select" style="width: 150px;">
-                                <option value="daily" selected>Diario</option>
-                                <option value="weekly">Semanal</option>
-                                <option value="monthly">Mensual</option>
-                            </select>
-                        </div>
-                        
-                        <div class="schedule-item">
-                            <div>
-                                <strong>Hora del Día</strong>
-                                <br>
-                                <small class="text-muted">Cuando ejecutar el respaldo</small>
-                            </div>
-                            <input type="time" class="form-control" style="width: 150px;" value="02:00">
-                        </div>
-                        
-                        <div class="schedule-item">
-                            <div>
-                                <strong>Retención</strong>
-                                <br>
-                                <small class="text-muted">Cuántos respaldos guardar</small>
-                            </div>
-                            <select class="form-select" style="width: 150px;">
-                                <option value="7">7 días</option>
-                                <option value="14">14 días</option>
-                                <option value="30" selected>30 días</option>
-                                <option value="90">90 días</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="mb-4">
-                        <h6 style="color: #2c3e50; margin-bottom: 20px;">Tipos de Respaldo</h6>
-                        
-                        <div class="schedule-item">
-                            <div>
-                                <strong>Base de Datos</strong>
-                                <br>
-                                <small class="text-muted">Incluir todos los datos</small>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="backupDatabase" checked>
-                            </div>
-                        </div>
-                        
-                        <div class="schedule-item">
-                            <div>
-                                <strong>Archivos del Sistema</strong>
-                                <br>
-                                <small class="text-muted">Configuración y archivos estáticos</small>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="backupFiles" checked>
-                            </div>
-                        </div>
-                        
-                        <div class="schedule-item">
-                            <div>
-                                <strong>Logs del Sistema</strong>
-                                <br>
-                                <small class="text-muted">Incluir archivos de log</small>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="backupLogs">
-                            </div>
-                        </div>
-                        
-                        <div class="schedule-item">
-                            <div>
-                                <strong>Compresión</strong>
-                                <br>
-                                <small class="text-muted">Comprimir archivos de respaldo</small>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="compressBackup" checked>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="d-flex gap-3">
-                <button class="btn btn-primary action-btn" onclick="saveSchedule()">
-                    <i class="fas fa-save me-2"></i>
-                    Guardar Configuración
-                </button>
-                <button class="btn btn-outline-success action-btn" onclick="testSchedule()">
-                    <i class="fas fa-play me-2"></i>
-                    Probar Programación
-                </button>
-            </div>
-        </div>
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+}
 
-        <!-- Backup History -->
-        <div class="backup-panel">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 style="color: #2c3e50;">
-                    <i class="fas fa-history text-primary me-2"></i>
-                    Historial de Respaldos
-                </h5>
-                <div>
-                    <button class="btn btn-sm btn-outline-primary me-2" onclick="refreshHistory()">
-                        <i class="fas fa-sync-alt"></i> Actualizar
-                    </button>
-                    <button class="btn btn-sm btn-outline-warning" onclick="cleanupBackups()">
-                        <i class="fas fa-broom"></i> Limpiar
-                    </button>
-                </div>
-            </div>
-            
-            <div class="backup-item">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>Respaldo Completo</strong>
-                        <br>
-                        <small class="text-muted">
-                            <i class="far fa-clock me-1"></i>
-                            2024-03-04 13:30:00 • 245 MB • Completado
-                        </small>
-                    </div>
-                    <div>
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-outline-primary" onclick="downloadBackup(1)" title="Descargar">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-info" onclick="viewDetails(1)" title="Ver detalles">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-success" onclick="restoreFromBackup(1)" title="Restaurar">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteBackup(1)" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="backup-item">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>Respaldo de Base de Datos</strong>
-                        <br>
-                        <small class="text-muted">
-                            <i class="far fa-clock me-1"></i>
-                            2024-03-04 02:00:00 • 89 MB • Completado
-                        </small>
-                    </div>
-                    <div>
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-outline-primary" onclick="downloadBackup(2)" title="Descargar">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-info" onclick="viewDetails(2)" title="Ver detalles">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-success" onclick="restoreFromBackup(2)" title="Restaurar">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteBackup(2)" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="backup-item">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>Respaldo Completo</strong>
-                        <br>
-                        <small class="text-muted">
-                            <i class="far fa-clock me-1"></i>
-                            2024-03-03 13:30:00 • 238 MB • Completado
-                        </small>
-                    </div>
-                    <div>
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-outline-primary" onclick="downloadBackup(3)" title="Descargar">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-info" onclick="viewDetails(3)" title="Ver detalles">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-success" onclick="restoreFromBackup(3)" title="Restaurar">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteBackup(3)" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="text-center mt-4">
-                <button class="btn btn-outline-primary" onclick="loadMoreBackups()">
-                    <i class="fas fa-chevron-down me-2"></i>
-                    Cargar Más
-                </button>
-            </div>
-        </div>
-    </div>
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+.table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5em 0.75em;
+}
+</style>
+{% endblock %}

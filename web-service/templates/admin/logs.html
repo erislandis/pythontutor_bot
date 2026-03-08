@@ -1,0 +1,420 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Logs - Panel Administrativo{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Logs del Sistema</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshLogs()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearLogs()">
+                <i class="bi bi-trash me-1"></i>Limpiar Logs
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="downloadLogs()">
+                <i class="bi bi-download me-1"></i>Descargar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Log Filters -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Filtros de Logs</h6>
+    </div>
+    <div class="card-body">
+        <form id="logFilterForm" class="row g-3">
+            <div class="col-md-3">
+                <label for="logLevel" class="form-label">Nivel de Log</label>
+                <select class="form-select" id="logLevel">
+                    <option value="">Todos los niveles</option>
+                    <option value="DEBUG">Debug</option>
+                    <option value="INFO">Info</option>
+                    <option value="WARNING">Warning</option>
+                    <option value="ERROR">Error</option>
+                    <option value="CRITICAL">Critical</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="logSource" class="form-label">Fuente</label>
+                <select class="form-select" id="logSource">
+                    <option value="">Todas las fuentes</option>
+                    <option value="app">Aplicación</option>
+                    <option value="bot">Bot</option>
+                    <option value="database">Base de Datos</option>
+                    <option value="auth">Autenticación</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="logSearch" class="form-label">Buscar</label>
+                <input type="text" class="form-control" id="logSearch" placeholder="Buscar en logs...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel me-1"></i>Filtrar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Log Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Logs
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-file-text fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Errores Hoy
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Advertencias
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-exclamation-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Logs Última Hora
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logs Display -->
+<div class="card shadow">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Logs del Sistema</h6>
+        <div class="d-flex align-items-center">
+            <span class="badge bg-info me-2" id="logCount">0 logs</span>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                <label class="form-check-label" for="autoRefresh">Auto-refresh</label>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="log-container" id="logContainer">
+            <!-- Logs will be loaded here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let autoRefreshInterval;
+let logsData = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadLogs();
+    
+    // Form submission
+    document.getElementById('logFilterForm').addEventListener('submit', applyFilters);
+    
+    // Auto-refresh toggle
+    document.getElementById('autoRefresh').addEventListener('change', toggleAutoRefresh);
+    
+    // Start auto-refresh
+    startAutoRefresh();
+});
+
+function loadLogs() {
+    // Simulate loading logs (in real implementation, this would fetch from API)
+    logsData = generateMockLogs();
+    displayLogs(logsData);
+}
+
+function generateMockLogs() {
+    // In production, this would fetch from API
+    return [];
+}
+
+function displayLogs(logs) {
+    const container = document.getElementById('logContainer');
+    
+    if (logs.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-inbox display-4"></i>
+                <p class="mt-2">No se encontraron logs</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = logs.map(log => `
+        <div class="log-item ${log.level.toLowerCase()}" data-log-id="${log.id}">
+            <div class="d-flex align-items-start">
+                <div class="log-timestamp me-3">
+                    <small class="text-muted">${formatTimestamp(log.timestamp)}</small>
+                </div>
+                <div class="log-level me-2">
+                    <span class="badge bg-${getLevelColor(log.level)}">${log.level}</span>
+                </div>
+                <div class="log-source me-2">
+                    <span class="badge bg-secondary">${log.source}</span>
+                </div>
+                <div class="log-message flex-grow-1">
+                    <code>${log.message}</code>
+                    ${log.user ? `<span class="ms-2 text-muted">(@${log.user})</span>` : ''}
+                    ${log.ip ? `<span class="ms-2 text-muted">[${log.ip}]</span>` : ''}
+                </div>
+                <div class="log-actions ms-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="viewLogDetails(${log.id})">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    document.getElementById('logCount').textContent = `${logs.length} logs`;
+}
+
+function getLevelColor(level) {
+    const colors = {
+        'DEBUG': 'info',
+        'INFO': 'primary',
+        'WARNING': 'warning',
+        'ERROR': 'danger',
+        'CRITICAL': 'dark'
+    };
+    return colors[level] || 'secondary';
+}
+
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
+
+function applyFilters(e) {
+    e.preventDefault();
+    
+    const level = document.getElementById('logLevel').value;
+    const source = document.getElementById('logSource').value;
+    const search = document.getElementById('logSearch').value.toLowerCase();
+    
+    let filtered = [...logsData];
+    
+    if (level) {
+        filtered = filtered.filter(log => log.level === level);
+    }
+    
+    if (source) {
+        filtered = filtered.filter(log => log.source === source);
+    }
+    
+    if (search) {
+        filtered = filtered.filter(log => 
+            log.message.toLowerCase().includes(search) ||
+            (log.user && log.user.toLowerCase().includes(search))
+        );
+    }
+    
+    displayLogs(filtered);
+    showAlert('info', `Se encontraron ${filtered.length} logs`);
+}
+
+function refreshLogs() {
+    loadLogs();
+    showAlert('info', 'Logs actualizados');
+}
+
+function clearLogs() {
+    if (!confirm('¿Estás seguro de que quieres limpiar todos los logs? Esta acción no se puede deshacer.')) {
+        return;
+    }
+    
+    logsData = [];
+    displayLogs([]);
+    showAlert('warning', 'Logs limpiados');
+}
+
+function downloadLogs() {
+    const csvContent = logsData.map(log => 
+        `${log.timestamp},${log.level},${log.source},${log.message},${log.user || ''},${log.ip || ''}`
+    ).join('\n');
+    
+    const blob = new Blob([`Timestamp,Level,Source,Message,User,IP\n${csvContent}`], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `logs_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showAlert('success', 'Logs descargados');
+}
+
+function viewLogDetails(logId) {
+    const log = logsData.find(l => l.id === logId);
+    if (!log) return;
+    
+    alert(`
+        ID: ${log.id}
+        Timestamp: ${formatTimestamp(log.timestamp)}
+        Level: ${log.level}
+        Source: ${log.source}
+        Message: ${log.message}
+        User: ${log.user || 'N/A'}
+        IP: ${log.ip || 'N/A'}
+    `);
+}
+
+function toggleAutoRefresh() {
+    const isEnabled = document.getElementById('autoRefresh').checked;
+    
+    if (isEnabled) {
+        startAutoRefresh();
+    } else {
+        stopAutoRefresh();
+    }
+}
+
+function startAutoRefresh() {
+    autoRefreshInterval = setInterval(() => {
+        loadLogs();
+    }, 30000); // Refresh every 30 seconds
+}
+
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', stopAutoRefresh);
+</script>
+
+<style>
+.log-container {
+    max-height: 600px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+.log-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e3e6f0;
+    transition: all 0.3s ease;
+}
+
+.log-item:hover {
+    background-color: #f8f9fc;
+}
+
+.log-item.error {
+    background-color: #fff5f5;
+    border-left: 4px solid #dc3545;
+}
+
+.log-item.warning {
+    background-color: #fffbf0;
+    border-left: 4px solid #ffc107;
+}
+
+.log-item.critical {
+    background-color: #f0f0f0;
+    border-left: 4px solid #212529;
+}
+
+.log-timestamp {
+    min-width: 150px;
+    font-size: 0.8rem;
+}
+
+.log-level .badge,
+.log-source .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.log-message {
+    word-break: break-all;
+}
+
+.log-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.log-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.log-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+</style>
+{% endblock %}

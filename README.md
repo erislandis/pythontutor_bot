@@ -1,250 +1,277 @@
-# PythonTutor - Multi Services Architecture for Render
+# 🐍 Python Tutor Bot
 
-Sistema de aprendizaje de Python con bot de Telegram y panel web, desplegado como múltiples servicios independientes en Render.
+Un bot educativo de Telegram para aprender Python con sistema de progresión, ejercicios interactivos y panel de administración web.
 
-## 🏗️ Arquitectura de Servicios
+## 📋 Tabla de Contenidos
 
-Este repositorio está estructurado para desplegar dos servicios independientes en Render:
+- [🎯 Características](#características)
+- [🏗️ Arquitectura](#arquitectura)
+- [🚀 Inicio Rápido](#inicio-rápido)
+- [📋 Prerrequisitos](#prerrequisitos)
+- [🔧 Configuración del Entorno](#configuración-del-entorno)
+- [📁 Estructura del Proyecto](#estructura-del-proyecto)
+- [🚀 Despliegue](#despliegue)
+- [🤝 Contribuir](#contribuir)
+- [📄 Licencia](#licencia)
 
-### 🌐 Web Service (pythontutor-web)
-- **Ubicación**: `web-service/`
-- **Propósito**: Páginas web públicas, panel de administración, API endpoints
-- **Tecnologías**: Flask, Supabase, Gunicorn, CORS
-- **Tipo**: Web Service en Render
-- **URL**: `https://pythontutor-web.onrender.com`
+## 🎯 Características
 
-### 🤖 Bot Service (pythontutor-bot)
-- **Ubicación**: `bot-service/`
-- **Propósito**: Bot de Telegram interactivo para aprendizaje
-- **Tecnologías**: python-telegram-bot, Supabase, requests
-- **Tipo**: Worker Service en Render
-- **Bot**: @pythonpersonaltutor_bot
+### 🤖 Características del Bot
+- **Sistema de Aprendizaje**: Modos de aprendizaje y práctica con ejercicios interactivos
+- **Sistema de Progresión**: Niveles (principiante → intermedio → avanzado → experto)
+- **Sistema de XP**: Puntos de experiencia y rachas de aprendizaje
+- **Estadísticas**: Seguimiento del progreso y rankings
+- **Control de Estado**: Modos de mantenimiento, pausa, reinicio
 
-## 📁 Estructura del Repositorio
+### 🌐 Características Web
+- **Panel de Administración**: Control completo del bot desde interfaz web
+- **Gestión de Usuarios**: Ver y administrar usuarios registrados
+- **Estadísticas en Tiempo Real**: Monitoreo del estado del bot
+- **Control de Acceso**: Bloquear/desbloquear registro de usuarios
+- **Base de Datos**: Integración con Supabase para persistencia
+
+## 🏗️ Arquitectura
 
 ```
 Python_Tutor_Bot/
-├── web-service/           # Servicio web completo
-│   ├── app.py            # Flask application con API endpoints
-│   ├── requirements.txt  # Dependencias: Flask, CORS, Supabase
-│   ├── static/          # CSS y JavaScript
-│   │   ├── css/
-│   │   └── js/
-│   └── templates/       # Plantillas HTML
-│       ├── public/      # Páginas públicas
-│       └── auth/        # Panel de administración
-├── bot-service/          # Servicio bot completo
-│   ├── bot.py           # Telegram bot con API calls
-│   └── requirements.txt # Dependencias: python-telegram-bot, requests
-├── render.yaml          # Configuración multi-servicio para Render
-├── .env.example         # Ejemplo de variables de entorno
-└── README.md            # Este archivo
+├── 📱 bot-service/          # Servicio del bot Telegram
+│   ├── bot.py              # Lógica principal del bot
+│   ├── requirements.txt    # Dependencias Python
+│   └── render-bot.yaml    # Configuración Render
+├── 🌐 web-service/         # Servicio web de administración
+│   ├── app.py             # Aplicación Flask
+│   ├── templates/         # Plantillas HTML
+│   ├── static/           # Archivos estáticos
+│   └── requirements.txt  # Dependencias Python
+├── 🧪 test_*.py           # Scripts de prueba
+├── 📄 render.yaml         # Configuración Render general
+└── 📚 README.md           # Este archivo
 ```
 
-## 🚀 Despliegue en Render
+### Flujo de Arquitectura
+```
+Usuario Telegram → Bot Service → Web Service API → Supabase Database
+     ↑                    ↑              ↑
+  Comandos          Health Check    Panel Admin
+```
 
-### 1. Preparar Repositorio
+## 🚀 Inicio Rápido
+
+### 1. Clonar el Repositorio
 ```bash
-# Clonar repositorio
 git clone <repository-url>
 cd Python_Tutor_Bot
-
-# Verificar estructura
-ls web-service/
-ls bot-service/
 ```
 
-### 2. Conectar a Render
-1. Crear cuenta en [Render](https://render.com)
-2. Conectar este repositorio a Render
-3. Render detectará automáticamente los dos servicios desde `render.yaml`
+### 2. Configurar Supabase
+1. Crear un nuevo proyecto en [Supabase](https://supabase.com)
+2. Ejecutar el script SQL para crear las tablas necesarias
+3. Obtener las credenciales (URL y Key)
 
-### 3. Configurar Variables de Entorno
+### 3. Configurar Bot Telegram
+1. Hablar con [@BotFather](https://t.me/BotFather) en Telegram
+2. Crear un nuevo bot con `/newbot`
+3. Obtener el token del bot
 
-#### Web Service (pythontutor-web)
+### 4. Configurar Variables de Entorno
 ```bash
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your_supabase_anon_key
-SECRET_KEY=your_secret_key_here
-FLASK_ENV=production
-SESSION_COOKIE_SECURE=true
-```
-
-#### Bot Service (pythontutor-bot)
-```bash
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your_supabase_anon_key
-TELEGRAM_BOT_TOKEN=your_bot_token_here
-WEB_API_URL=https://pythontutor-web.onrender.com
-```
-
-### 4. Despliegue Automático
-- Render construirá ambos servicios independientemente
-- **Web service**: Disponible en su URL asignada
-- **Bot service**: Se ejecuta como worker process 24/7
-
-## 🔄 Comunicación entre Servicios
-
-El bot consume la API del web service a través de endpoints específicos:
-
-### API Endpoints Disponibles
-```python
-# Gestión de Usuarios
-GET  /api/user/<telegram_id>              # Obtener datos de usuario
-POST /api/user                            # Crear nuevo usuario
-
-# Ejercicios
-GET  /api/exercises/<level>               # Obtener ejercicios por nivel
-
-# Progreso
-POST /api/user/progress                   # Actualizar progreso
-GET  /api/user/progress/<telegram_id>/<level>  # Progreso por nivel
-
-# Estadísticas
-GET  /api/user/stats/<telegram_id>        # Estadísticas completas
-POST /api/user/streak/<telegram_id>       # Actualizar racha
-```
-
-## 🛠️ Desarrollo Local
-
-### 1. Configurar Entorno
-```bash
-# Instalar dependencias del web service
-cd web-service
-pip install -r requirements.txt
-
-# Instalar dependencias del bot service
-cd ../bot-service
-pip install -r requirements.txt
-```
-
-### 2. Configurar Variables
-```bash
-# Copiar archivo de ejemplo
+# Copiar archivos de ejemplo
 cp .env.example .env
 
-# Editar con tus variables
+# Editar variables
 nano .env
 ```
 
-### 3. Ejecutar Servicios
+### 5. Iniciar Servicios
+```bash
+# Servicio Web (Terminal 1)
+cd web-service
+pip install -r requirements.txt
+python app.py
+
+# Servicio Bot (Terminal 2)
+cd bot-service
+pip install -r requirements.txt
+python bot.py
+```
+
+## 📋 Prerrequisitos
+
+### 🔧 Software Requerido
+- **Python 3.8+**: Versión mínima de Python
+- **pip**: Gestor de paquetes de Python
+- **Git**: Control de versiones
+- **Cuenta Supabase**: Base de datos y backend
+- **Bot Telegram**: Token de bot activo
+
+### 🌐 Servicios Externos
+- **Supabase**: Base de datos PostgreSQL y autenticación
+- **Telegram API**: Para el funcionamiento del bot
+
+## 🔧 Configuración del Entorno
+
+### Variables de Entorno - Servicio Web
+```bash
+# web-service/.env
+SECRET_KEY=tu_clave_secreta_aqui
+SUPABASE_URL=tu_url_de_supabase
+SUPABASE_KEY=tu_key_de_supabase
+BOT_SERVICE_URL=http://localhost:10001
+FLASK_ENV=development
+```
+
+### Variables de Entorno - Servicio Bot
+```bash
+# bot-service/.env
+TELEGRAM_BOT_TOKEN=tu_token_de_bot_aqui
+WEB_API_URL=http://localhost:5000
+SUPABASE_URL=tu_url_de_supabase
+SUPABASE_KEY=tu_key_de_supabase
+PORT=10001
+```
+
+### Configuración de Base de Datos
+Ejecutar este script SQL en tu proyecto Supabase:
+
+```sql
+-- Tabla de usuarios
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    telegram_id INTEGER UNIQUE NOT NULL,
+    username TEXT,
+    first_name TEXT,
+    last_name TEXT,
+    current_level TEXT DEFAULT 'principiante',
+    level_progress INTEGER DEFAULT 0,
+    total_exercises_completed INTEGER DEFAULT 0,
+    current_streak INTEGER DEFAULT 0,
+    longest_streak INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW(),
+    last_activity TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabla de ejercicios
+CREATE TABLE exercises (
+    id SERIAL PRIMARY KEY,
+    level TEXT NOT NULL,
+    question TEXT NOT NULL,
+    options TEXT[],
+    correct_answer INTEGER NOT NULL,
+    explanation TEXT,
+    difficulty INTEGER DEFAULT 1,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabla de estado del bot
+CREATE TABLE bot_status (
+    id SERIAL PRIMARY KEY,
+    status TEXT NOT NULL CHECK (status IN ('active', 'inactive', 'paused', 'stopped', 'maintenance', 'restarting')),
+    last_updated TIMESTAMP DEFAULT NOW(),
+    updated_by TEXT,
+    message TEXT
+);
+```
+
+## 📁 Estructura del Proyecto
+
+### 📱 Bot Service (`bot-service/`)
+- **`bot.py`**: Lógica principal del bot Telegram
+- **`requirements.txt`**: Dependencias del servicio bot
+- **`render-bot.yaml`**: Configuración para despliegue en Render
+
+### 🌐 Web Service (`web-service/`)
+- **`app.py`**: Aplicación Flask principal
+- **`templates/`**: Plantillas HTML del panel de administración
+- **`static/`**: CSS, JS y otros archivos estáticos
+- **`requirements.txt`**: Dependencias del servicio web
+
+### 🧪 Tests
+- **`test_bot_control.py`**: Pruebas del sistema de control del bot
+- **`test_user_registration.py`**: Pruebas de registro de usuarios
+
+## 🚀 Despliegue
+
+### 🏠 Desarrollo Local
 ```bash
 # Terminal 1 - Web Service
 cd web-service
 python app.py
-# http://localhost:5000
 
-# Terminal 2 - Bot Service
+# Terminal 2 - Bot Service  
 cd bot-service
 python bot.py
-# Bot activo en Telegram
 ```
 
-## 📊 Funcionalidades Implementadas
+### ☁️ Render (Recomendado)
+1. **Web Service**:
+   - Conectar repositorio a Render
+   - Configurar `web-service` como directorio raíz
+   - Establecer comando de inicio: `python app.py`
+   - Configurar variables de entorno
 
-### Web Service
-- **Páginas Públicas**: Inicio, Acerca de con enlaces al bot
-- **Panel Admin**: Login, gestión de ejercicios CRUD, subida masiva
-- **API REST**: Endpoints completos para el bot
-- **CORS**: Configurado para comunicación con el bot
+2. **Bot Service**:
+   - Crear nuevo servicio en Render
+   - Configurar `bot-service` como directorio raíz
+   - Establecer comando de inicio: `python bot.py`
+   - Configurar variables de entorno
 
-### Bot Service
-- **Comandos Completos**: /start, /help, /level, /exercise, /progress, /stats, /about
-- **Niveles de Aprendizaje**: Principiante, Intermedio, Avanzado, Experto
-- **Ejercicios Interactivos**: 1200+ ejercicios con opción múltiple
-- **Estadísticas Reales**: Progreso por nivel, racha, porcentaje de completion
-- **Manejo de Errores**: Reintentos automáticos, logging detallado
+### 🐳 Docker (Opcional)
+```dockerfile
+# Dockerfile para Web Service
+FROM python:3.9-slim
+WORKDIR /app
+COPY web-service/ .
+RUN pip install -r requirements.txt
+EXPOSE 5000
+CMD ["python", "app.py"]
+```
 
-## 🌟 Características Técnicas
+## 🤝 Contribuir
 
-### Base de Datos Compartida
-- **Supabase**: Ambos servicios comparten la misma base de datos
-- **Tablas**: users, exercises, user_progress, admin_users
-- **Consistencia**: Manejo de concurrencia apropiado
+### 📝 Cómo Contribuir
+1. **Fork** el repositorio
+2. **Crear** una rama (`git checkout -b feature/nueva-funcionalidad`)
+3. **Commit** los cambios (`git commit -m 'Agregar nueva funcionalidad'`)
+4. **Push** a la rama (`git push origin feature/nueva-funcionalidad`)
+5. **Abrir** un Pull Request
 
-### Comunicación API
-- **HTTP/HTTPS**: Requests estándar entre servicios
-- **Timeout**: 10 segundos para todas las peticiones
-- **Manejo de Errores**: Reintentos y fallbacks
-- **Logging**: Detallado para debugging
+### 🎯 Directrices de Contribución
+- Seguir el estilo de código existente
+- Agregar pruebas para nuevas funcionalidades
+- Actualizar la documentación
+- Respetar las convenciones de commit
 
-### Seguridad
-- **CORS**: Configurado para permitir peticiones del bot
-- **Variables de Entorno**: Separadas por servicio
-- **Tokens**: Bot token y Supabase keys seguros
+### 🐛 Reportar Issues
+- Usar plantillas de issues
+- Proporcionar información detallada
+- Incluir pasos para reproducir
+- Adjuntar capturas de pantalla si aplica
 
-## 📈 Monitoreo y Mantenimiento
+## 📄 Licencia
 
-### Logs por Servicio
-- **Web Service**: Logs de Flask, API, errores HTTP
-- **Bot Service**: Logs de Telegram, comunicación API, errores
+Este proyecto está licenciado bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
 
-### Métricas Independientes
-- **Web**: Tráfico, rendimiento, endpoints más usados
-- **Bot**: Usuarios activos, comandos ejecutados, errores API
+## 📞 Soporte
 
-### Escalabilidad
-- **Independiente**: Cada servicio puede escalar separadamente
-- **Recursos**: Memoria y CPU dedicados por servicio
-- **Costos**: Facturación independiente
+### 🆘 Ayuda
+- **Issues**: Reportar problemas en GitHub Issues
+- **Discusiones**: Participar en GitHub Discussions
+- **Email**: Contactar al mantenedor del proyecto
 
-## 🚨 Troubleshooting
+### 📚 Recursos
+- [Documentación de Telegram Bot API](https://core.telegram.org/bots/api)
+- [Documentación de Supabase](https://supabase.com/docs)
+- [Documentación de Flask](https://flask.palletsprojects.com/)
 
-### Problemas Comunes
+## 🏆 Créditos
 
-#### Bot no responde
-1. Verificar que el web service esté online
-2. Checar variables de entorno del bot
-3. Revisar logs del bot service en Render
-4. Verificar URL del web service
-
-#### Web service lento
-1. Optimizar queries a Supabase
-2. Implementar caching si es necesario
-3. Escalar a plan superior de Render
-
-#### Error de conexión entre servicios
-1. Verificar URL del web service en variables del bot
-2. Checar configuración CORS
-3. Validar que ambos servicios estén running
-
-### Debugging en Render
-1. **Logs**: Acceder a logs de cada servicio en dashboard
-2. **Environment**: Verificar variables de entorno configuradas
-3. **Status**: Revisar estado de los servicios
-4. **Metrics**: Analizar métricas de rendimiento
-
-## 🔄 Actualizaciones y Despliegue
-
-### Para Actualizar el Sistema
-1. Hacer cambios en el código local
-2. Commit y push al repositorio
-3. Render detectará cambios y actualizará ambos servicios
-4. Verificar funcionamiento en producción
-
-### Rollback
-1. Identificar el commit problemático
-2. Revertir cambios localmente
-3. Push al repositorio
-4. Render actualizará automáticamente
-
-## 📞 Soporte y Contribuciones
-
-### Para Issues o Problemas
-1. Revisar logs del servicio afectado
-2. Consultar esta documentación
-3. Verificar configuración de variables
-4. Crear issue en el repositorio
-
-### Contribuciones
-1. Fork del repositorio
-2. Crear branch para cambios
-3. Testing local de ambos servicios
-4. Pull request con descripción detallada
+- **Desarrollador Principal**: [Tu Nombre]
+- **Contribuidores**: Gracias a todos los que contribuyen
+- **Inspiración**: Sistemas de aprendizaje gamificado
 
 ---
 
-**Desarrollado con ❤️ para la comunidad de aprendizaje de Python**
-
-**Bot**: [@pythonpersonaltutor_bot](https://t.me/pythonpersonaltutor_bot)  
-**Web**: [PythonTutor Web](https://pythontutor-web.onrender.com)
+<div align="center">
+  <p>🤖 Hecho con ❤️ para la comunidad de aprendizaje de Python</p>
+  <p>⭐ Si te gusta el proyecto, ¡no olvides darle una estrella!</p>
+</div>

@@ -1,482 +1,1025 @@
-{% extends "admin_base_new.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}Gestión de Ejercicios - Panel Admin{% endblock %}
+{% block title %}Gestión de Ejercicios - Panel Administrativo{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Gestión de Ejercicios</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshExercises()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+            </button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-download me-1"></i>Exportar
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="exportExercises('json')">
+                        <i class="bi bi-file-earmark-text me-2"></i>Exportar como JSON
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="exportExercises('csv')">
+                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>Exportar como CSV
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#importModal">
+                <i class="bi bi-upload me-1"></i>Importar
+            </button>
+            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#exerciseModal" onclick="openExerciseModal()">
+                <i class="bi bi-plus-circle me-1"></i>Nuevo Ejercicio
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
-    <!-- Professional Header -->
-    <div class="page-header">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="mb-0">
-                        <i class="fas fa-book me-3"></i>
-                        Gestión de Ejercicios
-                    </h1>
-                    <p class="mb-0 opacity-75">Administrar todos los ejercicios del sistema</p>
+<!-- Filters and Search -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Filtros y Búsqueda</h6>
+    </div>
+    <div class="card-body">
+        <form id="filterForm" class="row g-3">
+            <div class="col-md-4">
+                <label for="searchInput" class="form-label">Buscar por pregunta</label>
+                <input type="text" class="form-control" id="searchInput" placeholder="Buscar en preguntas...">
+            </div>
+            <div class="col-md-3">
+                <label for="levelFilter" class="form-label">Nivel</label>
+                <select class="form-select" id="levelFilter">
+                    <option value="todos">Todos los niveles</option>
+                    <option value="principiante">Principiante</option>
+                    <option value="intermedio">Intermedio</option>
+                    <option value="avanzado">Avanzado</option>
+                    <option value="experto">Experto</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="sortBy" class="form-label">Ordenar por</label>
+                <select class="form-select" id="sortBy">
+                    <option value="created_at">Fecha de creación</option>
+                    <option value="level">Nivel</option>
+                    <option value="question">Pregunta</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel me-1"></i>Filtrar
+                    </button>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <div class="d-flex align-items-center justify-content-md-end">
-                        <div class="me-3">
-                            <small class="d-block text-white-50">Usuario actual</small>
-                            <strong>{{ current_user.username }}</strong>
-                        </div>
-                        <div class="status-indicator">
-                            <span class="badge bg-success">
-                                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
-                                En línea
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Exercises Table -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Lista de Ejercicios</h6>
+        <span class="badge bg-info" id="exerciseCount">{{ exercises|length }} ejercicios</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="exercisesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Pregunta</th>
+                        <th>Nivel</th>
+                        <th>Respuesta Correcta</th>
+                        <th>Fecha Creación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exercise in exercises %}
+                    <tr data-exercise-id="{{ exercise.id }}">
+                        <td>{{ exercise.id }}</td>
+                        <td>
+                            <div class="question-text" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                {{ exercise.question[:100] }}{% if exercise.question|length > 100 %}...{% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if exercise.level == 'principiante' %}success{% elif exercise.level == 'intermedio' %}info{% elif exercise.level == 'avanzado' %}warning{% else %}danger{% endif %}">
+                                {{ exercise.level.title() }}
                             </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Professional Statistics Cards -->
-    <div class="container-fluid mb-4">
-        <div class="row g-4">
-            <!-- Total Exercises Card -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card stat-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-primary bg-gradient text-white">
-                                <i class="fas fa-book"></i>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="text-muted mb-1">Total Ejercicios</h6>
-                                <div class="stat-number text-primary" id="total-exercises">{{ stats.total or 0 }}</div>
-                                <small class="text-muted">Ejercicios en el sistema</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Published Exercises Card -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card stat-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-success bg-gradient text-white">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="text-muted mb-1">Publicados</h6>
-                                <div class="stat-number text-success" id="published-exercises">{{ stats.published or 0 }}</div>
-                                <small class="text-muted">Ejercicios publicados</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Draft Exercises Card -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card stat-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-warning bg-gradient text-white">
-                                <i class="fas fa-edit"></i>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="text-muted mb-1">Borradores</h6>
-                                <div class="stat-number text-warning" id="draft-exercises">{{ stats.draft or 0 }}</div>
-                                <small class="text-muted">Ejercicios en borrador</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Recent Exercises Card -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card stat-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-info bg-gradient text-white">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="text-muted mb-1">Recientes</h6>
-                                <div class="stat-number text-info" id="recent-exercises">{{ stats.recent or 0 }}</div>
-                                <small class="text-muted">Últimos 7 días</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Dashboard Content -->
-    <div class="container-fluid">
-        <div class="row g-4">
-            <!-- Exercises Table Section -->
-            <div class="col-12">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                            <h5 class="mb-0">
-                                <i class="fas fa-book text-primary me-2"></i>
-                                Lista de Ejercicios
-                            </h5>
-                            <div class="d-flex align-items-center">
-                                <span class="text-muted me-3" id="exercises-count">
-                                    Mostrando <span id="showing-count">0</span> de <span id="total-count">0</span> ejercicios
-                                </span>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExerciseModal">
-                                    <i class="fas fa-plus me-1"></i> Nuevo Ejercicio
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">Opción {{ exercise.correct_answer }}</span>
+                        </td>
+                        <td>{{ exercise.created_at.strftime('%d/%m/%Y') if exercise.created_at else 'N/A' }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-primary" onclick="viewExercise('{{ exercise.id }}')" title="Ver">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-warning" onclick="editExercise('{{ exercise.id }}')" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" onclick="deleteExercise('{{ exercise.id }}')" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <!-- Filter Controls -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-lg-4 col-md-6">
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-search"></i>
-                                    </span>
-                                    <input type="text" class="form-control" id="search-input" 
-                                           placeholder="Buscar por título o descripción...">
-                                </div>
-                            </div>
-                            <div class="col-lg-2 col-md-3">
-                                <select class="form-select" id="level-filter">
-                                    <option value="all">Todos los niveles</option>
-                                    <option value="basic">Básico</option>
-                                    <option value="intermediate">Intermedio</option>
-                                    <option value="advanced">Avanzado</option>
-                                </select>
-                            </div>
-                            <div class="col-lg-2 col-md-3">
-                                <select class="form-select" id="status-filter">
-                                    <option value="all">Todos los estados</option>
-                                    <option value="published">Publicados</option>
-                                    <option value="draft">Borradores</option>
-                                </select>
-                            </div>
-                            <div class="col-lg-4 col-md-12">
-                                <div class="d-flex gap-2 justify-content-end flex-wrap">
-                                    <button class="btn btn-outline-secondary" id="refresh-btn">
-                                        <i class="fas fa-sync-alt me-1"></i> Actualizar
-                                    </button>
-                                    <button class="btn btn-success" id="export-btn">
-                                        <i class="fas fa-download me-1"></i> Exportar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Loading State -->
-                        <div id="loading-state" class="text-center py-5" style="display: none;">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Cargando...</span>
-                            </div>
-                            <p class="mt-3 text-muted">Cargando ejercicios...</p>
-                        </div>
-                        
-                        <!-- Exercises Table -->
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="exercises-table">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>
-                                            <i class="fas fa-hashtag me-1"></i>
-                                            ID
-                                        </th>
-                                        <th>
-                                            <i class="fas fa-book me-1"></i>
-                                            Título
-                                        </th>
-                                        <th>
-                                            <i class="fas fa-layer-group me-1"></i>
-                                            Nivel
-                                        </th>
-                                        <th>
-                                            <i class="fas fa-eye me-1"></i>
-                                            Estado
-                                        </th>
-                                        <th>
-                                            <i class="fas fa-calendar me-1"></i>
-                                            Fecha
-                                        </th>
-                                        <th>
-                                            <i class="fas fa-cog me-1"></i>
-                                            Acciones
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="exercises-tbody">
-                                    <!-- Exercises will be loaded here -->
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Pagination -->
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <div>
-                                <small class="text-muted">
-                                    Página <span id="current-page">1</span> de <span id="total-pages">1</span>
-                                </small>
-                            </div>
-                            <nav>
-                                <ul class="pagination mb-0" id="pagination">
-                                    <!-- Pagination will be loaded here -->
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            <i class="bi bi-inbox display-4"></i>
+                            <p class="mt-2">No se encontraron ejercicios</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
-    <!-- Add Exercise Modal -->
-    <div class="modal fade" id="addExerciseModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-plus me-2"></i>
-                        Nuevo Ejercicio
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+<!-- Exercise Modal -->
+<div class="modal fade" id="exerciseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Nuevo Ejercicio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="exerciseForm">
                 <div class="modal-body">
-                    <form id="addExerciseForm">
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <label for="title" class="form-label">Título del Ejercicio</label>
-                                <input type="text" class="form-control" id="title" required>
+                    <div class="mb-3">
+                        <label for="exerciseQuestion" class="form-label">Pregunta *</label>
+                        <textarea class="form-control" id="exerciseQuestion" rows="3" required placeholder="Escribe la pregunta del ejercicio..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="exerciseLevel" class="form-label">Nivel *</label>
+                        <select class="form-select" id="exerciseLevel" required>
+                            <option value="">Selecciona un nivel</option>
+                            <option value="principiante">Principiante</option>
+                            <option value="intermedio">Intermedio</option>
+                            <option value="avanzado">Avanzado</option>
+                            <option value="experto">Experto</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Opciones de Respuesta *</label>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">A</span>
+                                    <input type="text" class="form-control option-input" id="option1" required placeholder="Opción A">
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label for="level" class="form-label">Nivel</label>
-                                <select class="form-select" id="level" required>
-                                    <option value="">Seleccionar nivel</option>
-                                    <option value="basic">Básico</option>
-                                    <option value="intermediate">Intermedio</option>
-                                    <option value="advanced">Avanzado</option>
-                                </select>
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">B</span>
+                                    <input type="text" class="form-control option-input" id="option2" required placeholder="Opción B">
+                                </div>
                             </div>
-                            <div class="col-12">
-                                <label for="description" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="description" rows="3" required></textarea>
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">C</span>
+                                    <input type="text" class="form-control option-input" id="option3" required placeholder="Opción C">
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="difficulty" class="form-label">Dificultad</label>
-                                <select class="form-select" id="difficulty">
-                                    <option value="easy">Fácil</option>
-                                    <option value="medium">Medio</option>
-                                    <option value="hard">Difícil</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="status" class="form-label">Estado</label>
-                                <select class="form-select" id="status">
-                                    <option value="draft">Borrador</option>
-                                    <option value="published">Publicado</option>
-                                </select>
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text">D</span>
+                                    <input type="text" class="form-control option-input" id="option4" required placeholder="Opción D">
+                                </div>
                             </div>
                         </div>
-                    </form>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="correctAnswer" class="form-label">Respuesta Correcta *</label>
+                        <select class="form-select" id="correctAnswer" required>
+                            <option value="">Selecciona la respuesta correcta</option>
+                            <option value="1">Opción A</option>
+                            <option value="2">Opción B</option>
+                            <option value="3">Opción C</option>
+                            <option value="4">Opción D</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="exerciseExplanation" class="form-label">Explicación</label>
+                        <textarea class="form-control" id="exerciseExplanation" rows="3" placeholder="Explica por qué esta respuesta es correcta (opcional)..."></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
+                    <input type="hidden" id="exerciseId">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="saveExercise()">Guardar Ejercicio</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>Guardar Ejercicio
+                    </button>
                 </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Exercise Modal -->
+<div class="modal fade" id="viewExerciseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ver Ejercicio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="viewExerciseContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal fade" id="importModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Importar Ejercicios</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Selecciona un archivo JSON para importar ejercicios</h6>
+                    <p class="text-muted small">El archivo debe contener un array de ejercicios en el formato especificado.</p>
+                </div>
+                
+                <!-- File Upload Area -->
+                <div class="mb-3" id="fileUploadArea">
+                    <div class="border border-2 border-dashed rounded p-4 text-center" 
+                         ondrop="handleDrop(event)" 
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)">
+                        <i class="bi bi-cloud-upload display-4 text-muted"></i>
+                        <p class="mt-2 mb-2">Arrastra un archivo JSON aquí o haz clic para seleccionar</p>
+                        <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleFileSelect(event)">
+                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('importFileInput').click()">
+                            <i class="bi bi-folder-open me-1"></i>Seleccionar Archivo
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- File Info -->
+                <div id="fileInfo" class="mb-3" style="display: none;">
+                    <div class="alert alert-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-file-earmark-text me-2"></i>
+                                <span id="fileName"></span>
+                                <span class="text-muted small ms-2" id="fileSize"></span>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearSelectedFile()">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Import Progress -->
+                <div id="importProgress" class="mb-3" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small">Progreso de importación</span>
+                        <span class="small" id="importProgressText">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" id="importProgressBar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Import Results -->
+                <div id="importResults" class="mb-3" style="display: none;">
+                    <!-- Results will be shown here -->
+                </div>
+                
+                <!-- Format Information -->
+                <div class="mt-3">
+                    <details>
+                        <summary class="text-primary small" style="cursor: pointer;">Ver formato de archivo esperado</summary>
+                        <div class="mt-2 p-3 bg-light rounded">
+                            <h6>Formato JSON esperado:</h6>
+                            <pre class="small"><code>[
+  {
+    "question": "Pregunta del ejercicio",
+    "level": "principiante",
+    "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+    "correct_answer": 1,
+    "explanation": "Explicación del ejercicio"
+  }
+]</code></pre>
+                            <p class="text-muted small mb-0">
+                                <strong>Niveles válidos:</strong> principiante, intermedio, avanzado, experto<br>
+                                <strong>correct_answer:</strong> Número entre 1 y 4 (índice base 1)<br>
+                                <strong>options:</strong> Array con exactamente 4 opciones
+                            </p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="importButton" onclick="startImport()" disabled>
+                    <i class="bi bi-upload me-1"></i>Importar Ejercicios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
+<script id="exercises-data" type="application/json">
+{{ exercises|tojson|safe }}
+</script>
 <script>
-    // Exercises management JavaScript
-    document.addEventListener('DOMContentLoaded', function() {
-        loadExercises();
-        
-        // Event listeners
-        document.getElementById('search-input').addEventListener('input', debounce(loadExercises, 500));
-        document.getElementById('level-filter').addEventListener('change', loadExercises);
-        document.getElementById('status-filter').addEventListener('change', loadExercises);
-        document.getElementById('refresh-btn').addEventListener('click', loadExercises);
-        document.getElementById('export-btn').addEventListener('click', exportExercises);
-    });
+let currentExerciseId = null;
+// Initialize exercises data from template
+let exercisesData = [];
+try {
+    const dataElement = document.getElementById('exercises-data');
+    if (dataElement && dataElement.textContent) {
+        exercisesData = JSON.parse(dataElement.textContent) || [];
+    }
+} catch (e) {
+    console.warn('Failed to parse exercises data:', e);
+    exercisesData = [];
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize table with DataTables or similar
+    initializeTable();
     
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
+    // Form submission
+    document.getElementById('exerciseForm').addEventListener('submit', saveExercise);
+    document.getElementById('filterForm').addEventListener('submit', applyFilters);
+    
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+});
+
+function initializeTable() {
+    // Add any table initialization here
+    console.log('Table initialized with', exercisesData.length, 'exercises');
+}
+
+function openExerciseModal(exerciseId = null) {
+    currentExerciseId = exerciseId;
+    const modal = new bootstrap.Modal(document.getElementById('exerciseModal'));
+    
+    if (exerciseId) {
+        // Load exercise data for editing
+        loadExerciseData(exerciseId);
+        document.getElementById('modalTitle').textContent = 'Editar Ejercicio';
+    } else {
+        // Clear form for new exercise
+        clearExerciseForm();
+        document.getElementById('modalTitle').textContent = 'Nuevo Ejercicio';
     }
     
-    function loadExercises() {
-        const search = document.getElementById('search-input').value;
-        const level = document.getElementById('level-filter').value;
-        const status = document.getElementById('status-filter').value;
+    modal.show();
+}
+
+function loadExerciseData(exerciseId) {
+    const exercise = exercisesData.find(e => e.id == exerciseId);
+    if (exercise) {
+        document.getElementById('exerciseId').value = exercise.id || '';
+        document.getElementById('exerciseQuestion').value = exercise.question || '';
+        document.getElementById('exerciseLevel').value = exercise.level || '';
+        document.getElementById('correctAnswer').value = exercise.correct_answer || '1';
+        document.getElementById('exerciseExplanation').value = exercise.explanation || '';
         
-        showLoading(true);
-        
-        // Simulate API call
-        setTimeout(() => {
-            const exercises = generateMockExercises();
-            displayExercises(exercises);
-            showLoading(false);
-        }, 1000);
+        // Load options with safety checks
+        if (exercise.options && Array.isArray(exercise.options)) {
+            document.getElementById('option1').value = exercise.options[0] || '';
+            document.getElementById('option2').value = exercise.options[1] || '';
+            document.getElementById('option3').value = exercise.options[2] || '';
+            document.getElementById('option4').value = exercise.options[3] || '';
+        } else {
+            // Clear options if not available
+            document.getElementById('option1').value = '';
+            document.getElementById('option2').value = '';
+            document.getElementById('option3').value = '';
+            document.getElementById('option4').value = '';
+        }
+    } else {
+        console.warn('Exercise not found for ID:', exerciseId);
+        clearExerciseForm();
     }
+}
+
+function clearExerciseForm() {
+    document.getElementById('exerciseForm').reset();
+    document.getElementById('exerciseId').value = '';
+}
+
+async function saveExercise(e) {
+    e.preventDefault();
     
-    function generateMockExercises() {
-        return [
-            {
-                id: 1,
-                title: 'Variables y Tipos de Datos',
-                level: 'basic',
-                status: 'published',
-                created_at: '2024-01-01T00:00:00Z'
+    const exerciseData = {
+        question: document.getElementById('exerciseQuestion').value,
+        level: document.getElementById('exerciseLevel').value,
+        options: [
+            document.getElementById('option1').value,
+            document.getElementById('option2').value,
+            document.getElementById('option3').value,
+            document.getElementById('option4').value
+        ],
+        correct_answer: parseInt(document.getElementById('correctAnswer').value),
+        explanation: document.getElementById('exerciseExplanation').value
+    };
+    
+    const exerciseId = document.getElementById('exerciseId').value;
+    const url = exerciseId ? `/api/admin/exercises/${exerciseId}` : '/api/admin/exercises';
+    const method = exerciseId ? 'PUT' : 'POST';
+    
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
             },
-            {
-                id: 2,
-                title: 'Estructuras de Control',
-                level: 'intermediate',
-                status: 'published',
-                created_at: '2024-01-02T00:00:00Z'
-            },
-            {
-                id: 3,
-                title: 'Funciones Avanzadas',
-                level: 'advanced',
-                status: 'draft',
-                created_at: '2024-01-03T00:00:00Z'
-            }
-        ];
-    }
-    
-    function displayExercises(exercises) {
-        const tbody = document.getElementById('exercises-tbody');
-        tbody.innerHTML = '';
-        
-        exercises.forEach(exercise => {
-            const row = createExerciseRow(exercise);
-            tbody.appendChild(row);
+            body: JSON.stringify(exerciseData)
         });
         
-        updateCounts(exercises.length, exercises.length);
+        if (response.ok) {
+            bootstrap.Modal.getInstance(document.getElementById('exerciseModal')).hide();
+            refreshExercises();
+            showAlert('success', exerciseId ? 'Ejercicio actualizado correctamente' : 'Ejercicio creado correctamente');
+        } else {
+            const error = await response.json();
+            showAlert('danger', error.error || 'Error al guardar el ejercicio');
+        }
+    } catch (error) {
+        showAlert('danger', 'Error de conexión al guardar el ejercicio');
+    }
+}
+
+function viewExercise(exerciseId) {
+    const exercise = exercisesData.find(e => e.id == exerciseId);
+    if (!exercise) {
+        showAlert('danger', 'Ejercicio no encontrado');
+        return;
     }
     
-    function createExerciseRow(exercise) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
+    try {
+        const content = `
+            <div class="exercise-view">
+                <h6 class="text-muted">ID: ${exercise.id || 'N/A'}</h6>
+                <div class="mb-3">
+                    <strong>Nivel:</strong>
+                    <span class="badge bg-${exercise.level === 'principiante' ? 'success' : exercise.level === 'intermedio' ? 'info' : exercise.level === 'avanzado' ? 'warning' : 'danger'}">
+                        ${exercise.level ? exercise.level.charAt(0).toUpperCase() + exercise.level.slice(1) : 'N/A'}
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <strong>Pregunta:</strong>
+                    <p class="mt-2">${exercise.question || 'No hay pregunta disponible'}</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Opciones:</strong>
+                    <ol class="mt-2">
+                        ${(exercise.options || []).map((opt, i) => `
+                            <li class="${i + 1 == exercise.correct_answer ? 'text-success fw-bold' : ''}">
+                                ${opt || 'Opción no disponible'}
+                                ${i + 1 == exercise.correct_answer ? ' ✓' : ''}
+                            </li>
+                        `).join('')}
+                    </ol>
+                </div>
+                ${exercise.explanation ? `
+                    <div class="mb-3">
+                        <strong>Explicación:</strong>
+                        <p class="mt-2">${exercise.explanation}</p>
+                    </div>
+                ` : ''}
+                <div class="text-muted small">
+                    <strong>Creado:</strong> ${exercise.created_at ? new Date(exercise.created_at).toLocaleString() : 'N/A'}
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('viewExerciseContent').innerHTML = content;
+        new bootstrap.Modal(document.getElementById('viewExerciseModal')).show();
+    } catch (error) {
+        console.error('Error viewing exercise:', error);
+        showAlert('danger', 'Error al cargar el ejercicio');
+    }
+}
+
+function editExercise(exerciseId) {
+    openExerciseModal(exerciseId);
+}
+
+async function deleteExercise(exerciseId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este ejercicio? Esta acción no se puede deshacer.')) {
+        try {
+            const response = await fetch(`/api/admin/exercises/${exerciseId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                refreshExercises();
+                showAlert('success', 'Ejercicio eliminado correctamente');
+            } else {
+                const error = await response.json();
+                showAlert('danger', error.error || 'Error al eliminar el ejercicio');
+            }
+        } catch (error) {
+            showAlert('danger', 'Error de conexión al eliminar el ejercicio');
+        }
+    }
+}
+
+function applyFilters(e) {
+    if (e) e.preventDefault();
+    
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const levelFilter = document.getElementById('levelFilter').value;
+    const sortBy = document.getElementById('sortBy').value;
+    
+    let filtered = [...exercisesData];
+    
+    // Apply search filter
+    if (searchTerm) {
+        filtered = filtered.filter(ex => ex.question.toLowerCase().includes(searchTerm));
+    }
+    
+    // Apply level filter
+    if (levelFilter !== 'todos') {
+        filtered = filtered.filter(ex => ex.level === levelFilter);
+    }
+    
+    // Apply sorting
+    filtered.sort((a, b) => {
+        if (sortBy === 'created_at') {
+            return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        } else if (sortBy === 'level') {
+            return a.level.localeCompare(b.level);
+        } else if (sortBy === 'question') {
+            return a.question.localeCompare(b.question);
+        }
+        return 0;
+    });
+    
+    // Update table
+    updateExerciseTable(filtered);
+    document.getElementById('exerciseCount').textContent = `${filtered.length} ejercicios`;
+}
+
+function updateExerciseTable(exercises) {
+    const tbody = document.querySelector('#exercisesTable tbody');
+    
+    if (exercises.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    <i class="bi bi-inbox display-4"></i>
+                    <p class="mt-2">No se encontraron ejercicios</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = exercises.map(exercise => `
+        <tr data-exercise-id="${exercise.id}">
             <td>${exercise.id}</td>
             <td>
-                <div class="d-flex align-items-center">
-                    <div class="exercise-icon me-2" style="width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div>
-                        <strong>${exercise.title}</strong>
-                    </div>
+                <div class="question-text" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${exercise.question.substring(0, 100)}${exercise.question.length > 100 ? '...' : ''}
                 </div>
             </td>
             <td>
-                <span class="badge bg-${getLevelColor(exercise.level)}">
-                    ${getLevelText(exercise.level)}
+                <span class="badge bg-${exercise.level === 'principiante' ? 'success' : exercise.level === 'intermedio' ? 'info' : exercise.level === 'avanzado' ? 'warning' : 'danger'}">
+                    ${exercise.level.charAt(0).toUpperCase() + exercise.level.slice(1)}
                 </span>
             </td>
             <td>
-                <span class="badge bg-${exercise.status === 'published' ? 'success' : 'secondary'}">
-                    ${exercise.status === 'published' ? 'Publicado' : 'Borrador'}
-                </span>
+                <span class="badge bg-primary">Opción ${exercise.correct_answer}</span>
             </td>
-            <td>${formatDate(exercise.created_at)}</td>
+            <td>${exercise.created_at ? new Date(exercise.created_at).toLocaleDateString() : 'N/A'}</td>
             <td>
-                <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary" onclick="editExercise(${exercise.id})">
-                        <i class="fas fa-edit"></i>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="viewExercise(${exercise.id})" title="Ver">
+                        <i class="bi bi-eye"></i>
                     </button>
-                    <button class="btn btn-outline-info" onclick="viewExercise(${exercise.id})">
-                        <i class="fas fa-eye"></i>
+                    <button type="button" class="btn btn-outline-warning" onclick="editExercise(${exercise.id})" title="Editar">
+                        <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-outline-danger" onclick="deleteExercise(${exercise.id})">
-                        <i class="fas fa-trash"></i>
+                    <button type="button" class="btn btn-outline-danger" onclick="deleteExercise(${exercise.id})" title="Eliminar">
+                        <i class="bi bi-trash"></i>
                     </button>
                 </div>
             </td>
+        </tr>
+    `).join('');
+}
+
+function refreshExercises() {
+    location.reload();
+}
+
+function exportExercises(format) {
+    try {
+        const exercises = exercisesData || [];
+        
+        if (exercises.length === 0) {
+            showAlert('warning', 'No hay ejercicios para exportar');
+            return;
+        }
+        
+        if (format === 'json') {
+            exportExercisesJSON(exercises);
+        } else if (format === 'csv') {
+            exportExercisesCSV(exercises);
+        } else {
+            showAlert('danger', 'Formato de exportación no válido');
+        }
+    } catch (error) {
+        console.error('Error exporting exercises:', error);
+        showAlert('danger', 'Error al exportar ejercicios');
+    }
+}
+
+function exportExercisesJSON(exercises) {
+    if (!exercises || !Array.isArray(exercises)) {
+        showAlert('danger', 'No hay datos válidos para exportar');
+        return;
+    }
+    
+    try {
+        const dataStr = JSON.stringify(exercises, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `exercises_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        showAlert('success', 'Ejercicios exportados como JSON');
+    } catch (error) {
+        console.error('Error exporting JSON:', error);
+        showAlert('danger', 'Error al exportar como JSON');
+    }
+}
+
+function exportExercisesCSV(exercises) {
+    if (!exercises || !Array.isArray(exercises)) {
+        showAlert('danger', 'No hay datos válidos para exportar');
+        return;
+    }
+    
+    try {
+        const headers = ['id', 'question', 'level', 'options', 'correct_answer', 'explanation', 'created_at'];
+        const csvContent = [
+            headers.join(','),
+            ...exercises.map(exercise => [
+                exercise.id || '',
+                `"${(exercise.question || '').replace(/"/g, '""')}"`,
+                exercise.level || '',
+                `"${(exercise.options || []).join(' | ')}"`,
+                exercise.correct_answer || 1,
+                `"${(exercise.explanation || '').replace(/"/g, '""')}"`,
+                exercise.created_at || ''
+            ])
+        ].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `exercises_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        showAlert('success', 'Ejercicios exportados como CSV');
+    } catch (error) {
+        console.error('Error exporting CSV:', error);
+        showAlert('danger', 'Error al exportar como CSV');
+    }
+}
+
+let selectedFile = null;
+
+function importExercises(file) {
+    if (!file) {
+        showAlert('warning', 'Por favor selecciona un archivo');
+        return;
+    }
+    
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith('.json')) {
+        showAlert('danger', 'Por favor selecciona un archivo JSON');
+        return;
+    }
+    
+    selectedFile = file;
+    showFileInfo(file);
+    document.getElementById('importButton').disabled = false;
+}
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        importExercises(file);
+    }
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const dropArea = document.querySelector('#fileUploadArea > div');
+    dropArea.classList.remove('border-primary', 'bg-light');
+    
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+        importExercises(files[0]);
+    }
+}
+
+function handleDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const dropArea = document.querySelector('#fileUploadArea > div');
+    dropArea.classList.add('border-primary', 'bg-light');
+}
+
+function handleDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const dropArea = document.querySelector('#fileUploadArea > div');
+    dropArea.classList.remove('border-primary', 'bg-light');
+}
+
+function showFileInfo(file) {
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = `(${formatFileSize(file.size)})`;
+    document.getElementById('fileInfo').style.display = 'block';
+}
+
+function clearSelectedFile() {
+    selectedFile = null;
+    document.getElementById('importFileInput').value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+    document.getElementById('importButton').disabled = true;
+    document.getElementById('importResults').style.display = 'none';
+    document.getElementById('importProgress').style.display = 'none';
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+async function startImport() {
+    if (!selectedFile) {
+        showAlert('warning', 'Por favor selecciona un archivo');
+        return;
+    }
+    
+    // Show progress
+    document.getElementById('importProgress').style.display = 'block';
+    document.getElementById('importResults').style.display = 'none';
+    document.getElementById('importButton').disabled = true;
+    
+    try {
+        // Read file content
+        const content = await readFileContent(selectedFile);
+        const exercises = JSON.parse(content);
+        
+        if (!Array.isArray(exercises)) {
+            throw new Error('El archivo debe contener un array de ejercicios');
+        }
+        
+        if (exercises.length === 0) {
+            throw new Error('El archivo no contiene ejercicios');
+        }
+        
+        // Update progress
+        updateImportProgress(10, 'Validando ejercicios...');
+        
+        // Send to backend API
+        const response = await fetch('/api/admin/exercises/import', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                exercises: exercises,
+                metadata: {
+                    filename: selectedFile.name,
+                    filesize: selectedFile.size,
+                    upload_time: new Date().toISOString()
+                }
+            })
+        });
+        
+        updateImportProgress(50, 'Procesando en servidor...');
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Error al importar ejercicios');
+        }
+        
+        const result = await response.json();
+        updateImportProgress(100, 'Importación completada');
+        
+        // Show results
+        showImportResults(result);
+        
+        // Refresh exercises list if successful
+        if (result.imported > 0) {
+            setTimeout(() => {
+                refreshExercises();
+            }, 2000);
+        }
+        
+    } catch (error) {
+        console.error('Import error:', error);
+        showAlert('danger', 'Error al importar: ' + error.message);
+        document.getElementById('importProgress').style.display = 'none';
+        document.getElementById('importButton').disabled = false;
+    }
+}
+
+function readFileContent(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(new Error('Error al leer el archivo'));
+        reader.readAsText(file);
+    });
+}
+
+function updateImportProgress(percentage, message = '') {
+    const progressBar = document.getElementById('importProgressBar');
+    const progressText = document.getElementById('importProgressText');
+    
+    progressBar.style.width = percentage + '%';
+    progressBar.setAttribute('aria-valuenow', percentage);
+    
+    if (message) {
+        progressText.textContent = message;
+    } else {
+        progressText.textContent = percentage + '%';
+    }
+}
+
+function showImportResults(result) {
+    const resultsDiv = document.getElementById('importResults');
+    resultsDiv.style.display = 'block';
+    
+    let alertClass = 'alert-success';
+    let icon = 'bi-check-circle';
+    
+    if (result.imported === 0) {
+        alertClass = 'alert-danger';
+        icon = 'bi-x-circle';
+    } else if (result.total_errors > 0) {
+        alertClass = 'alert-warning';
+        icon = 'bi-exclamation-triangle';
+    }
+    
+    let resultsHtml = `
+        <div class="alert ${alertClass}">
+            <div class="d-flex align-items-center">
+                <i class="bi ${icon} me-2"></i>
+                <div>
+                    <h6 class="mb-1">Importación Completada</h6>
+                    <div class="small">
+                        <strong>${result.imported}</strong> ejercicios importados exitosamente
+                        ${result.skipped_duplicates > 0 ? `<br><strong>${result.skipped_duplicates}</strong> ejercicios duplicados omitidos` : ''}
+                        ${result.validation_errors > 0 ? `<br><strong>${result.validation_errors}</strong> errores de validación` : ''}
+                        ${result.total_errors > 0 ? `<br><strong>${result.total_errors}</strong> errores totales` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Show errors if any
+    if (result.errors && result.errors.length > 0) {
+        resultsHtml += `
+            <div class="alert alert-warning">
+                <h6 class="alert-heading">Errores detectados:</h6>
+                <ul class="small mb-0">
+                    ${result.errors.slice(0, 5).map(error => `<li>${error}</li>`).join('')}
+                    ${result.errors.length > 5 ? `<li>... y ${result.errors.length - 5} errores más</li>` : ''}
+                </ul>
+            </div>
         `;
-        return row;
     }
     
-    function getLevelColor(level) {
-        const colors = {
-            'basic': 'primary',
-            'intermediate': 'warning',
-            'advanced': 'danger'
+    resultsDiv.innerHTML = resultsHtml;
+    
+    // Hide progress after a delay
+    setTimeout(() => {
+        document.getElementById('importProgress').style.display = 'none';
+        document.getElementById('importButton').disabled = false;
+    }, 2000);
+}
+
+function validateExerciseData(exercise, index) {
+    // Validar campos obligatorios
+    if (!exercise.question || typeof exercise.question !== 'string') {
+        console.warn(`Ejercicio ${index}: pregunta inválida`);
+        return null;
+    }
+    
+    if (!exercise.level || !['principiante', 'intermedio', 'avanzado', 'experto'].includes(exercise.level)) {
+        console.warn(`Ejercicio ${index}: nivel inválido`);
+        return null;
+    }
+    
+    if (!exercise.options || !Array.isArray(exercise.options) || exercise.options.length !== 4) {
+        console.warn(`Ejercicio ${index}: opciones inválidas`);
+        return null;
+    }
+    
+    if (typeof exercise.correct_answer !== 'number' || exercise.correct_answer < 1 || exercise.correct_answer > 4) {
+        console.warn(`Ejercicio ${index}: respuesta correcta inválida`);
+        return null;
+    }
+    
+    // Valores por defecto
+    return {
+        id: exercise.id || Date.now() + index,
+        question: exercise.question.trim(),
+        level: exercise.level,
+        options: exercise.options.map(opt => opt.trim()),
+        correct_answer: exercise.correct_answer,
+        explanation: exercise.explanation ? exercise.explanation.trim() : '',
+        created_at: exercise.created_at || new Date().toISOString()
+    };
+}
+
+function showImportProgress(current, total) {
+    const progressBar = document.getElementById('importProgress');
+    const progressText = document.getElementById('importProgressText');
+    
+    if (progressBar && progressText) {
+        const percentage = Math.round((current / total) * 100);
+        progressBar.style.width = percentage + '%';
+        progressBar.setAttribute('aria-valuenow', percentage);
+        progressText.textContent = `Procesando ${current} de ${total} ejercicios (${percentage}%)`;
+    }
+}
+
+function showAlert(type, message) {
+    // Create and show an alert
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container-fluid');
+    if (container) {
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (alertDiv && alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    } else {
+        console.warn('Container not found for alert:', message);
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
         };
-        return colors[level] || 'secondary';
-    }
-    
-    function getLevelText(level) {
-        const texts = {
-            'basic': 'Básico',
-            'intermediate': 'Intermedio',
-            'advanced': 'Avanzado'
-        };
-        return texts[level] || level;
-    }
-    
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES');
-    }
-    
-    function updateCounts(showing, total) {
-        document.getElementById('showing-count').textContent = showing;
-        document.getElementById('total-count').textContent = total;
-    }
-    
-    function showLoading(show) {
-        document.getElementById('loading-state').style.display = show ? 'block' : 'none';
-        document.getElementById('exercises-table').style.display = show ? 'none' : 'table';
-    }
-    
-    function saveExercise() {
-        const form = document.getElementById('addExerciseForm');
-        if (form.checkValidity()) {
-            console.log('Save exercise');
-            // Implement save functionality
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addExerciseModal'));
-            modal.hide();
-            loadExercises();
-        }
-    }
-    
-    function editExercise(exerciseId) {
-        console.log('Edit exercise:', exerciseId);
-        // Implement edit functionality
-    }
-    
-    function viewExercise(exerciseId) {
-        console.log('View exercise:', exerciseId);
-        // Implement view functionality
-    }
-    
-    function deleteExercise(exerciseId) {
-        if (confirm('¿Estás seguro de que quieres eliminar este ejercicio?')) {
-            console.log('Delete exercise:', exerciseId);
-            // Implement delete functionality
-        }
-    }
-    
-    function exportExercises() {
-        console.log('Export exercises');
-        // Implement export functionality
-    }
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 </script>
 {% endblock %}

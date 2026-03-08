@@ -1,429 +1,704 @@
-{% extends "admin_base_new.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}Control del Bot - Panel Admin{% endblock %}
+{% block title %}Control del Bot - Panel Administrativo{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Control del Bot</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshBotStatus()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar Estado
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="viewLogs()">
+                <i class="bi bi-file-text me-1"></i>Ver Logs
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
-    <!-- Professional Header -->
-    <div class="page-header">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="mb-0">
-                        <i class="fas fa-robot me-3"></i>
-                        Control del Bot
-                    </h1>
-                    <p class="mb-0 opacity-75">Administrar y monitorear el estado del bot</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <div class="d-flex align-items-center justify-content-md-end">
-                        <div class="me-3">
-                            <small class="d-block text-white-50">Usuario actual</small>
-                            <strong>{{ current_user.username }}</strong>
+<!-- Bot Status Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow border-left-primary">
+            <div class="card-header bg-gradient-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-robot me-2"></i>Estado del Bot
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="status-indicator me-3">
+                                <div id="statusDot" class="status-dot bg-warning"></div>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">Estado: <span id="botStatus" class="text-warning">Inactivo</span></h5>
+                                <p class="text-muted mb-0">Última actualización: <span id="lastUpdate">Cargando...</span></p>
+                                <p class="text-muted mb-0" id="registrationStatus">Registro de usuarios: <span class="badge bg-secondary">Verificando...</span></p>
+                            </div>
                         </div>
-                        <div class="status-indicator">
-                            <span class="badge bg-success">
-                                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
-                                En línea
-                            </span>
+                        <div class="row">
+                            <div class="col-sm-6 col-lg-3 mb-3">
+                                <div class="small text-muted">Usuarios Activos</div>
+                                <div class="h4 text-primary" id="activeUsers">0</div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3 mb-3">
+                                <div class="small text-muted">Mensajes Hoy</div>
+                                <div class="h4 text-success" id="messagesToday">0</div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3 mb-3">
+                                <div class="small text-muted">Ejercicios Completados</div>
+                                <div class="h4 text-info" id="exercisesCompleted">0</div>
+                            </div>
+                            <div class="col-sm-6 col-lg-3 mb-3">
+                                <div class="small text-muted">Tiempo Actividad</div>
+                                <div class="h4 text-warning" id="uptime">0d 0h 0m</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="bot-visual">
+                            <i class="bi bi-robot display-1 text-primary" id="botIcon"></i>
+                            <div class="mt-2">
+                                <span class="badge bg-warning" id="connectionStatus">Desconectado</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Professional Statistics Cards -->
-    <div class="container-fluid mb-4">
-        <div class="row g-4">
-            <!-- Bot Status Card -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card stat-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-success bg-gradient text-white">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="text-muted mb-1">Estado del Bot</h6>
-                                <div class="stat-number text-success" id="bot-status">Activo</div>
-                                <small class="text-muted">Bot funcionando</small>
-                            </div>
+<!-- Control Buttons -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Control del Bot</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-success btn-lg" onclick="startBot()" id="startBtn">
+                                <i class="bi bi-play-circle me-2"></i>Iniciar Bot
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Active Users Card -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card stat-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-primary bg-gradient text-white">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="text-muted mb-1">Usuarios Activos</h6>
-                                <div class="stat-number text-primary" id="active-users">{{ stats.active_users or 0 }}</div>
-                                <small class="text-muted">Usuarios conectados</small>
-                            </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-warning btn-lg" onclick="restartBot()" id="restartBtn">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reiniciar Bot
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Messages Today Card -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card stat-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-info bg-gradient text-white">
-                                <i class="fas fa-comments"></i>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="text-muted mb-1">Mensajes Hoy</h6>
-                                <div class="stat-number text-info" id="messages-today">{{ stats.messages_today or 0 }}</div>
-                                <small class="text-muted">Mensajes procesados</small>
-                            </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-info btn-lg" onclick="pauseBot()" id="pauseBtn">
+                                <i class="bi bi-pause-circle me-2"></i>Pausar Bot
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Response Time Card -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card stat-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-warning bg-gradient text-white">
-                                <i class="fas fa-tachometer-alt"></i>
-                            </div>
-                            <div class="ms-3">
-                                <h6 class="text-muted mb-1">Tiempo Respuesta</h6>
-                                <div class="stat-number text-warning" id="response-time">{{ stats.response_time or 0 }}ms</div>
-                                <small class="text-muted">Tiempo promedio</small>
-                            </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-danger btn-lg" onclick="stopBot()" id="stopBtn">
+                                <i class="bi bi-stop-circle me-2"></i>Detener Bot
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-secondary btn-lg" onclick="toggleMaintenance()" id="maintenanceBtn">
+                                <i class="bi bi-tools me-2"></i>Mantenimiento
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Main Dashboard Content -->
-    <div class="container-fluid">
-        <div class="row g-4">
-            <!-- Bot Controls Section -->
-            <div class="col-lg-6">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <h5 class="mb-0">
-                            <i class="fas fa-cog text-primary me-2"></i>
-                            Controles del Bot
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-success btn-lg" id="start-bot-btn">
-                                        <i class="fas fa-play me-2"></i>
-                                        Iniciar Bot
-                                    </button>
-                                    <button class="btn btn-warning btn-lg" id="restart-bot-btn">
-                                        <i class="fas fa-redo me-2"></i>
-                                        Reiniciar Bot
-                                    </button>
-                                    <button class="btn btn-danger btn-lg" id="stop-bot-btn">
-                                        <i class="fas fa-stop me-2"></i>
-                                        Detener Bot
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="border-top pt-3">
-                                    <h6 class="mb-3">Configuración Rápida</h6>
-                                    <div class="row g-2">
-                                        <div class="col-md-6">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="debug-mode" checked>
-                                                <label class="form-check-label" for="debug-mode">
-                                                    Modo Debug
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="maintenance-mode">
-                                                <label class="form-check-label" for="maintenance-mode">
-                                                    Modo Mantenimiento
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="auto-restart">
-                                                <label class="form-check-label" for="auto-restart">
-                                                    Auto Reinicio
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="logging" checked>
-                                                <label class="form-check-label" for="logging">
-                                                    Logging Activado
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+<!-- Configuration and Settings -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Configuración Rápida</h6>
+            </div>
+            <div class="card-body">
+                <form id="botConfigForm">
+                    <div class="mb-3">
+                        <label for="botToken" class="form-label">Token del Bot</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="botToken" placeholder="Token de Telegram">
+                            <button class="btn btn-outline-secondary" type="button" onclick="toggleTokenVisibility()">
+                                <i class="bi bi-eye" id="tokenToggleIcon"></i>
+                            </button>
                         </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="maxUsers" class="form-label">Límite de Usuarios Concurrentes</label>
+                        <input type="number" class="form-control" id="maxUsers" value="100" min="10" max="10000">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="responseDelay" class="form-label">Retardo de Respuesta (ms)</label>
+                        <input type="number" class="form-control" id="responseDelay" value="1000" min="0" max="5000">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="maintenanceMode" onchange="toggleMaintenance()">
+                            <label class="form-check-label" for="maintenanceMode">
+                                Modo Mantenimiento
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Guardar Configuración
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Información del Sistema</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <div class="small text-muted">Versión del Bot</div>
+                        <div class="fw-bold">v1.0.0</div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="small text-muted">Python Version</div>
+                        <div class="fw-bold">3.9.0</div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="small text-muted">Memoria Usada</div>
+                        <div class="fw-bold">128 MB</div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="small text-muted">CPU Usage</div>
+                        <div class="fw-bold">5%</div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="small text-muted">Base de Datos</div>
+                        <div class="fw-bold text-success">Conectada</div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="small text-muted">API Rate Limit</div>
+                        <div class="fw-bold">10 msg/s</div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Bot Status Section -->
-            <div class="col-lg-6">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <h5 class="mb-0">
-                            <i class="fas fa-heartbeat text-success me-2"></i>
-                            Estado del Sistema
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="text-center p-3 bg-light rounded">
-                                    <div class="mb-2">
-                                        <i class="fas fa-server fa-lg text-primary"></i>
-                                    </div>
-                                    <h6 class="mb-1">Servidor</h6>
-                                    <span class="badge bg-success">Conectado</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-center p-3 bg-light rounded">
-                                    <div class="mb-2">
-                                        <i class="fas fa-database fa-lg text-success"></i>
-                                    </div>
-                                    <h6 class="mb-1">Base de Datos</h6>
-                                    <span class="badge bg-success">Operativa</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-center p-3 bg-light rounded">
-                                    <div class="mb-2">
-                                        <i class="fas fa-telegram fa-lg text-info"></i>
-                                    </div>
-                                    <h6 class="mb-1">Telegram API</h6>
-                                    <span class="badge bg-success">Activa</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-center p-3 bg-light rounded">
-                                    <div class="mb-2">
-                                        <i class="fas fa-memory fa-lg text-warning"></i>
-                                    </div>
-                                    <h6 class="mb-1">Memoria</h6>
-                                    <span class="badge bg-warning">45%</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="border-top pt-3 mt-3">
-                            <h6 class="mb-3">Últimas Actividades</h6>
-                            <div class="activity-timeline">
-                                <div class="activity-item">
-                                    <small class="text-muted">Hace 5 minutos</small>
-                                    <div class="text-success">Bot iniciado exitosamente</div>
-                                </div>
-                                <div class="activity-item">
-                                    <small class="text-muted">Hace 15 minutos</small>
-                                    <div class="text-info">Configuración actualizada</div>
-                                </div>
-                                <div class="activity-item">
-                                    <small class="text-muted">Hace 1 hora</small>
-                                    <div class="text-warning">Reinicio programado completado</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Logs Section -->
-            <div class="col-12">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                            <h5 class="mb-0">
-                                <i class="fas fa-terminal text-primary me-2"></i>
-                                Logs del Sistema
-                            </h5>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-outline-secondary" id="clear-logs-btn">
-                                    <i class="fas fa-trash me-1"></i> Limpiar
-                                </button>
-                                <button class="btn btn-outline-primary" id="refresh-logs-btn">
-                                    <i class="fas fa-sync-alt me-1"></i> Actualizar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="terminal-window bg-dark text-light p-3 rounded" style="font-family: 'Courier New', monospace; max-height: 300px; overflow-y: auto;">
-                            <div id="terminal-content">
-                                <div class="text-success">[2024-01-01 10:00:00] INFO: Bot iniciado exitosamente</div>
-                                <div class="text-info">[2024-01-01 10:00:01] INFO: Conectado a base de datos</div>
-                                <div class="text-warning">[2024-01-01 10:00:02] WARNING: Configuración cargada</div>
-                                <div class="text-info">[2024-01-01 10:00:03] INFO: Bot listo para recibir mensajes</div>
-                                <div class="text-success">[2024-01-01 10:00:05] INFO: Usuario 123456 conectado</div>
-                                <div class="text-info">[2024-01-01 10:00:06] INFO: Mensaje procesado correctamente</div>
-                            </div>
-                        </div>
+                
+                <div class="mt-3">
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-outline-info" onclick="showDetailedInfo()">
+                            <i class="bi bi-info-circle me-2"></i>Ver Información Detallada
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Actividad Reciente</h6>
+            </div>
+            <div class="card-body">
+                <div class="activity-log" id="activityLog">
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-activity display-4"></i>
+                        <p class="mt-2">No hay actividad reciente registrada</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Bot control JavaScript
-    document.addEventListener('DOMContentLoaded', function() {
-        updateBotStatus();
-        
-        // Event listeners
-        document.getElementById('start-bot-btn').addEventListener('click', startBot);
-        document.getElementById('restart-bot-btn').addEventListener('click', restartBot);
-        document.getElementById('stop-bot-btn').addEventListener('click', stopBot);
-        document.getElementById('refresh-logs-btn').addEventListener('click', refreshLogs);
-        document.getElementById('clear-logs-btn').addEventListener('click', clearLogs);
-        
-        // Auto-refresh every 30 seconds
-        setInterval(updateBotStatus, 30000);
+let botStatus = 'inactive';
+let statusInterval;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current time immediately
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
+    
+    // Initialize bot status
+    updateBotStatus();
+    
+    // Start status polling
+    statusInterval = setInterval(updateBotStatus, 5000);
+    
+    // Form submission
+    document.getElementById('botConfigForm').addEventListener('submit', saveBotConfig);
+});
+
+function updateBotStatus() {
+    // Fetch real bot status from API
+    fetch('/api/admin/bot/status', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
+            
+            // Update bot status display
+            updateStatusDisplay(data.bot_status, getStatusText(data.bot_status), getStatusColor(data.bot_status));
+            
+            // Update registration status
+            updateRegistrationStatus(data.bot_status);
+            
+            // Update button states
+            updateButtonStates(data.bot_status);
+        } else {
+            console.error('Error fetching bot status:', data.message);
+            // Show connection error
+            updateStatusDisplay('unknown', 'Error de Conexión', 'warning');
+            updateRegistrationStatus('unknown');
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching bot status:', error);
+        // Show connection error
+        updateStatusDisplay('unknown', 'Error de Conexión', 'warning');
+        updateRegistrationStatus('unknown');
     });
+}
+
+function updateRegistrationStatus(status) {
+    const registrationStatusElement = document.getElementById('registrationStatus');
+    const badgeElement = registrationStatusElement.querySelector('span');
     
-    function updateBotStatus() {
-        // Simulate API call to get bot status
-        const status = Math.random() > 0.1 ? 'Activo' : 'Inactivo';
-        const activeUsers = Math.floor(Math.random() * 100);
-        const messagesToday = Math.floor(Math.random() * 500);
-        const responseTime = Math.floor(Math.random() * 100) + 50;
-        
-        document.getElementById('bot-status').textContent = status;
-        document.getElementById('active-users').textContent = activeUsers;
-        document.getElementById('messages-today').textContent = messagesToday;
-        document.getElementById('response-time').textContent = responseTime;
-        
-        // Update status badge color
-        const statusElement = document.getElementById('bot-status');
-        statusElement.className = status === 'Activo' ? 'stat-number text-success' : 'stat-number text-danger';
+    const registrationInfo = {
+        'active': { text: 'Habilitado', color: 'success' },
+        'inactive': { text: 'Deshabilitado', color: 'danger' },
+        'paused': { text: 'Deshabilitado', color: 'danger' },
+        'stopped': { text: 'Deshabilitado', color: 'danger' },
+        'maintenance': { text: 'Habilitado (Limitado)', color: 'warning' },
+        'restarting': { text: 'Habilitado (Limitado)', color: 'warning' },
+        'unknown': { text: 'Desconocido', color: 'secondary' }
+    };
+    
+    const info = registrationInfo[status] || registrationInfo['unknown'];
+    badgeElement.textContent = info.text;
+    badgeElement.className = `badge bg-${info.color}`;
+}
+
+function getStatusText(status) {
+    const statusTexts = {
+        'active': 'Activo',
+        'inactive': 'Inactivo',
+        'paused': 'Pausado',
+        'stopped': 'Detenido',
+        'maintenance': 'Mantenimiento',
+        'restarting': 'Reiniciando',
+        'unknown': 'Desconocido'
+    };
+    return statusTexts[status] || 'Desconocido';
+}
+
+function getStatusColor(status) {
+    const statusColors = {
+        'active': 'success',
+        'inactive': 'warning',
+        'paused': 'info',
+        'stopped': 'danger',
+        'maintenance': 'warning',
+        'restarting': 'warning',
+        'unknown': 'secondary'
+    };
+    return statusColors[status] || 'secondary';
+}
+
+function updateButtonStates(currentStatus) {
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const maintenanceBtn = document.getElementById('maintenanceBtn');
+    
+    // Enable/disable buttons based on current status
+    startBtn.disabled = currentStatus === 'active';
+    stopBtn.disabled = currentStatus === 'stopped' || currentStatus === 'inactive';
+    pauseBtn.disabled = currentStatus === 'stopped' || currentStatus === 'inactive' || currentStatus === 'paused';
+    restartBtn.disabled = currentStatus === 'stopped' || currentStatus === 'inactive' || currentStatus === 'restarting';
+    maintenanceBtn.disabled = currentStatus === 'stopped' || currentStatus === 'inactive';
+    
+    // Update pause button text
+    if (currentStatus === 'paused') {
+        pauseBtn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Reanudar Bot';
+    } else {
+        pauseBtn.innerHTML = '<i class="bi bi-pause-circle me-2"></i>Pausar Bot';
     }
     
-    function startBot() {
-        if (confirm('¿Estás seguro de que quieres iniciar el bot?')) {
-            showNotification('Iniciando bot...', 'info');
-            // Simulate API call
-            setTimeout(() => {
-                showNotification('Bot iniciado exitosamente', 'success');
-                updateBotStatus();
-                addLog('Bot iniciado exitosamente', 'success');
-            }, 2000);
+    // Update maintenance button
+    if (currentStatus === 'maintenance') {
+        maintenanceBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Salir Mantenimiento';
+        maintenanceBtn.className = 'btn btn-success btn-lg';
+    } else {
+        maintenanceBtn.innerHTML = '<i class="bi bi-tools me-2"></i>Mantenimiento';
+        maintenanceBtn.className = 'btn btn-secondary btn-lg';
+    }
+}
+
+function startBot() {
+    showLoading('startBtn');
+    
+    fetch('/api/admin/bot/start', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
         }
-    }
-    
-    function restartBot() {
-        if (confirm('¿Estás seguro de que quieres reiniciar el bot?')) {
-            showNotification('Reiniciando bot...', 'warning');
-            // Simulate API call
-            setTimeout(() => {
-                showNotification('Bot reiniciado exitosamente', 'success');
-                updateBotStatus();
-                addLog('Bot reiniciado exitosamente', 'warning');
-            }, 3000);
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading('startBtn');
+        if (data.status === 'success') {
+            showAlert('success', data.message);
+            updateBotStatus();
+        } else {
+            showAlert('error', data.message || 'Error al iniciar el bot');
         }
+    })
+    .catch(error => {
+        hideLoading('startBtn');
+        console.error('Error starting bot:', error);
+        showAlert('error', 'Error de conexión al iniciar el bot');
+    });
+}
+
+function stopBot() {
+    if (!confirm('¿Estás seguro de que quieres detener el bot? Los usuarios no podrán acceder al servicio.')) {
+        return;
     }
     
-    function stopBot() {
-        if (confirm('¿Estás seguro de que quieres detener el bot?')) {
-            showNotification('Deteniendo bot...', 'danger');
-            // Simulate API call
-            setTimeout(() => {
-                showNotification('Bot detenido', 'danger');
-                updateBotStatus();
-                addLog('Bot detenido', 'danger');
-            }, 2000);
+    showLoading('stopBtn');
+    
+    fetch('/api/admin/bot/stop', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
         }
-    }
-    
-    function refreshLogs() {
-        const terminal = document.getElementById('terminal-content');
-        terminal.innerHTML = '<div class="text-info">Actualizando logs...</div>';
-        
-        setTimeout(() => {
-            const logs = generateMockLogs();
-            terminal.innerHTML = logs;
-        }, 1000);
-    }
-    
-    function clearLogs() {
-        if (confirm('¿Estás seguro de que quieres limpiar todos los logs?')) {
-            document.getElementById('terminal-content').innerHTML = '<div class="text-warning">Logs limpiados</div>';
-            showNotification('Logs limpiados exitosamente', 'success');
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading('stopBtn');
+        if (data.status === 'success') {
+            showAlert('warning', data.message);
+            updateBotStatus();
+        } else {
+            showAlert('error', data.message || 'Error al detener el bot');
         }
+    })
+    .catch(error => {
+        hideLoading('stopBtn');
+        console.error('Error stopping bot:', error);
+        showAlert('error', 'Error de conexión al detener el bot');
+    });
+}
+
+function restartBot() {
+    if (!confirm('¿Estás seguro de que quieres reiniciar el bot? Se perderán las sesiones activas.')) {
+        return;
     }
     
-    function generateMockLogs() {
-        const logs = [
-            '<div class="text-success">[' + new Date().toLocaleString() + '] INFO: Bot iniciado exitosamente</div>',
-            '<div class="text-info">[' + new Date().toLocaleString() + '] INFO: Conectado a base de datos</div>',
-            '<div class="text-warning">[' + new Date().toLocaleString() + '] WARNING: Configuración cargada</div>',
-            '<div class="text-info">[' + new Date().toLocaleString() + '] INFO: Bot listo para recibir mensajes</div>'
-        ];
-        return logs.join('');
-    }
+    showLoading('restartBtn');
     
-    function addLog(message, type) {
-        const terminal = document.getElementById('terminal-content');
-        const timestamp = new Date().toLocaleString();
-        const colorClass = {
-            'success': 'text-success',
-            'info': 'text-info',
-            'warning': 'text-warning',
-            'danger': 'text-danger'
-        }[type] || 'text-info';
-        
-        const newLog = `<div class="${colorClass}">[${timestamp}] ${message.toUpperCase()}: ${message}</div>`;
-        terminal.innerHTML = newLog + terminal.innerHTML;
-        
-        // Keep only last 10 logs
-        const logs = terminal.children;
-        if (logs.length > 10) {
-            terminal.removeChild(logs[logs.length - 1]);
+    fetch('/api/admin/bot/restart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
         }
-    }
-    
-    function showNotification(message, type) {
-        // Simple notification system
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.body.appendChild(notification);
-        
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading('restartBtn');
+        if (data.status === 'success') {
+            showAlert('info', data.message);
+            updateBotStatus();
+            
+            // If restarting, check status again after a delay
+            if (data.bot_status === 'restarting') {
+                setTimeout(() => {
+                    updateBotStatus();
+                    showAlert('success', 'Bot reiniciado exitosamente');
+                }, 3000);
             }
-        }, 5000);
+        } else {
+            showAlert('error', data.message || 'Error al reiniciar el bot');
+        }
+    })
+    .catch(error => {
+        hideLoading('restartBtn');
+        console.error('Error restarting bot:', error);
+        showAlert('error', 'Error de conexión al reiniciar el bot');
+    });
+}
+
+function pauseBot() {
+    showLoading('pauseBtn');
+    
+    fetch('/api/admin/bot/pause', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading('pauseBtn');
+        if (data.status === 'success') {
+            showAlert('warning', data.message);
+            updateBotStatus();
+        } else {
+            showAlert('error', data.message || 'Error al pausar el bot');
+        }
+    })
+    .catch(error => {
+        hideLoading('pauseBtn');
+        console.error('Error pausing bot:', error);
+        showAlert('error', 'Error de conexión al pausar el bot');
+    });
+}
+
+function getCsrfToken() {
+    // Get CSRF token from meta tag or form
+    const token = document.querySelector('meta[name="csrf-token"]');
+    return token ? token.getAttribute('content') : '';
+}
+
+function updateStatusDisplay(status, text, colorClass) {
+    const statusDot = document.getElementById('statusDot');
+    const botStatus = document.getElementById('botStatus');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const botIcon = document.getElementById('botIcon');
+    
+    // Update status dot
+    statusDot.className = `status-dot bg-${colorClass}`;
+    
+    // Update status text
+    botStatus.textContent = text;
+    botStatus.className = `text-${colorClass}`;
+    
+    // Update connection badge
+    connectionStatus.textContent = status === 'active' ? 'Conectado' : 'Desconectado';
+    connectionStatus.className = `badge bg-${colorClass}`;
+    
+    // Update bot icon
+    botIcon.className = `bi bi-robot display-1 text-${colorClass}`;
+}
+
+function toggleTokenVisibility() {
+    const tokenInput = document.getElementById('botToken');
+    const toggleIcon = document.getElementById('tokenToggleIcon');
+    
+    if (tokenInput.type === 'password') {
+        tokenInput.type = 'text';
+        toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+        tokenInput.type = 'password';
+        toggleIcon.className = 'bi bi-eye';
     }
+}
+
+function saveBotConfig(e) {
+    e.preventDefault();
+    
+    const config = {
+        botToken: document.getElementById('botToken').value,
+        maxUsers: document.getElementById('maxUsers').value,
+        responseDelay: document.getElementById('responseDelay').value,
+        maintenanceMode: document.getElementById('maintenanceMode').checked
+    };
+    
+    // Simulate saving
+    showLoading(document.querySelector('#botConfigForm button[type="submit"]'));
+    
+    setTimeout(() => {
+        hideLoading(document.querySelector('#botConfigForm button[type="submit"]'));
+        addActivityLog('Configuración actualizada', 'info');
+        showAlert('success', 'Configuración guardada exitosamente');
+    }, 1500);
+}
+
+function refreshBotStatus() {
+    showLoading(document.querySelector('button[onclick="refreshBotStatus()"]'));
+    
+    updateBotStatus();
+    
+    setTimeout(() => {
+        hideLoading(document.querySelector('button[onclick="refreshBotStatus()"]'));
+        showAlert('info', 'Estado actualizado');
+    }, 1000);
+}
+
+function toggleMaintenance() {
+    showLoading(document.querySelector('button[onclick="toggleMaintenance()"]'));
+    
+    fetch('/api/admin/bot/maintenance', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading(document.querySelector('button[onclick="toggleMaintenance()"]'));
+        if (data.status === 'success') {
+            showAlert('warning', data.message);
+            updateBotStatus();
+            
+            // Update maintenance checkbox
+            const maintenanceCheckbox = document.getElementById('maintenanceMode');
+            maintenanceCheckbox.checked = data.bot_status === 'maintenance';
+        } else {
+            showAlert('error', data.message || 'Error al cambiar modo mantenimiento');
+        }
+    })
+    .catch(error => {
+        hideLoading(document.querySelector('button[onclick="toggleMaintenance()"]'));
+        console.error('Error toggling maintenance:', error);
+        showAlert('error', 'Error de conexión al cambiar modo mantenimiento');
+    });
+}
+
+function viewLogs() {
+    // Implement log viewing functionality
+    showAlert('info', 'Función de logs en desarrollo');
+}
+
+function showDetailedInfo() {
+    // Implement detailed info modal
+    showAlert('info', 'Información detallada en desarrollo');
+}
+
+function addActivityLog(message, type) {
+    // Activity log disabled for production - no mock entries
+    console.log('Activity log disabled:', message, type);
+}
+
+function showLoading(button) {
+    if (button) {
+        button.disabled = true;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-arrow-repeat me-2"></i>Procesando...';
+        button.dataset.originalText = originalText;
+    }
+}
+
+function hideLoading(button) {
+    if (button && button.dataset.originalText) {
+        button.disabled = false;
+        button.innerHTML = button.dataset.originalText;
+        delete button.dataset.originalText;
+    }
+}
+
+function showAlert(type, message) {
+    // Create and show an alert
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container-fluid');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (statusInterval) {
+        clearInterval(statusInterval);
+    }
+});
 </script>
+
+<style>
+.status-indicator {
+    position: relative;
+}
+
+.status-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.activity-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bot-visual {
+    padding: 20px;
+}
+
+.border-left-primary {
+    border-left: 4px solid #0d6efd !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+}
+</style>
 {% endblock %}

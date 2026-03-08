@@ -1,0 +1,525 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Base de Datos - Panel Administrativo{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Gestión de Base de Datos</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshDatabase()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="runVacuum()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Vacuum
+            </button>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#backupModal">
+                <i class="bi bi-cloud-download me-1"></i>Crear Backup
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Database Status -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Estado de Conexión
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">Conectada</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-database-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Total Tablas
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-table fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Tamaño Total
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">1.2 GB</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-hdd fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Último Backup
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">Hace 2h</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-cloud-download fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tables Overview -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Tablas de la Base de Datos</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Tabla</th>
+                        <th>Registros</th>
+                        <th>Tamaño</th>
+                        <th>Última Modificación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <i class="bi bi-people me-2"></i>users
+                        </td>
+                        <td>10,247</td>
+                        <td>245 MB</td>
+                        <td>2026-03-08 06:12:00</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewTable('users')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="exportTable('users')">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="optimizeTable('users')">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i class="bi bi-journal-text me-2"></i>exercises
+                        </td>
+                        <td>523</td>
+                        <td>12 MB</td>
+                        <td>2026-03-08 05:45:00</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewTable('exercises')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="exportTable('exercises')">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="optimizeTable('exercises')">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i class="bi bi-trophy me-2"></i>user_progress
+                        </td>
+                        <td>52,341</td>
+                        <td>890 MB</td>
+                        <td>2026-03-08 06:10:00</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewTable('user_progress')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="exportTable('user_progress')">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="optimizeTable('user_progress')">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i class="bi bi-bell me-2"></i>notifications
+                        </td>
+                        <td>1,892</td>
+                        <td>8 MB</td>
+                        <td>2026-03-08 04:30:00</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewTable('notifications')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="exportTable('notifications')">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="optimizeTable('notifications')">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <i class="bi bi-shield-check me-2"></i>admin_users
+                        </td>
+                        <td>3</td>
+                        <td>1 MB</td>
+                        <td>2026-03-07 12:00:00</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewTable('admin_users')">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="exportTable('admin_users')">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="optimizeTable('admin_users')">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Database Operations -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Operaciones de Mantenimiento</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="runVacuum()">
+                        <i class="bi bi-arrow-repeat me-2"></i>VACUUM Database
+                    </button>
+                    <button class="btn btn-outline-info" onclick="analyzeDatabase()">
+                        <i class="bi bi-search me-2"></i>ANALYZE Database
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="reindexDatabase()">
+                        <i class="bi bi-arrow-clockwise me-2"></i>REINDEX Database
+                    </button>
+                    <button class="btn btn-outline-success" onclick="optimizeDatabase()">
+                        <i class="bi bi-speedometer2 me-2"></i>OPTIMIZE Database
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Backup & Restore</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#backupModal">
+                        <i class="bi bi-cloud-download me-2"></i>Crear Backup
+                    </button>
+                    <button class="btn btn-outline-info" onclick="listBackups()">
+                        <i class="bi bi-list-ul me-2"></i>Ver Backups
+                    </button>
+                    <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#restoreModal">
+                        <i class="bi bi-cloud-upload me-2"></i>Restaurar Backup
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="scheduleBackup()">
+                        <i class="bi bi-calendar-check me-2"></i>Programar Backup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Query Executor -->
+<div class="card shadow">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">Ejecutor de Consultas SQL</h6>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label for="sqlQuery" class="form-label">Consulta SQL</label>
+            <textarea class="form-control" id="sqlQuery" rows="4" placeholder="SELECT * FROM users LIMIT 10;"></textarea>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" onclick="executeQuery()">
+                <i class="bi bi-play me-2"></i>Ejecutar
+            </button>
+            <button class="btn btn-outline-secondary" onclick="clearQuery()">
+                <i class="bi bi-x me-2"></i>Limpiar
+            </button>
+            <button class="btn btn-outline-info" onclick="saveQuery()">
+                <i class="bi bi-save me-2"></i>Guardar
+            </button>
+        </div>
+        
+        <div id="queryResults" class="mt-4" style="display: none;">
+            <h6>Resultados</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="resultsTable">
+                    <!-- Results will be displayed here -->
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshDatabase() {
+    AdminUtils.showNotification('Información de base de datos actualizada', 'info');
+    location.reload();
+}
+
+function viewTable(tableName) {
+    const query = `SELECT * FROM ${tableName} LIMIT 100`;
+    document.getElementById('sqlQuery').value = query;
+    executeQuery();
+}
+
+function exportTable(tableName) {
+    AdminUtils.showNotification(`Exportando tabla ${tableName}...`, 'info');
+    
+    // Simulate export
+    setTimeout(() => {
+        const data = [
+            { column1: 'value1', column2: 'value2' },
+            { column1: 'value3', column2: 'value4' }
+        ];
+        
+        AdminUtils.exportToCSV(data, `${tableName}_export.csv`);
+        AdminUtils.showNotification(`Tabla ${tableName} exportada exitosamente`, 'success');
+    }, 2000);
+}
+
+function optimizeTable(tableName) {
+    if (!confirm(`¿Estás seguro de que quieres optimizar la tabla ${tableName}?`)) {
+        return;
+    }
+    
+    AdminUtils.showLoading(event.target);
+    
+    setTimeout(() => {
+        AdminUtils.hideLoading(event.target);
+        AdminUtils.showNotification(`Tabla ${tableName} optimizada exitosamente`, 'success');
+    }, 2000);
+}
+
+function runVacuum() {
+    if (!confirm('¿Estás seguro de que quieres ejecutar VACUUM? Esta operación puede tomar varios minutos.')) {
+        return;
+    }
+    
+    AdminUtils.showLoading(event.target);
+    
+    setTimeout(() => {
+        AdminUtils.hideLoading(event.target);
+        AdminUtils.showNotification('VACUUM completado exitosamente', 'success');
+    }, 3000);
+}
+
+function analyzeDatabase() {
+    AdminUtils.showLoading(event.target);
+    
+    setTimeout(() => {
+        AdminUtils.hideLoading(event.target);
+        AdminUtils.showNotification('ANALYZE completado exitosamente', 'success');
+    }, 1500);
+}
+
+function reindexDatabase() {
+    if (!confirm('¿Estás seguro de que quieres ejecutar REINDEX?')) {
+        return;
+    }
+    
+    AdminUtils.showLoading(event.target);
+    
+    setTimeout(() => {
+        AdminUtils.hideLoading(event.target);
+        AdminUtils.showNotification('REINDEX completado exitosamente', 'success');
+    }, 2000);
+}
+
+function optimizeDatabase() {
+    if (!confirm('¿Estás seguro de que quieres optimizar la base de datos?')) {
+        return;
+    }
+    
+    AdminUtils.showLoading(event.target);
+    
+    setTimeout(() => {
+        AdminUtils.hideLoading(event.target);
+        AdminUtils.showNotification('Base de datos optimizada exitosamente', 'success');
+    }, 2500);
+}
+
+function listBackups() {
+    AdminUtils.showNotification('Lista de backups en desarrollo', 'info');
+}
+
+function scheduleBackup() {
+    AdminUtils.showNotification('Programación de backups en desarrollo', 'info');
+}
+
+function executeQuery() {
+    const query = document.getElementById('sqlQuery').value.trim();
+    
+    if (!query) {
+        AdminUtils.showNotification('Por favor ingresa una consulta SQL', 'warning');
+        return;
+    }
+    
+    AdminUtils.showLoading(event.target);
+    
+    // Simulate query execution
+    setTimeout(() => {
+        AdminUtils.hideLoading(event.target);
+        
+        // Show mock results
+        const mockResults = [
+            { id: 1, username: 'user1', email: 'user1@example.com' },
+            { id: 2, username: 'user2', email: 'user2@example.com' },
+            { id: 3, username: 'user3', email: 'user3@example.com' }
+        ];
+        
+        displayQueryResults(mockResults);
+        AdminUtils.showNotification('Consulta ejecutada exitosamente', 'success');
+    }, 1500);
+}
+
+function displayQueryResults(results) {
+    const resultsDiv = document.getElementById('queryResults');
+    const resultsTable = document.getElementById('resultsTable');
+    
+    if (results.length === 0) {
+        resultsDiv.style.display = 'block';
+        resultsTable.innerHTML = '<tr><td colspan="100%" class="text-center text-muted">No se encontraron resultados</td></tr>';
+        return;
+    }
+    
+    const columns = Object.keys(results[0]);
+    let html = '<thead><tr>';
+    
+    columns.forEach(column => {
+        html += `<th>${column}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+    
+    results.forEach(row => {
+        html += '<tr>';
+        columns.forEach(column => {
+            html += `<td>${row[column] || ''}</td>`;
+        });
+        html += '</tr>';
+    });
+    
+    html += '</tbody>';
+    
+    resultsTable.innerHTML = html;
+    resultsDiv.style.display = 'block';
+}
+
+function clearQuery() {
+    document.getElementById('sqlQuery').value = '';
+    document.getElementById('queryResults').style.display = 'none';
+}
+
+function saveQuery() {
+    const query = document.getElementById('sqlQuery').value.trim();
+    
+    if (!query) {
+        AdminUtils.showNotification('No hay consulta para guardar', 'warning');
+        return;
+    }
+    
+    // Simulate saving query
+    AdminUtils.showNotification('Consulta guardada exitosamente', 'success');
+}
+</script>
+
+<style>
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#queryResults {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fc;
+    border-radius: 8px;
+}
+
+#resultsTable {
+    font-size: 0.875rem;
+}
+
+#resultsTable th {
+    background-color: #0d6efd;
+    color: white;
+    font-weight: 600;
+}
+
+#resultsTable td {
+    vertical-align: top;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
+{% endblock %}

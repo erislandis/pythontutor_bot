@@ -1,30 +1,204 @@
-{% extends "admin_base_new.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}Ayuda - Panel Admin{% endblock %}
+{% block title %}Ayuda - Panel Administrativo{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Centro de Ayuda</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#contactModal">
+                <i class="bi bi-envelope me-1"></i>Contactar Soporte
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
-    <!-- Professional Header -->
-    <div class="page-header">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="mb-0">
-                        <i class="fas fa-question-circle me-3"></i>
-                        Centro de Ayuda
-                    </h1>
-                    <p class="mb-0 opacity-75">Encuentra respuestas y soporte técnico</p>
+<!-- Search Help -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control" id="helpSearch" placeholder="Buscar ayuda... ej: usuarios, ejercicios, bot">
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <div class="d-flex align-items-center justify-content-md-end">
-                        <div class="me-3">
-                            <small class="d-block text-white-50">Usuario actual</small>
-                            <strong>{{ current_user.username }}</strong>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select form-select-lg" id="categoryFilter">
+                    <option value="">Todas las categorías</option>
+                    <option value="getting-started">Primeros Pasos</option>
+                    <option value="users">Gestión de Usuarios</option>
+                    <option value="exercises">Ejercicios</option>
+                    <option value="bot">Control del Bot</option>
+                    <option value="notifications">Notificaciones</option>
+                    <option value="security">Seguridad</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card h-100 border-0 shadow-sm quick-link-card">
+            <div class="card-body text-center p-3">
+                <div class="quick-link-icon mb-2">
+                    <i class="bi bi-play-circle text-primary display-4"></i>
+                </div>
+                <h6 class="card-title">Primeros Pasos</h6>
+                <p class="card-text small text-muted">Configuración inicial</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card h-100 border-0 shadow-sm quick-link-card">
+            <div class="card-body text-center p-3">
+                <div class="quick-link-icon mb-2">
+                    <i class="bi bi-people text-success display-4"></i>
+                </div>
+                <h6 class="card-title">Usuarios</h6>
+                <p class="card-text small text-muted">Gestión de usuarios</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card h-100 border-0 shadow-sm quick-link-card">
+            <div class="card-body text-center p-3">
+                <div class="quick-link-icon mb-2">
+                    <i class="bi bi-journal-text text-info display-4"></i>
+                </div>
+                <h6 class="card-title">Ejercicios</h6>
+                <p class="card-text small text-muted">Crear y gestionar</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card h-100 border-0 shadow-sm quick-link-card">
+            <div class="card-body text-center p-3">
+                <div class="quick-link-icon mb-2">
+                    <i class="bi bi-robot text-warning display-4"></i>
+                </div>
+                <h6 class="card-title">Bot Control</h6>
+                <p class="card-text small text-muted">Operaciones del bot</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ Categories -->
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Getting Started -->
+        <div class="card shadow mb-4 help-category" data-category="getting-started">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-play-circle me-2"></i>Primeros Pasos
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="gettingStartedAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#gs1">
+                                ¿Cómo inicio sesión por primera vez?
+                            </button>
+                        </h2>
+                        <div id="gs1" class="accordion-collapse collapse show" data-bs-parent="#gettingStartedAccordion">
+                            <div class="accordion-body">
+                                Para iniciar sesión por primera vez, accede a <code>/admin</code> y utiliza las credenciales proporcionadas por el administrador del sistema. Si no tienes acceso, contacta al soporte técnico.
+                            </div>
                         </div>
-                        <div class="status-indicator">
-                            <span class="badge bg-success">
-                                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
-                                En línea
-                            </span>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gs2">
+                                ¿Cuáles son los requisitos del sistema?
+                            </button>
+                        </h2>
+                        <div id="gs2" class="accordion-collapse collapse" data-bs-parent="#gettingStartedAccordion">
+                            <div class="accordion-body">
+                                El sistema funciona con navegadores modernos (Chrome, Firefox, Safari, Edge) y requiere conexión a internet. No se necesita software adicional.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Management -->
+        <div class="card shadow mb-4 help-category" data-category="users">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-people me-2"></i>Gestión de Usuarios
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="usersAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#u1">
+                                ¿Cómo agrego un nuevo usuario?
+                            </button>
+                        </h2>
+                        <div id="u1" class="accordion-collapse collapse show" data-bs-parent="#usersAccordion">
+                            <div class="accordion-body">
+                                Ve a la sección "Gestión de Usuarios" y haz clic en "Nuevo Usuario". Completa los campos requeridos incluyendo ID de Telegram y nombre del usuario.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#u2">
+                                ¿Puedo editar el nivel de un usuario?
+                            </button>
+                        </h2>
+                        <div id="u2" class="accordion-collapse collapse" data-bs-parent="#usersAccordion">
+                            <div class="accordion-body">
+                                Sí, puedes editar el nivel de cualquier usuario desde la tabla de usuarios. Haz clic en el botón de editar y selecciona el nuevo nivel.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercises -->
+        <div class="card shadow mb-4 help-category" data-category="exercises">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-journal-text me-2"></i>Ejercicios
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="exercisesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#e1">
+                                ¿Cómo creo un nuevo ejercicio?
+                            </button>
+                        </h2>
+                        <div id="e1" class="accordion-collapse collapse show" data-bs-parent="#exercisesAccordion">
+                            <div class="accordion-body">
+                                En "Gestión de Ejercicios", haz clic en "Nuevo Ejercicio". Completa la pregunta, nivel, 4 opciones de respuesta, y especifica cuál es la correcta.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#e2">
+                                ¿Puedo importar ejercicios masivamente?
+                            </button>
+                        </h2>
+                        <div id="e2" class="accordion-collapse collapse" data-bs-parent="#exercisesAccordion">
+                            <div class="accordion-body">
+                                Sí, puedes importar ejercicios desde un archivo JSON o CSV. Utiliza la función de importación en la sección de ejercicios.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -32,434 +206,277 @@
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="container-fluid">
-        <div class="row g-4">
-            <!-- Search and Quick Help -->
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <h5 class="mb-0">
-                            <i class="fas fa-search text-primary me-2"></i>
-                            Búsqueda Rápida
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input type="text" class="form-control" id="help-search" placeholder="Buscar ayuda...">
-                            </div>
-                        </div>
-                        
-                        <div class="quick-help">
-                            <h6 class="mb-3">Ayuda Rápida</h6>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-outline-primary text-start" onclick="showHelp('getting-started')">
-                                    <i class="fas fa-rocket me-2"></i>
-                                    Primeros Pasos
-                                </button>
-                                <button class="btn btn-outline-primary text-start" onclick="showHelp('users')">
-                                    <i class="fas fa-users me-2"></i>
-                                    Gestión de Usuarios
-                                </button>
-                                <button class="btn btn-outline-primary text-start" onclick="showHelp('exercises')">
-                                    <i class="fas fa-book me-2"></i>
-                                    Gestión de Ejercicios
-                                </button>
-                                <button class="btn btn-outline-primary text-start" onclick="showHelp('bot-control')">
-                                    <i class="fas fa-robot me-2"></i>
-                                    Control del Bot
-                                </button>
-                                <button class="btn btn-outline-primary text-start" onclick="showHelp('security')">
-                                    <i class="fas fa-shield-alt me-2"></i>
-                                    Seguridad
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 pt-3 border-top">
-                            <h6 class="mb-3">Contacto de Soporte</h6>
-                            <div class="support-info">
-                                <div class="mb-2">
-                                    <i class="fas fa-envelope me-2"></i>
-                                    <a href="mailto:support@pythontutor.com">support@pythontutor.com</a>
-                                </div>
-                                <div class="mb-2">
-                                    <i class="fas fa-phone me-2"></i>
-                                    <a href="tel:+1234567890">+1 (234) 567-890</a>
-                                </div>
-                                <div class="mb-2">
-                                    <i class="fas fa-comments me-2"></i>
-                                    <a href="#" onclick="openChat()">Chat en Vivo</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Contact Support -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0">
+                    <i class="bi bi-headset me-2"></i>¿Necesitas Ayuda?
+                </h6>
             </div>
-            
-            <!-- Help Content -->
-            <div class="col-lg-8">
-                <div class="card h-100">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <h5 class="mb-0">
-                            <i class="fas fa-book text-primary me-2"></i>
-                            <span id="help-title">Documentación</span>
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="help-content">
-                            <!-- Getting Started Section -->
-                            <div id="getting-started-content" class="help-section">
-                                <h6 class="mb-4">
-                                    <i class="fas fa-rocket me-2"></i>
-                                    Primeros Pasos
-                                </h6>
-                                
-                                <div class="accordion" id="gettingStartedAccordion">
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                                <i class="fas fa-sign-in-alt me-2"></i>
-                                                Cómo acceder al panel
-                                            </button>
-                                        </h2>
-                                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#gettingStartedAccordion">
-                                            <div class="accordion-body">
-                                                <ol>
-                                                    <li>Abre tu navegador web y visita la URL del sistema</li>
-                                                    <li>Ingresa tu nombre de usuario y contraseña</li>
-                                                    <li>Haz clic en "Iniciar Sesión"</li>
-                                                    <li>Serás redirigido automáticamente al dashboard</li>
-                                                </ol>
-                                                <div class="alert alert-info mt-3">
-                                                    <i class="fas fa-info-circle me-2"></i>
-                                                    Si olvidaste tu contraseña, contacta al administrador del sistema.
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                                <i class="fas fa-tachometer-alt me-2"></i>
-                                                Navegación básica
-                                            </button>
-                                        </h2>
-                                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#gettingStartedAccordion">
-                                            <div class="accordion-body">
-                                                <p>El panel administrativo tiene las siguientes secciones principales:</p>
-                                                <ul>
-                                                    <li><strong>Dashboard:</strong> Vista general del sistema</li>
-                                                    <li><strong>Usuarios:</strong> Gestión de usuarios del sistema</li>
-                                                    <li><strong>Ejercicios:</strong> Administración de ejercicios</li>
-                                                    <li><strong>Control del Bot:</strong> Configuración del bot</li>
-                                                    <li><strong>Perfil:</strong> Tu información personal</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                                                <i class="fas fa-user-cog me-2"></i>
-                                                Configuración inicial
-                                            </button>
-                                        </h2>
-                                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#gettingStartedAccordion">
-                                            <div class="accordion-body">
-                                                <p>Para configurar tu perfil:</p>
-                                                <ol>
-                                                    <li>Ve a la sección "Perfil"</li>
-                                                    <li>Actualiza tu información personal</li>
-                                                    <li>Configura tus preferencias de notificación</li>
-                                                    <li>Guarda los cambios</li>
-                                                </ol>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Users Management Section -->
-                            <div id="users-content" class="help-section" style="display: none;">
-                                <h6 class="mb-4">
-                                    <i class="fas fa-users me-2"></i>
-                                    Gestión de Usuarios
-                                </h6>
-                                
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h6 class="card-title">
-                                                    <i class="fas fa-plus-circle text-success me-2"></i>
-                                                    Crear Usuario
-                                                </h6>
-                                                <p class="card-text">Para agregar un nuevo usuario al sistema:</p>
-                                                <ol>
-                                                    <li>Ve a la sección "Usuarios"</li>
-                                                    <li>Haz clic en "Nuevo Usuario"</li>
-                                                    <li>Completa el formulario</li>
-                                                    <li>Asigna un rol y permisos</li>
-                                                    <li>Guarda los cambios</li>
-                                                </ol>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h6 class="card-title">
-                                                    <i class="fas fa-edit text-primary me-2"></i>
-                                                    Editar Usuario
-                                                </h6>
-                                                <p class="card-text">Para modificar información de un usuario:</p>
-                                                <ol>
-                                                    <li>Busca al usuario en la lista</li>
-                                                    <li>Haz clic en el botón "Editar"</li>
-                                                    <li>Modifica la información necesaria</li>
-                                                    <li>Guarda los cambios</li>
-                                                </ol>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h6 class="card-title">
-                                                    <i class="fas fa-trash text-danger me-2"></i>
-                                                    Eliminar Usuario
-                                                </h6>
-                                                <p class="card-text">Para eliminar un usuario:</p>
-                                                <ol>
-                                                    <li>Encuentra al usuario en la lista</li>
-                                                    <li>Haz clic en el botón "Eliminar"</li>
-                                                    <li>Confirma la acción</li>
-                                                    <li>El usuario será eliminado permanentemente</li>
-                                                </ol>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h6 class="card-title">
-                                                    <i class="fas fa-key text-warning me-2"></i>
-                                                    Restablecer Contraseña
-                                                </h6>
-                                                <p class="card-text">Para resetear la contraseña de un usuario:</p>
-                                                <ol>
-                                                    <li>Selecciona al usuario</li>
-                                                    <li>Haz clic en "Resetear Contraseña"</li>
-                                                    <li>El sistema generará una nueva contraseña</li>
-                                                    <li>Comunica la nueva contraseña al usuario</li>
-                                                </ol>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Other sections would follow similar pattern -->
-                        </div>
-                    </div>
+            <div class="card-body">
+                <p class="mb-3">Si no encuentras la respuesta que buscas, nuestro equipo de soporte está disponible para ayudarte.</p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#contactModal">
+                        <i class="bi bi-envelope me-2"></i>Enviar Mensaje
+                    </button>
+                    <a href="#" class="btn btn-outline-info">
+                        <i class="bi bi-chat-dots me-2"></i>Chat en Vivo
+                    </a>
                 </div>
             </div>
         </div>
-        
-        <!-- FAQ Section -->
-        <div class="row g-4 mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-white border-0 pt-4">
-                        <h5 class="mb-0">
-                            <i class="fas fa-question-circle text-primary me-2"></i>
-                            Preguntas Frecuentes (FAQ)
-                        </h5>
+
+        <!-- Resources -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-book me-2"></i>Recursos
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-file-pdf text-danger me-2"></i>
+                        Manual de Usuario
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-play-circle text-primary me-2"></i>
+                        Video Tutoriales
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-youtube text-danger me-2"></i>
+                        Canal de YouTube
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-github text-dark me-2"></i>
+                        Documentación API
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-activity me-2"></i>Estado del Sistema
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="status-item mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Panel Admin</span>
+                        <span class="badge bg-success">Operativo</span>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="faq-item">
-                                    <h6 class="mb-2">
-                                        <i class="fas fa-question text-info me-2"></i>
-                                        ¿Cómo cambio mi contraseña?
-                                    </h6>
-                                    <p class="text-muted">Ve a la sección "Cambiar Contraseña" en el menú de navegación. Ingresa tu contraseña actual y la nueva contraseña que deseas usar.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="faq-item">
-                                    <h6 class="mb-2">
-                                        <i class="fas fa-question text-info me-2"></i>
-                                        ¿Cómo agrego un nuevo ejercicio?
-                                    </h6>
-                                    <p class="text-muted">En la sección "Ejercicios", haz clic en "Nuevo Ejercicio" y completa el formulario con la información del ejercicio.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="faq-item">
-                                    <h6 class="mb-2">
-                                        <i class="fas fa-question text-info me-2"></i>
-                                        ¿Qué hago si el bot no responde?
-                                    </h6>
-                                    <p class="text-muted">Ve a "Control del Bot" y verifica el estado. Si está inactivo, haz clic en "Iniciar Bot". Si el problema persiste, contacta soporte técnico.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="faq-item">
-                                    <h6 class="mb-2">
-                                        <i class="fas fa-question text-info me-2"></i>
-                                        ¿Cómo exporto datos del sistema?
-                                    </h6>
-                                    <p class="text-muted">La mayoría de las secciones tienen un botón "Exportar" que te permite descargar los datos en formato CSV o Excel.</p>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+                <div class="status-item mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Base de Datos</span>
+                        <span class="badge bg-success">Conectada</span>
+                    </div>
+                </div>
+                <div class="status-item mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>API del Bot</span>
+                        <span class="badge bg-success">Activa</span>
+                    </div>
+                </div>
+                <div class="status-item mb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Última Actualización</span>
+                        <span class="badge bg-info">Hace 5 min</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Contactar Soporte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="contactForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Asunto</label>
+                        <select class="form-select" id="subject">
+                            <option value="">Selecciona un asunto</option>
+                            <option value="technical">Problema Técnico</option>
+                            <option value="question">Pregunta General</option>
+                            <option value="feature">Solicitud de Funcionalidad</option>
+                            <option value="bug">Reporte de Error</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Mensaje</label>
+                        <textarea class="form-control" id="message" rows="4" placeholder="Describe tu problema o pregunta..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="priority" class="form-label">Prioridad</label>
+                        <select class="form-select" id="priority">
+                            <option value="low">Baja</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="high">Alta</option>
+                            <option value="urgent">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-2"></i>Enviar Mensaje
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Help system JavaScript
-    document.addEventListener('DOMContentLoaded', function() {
-        // Search functionality
-        const searchInput = document.getElementById('help-search');
-        if (searchInput) {
-            searchInput.addEventListener('input', debounce(performSearch, 300));
-        }
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    document.getElementById('helpSearch').addEventListener('input', filterHelp);
+    document.getElementById('categoryFilter').addEventListener('change', filterHelp);
     
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
+    // Contact form
+    document.getElementById('contactForm').addEventListener('submit', sendContactMessage);
+});
+
+function filterHelp() {
+    const searchTerm = document.getElementById('helpSearch').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value;
     
-    function showHelp(section) {
-        // Hide all sections
-        const sections = document.querySelectorAll('.help-section');
-        sections.forEach(s => s.style.display = 'none');
-        
-        // Show selected section
-        const selectedSection = document.getElementById(section + '-content');
-        if (selectedSection) {
-            selectedSection.style.display = 'block';
-        }
-        
-        // Update title
-        const titles = {
-            'getting-started': 'Primeros Pasos',
-            'users': 'Gestión de Usuarios',
-            'exercises': 'Gestión de Ejercicios',
-            'bot-control': 'Control del Bot',
-            'security': 'Seguridad'
-        };
-        
-        document.getElementById('help-title').textContent = titles[section] || 'Ayuda';
-    }
+    const categories = document.querySelectorAll('.help-category');
     
-    function performSearch() {
-        const searchTerm = document.getElementById('help-search').value.toLowerCase();
+    categories.forEach(category => {
+        const categoryData = category.dataset.category;
+        const accordionItems = category.querySelectorAll('.accordion-item');
         
-        if (searchTerm.length < 2) {
-            showHelp('getting-started');
+        // Filter by category
+        if (categoryFilter && categoryData !== categoryFilter) {
+            category.style.display = 'none';
             return;
         }
         
-        // Simple search implementation
-        const sections = ['getting-started', 'users', 'exercises', 'bot-control', 'security'];
-        let found = false;
-        
-        for (const section of sections) {
-            const content = document.getElementById(section + '-content');
-            if (content) {
-                const text = content.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    showHelp(section);
-                    found = true;
-                    break;
-                }
+        // Filter by search term
+        let hasMatch = false;
+        accordionItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                item.style.display = 'block';
+                hasMatch = true;
+            } else {
+                item.style.display = 'none';
             }
-        }
+        });
         
-        if (!found) {
-            showNotification('No se encontraron resultados para: ' + searchTerm, 'warning');
-        }
+        category.style.display = hasMatch || !searchTerm ? 'block' : 'none';
+    });
+}
+
+async function sendContactMessage(e) {
+    e.preventDefault();
+    
+    const formData = {
+        subject: document.getElementById('subject').value,
+        message: document.getElementById('message').value,
+        priority: document.getElementById('priority').value
+    };
+    
+    if (!formData.subject || !formData.message) {
+        AdminUtils.showNotification('Por favor completa todos los campos', 'warning');
+        return;
     }
     
-    function openChat() {
-        showNotification('Chat en vivo no disponible actualmente. Contacta por email o teléfono.', 'info');
-    }
-    
-    function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        document.body.appendChild(notification);
+    try {
+        AdminUtils.showLoading(e.target.querySelector('button[type="submit"]'));
         
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 5000);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        bootstrap.Modal.getInstance(document.getElementById('contactModal')).hide();
+        document.getElementById('contactForm').reset();
+        
+        AdminUtils.showNotification('Mensaje enviado correctamente. Te responderemos pronto.', 'success');
+        
+    } catch (error) {
+        AdminUtils.handleApiError(error);
+    } finally {
+        AdminUtils.hideLoading(e.target.querySelector('button[type="submit"]'));
     }
+}
 </script>
 
 <style>
-.help-section {
-    animation: fadeIn 0.3s ease-in;
+.quick-link-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.quick-link-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
-.faq-item {
-    padding: 1rem;
-    border-left: 3px solid #e9ecef;
+.quick-link-icon {
+    transition: transform 0.3s ease;
+}
+
+.quick-link-card:hover .quick-link-icon {
+    transform: scale(1.1);
+}
+
+.help-category {
     transition: all 0.3s ease;
 }
 
-.faq-item:hover {
-    border-left-color: #667eea;
-    background-color: #f8f9fa;
+.status-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.support-info a {
-    color: #667eea;
-    text-decoration: none;
+.status-item:last-child {
+    border-bottom: none;
 }
 
-.support-info a:hover {
-    text-decoration: underline;
+.accordion-button:not(.collapsed) {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(13, 110, 253, 0.25);
+}
+
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #e3e6f0;
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fc;
+    transform: translateX(5px);
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .col-lg-4 {
+        margin-top: 2rem;
+    }
 }
 </style>
 {% endblock %}

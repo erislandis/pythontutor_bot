@@ -5,3 +5,8 @@ supabase
 python-dotenv
 werkzeug
 gunicorn
+Jinja2
+itsdangerous
+MarkupSafe
+blinker
+click

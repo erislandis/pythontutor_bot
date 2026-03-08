@@ -10,7 +10,7 @@ import asyncio
 import signal
 import sys
 import threading
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from datetime import datetime, timedelta
 import random
 
@@ -36,6 +36,79 @@ def health():
         "service": "pythontutor-bot",
         "bot_running": True
     })
+
+@health_app.route('/status')
+def bot_status():
+    """Get current bot status for admin panel"""
+    status = get_bot_status()
+    return jsonify({
+        "status": "success",
+        "bot_status": status['status'],
+        "message": status['message'],
+        "last_updated": status['last_updated'].isoformat(),
+        "service": "pythontutor-bot"
+    })
+
+@health_app.route('/control', methods=['POST'])
+def bot_control():
+    """Receive control commands from web service"""
+    try:
+        command = request.json.get('command')
+        message = request.json.get('message', '')
+        
+        if not command:
+            return jsonify({
+                "status": "error",
+                "message": "Missing command parameter"
+            }), 400
+        
+        # Validate command
+        valid_commands = ['start', 'stop', 'pause', 'restart', 'maintenance']
+        if command not in valid_commands:
+            return jsonify({
+                "status": "error",
+                "message": f"Invalid command: {command}"
+            }), 400
+        
+        # Map commands to status
+        status_map = {
+            'start': 'active',
+            'stop': 'stopped',
+            'pause': 'paused',
+            'restart': 'restarting',
+            'maintenance': 'maintenance'
+        }
+        
+        new_status = status_map[command]
+        
+        # Special handling for maintenance toggle
+        if command == 'maintenance':
+            current_status = get_bot_status()['status']
+            if current_status == 'maintenance':
+                new_status = 'active'
+                message = 'Maintenance mode disabled'
+            else:
+                new_status = 'maintenance'
+                message = message or 'Maintenance mode enabled'
+        
+        # Update bot status
+        set_bot_status(new_status, message)
+        
+        logger.info(f"Bot control command received: {command} -> {new_status}")
+        
+        return jsonify({
+            "status": "success",
+            "bot_status": new_status,
+            "message": message or f"Bot {command}ed successfully",
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in bot control endpoint: {e}")
+        return jsonify({
+            "status": "error",
+            "message": "Internal server error"
+        }), 500
 
 @health_app.route('/')
 def root():
@@ -84,6 +157,108 @@ WEB_API_URL = os.getenv('WEB_API_URL')
 
 # User session storage (en memoria, se perderá al reiniciar)
 user_sessions = {}
+
+# Bot state management
+bot_state = {
+    'status': 'active',  # active, inactive, paused, stopped, maintenance, restarting
+    'last_updated': datetime.now(),
+    'message': 'Bot is running normally'
+}
+
+# Bot status lock for thread safety
+import threading
+status_lock = threading.Lock()
+
+def get_bot_status():
+    """Get current bot status"""
+    with status_lock:
+        return bot_state.copy()
+
+def set_bot_status(status, message=None):
+    """Set bot status with thread safety"""
+    with status_lock:
+        bot_state['status'] = status
+        bot_state['last_updated'] = datetime.now()
+        if message:
+            bot_state['message'] = message
+        logger.info(f"Bot status updated to: {status} - {message or ''}")
+
+def is_bot_active():
+    """Check if bot is active and can accept user interactions"""
+    with status_lock:
+        return bot_state['status'] == 'active'
+
+def get_bot_status_message():
+    """Get appropriate message for current bot status"""
+    with status_lock:
+        status = bot_state['status']
+        if status == 'stopped':
+            return "🔴 El bot está temporalmente desactivado. Intenta más tarde."
+        elif status == 'paused':
+            return "⏸️ El bot está en pausa. Intenta más tarde."
+        elif status == 'maintenance':
+            return "🔧 Modo mantenimiento: El bot está siendo actualizado. Vuelve pronto."
+        elif status == 'restarting':
+            return "🔄 El bot está reiniciando. Espera unos momentos."
+        elif status == 'inactive':
+            return "⚫ El bot está inactivo. Contacta al administrador."
+        else:  # active
+            return None  # No message for active status
+
+def check_bot_status(handler):
+    """Decorator to check bot status before allowing user interactions"""
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not is_bot_active():
+            status_message = get_bot_status_message()
+            if update.callback_query:
+                await update.callback_query.answer()
+                await update.callback_query.message.reply_text(status_message)
+            else:
+                await update.message.reply_text(status_message)
+            return
+        return await handler(update, context)
+    return wrapper
+
+def check_bot_access(handler):
+    """Decorator to allow user registration in more states than full access"""
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        current_status = get_bot_status()['status']
+        
+        # Completely block access in these states
+        if current_status in ['stopped', 'paused', 'inactive']:
+            status_message = get_bot_status_message()
+            if update.callback_query:
+                await update.callback_query.answer()
+                await update.callback_query.message.reply_text(status_message)
+            else:
+                await update.message.reply_text(status_message)
+            return
+        
+        # Allow access but show warning in these states
+        if current_status in ['maintenance', 'restarting']:
+            warning_message = get_registration_warning_message(current_status)
+            if update.callback_query:
+                await update.callback_query.answer()
+                # Send warning as a new message to avoid interfering with callback
+                await update.callback_query.message.reply_text(warning_message)
+            else:
+                await update.message.reply_text(warning_message)
+        
+        # Continue with handler for allowed states
+        return await handler(update, context)
+    return wrapper
+
+def get_registration_warning_message(status):
+    """Get appropriate warning message for registration in limited states"""
+    if status == 'maintenance':
+        return "🔧 *Modo Mantenimiento*\n\n"
+    elif status == 'restarting':
+        return "🔄 *Bot Reiniciando*\n\n"
+    else:
+        return ""
+    
+    return "El registro está permitido, pero algunas funciones pueden estar limitadas. " \
+           "Por favor intenta más tarde para acceder a todas las funcionalidades."
 
 # Exercise cache management
 exercise_cache = {}
@@ -206,27 +381,37 @@ def get_user_from_api(telegram_id):
         return None
 
 def create_user_in_api(user_data):
-    """Crear usuario en la API del web service"""
+    """Crear usuario en la API del web service con manejo mejorado de errores"""
     try:
         logger.info(f"Creating user with data: {user_data}")
         response = requests.post(f"{WEB_API_URL}/api/user", json=user_data, timeout=10)
         
         if response.status_code == 201:
             logger.info(f"Successfully created user {user_data['telegram_id']}")
-            return response.json()
+            return {"success": True, "data": response.json()}
+        elif response.status_code == 200:
+            # User already exists
+            logger.info(f"User {user_data['telegram_id']} already exists")
+            return {"success": True, "data": response.json()}
+        elif response.status_code == 400:
+            logger.error(f"Validation error creating user: {response.text}")
+            return {"success": False, "error": "validation_error", "details": response.text}
+        elif response.status_code == 500:
+            logger.error(f"Database error creating user: {response.text}")
+            return {"success": False, "error": "database_error", "details": response.text}
         else:
-            logger.error(f"Failed to create user: {response.status_code} - {response.text}")
-            return None
+            logger.error(f"Unexpected error creating user: {response.status_code} - {response.text}")
+            return {"success": False, "error": "unknown_error", "details": f"HTTP {response.status_code}"}
             
     except requests.exceptions.ConnectionError:
         logger.error(f"Cannot connect to API at {WEB_API_URL} for user creation")
-        return None
+        return {"success": False, "error": "connection_error", "details": "No se puede conectar al servicio web"}
     except requests.exceptions.Timeout:
         logger.error(f"API timeout during user creation")
-        return None
+        return {"success": False, "error": "timeout_error", "details": "Tiempo de espera agotado"}
     except Exception as e:
         logger.error(f"Unexpected error creating user: {e}")
-        return None
+        return {"success": False, "error": "unexpected_error", "details": str(e)}
 
 def get_exercises_from_api(level):
     """Obtener ejercicios desde la API del web service"""
@@ -258,6 +443,7 @@ def update_progress_in_api(telegram_id, exercise_id, completed):
         logger.error(f"API connection error: {e}")
         return False
 
+@check_bot_access
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start command handler - Enhanced with service health check"""
     user = update.effective_user
@@ -308,19 +494,36 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
         
         created_user = create_user_in_api(new_user_data)
-        if created_user:
-            user_data = created_user
+        if created_user and created_user.get("success"):
+            user_data = created_user.get("data")
             await update.message.reply_text(
                 "✅ *¡Perfil creado exitosamente!*\n\n"
                 "🎉 *¡Bienvenido a PythonBot!*",
                 parse_mode='Markdown'
             )
         else:
-            await update.message.reply_text(
-                "❌ *Error al crear tu perfil*\n\n"
-                "🔄 *Por favor intenta de nuevo en unos momentos*",
-                parse_mode='Markdown'
-            )
+            # Handle specific error types
+            error_type = created_user.get("error", "unknown") if created_user else "unknown"
+            error_details = created_user.get("details", "Error desconocido") if created_user else "Error desconocido"
+            
+            if error_type == "connection_error":
+                error_msg = "❌ *Error de conexión*\n\n"
+                error_msg += "🔄 *No se puede conectar al servicio web*\n\n"
+                error_msg += "💡 *Por favor intenta más tarde o contacta al administrador*"
+            elif error_type == "database_error":
+                error_msg = "❌ *Error en la base de datos*\n\n"
+                error_msg += "🔄 *No se pudo guardar tu perfil*\n\n"
+                error_msg += f"💡 *Detalles: {error_details}*"
+            elif error_type == "validation_error":
+                error_msg = "❌ *Error de validación*\n\n"
+                error_msg += f"🔄 *Datos inválidos: {error_details}*\n\n"
+                error_msg += "💡 *Por favor intenta de nuevo*"
+            else:
+                error_msg = "❌ *Error al crear tu perfil*\n\n"
+                error_msg += f"🔄 *{error_details}*\n\n"
+                error_msg += "💡 *Por favor intenta de nuevo en unos momentos*"
+            
+            await update.message.reply_text(error_msg, parse_mode='Markdown')
             return
     
     # Check and update level based on progress
@@ -384,6 +587,7 @@ Soy tu tutor personal de Python. Te ayudaré a aprender programación con ejerci
     
     await update.message.reply_text(welcome_text, parse_mode='Markdown', reply_markup=reply_markup)
 
+@check_bot_status
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Help command handler - Updated for progression system"""
     # Determinar si es comando o callback
@@ -439,6 +643,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await reply_func(help_text, parse_mode='Markdown', reply_markup=reply_markup)
 
+@check_bot_status
 async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Learning mode handler - XP-earning progression mode"""
     # Determinar si es comando o callback
@@ -541,10 +746,12 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=reply_markup
     )
 
+@check_bot_status
 async def practice_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Practice command handler - Redirect to practice menu"""
     await practice_menu(update, context)
 
+@check_bot_status
 async def practice_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Practice menu handler - Choose practice session size"""
     # Determinar si es comando o callback
@@ -694,6 +901,7 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
         reply_markup=reply_markup
     )
 
+@check_bot_status
 async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Ranking command handler - Global leaderboard"""
     # Determinar si es comando o callback
@@ -771,6 +979,7 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=reply_markup
     )
 
+@check_bot_status
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show statistics command handler - Enhanced with progression info"""
     # Determinar si es comando o callback

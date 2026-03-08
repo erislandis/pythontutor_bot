@@ -1,0 +1,342 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Estadísticas - Panel Administrativo{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Estadísticas</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshStats()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportStats()">
+                <i class="bi bi-download me-1"></i>Exportar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Time Period Filter -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Período de Tiempo</h6>
+    </div>
+    <div class="card-body">
+        <form id="statsFilterForm" class="row g-3">
+            <div class="col-md-4">
+                <label for="periodFilter" class="form-label">Período</label>
+                <select class="form-select" id="periodFilter">
+                    <option value="today">Hoy</option>
+                    <option value="week" selected>Esta Semana</option>
+                    <option value="month">Este Mes</option>
+                    <option value="year">Este Año</option>
+                    <option value="all">Todo el Tiempo</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="startDate" class="form-label">Fecha Inicio</label>
+                <input type="date" class="form-control" id="startDate">
+            </div>
+            <div class="col-md-4">
+                <label for="endDate" class="form-label">Fecha Fin</label>
+                <input type="date" class="form-control" id="endDate">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1"></i>Aplicar Filtro
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Overview Stats -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Usuarios Totales
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-people fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Ejercicios Completados
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ completed_exercises }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Tasa de Éxito
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ success_rate }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-graph-up fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Tiempo Promedio
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_time }} min</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Actividad de Usuarios</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="userActivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Distribución por Nivel</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="levelDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress by Level -->
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Progreso por Nivel</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-bar">
+                    <canvas id="progressByLevelChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Ejercicios por Categoría</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-bar">
+                    <canvas id="exercisesByCategoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Users -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Usuarios Más Activos</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Posición</th>
+                        <th>Usuario</th>
+                        <th>Ejercicios</th>
+                        <th>Tasa de Éxito</th>
+                        <th>Nivel Actual</th>
+                        <th>Última Actividad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            <i class="bi bi-people display-4"></i>
+                            <p class="mt-2">No hay datos de usuarios disponibles</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    
+    // Form submission
+    document.getElementById('statsFilterForm').addEventListener('submit', applyFilters);
+});
+
+function initializeCharts() {
+    // User Activity Chart
+    const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+    new Chart(userActivityCtx, {
+        type: 'line',
+        data: {
+            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+            datasets: [{
+                label: 'Usuarios Activos',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                borderColor: 'rgb(13, 110, 253)',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Level Distribution Chart
+    const levelDistributionCtx = document.getElementById('levelDistributionChart').getContext('2d');
+    new Chart(levelDistributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Principiante', 'Intermedio', 'Avanzado', 'Experto'],
+            datasets: [{
+                data: [0, 0, 0, 0],
+                backgroundColor: [
+                    '#28a745',
+                    '#17a2b8',
+                    '#ffc107',
+                    '#dc3545'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Progress by Level Chart
+    const progressByLevelCtx = document.getElementById('progressByLevelChart').getContext('2d');
+    new Chart(progressByLevelCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Principiante', 'Intermedio', 'Avanzado', 'Experto'],
+            datasets: [{
+                label: 'Completado',
+                data: [0, 0, 0, 0],
+                backgroundColor: '#28a745'
+            }, {
+                label: 'Pendiente',
+                data: [0, 0, 0, 0],
+                backgroundColor: '#e9ecef'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true }
+            }
+        }
+    });
+
+    // Exercises by Category Chart
+    const exercisesByCategoryCtx = document.getElementById('exercisesByCategoryChart').getContext('2d');
+    new Chart(exercisesByCategoryCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Variables', 'Funciones', 'Clases', 'Módulos', 'Excepciones'],
+            datasets: [{
+                label: 'Ejercicios',
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: '#17a2b8'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function applyFilters(e) {
+    e.preventDefault();
+    showAlert('info', 'Filtros aplicados');
+    // Here you would typically fetch new data based on filters
+}
+
+function refreshStats() {
+    showAlert('info', 'Estadísticas actualizadas');
+    // Here you would typically refresh the data
+}
+
+function exportStats() {
+    const statsData = [
+        { metric: 'Usuarios Totales', value: 0 },
+        { metric: 'Ejercicios Completados', value: 0 },
+        { metric: 'Tasa de Éxito', value: '0%' },
+        { metric: 'Tiempo Promedio', value: '0 min' }
+    ];
+    
+    // Export functionality would be implemented here
+    showAlert('success', 'Estadísticas exportadas');
+}
+</script>
+{% endblock %}

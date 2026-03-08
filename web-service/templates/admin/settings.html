@@ -1,0 +1,470 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Configuración - Panel Administrativo{% endblock %}
+
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Configuración del Sistema</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetToDefaults()">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Restablecer
+            </button>
+            <button type="button" class="btn btn-sm btn-primary" onclick="saveSettings()">
+                <i class="bi bi-save me-1"></i>Guardar Cambios
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Bot Configuration -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-gradient-primary text-white">
+        <h5 class="mb-0">
+            <i class="bi bi-robot me-2"></i>Configuración del Bot
+        </h5>
+    </div>
+    <div class="card-body">
+        <form id="botConfigForm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="botToken" class="form-label">Token del Bot</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="botToken" value="1234567890:ABCDEFghijklmnopQRstuvwxYZ">
+                        <button class="btn btn-outline-secondary" type="button" onclick="toggleTokenVisibility()">
+                            <i class="bi bi-eye" id="tokenToggleIcon"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">Token de acceso del bot de Telegram</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="botUsername" class="form-label">Username del Bot</label>
+                    <input type="text" class="form-control" id="botUsername" value="@PythonTutorBot">
+                    <small class="text-muted">Username del bot en Telegram</small>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="maxUsers" class="form-label">Límite de Usuarios Concurrentes</label>
+                    <input type="number" class="form-control" id="maxUsers" value="100" min="10" max="10000">
+                    <small class="text-muted">Número máximo de usuarios simultáneos</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="responseDelay" class="form-label">Retardo de Respuesta (ms)</label>
+                    <input type="number" class="form-control" id="responseDelay" value="1000" min="0" max="5000">
+                    <small class="text-muted">Tiempo de espera antes de responder</small>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="sessionTimeout" class="form-label">Tiempo de Sesión (minutos)</label>
+                    <input type="number" class="form-control" id="sessionTimeout" value="30" min="5" max="120">
+                    <small class="text-muted">Tiempo antes de que expire la sesión del usuario</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="maxExercisesPerSession" class="form-label">Ejercicios por Sesión</label>
+                    <input type="number" class="form-control" id="maxExercisesPerSession" value="10" min="1" max="50">
+                    <small class="text-muted">Límite de ejercicios por sesión</small>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="maintenanceMode">
+                        <label class="form-check-label" for="maintenanceMode">
+                            Modo Mantenimiento
+                        </label>
+                    </div>
+                    <small class="text-muted">Desactiva el bot para mantenimiento</small>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="debugMode">
+                        <label class="form-check-label" for="debugMode">
+                            Modo Debug
+                        </label>
+                    </div>
+                    <small class="text-muted">Activa logs detallados para depuración</small>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Database Configuration -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-gradient-success text-white">
+        <h5 class="mb-0">
+            <i class="bi bi-database me-2"></i>Configuración de Base de Datos
+        </h5>
+    </div>
+    <div class="card-body">
+        <form id="dbConfigForm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="dbConnectionTimeout" class="form-label">Timeout de Conexión (segundos)</label>
+                    <input type="number" class="form-control" id="dbConnectionTimeout" value="30" min="5" max="120">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="dbPoolSize" class="form-label">Tamaño del Pool</label>
+                    <input type="number" class="form-control" id="dbPoolSize" value="10" min="1" max="50">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="autoBackup" checked>
+                        <label class="form-check-label" for="autoBackup">
+                            Backup Automático
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="dbLogging" checked>
+                        <label class="form-check-label" for="dbLogging">
+                            Logging de Base de Datos
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Notification Configuration -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-gradient-info text-white">
+        <h5 class="mb-0">
+            <i class="bi bi-bell me-2"></i>Configuración de Notificaciones
+        </h5>
+    </div>
+    <div class="card-body">
+        <form id="notificationConfigForm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="adminEmail" class="form-label">Email del Administrador</label>
+                    <input type="email" class="form-control" id="adminEmail" value="admin@pythontutorbot.com">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="smtpServer" class="form-label">Servidor SMTP</label>
+                    <input type="text" class="form-control" id="smtpServer" value="smtp.gmail.com">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="smtpPort" class="form-label">Puerto SMTP</label>
+                    <input type="number" class="form-control" id="smtpPort" value="587">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="smtpPassword" class="form-label">Contraseña SMTP</label>
+                    <input type="password" class="form-control" id="smtpPassword">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="emailAlerts" checked>
+                        <label class="form-check-label" for="emailAlerts">
+                            Alertas por Email
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="dailyReports">
+                        <label class="form-check-label" for="dailyReports">
+                            Reportes Diarios
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="errorNotifications" checked>
+                        <label class="form-check-label" for="errorNotifications">
+                            Notificaciones de Error
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Security Configuration -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-gradient-warning text-dark">
+        <h5 class="mb-0">
+            <i class="bi bi-shield-check me-2"></i>Configuración de Seguridad
+        </h5>
+    </div>
+    <div class="card-body">
+        <form id="securityConfigForm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="sessionCookieSecure" class="form-label">Cookie Segura</label>
+                    <select class="form-select" id="sessionCookieSecure">
+                        <option value="True">Siempre (HTTPS)</option>
+                        <option value="False">Nunca (HTTP)</option>
+                        <option value="Auto">Automático</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="maxLoginAttempts" class="form-label">Intentos de Login Máximos</label>
+                    <input type="number" class="form-control" id="maxLoginAttempts" value="5" min="1" max="20">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="lockoutDuration" class="form-label">Duración de Bloqueo (minutos)</label>
+                    <input type="number" class="form-control" id="lockoutDuration" value="15" min="1" max="1440">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="passwordMinLength" class="form-label">Longitud Mínima de Contraseña</label>
+                    <input type="number" class="form-control" id="passwordMinLength" value="8" min="4" max="32">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="twoFactorAuth">
+                        <label class="form-check-label" for="twoFactorAuth">
+                            Autenticación de Dos Factores
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="ipWhitelist">
+                        <label class="form-check-label" for="ipWhitelist">
+                            Lista Blanca de IPs
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="auditLogging" checked>
+                        <label class="form-check-label" for="auditLogging">
+                            Logging de Auditoría
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="card shadow">
+    <div class="card-header bg-gradient-secondary text-white">
+        <h5 class="mb-0">
+            <i class="bi bi-info-circle me-2"></i>Información del Sistema
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Versiones</h6>
+                <table class="table table-sm">
+                    <tr>
+                        <td>Python Tutor Bot:</td>
+                        <td>v1.0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Python:</td>
+                        <td>3.9.0</td>
+                    </tr>
+                    <tr>
+                        <td>Flask:</td>
+                        <td>2.0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Supabase:</td>
+                        <td>0.1.0</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6>Estado del Sistema</h6>
+                <table class="table table-sm">
+                    <tr>
+                        <td>Uptime:</td>
+                        <td>0d 0h 0m</td>
+                    </tr>
+                    <tr>
+                        <td>Memoria Usada:</td>
+                        <td>245 MB</td>
+                    </tr>
+                    <tr>
+                        <td>CPU Usage:</td>
+                        <td>12.5%</td>
+                    </tr>
+                    <tr>
+                        <td>Disco Usado:</td>
+                        <td>1.2 GB / 10 GB</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    initializeTooltips();
+    
+    // Form change tracking
+    trackFormChanges();
+});
+
+function toggleTokenVisibility() {
+    const tokenField = document.getElementById('botToken');
+    const toggleIcon = document.getElementById('tokenToggleIcon');
+    
+    if (tokenField.type === 'password') {
+        tokenField.type = 'text';
+        toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+        tokenField.type = 'password';
+        toggleIcon.className = 'bi bi-eye';
+    }
+}
+
+function saveSettings() {
+    const forms = ['botConfigForm', 'dbConfigForm', 'notificationConfigForm', 'securityConfigForm'];
+    const settings = {};
+    
+    forms.forEach(formId => {
+        const form = document.getElementById(formId);
+        const formData = new FormData(form);
+        
+        for (let [key, value] of formData.entries()) {
+            settings[key] = value;
+        }
+        
+        // Handle checkboxes
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            settings[checkbox.id] = checkbox.checked;
+        });
+    });
+    
+    // Simulate saving
+    showAlert('info', 'Guardando configuración...');
+    
+    setTimeout(() => {
+        showAlert('success', 'Configuración guardada exitosamente');
+    }, 2000);
+}
+
+function resetToDefaults() {
+    if (!confirm('¿Estás seguro de que quieres restablecer toda la configuración a los valores por defecto? Esta acción no se puede deshacer.')) {
+        return;
+    }
+    
+    // Reset forms to default values
+    document.getElementById('botConfigForm').reset();
+    document.getElementById('dbConfigForm').reset();
+    document.getElementById('notificationConfigForm').reset();
+    document.getElementById('securityConfigForm').reset();
+    
+    showAlert('warning', 'Configuración restablecida a valores por defecto');
+}
+
+function trackFormChanges() {
+    const forms = document.querySelectorAll('form');
+    let hasChanges = false;
+    
+    forms.forEach(form => {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            input.addEventListener('change', () => {
+                hasChanges = true;
+                updateSaveButtonState();
+            });
+        });
+    });
+    
+    window.addEventListener('beforeunload', (e) => {
+        if (hasChanges) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+}
+
+function updateSaveButtonState() {
+    const saveButton = document.querySelector('button[onclick="saveSettings()"]');
+    if (saveButton) {
+        saveButton.classList.remove('btn-primary');
+        saveButton.classList.add('btn-warning');
+        saveButton.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Guardar Cambios *';
+    }
+}
+
+function initializeTooltips() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+}
+</script>
+
+<style>
+.card-header.bg-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+}
+
+.card-header.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.card-header.bg-gradient-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #0dcaf0 100%);
+}
+
+.card-header.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.card-header.bg-gradient-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.table td {
+    border-color: #e9ecef;
+}
+
+.table-sm td {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+</style>
+{% endblock %}

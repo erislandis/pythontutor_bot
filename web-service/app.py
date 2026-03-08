@@ -77,10 +77,21 @@ def handle_exception(e):
     logger.error(f"Uncaught exception: {e}", exc_info=True)
     return jsonify({'error': 'An unexpected error occurred'}), 500
 
-# Root route to redirect to admin login
+# Root route - landing page
 @app.route('/')
 def index():
-    """Root route - redirect to admin login"""
+    """Landing page - show public index"""
+    logger.info("=== ACCESSING ROOT ROUTE ===")
+    logger.info(f"Request path: {request.path}")
+    logger.info(f"Request method: {request.method}")
+    logger.info(f"User authenticated: {current_user.is_authenticated}")
+    logger.info("Serving landing page...")
+    return render_template('public/index.html')
+
+@app.route('/admin')
+def admin():
+    """Admin login redirect"""
+    logger.info("Accessing /admin route - redirecting to login")
     return redirect(url_for('login'))
 
 # Verificar variables de entorno críticas
@@ -184,11 +195,68 @@ def features():
 def about():
     return render_template('public/about.html')
 
+@app.route('/admin/stats')
+@admin_required
+def admin_stats():
+    """Admin statistics page"""
+    try:
+        return render_template('admin/stats.html')
+    except Exception as e:
+        logger.error(f"Admin stats error: {e}")
+        flash('Error al cargar la página de estadísticas', 'error')
+        return render_template('admin/stats.html')
+
+@app.route('/admin/logs')
+@admin_required
+def admin_logs():
+    """Admin logs page"""
+    try:
+        return render_template('admin/logs.html')
+    except Exception as e:
+        logger.error(f"Admin logs error: {e}")
+        flash('Error al cargar la página de logs', 'error')
+        return render_template('admin/logs.html')
+
+@app.route('/admin/settings')
+@admin_required
+def admin_settings():
+    """Admin settings page"""
+    try:
+        return render_template('admin/settings.html')
+    except Exception as e:
+        logger.error(f"Admin settings error: {e}")
+        flash('Error al cargar la página de configuración', 'error')
+        return render_template('admin/settings.html')
+
+@app.route('/admin/database')
+@admin_required
+def admin_database():
+    """Admin database management page"""
+    try:
+        return render_template('admin/database.html')
+    except Exception as e:
+        logger.error(f"Admin database error: {e}")
+        flash('Error al cargar la página de base de datos', 'error')
+        return render_template('admin/database.html')
+
+@app.route('/admin/backup')
+@admin_required
+def admin_backup():
+    """Admin backup page"""
+    try:
+        return render_template('admin/backup.html')
+    except Exception as e:
+        logger.error(f"Admin backup error: {e}")
+        flash('Error al cargar la página de backup', 'error')
+        return render_template('admin/backup.html')
+
 # Routes - Authentication
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    logger.info(f"Accessing login route - Method: {request.method}")
+    
     if current_user.is_authenticated:
-        logger.info(f"User already authenticated: {current_user.username}")
+        logger.info(f"User already authenticated: {current_user.username} - redirecting to dashboard")
         return redirect(url_for('dashboard'))
         
     if request.method == 'POST':
@@ -231,6 +299,7 @@ def login():
             logger.error(f"Login error: {e}")
             flash('Error al conectar con la base de datos', 'error')
     
+    logger.info("Rendering login template for unauthenticated user")
     return render_template('public/login.html')
 
 @app.route('/admin/logout')
@@ -327,17 +396,41 @@ def dashboard():
 @admin_required
 def admin_bot_control():
     """Admin bot control page"""
+    logger.info("=== ACCESSING BOT CONTROL ROUTE ===")
+    logger.info(f"Request path: {request.path}")
+    logger.info(f"Request method: {request.method}")
+    logger.info(f"User authenticated: {current_user.is_authenticated}")
+    
     try:
         # Check if Supabase is available for bot operations
         db_connected = supabase is not None
+        logger.info(f"Database connected: {db_connected}")
+        
         if db_connected:
             logger.info("Bot control page loaded successfully with database connection")
         else:
             logger.warning("Bot control page loaded without database connection")
-        return render_template('admin/bot_control.html', db_connected=db_connected)
+        
+        logger.info("Rendering bot_control template...")
+        
+        # Try rendering the test template first
+        try:
+            return render_template('admin/bot_control_test.html', db_connected=db_connected)
+        except Exception as template_error:
+            logger.error(f"Error rendering test template: {template_error}")
+            logger.error(f"Template error type: {type(template_error).__name__}")
+            logger.error(f"Template error message: {str(template_error)}")
+            
+            # If test template fails, try the original
+            return render_template('admin/bot_control.html', db_connected=db_connected)
+        
     except Exception as e:
         logger.error(f"Admin bot control error: {e}", exc_info=True)
+        logger.error(f"Error type: {type(e).__name__}")
+        logger.error(f"Error message: {str(e)}")
+        
         # Don't flash error to user, just render the page with db_connected=False
+        logger.info("Rendering bot_control template with db_connected=False")
         return render_template('admin/bot_control.html', db_connected=False)
 
 @app.route('/admin/notifications')
@@ -497,45 +590,73 @@ def get_user(telegram_id):
 
 @app.route('/api/user', methods=['POST'])
 def create_user():
-    """Create new user for bot"""
+    """Create new user for bot with enhanced error handling"""
     try:
         if not supabase:
-            return jsonify({'error': 'Database not connected'}), 500
+            logger.error("Database not connected for user creation")
+            return jsonify({'error': 'Database not connected', 'details': 'No se puede conectar a la base de datos'}), 500
         
         user_data = request.get_json()
+        logger.info(f"Creating user with data: {user_data}")
         
         # Validate required fields
         required_fields = ['telegram_id', 'username', 'first_name']
         for field in required_fields:
             if field not in user_data:
-                return jsonify({'error': f'Missing required field: {field}'}), 400
+                logger.error(f"Missing required field: {field}")
+                return jsonify({'error': f'Missing required field: {field}', 'details': f'El campo {field} es requerido'}), 400
+        
+        # Validate telegram_id is a positive integer
+        try:
+            telegram_id = int(user_data['telegram_id'])
+            if telegram_id <= 0:
+                raise ValueError("telegram_id must be positive")
+        except (ValueError, TypeError):
+            logger.error(f"Invalid telegram_id: {user_data['telegram_id']}")
+            return jsonify({'error': 'Invalid telegram_id', 'details': 'El ID de Telegram debe ser un número positivo'}), 400
         
         # Check if user already exists
-        existing_user = supabase.table('users').select('*').eq('telegram_id', user_data['telegram_id']).execute()
-        if existing_user.data:
-            return jsonify(existing_user.data[0]), 200
+        try:
+            existing_user = supabase.table('users').select('*').eq('telegram_id', telegram_id).execute()
+            if existing_user.data:
+                logger.info(f"User {telegram_id} already exists")
+                return jsonify(existing_user.data[0]), 200
+        except Exception as e:
+            logger.error(f"Error checking existing user: {e}")
+            return jsonify({'error': 'Database error', 'details': 'Error al verificar usuario existente'}), 500
         
-        # Create new user
-        response = supabase.table('users').insert({
-            'telegram_id': user_data['telegram_id'],
-            'username': user_data.get('username', ''),
-            'first_name': user_data.get('first_name', ''),
-            'last_name': user_data.get('last_name', ''),
-            'current_level': user_data.get('current_level', 'principiante'),
-            'level_progress': user_data.get('level_progress', 0),
-            'total_exercises_completed': user_data.get('total_exercises_completed', 0),
-            'last_activity': 'now()',
-            'created_at': 'now()'
-        }).execute()
-        
-        if response.data:
-            return jsonify(response.data[0]), 201
-        else:
-            return jsonify({'error': 'Failed to create user'}), 500
+        # Create new user with proper timestamp handling
+        try:
+            user_record = {
+                'telegram_id': telegram_id,
+                'username': user_data.get('username', '')[:255],  # Limit length
+                'first_name': user_data.get('first_name', '')[:255],
+                'last_name': user_data.get('last_name', '')[:255],
+                'current_level': user_data.get('current_level', 'principiante'),
+                'level_progress': max(0, min(100, user_data.get('level_progress', 0))),  # Validate range
+                'total_exercises_completed': max(0, user_data.get('total_exercises_completed', 0)),
+                'current_streak': max(0, user_data.get('current_streak', 0)),
+                'longest_streak': max(0, user_data.get('longest_streak', 0)),
+                'created_at': datetime.now().isoformat(),
+                'last_activity': datetime.now().isoformat()
+            }
+            
+            response = supabase.table('users').insert(user_record).execute()
+            
+            if response.data:
+                logger.info(f"Successfully created user {telegram_id}")
+                return jsonify(response.data[0]), 201
+            else:
+                logger.error(f"Failed to create user: No data returned")
+                return jsonify({'error': 'Failed to create user', 'details': 'No se pudo crear el usuario'}), 500
+                
+        except Exception as e:
+            logger.error(f"Error creating user record: {e}")
+            return jsonify({'error': 'Database error', 'details': f'Error al crear registro: {str(e)}'}), 500
             
     except Exception as e:
-        logger.error(f"API create user error: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        logger.error(f"Unexpected error in create_user: {e}")
+        return jsonify({'error': 'Internal server error', 'details': f'Error interno: {str(e)}'}), 500
 
 @app.route('/api/exercises/<level>', methods=['GET'])
 def get_exercises(level):
@@ -1831,6 +1952,352 @@ def admin_help():
         logger.error(f"Admin help error: {e}")
         flash('Error al cargar la página de ayuda', 'error')
         return render_template('admin/help.html')
+
+# Bot Control API Endpoints
+@app.route('/api/admin/bot/status', methods=['GET'])
+@admin_required
+def get_bot_status():
+    """Get current bot status"""
+    try:
+        if not supabase:
+            return jsonify({
+                'status': 'error',
+                'message': 'Database not connected',
+                'bot_status': 'unknown'
+            }), 500
+        
+        # Get latest bot status from database
+        response = supabase.table('bot_status').select('*').order('last_updated', desc=True).limit(1).execute()
+        
+        if response.data:
+            bot_status_data = response.data[0]
+            return jsonify({
+                'status': 'success',
+                'bot_status': bot_status_data['status'],
+                'message': bot_status_data.get('message', ''),
+                'last_updated': bot_status_data['last_updated'],
+                'updated_by': bot_status_data.get('updated_by', '')
+            }), 200
+        else:
+            # Default status if no record exists
+            return jsonify({
+                'status': 'success',
+                'bot_status': 'inactive',
+                'message': 'Bot status not set, assuming inactive',
+                'last_updated': datetime.now().isoformat(),
+                'updated_by': 'system'
+            }), 200
+            
+    except Exception as e:
+        logger.error(f"Error getting bot status: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to get bot status',
+            'bot_status': 'unknown'
+        }), 500
+
+@app.route('/api/admin/bot/start', methods=['POST'])
+@admin_required
+def start_bot():
+    """Start the bot service"""
+    try:
+        if not supabase:
+            return jsonify({
+                'status': 'error',
+                'message': 'Database not connected'
+            }), 500
+        
+        # Update bot status in database
+        status_data = {
+            'status': 'active',
+            'last_updated': datetime.now().isoformat(),
+            'updated_by': current_user.username,
+            'message': 'Bot started successfully'
+        }
+        
+        response = supabase.table('bot_status').insert(status_data).execute()
+        
+        if response.data:
+            # Send start command to bot service
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            try:
+                bot_response = requests.post(
+                    f"{bot_service_url}/control",
+                    json={"command": "start", "message": "Bot started by admin"},
+                    timeout=10
+                )
+                if bot_response.status_code == 200:
+                    logger.info(f"Bot service start command sent successfully")
+                else:
+                    logger.warning(f"Bot service responded with status: {bot_response.status_code}")
+            except requests.RequestException as e:
+                logger.error(f"Failed to send start command to bot service: {e}")
+            
+            logger.info(f"Bot started by admin: {current_user.username}")
+            return jsonify({
+                'status': 'success',
+                'bot_status': 'active',
+                'message': 'Bot started successfully',
+                'timestamp': datetime.now().isoformat()
+            }), 200
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'Failed to start bot'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error starting bot: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to start bot'
+        }), 500
+
+@app.route('/api/admin/bot/stop', methods=['POST'])
+@admin_required
+def stop_bot():
+    """Stop the bot service"""
+    try:
+        if not supabase:
+            return jsonify({
+                'status': 'error',
+                'message': 'Database not connected'
+            }), 500
+        
+        # Update bot status in database
+        status_data = {
+            'status': 'stopped',
+            'last_updated': datetime.now().isoformat(),
+            'updated_by': current_user.username,
+            'message': 'Bot stopped successfully'
+        }
+        
+        response = supabase.table('bot_status').insert(status_data).execute()
+        
+        if response.data:
+            # Send stop command to bot service
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            try:
+                bot_response = requests.post(
+                    f"{bot_service_url}/control",
+                    json={"command": "stop", "message": "Bot stopped by admin"},
+                    timeout=10
+                )
+                if bot_response.status_code == 200:
+                    logger.info(f"Bot service stop command sent successfully")
+                else:
+                    logger.warning(f"Bot service responded with status: {bot_response.status_code}")
+            except requests.RequestException as e:
+                logger.error(f"Failed to send stop command to bot service: {e}")
+            
+            logger.info(f"Bot stopped by admin: {current_user.username}")
+            return jsonify({
+                'status': 'success',
+                'bot_status': 'stopped',
+                'message': 'Bot stopped successfully',
+                'timestamp': datetime.now().isoformat()
+            }), 200
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'Failed to stop bot'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error stopping bot: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to stop bot'
+        }), 500
+
+@app.route('/api/admin/bot/pause', methods=['POST'])
+@admin_required
+def pause_bot():
+    """Pause the bot service"""
+    try:
+        if not supabase:
+            return jsonify({
+                'status': 'error',
+                'message': 'Database not connected'
+            }), 500
+        
+        # Update bot status in database
+        status_data = {
+            'status': 'paused',
+            'last_updated': datetime.now().isoformat(),
+            'updated_by': current_user.username,
+            'message': 'Bot paused successfully'
+        }
+        
+        response = supabase.table('bot_status').insert(status_data).execute()
+        
+        if response.data:
+            # Send pause command to bot service
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            try:
+                bot_response = requests.post(
+                    f"{bot_service_url}/control",
+                    json={"command": "pause", "message": "Bot paused by admin"},
+                    timeout=10
+                )
+                if bot_response.status_code == 200:
+                    logger.info(f"Bot service pause command sent successfully")
+                else:
+                    logger.warning(f"Bot service responded with status: {bot_response.status_code}")
+            except requests.RequestException as e:
+                logger.error(f"Failed to send pause command to bot service: {e}")
+            
+            logger.info(f"Bot paused by admin: {current_user.username}")
+            return jsonify({
+                'status': 'success',
+                'bot_status': 'paused',
+                'message': 'Bot paused successfully',
+                'timestamp': datetime.now().isoformat()
+            }), 200
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'Failed to pause bot'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error pausing bot: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to pause bot'
+        }), 500
+
+@app.route('/api/admin/bot/restart', methods=['POST'])
+@admin_required
+def restart_bot():
+    """Restart the bot service"""
+    try:
+        if not supabase:
+            return jsonify({
+                'status': 'error',
+                'message': 'Database not connected'
+            }), 500
+        
+        # Update bot status to restarting first
+        status_data = {
+            'status': 'restarting',
+            'last_updated': datetime.now().isoformat(),
+            'updated_by': current_user.username,
+            'message': 'Bot is restarting...'
+        }
+        
+        response = supabase.table('bot_status').insert(status_data).execute()
+        
+        if response.data:
+            # Send restart command to bot service
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            try:
+                bot_response = requests.post(
+                    f"{bot_service_url}/control",
+                    json={"command": "restart", "message": "Bot restarted by admin"},
+                    timeout=10
+                )
+                if bot_response.status_code == 200:
+                    logger.info(f"Bot service restart command sent successfully")
+                else:
+                    logger.warning(f"Bot service responded with status: {bot_response.status_code}")
+            except requests.RequestException as e:
+                logger.error(f"Failed to send restart command to bot service: {e}")
+            
+            logger.info(f"Bot restarted by admin: {current_user.username}")
+            
+            # After a delay, update to active (simulating restart completion)
+            # In real implementation, bot service would update its own status
+            return jsonify({
+                'status': 'success',
+                'bot_status': 'restarting',
+                'message': 'Bot is restarting...',
+                'timestamp': datetime.now().isoformat()
+            }), 200
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'Failed to restart bot'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error restarting bot: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to restart bot'
+        }), 500
+
+@app.route('/api/admin/bot/maintenance', methods=['POST'])
+@admin_required
+def toggle_maintenance():
+    """Toggle maintenance mode"""
+    try:
+        if not supabase:
+            return jsonify({
+                'status': 'error',
+                'message': 'Database not connected'
+            }), 500
+        
+        # Get current status
+        current_response = supabase.table('bot_status').select('*').order('last_updated', desc=True).limit(1).execute()
+        
+        current_status = 'inactive'
+        if current_response.data:
+            current_status = current_response.data[0]['status']
+        
+        # Toggle maintenance mode
+        if current_status == 'maintenance':
+            new_status = 'active'
+            message = 'Maintenance mode disabled'
+        else:
+            new_status = 'maintenance'
+            message = 'Maintenance mode enabled'
+        
+        # Update bot status in database
+        status_data = {
+            'status': new_status,
+            'last_updated': datetime.now().isoformat(),
+            'updated_by': current_user.username,
+            'message': message
+        }
+        
+        response = supabase.table('bot_status').insert(status_data).execute()
+        
+        if response.data:
+            # Send maintenance command to bot service
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            try:
+                bot_response = requests.post(
+                    f"{bot_service_url}/control",
+                    json={"command": "maintenance", "message": message},
+                    timeout=10
+                )
+                if bot_response.status_code == 200:
+                    logger.info(f"Bot service maintenance command sent successfully")
+                else:
+                    logger.warning(f"Bot service responded with status: {bot_response.status_code}")
+            except requests.RequestException as e:
+                logger.error(f"Failed to send maintenance command to bot service: {e}")
+            
+            logger.info(f"Maintenance mode toggled by admin: {current_user.username} - {new_status}")
+            return jsonify({
+                'status': 'success',
+                'bot_status': new_status,
+                'message': message,
+                'timestamp': datetime.now().isoformat()
+            }), 200
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'Failed to toggle maintenance mode'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error toggling maintenance mode: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to toggle maintenance mode'
+        }), 500
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))

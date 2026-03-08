@@ -2,169 +2,107 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#3498db">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Python Tutor Bot">
-    <title>{% block title %}Python Tutor Bot - Aprende Python Gratis{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Python Tutor Bot{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/mobile.css') }}" rel="stylesheet">
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Mobile Navigation Overlay -->
-    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
-    
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-robot me-2"></i>Python Tutor Bot
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+                <i class="bi bi-robot me-2"></i>Python Tutor Bot
             </a>
-            <button class="navbar-toggler mobile-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
-                <span class="mobile-menu-text">Menú</span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">
-                            <i class="fas fa-home me-2"></i>Inicio
-                        </a>
+                        <a class="nav-link" href="{{ url_for('index') }}">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/features">
-                            <i class="fas fa-star me-2"></i>Características
-                        </a>
+                        <a class="nav-link" href="{{ url_for('features') }}">Características</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/about">
-                            <i class="fas fa-info-circle me-2"></i>Acerca de
-                        </a>
+                        <a class="nav-link" href="{{ url_for('about') }}">Acerca de</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://t.me/pythonpersonaltutor_bot" target="_blank">
-                            <i class="fab fa-telegram me-2"></i> Telegram Bot
-                        </a>
-                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i>{{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">Panel Admin</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_logout') }}">Cerrar Sesión</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-light">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Acceso Admin
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-5 pt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
     <!-- Main Content -->
-    <main>
+    <main class="{% block main_class %}{% endblock %}">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="bg-dark text-light py-4 mt-5">
         <div class="container">
             <div class="row">
-                <div class="col-lg-4">
-                    <h5><i class="fas fa-robot me-2"></i>Python Tutor Bot</h5>
-                    <p class="mt-3">Plataforma educativa para aprender Python de forma interactiva mediante Telegram y aplicaciones móviles.</p>
-                    <div class="mobile-only mt-3">
-                        <a href="https://t.me/pythonpersonaltutor_bot" class="btn btn-primary-custom w-100" target="_blank">
-                            <i class="fab fa-telegram me-2"></i> Comenzar en Telegram
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4">
-                    <h5>Enlaces Rápidos</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/" class="text-white-50">Inicio</a></li>
-                        <li><a href="/features" class="text-white-50">Características</a></li>
-                        <li><a href="/about" class="text-white-50">Acerca de</a></li>
-                        <li><a href="https://t.me/pythonpersonaltutor_bot" class="text-white-50" target="_blank">Telegram Bot</a></li>
-                    </ul>
-                </div>
-                
-                <div class="col-lg-4">
-                    <h5>Contacto</h5>
-                    <p class="text-white-50">
-                        <i class="fas fa-envelope me-2"></i> soporte@pythontutor.com<br>
-                        <i class="fas fa-globe me-2"></i> https://pythontutor-bot.onrender.com
-                    </p>
-                    <div class="mt-3 social-links">
-                        <a href="https://t.me/pythonpersonaltutor_bot" class="text-white-50 me-3" target="_blank"><i class="fab fa-telegram fa-lg"></i></a>
-                        <a href="#" class="text-white-50 me-3"><i class="fab fa-github fa-lg"></i></a>
-                        <a href="#" class="text-white-50"><i class="fab fa-twitter fa-lg"></i></a>
-                    </div>
-                </div>
-            </div>
-            
-            <hr class="mt-4 mb-4" style="border-color: rgba(255,255,255,0.1);">
-            
-            <div class="row">
                 <div class="col-md-6">
-                    <p class="mb-0 text-white-50">
-                        &copy; 2024 Python Tutor Bot. Todos los derechos reservados.
-                    </p>
+                    <h5><i class="bi bi-robot me-2"></i>Python Tutor Bot</h5>
+                    <p class="text-muted">Aprende Python de manera interactiva con Telegram</p>
                 </div>
-                <div class="col-md-6 text-end">
-                    <a href="/login" class="admin-link">
-                        <i class="fas fa-lock me-1"></i> Panel Administrativo
-                    </a>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">&copy; 2024 Python Tutor Bot. Todos los derechos reservados.</p>
+                    <p class="text-muted small">
+                        <a href="{{ url_for('features') }}" class="text-light text-decoration-none">Características</a> | 
+                        <a href="{{ url_for('about') }}" class="text-light text-decoration-none">Acerca de</a>
+                    </p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Mobile navigation improvements
-        document.addEventListener('DOMContentLoaded', function() {
-            // Navbar scroll effect
-            window.addEventListener('scroll', function() {
-                const navbar = document.querySelector('.navbar-custom');
-                if (window.scrollY > 50) {
-                    navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-                    navbar.style.boxShadow = '0 2px 15px rgba(0,0,0,0.1)';
-                } else {
-                    navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-                    navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-                }
-            });
-            
-            // Mobile navigation close on link click
-            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
-            const navbarCollapse = document.querySelector('.navbar-collapse');
-            const navbarToggler = document.querySelector('.navbar-toggler');
-            const mobileNavOverlay = document.getElementById('mobileNavOverlay');
-            
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth < 992) {
-                        navbarCollapse.classList.remove('show');
-                        navbarToggler.classList.add('collapsed');
-                        navbarToggler.setAttribute('aria-expanded', 'false');
-                        mobileNavOverlay.classList.remove('active');
-                    }
-                });
-            });
-            
-            // Mobile overlay click to close menu
-            if (mobileNavOverlay) {
-                mobileNavOverlay.addEventListener('click', () => {
-                    navbarCollapse.classList.remove('show');
-                    navbarToggler.classList.add('collapsed');
-                    navbarToggler.setAttribute('aria-expanded', 'false');
-                    mobileNavOverlay.classList.remove('active');
-                });
-            }
-            
-            // Touch feedback for mobile
-            if ('ontouchstart' in window) {
-                document.body.classList.add('touch-device');
-            }
-        });
-    </script>
+    <!-- Bootstrap JS -->
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

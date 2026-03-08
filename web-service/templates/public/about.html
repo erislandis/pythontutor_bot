@@ -4,83 +4,196 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero-section">
+<section class="hero-section-sm bg-primary text-white py-5">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-8 mx-auto">
-                <h1>Acerca de Python Tutor Bot</h1>
-                <p class="lead">Conoce nuestra misión, historia y el equipo detrás de la mejor plataforma para aprender Python.</p>
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-4">Acerca de Python Tutor Bot</h1>
+                <p class="lead mb-0">Tu compañero inteligente para aprender Python de manera interactiva</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- About Section -->
-<section class="features-section">
+<!-- About Content -->
+<section class="py-5">
     <div class="container">
-        <div class="row mb-5">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-4 mb-3">Nuestra Misión</h2>
-                <p class="lead">Democratizar el aprendizaje de programación haciendo accesible y divertido el aprendizaje de Python para todos.</p>
-            </div>
-        </div>
-        
-        <div class="row">
+        <div class="row align-items-center">
             <div class="col-lg-6">
-                <div class="feature-card h-100">
-                    <div class="feature-icon">
-                        <i class="fas fa-bullseye"></i>
+                <div class="about-content">
+                    <h2 class="display-5 fw-bold mb-4">Nuestra Misión</h2>
+                    <p class="lead mb-4">
+                        Python Tutor Bot nace de la necesidad de hacer el aprendizaje de programación más accesible, 
+                        interactivo y efectivo para todos. Creemos que aprender a programar debería ser una experiencia 
+                        estimulante y no una barrera técnica.
+                    </p>
+                    <p class="mb-4">
+                        A través de Telegram, la plataforma de mensajería más popular del mundo, llevamos 
+                        educación de calidad directamente a tu bolsillo, sin importar dónde te encuentres o tu nivel 
+                        de conocimiento previo.
+                    </p>
+                    
+                    <!-- Key Values -->
+                    <div class="row g-3 mt-4">
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <div class="value-icon bg-primary text-white rounded-circle p-2 me-3">
+                                    <i class="bi bi-lightning-fill"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Accesibilidad</h6>
+                                    <p class="text-muted small mb-0">Aprendizaje sin barreras técnicas</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <div class="value-icon bg-success text-white rounded-circle p-2 me-3">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Progresión</h6>
+                                    <p class="text-muted small mb-0">Aprende a tu propio ritmo</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <div class="value-icon bg-info text-white rounded-circle p-2 me-3">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Calidad</h6>
+                                    <p class="text-muted small mb-0">Contenido validado por expertos</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-start">
+                                <div class="value-icon bg-warning text-white rounded-circle p-2 me-3">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold">Comunidad</h6>
+                                    <p class="text-muted small mb-0">Aprende junto a miles de estudiantes</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h3>Visión</h3>
-                    <p>Ser la plataforma líder en educación de programación en español, empoderando a millones de personas para que desarrollen habilidades tecnológicas y transformen sus vidas.</p>
                 </div>
             </div>
-            
             <div class="col-lg-6">
-                <div class="feature-card h-100">
-                    <div class="feature-icon">
-                        <i class="fas fa-heart"></i>
+                <div class="about-visual text-center">
+                    <div class="robot-container mb-4">
+                        <i class="bi bi-robot display-1 text-primary"></i>
+                        <div class="floating-dots">
+                            <div class="dot dot-1"></div>
+                            <div class="dot dot-2"></div>
+                            <div class="dot dot-3"></div>
+                        </div>
                     </div>
-                    <h3>Valores</h3>
-                    <p>Creemos en la educación accesible, la innovación constante, y el poder de la comunidad para crear experiencias de aprendizaje significativas.</p>
+                    <div class="stats-card bg-light p-4 rounded-3">
+                        <h5 class="fw-bold mb-3">Nuestro Impacto</h5>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="text-primary fw-bold">10K+</h3>
+                                    <p class="small text-muted mb-0">Estudiantes</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="text-success fw-bold">50K+</h3>
+                                    <p class="small text-muted mb-0">Ejercicios</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item">
+                                    <h3 class="text-info fw-bold">24/7</h3>
+                                    <p class="small text-muted mb-0">Disponibilidad</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Story Section -->
-<section class="how-it-works">
+<!-- Features Details -->
+<section class="py-5 bg-light">
     <div class="container">
-        <div class="row mb-5">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-4 mb-3">Nuestra Historia</h2>
-                <p class="lead">El viaje que comenzó con una simple idea y se convirtió en una revolución educativa.</p>
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="display-5 fw-bold">¿Qué Nos Hace Únicos?</h2>
+                <p class="lead text-muted">Características que diferencian nuestro método de aprendizaje</p>
             </div>
         </div>
         
-        <div class="row">
-            <div class="col-md-4">
-                <div class="step-card">
-                    <div class="step-number">2020</div>
-                    <h4>El Inicio</h4>
-                    <p>Un grupo de desarrolladores y educadores se unieron con la idea de hacer Python más accesible mediante Telegram.</p>
+        <div class="row g-4">
+            <!-- AI-Powered Learning -->
+            <div class="col-lg-6">
+                <div class="feature-detail-card d-flex align-items-start">
+                    <div class="feature-icon-large bg-primary text-white rounded-circle p-3 me-4">
+                        <i class="bi bi-cpu display-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-3">Aprendizaje con IA</h4>
+                        <p class="text-muted">
+                            Nuestro sistema utiliza inteligencia artificial para adaptar los ejercicios 
+                            a tu nivel de conocimiento y estilo de aprendizaje, proporcionando una experiencia 
+                            verdaderamente personalizada.
+                        </p>
+                    </div>
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="step-card">
-                    <div class="step-number">2021</div>
-                    <h4>Primer Lanzamiento</h4>
-                    <p>Lanzamos la primera versión del bot con 100 ejercicios básicos y alcanzamos 1,000 usuarios en el primer mes.</p>
+            <!-- Real-world Projects -->
+            <div class="col-lg-6">
+                <div class="feature-detail-card d-flex align-items-start">
+                    <div class="feature-icon-large bg-success text-white rounded-circle p-3 me-4">
+                        <i class="bi bi-code-slash display-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-3">Proyectos Reales</h4>
+                        <p class="text-muted">
+                            A medida que avanzas, trabajarás en proyectos prácticos que puedes incluir 
+                            en tu portafolio, desde scripts simples hasta aplicaciones web completas.
+                        </p>
+                    </div>
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="step-card">
-                    <div class="step-number">2024</div>
-                    <h4>Crecimiento Exponencial</h4>
-                    <p>Hoy contamos con más de 50,000 estudiantes activos, 1,200+ ejercicios y una comunidad vibrante.</p>
+            <!-- Community Support -->
+            <div class="col-lg-6">
+                <div class="feature-detail-card d-flex align-items-start">
+                    <div class="feature-icon-large bg-info text-white rounded-circle p-3 me-4">
+                        <i class="bi bi-people-fill display-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-3">Soporte Comunitario</h4>
+                        <p class="text-muted">
+                            Únete a nuestra comunidad de estudiantes donde puedes compartir dudas, 
+                            soluciones y aprender de otros programadores en el mismo viaje que tú.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Continuous Updates -->
+            <div class="col-lg-6">
+                <div class="feature-detail-card d-flex align-items-start">
+                    <div class="feature-icon-large bg-warning text-white rounded-circle p-3 me-4">
+                        <i class="bi bi-arrow-repeat display-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-3">Actualizaciones Constantes</h4>
+                        <p class="text-muted">
+                            Nuestro contenido se actualiza regularmente con las últimas tendencias 
+                            y mejores prácticas de Python, asegurando que siempre aprendas lo más relevante.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -88,150 +201,210 @@
 </section>
 
 <!-- Team Section -->
-<section class="features-section">
+<section class="py-5">
     <div class="container">
-        <div class="row mb-5">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-4 mb-3">Nuestro Equipo</h2>
-                <p class="lead">Apasionados por la educación y la tecnología, trabajando juntos para transformar el aprendizaje.</p>
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="display-5 fw-bold">Nuestro Equipo</h2>
+                <p class="lead text-muted">Expertos apasionados por la educación tecnológica</p>
             </div>
         </div>
         
-        <div class="row">
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="feature-icon">
-                        <i class="fas fa-user-tie"></i>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="team-card text-center">
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                            <i class="bi bi-person-fill display-4"></i>
+                        </div>
                     </div>
-                    <h4>Desarrolladores</h4>
-                    <p>Expertos en Python y Telegram que crean y mantienen la plataforma.</p>
+                    <h5 class="fw-bold">Dr. Ana Martínez</h5>
+                    <p class="text-muted small mb-2">CEO & Fundadora</p>
+                    <p class="small">Experta en educación tecnológica con 15+ años de experiencia</p>
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="feature-icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
+            <div class="col-lg-3 col-md-6">
+                <div class="team-card text-center">
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder bg-success text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                            <i class="bi bi-person-fill display-4"></i>
+                        </div>
                     </div>
-                    <h4>Educadores</h4>
-                    <p>Profesionales de la educación que diseñan el contenido pedagógico.</p>
+                    <h5 class="fw-bold">Carlos Rodríguez</h5>
+                    <p class="text-muted small mb-2">CTO</p>
+                    <p class="small">Desarrollador senior especializado en IA y machine learning</p>
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
+            <div class="col-lg-3 col-md-6">
+                <div class="team-card text-center">
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder bg-info text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                            <i class="bi bi-person-fill display-4"></i>
+                        </div>
                     </div>
-                    <h4>Comunidad</h4>
-                    <p>Voluntarios y mentores que apoyan a los estudiantes en su aprendizaje.</p>
+                    <h5 class="fw-bold">Laura Gómez</h5>
+                    <p class="text-muted small mb-2">Head of Education</p>
+                    <p class="small">Especialista en curriculum y metodologías de aprendizaje</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="team-card text-center">
+                    <div class="team-avatar mb-3">
+                        <div class="avatar-placeholder bg-warning text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                            <i class="bi bi-person-fill display-4"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold">Miguel Torres</h5>
+                    <p class="text-muted small mb-2">Lead Developer</p>
+                    <p class="small">Experto en Python y desarrollo de bots educativos</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Stats Section -->
-<section class="cta-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-4 mb-4">Impacto y Estadísticas</h2>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h3 class="text-white">50,000+</h3>
-                            <p class="text-white-50">Estudiantes Activos</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h3 class="text-white">1,200+</h3>
-                            <p class="text-white-50">Ejercicios</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h3 class="text-white">15</h3>
-                            <p class="text-white-50">Países</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h3 class="text-white">98%</h3>
-                            <p class="text-white-50">Satisfacción</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Contact CTA -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-4">¿Preguntas o Sugerencias?</h2>
+        <p class="lead mb-4">
+            Nos encantaría saber de ti. Tu feedback nos ayuda a mejorar continuamente.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="mailto:contact@pythontutorbot.com" class="btn btn-warning btn-lg px-4">
+                <i class="bi bi-envelope me-2"></i>Contáctanos
+            </a>
+            <a href="#" class="btn btn-outline-light btn-lg px-4">
+                <i class="bi bi-chat-dots me-2"></i>Unirse a Comunidad
+            </a>
         </div>
     </div>
 </section>
+{% endblock %}
 
-<!-- Contact Section -->
-<section class="how-it-works">
-    <div class="container">
-        <div class="row mb-5">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-4 mb-3">Contacto y Soporte</h2>
-                <p class="lead">Estamos aquí para ayudarte en tu viaje de aprendizaje de Python.</p>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="feature-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <h4>Correo Electrónico</h4>
-                    <p>soporte@pythontutor.com<br>
-                    <small>Tiempo de respuesta: 24-48 horas</small></p>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="feature-icon">
-                        <i class="fab fa-telegram"></i>
-                    </div>
-                    <h4>Telegram</h4>
-                    <p>@PythonTutorBot<br>
-                    <small>Soporte instantáneo</small></p>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="feature-icon">
-                        <i class="fab fa-github"></i>
-                    </div>
-                    <h4>GitHub</h4>
-                    <p>github.com/pythontutor<br>
-                    <small>Código abierto</small></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+{% block extra_css %}
+<style>
+.hero-section-sm {
+    background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+}
 
-<!-- CTA Section -->
-<section class="cta-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="display-4 mb-4">Únete a la Revolución</h2>
-                <p class="lead mb-4">Comienza tu viaje para convertirte en un experto en Python hoy mismo.</p>
-                <div class="d-flex justify-content-center flex-wrap gap-3">
-                    <a href="https://t.me/pythonpersonaltutor_bot" class="btn btn-light btn-lg" target="_blank">
-                        <i class="fab fa-telegram me-2"></i> Comenzar Ahora
-                    </a>
-                    <a href="/features" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-star me-2"></i> Ver Características
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+.robot-container {
+    position: relative;
+    display: inline-block;
+}
+
+.floating-dots {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: float 3s ease-in-out infinite;
+}
+
+.dot-1 {
+    background-color: #0d6efd;
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.dot-2 {
+    background-color: #28a745;
+    top: 60%;
+    right: 15%;
+    animation-delay: 1s;
+}
+
+.dot-3 {
+    background-color: #ffc107;
+    bottom: 30%;
+    left: 20%;
+    animation-delay: 2s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.stats-card {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-detail-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.feature-detail-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+}
+
+.feature-icon-large {
+    flex-shrink: 0;
+}
+
+.team-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+}
+
+.avatar-placeholder {
+    transition: transform 0.3s ease;
+}
+
+.team-card:hover .avatar-placeholder {
+    transform: scale(1.05);
+}
+
+.value-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .feature-detail-card {
+        margin-bottom: 2rem;
+    }
+    
+    .team-card {
+        margin-bottom: 2rem;
+    }
+}
+</style>
 {% endblock %}

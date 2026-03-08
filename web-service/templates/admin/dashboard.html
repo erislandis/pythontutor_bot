@@ -1,296 +1,331 @@
-{% extends "admin_base_new.html" %}
+{% extends "admin_base.html" %}
 
-{% block title %}Panel de Control - Dashboard{% endblock %}
+{% block title %}Dashboard - Panel Administrativo{% endblock %}
 
-{% block extra_css %}
-<style>
-    /* Professional Dashboard Styles */
-    .dashboard-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    .stat-card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-        overflow: hidden;
-        position: relative;
-    }
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-    }
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #667eea, #764ba2);
-    }
-    .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    .bg-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 0.5rem 0;
-    }
-    .activity-timeline {
-        position: relative;
-        padding-left: 1.5rem;
-    }
-    .activity-timeline::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 2px;
-        background: linear-gradient(180deg, #667eea, #764ba2);
-    }
-    .activity-item {
-        position: relative;
-        margin-bottom: 1.5rem;
-        padding-left: 1rem;
-    }
-    .activity-item::before {
-        content: '';
-        position: absolute;
-        left: -1.75rem;
-        top: 0.5rem;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: #667eea;
-        border: 3px solid white;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-    }
-    .quick-action-btn {
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border: none;
-        text-decoration: none;
-        display: block;
-        margin-bottom: 1rem;
-        position: relative;
-        overflow: hidden;
-    }
-    .quick-action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-</style>
+{% block page_header %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshDashboard()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-download me-1"></i>Exportar
+            </button>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#quickActionsModal">
+                <i class="bi bi-lightning me-1"></i>Acciones Rápidas
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block content %}
-        <!-- Professional Header -->
-        <div class="dashboard-header">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h1 class="mb-0">
-                            <i class="fas fa-chart-line me-3"></i>
-                            Dashboard de Control
-                        </h1>
-                        <p class="mb-0 opacity-75">Resumen general del sistema en tiempo real</p>
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Ejercicios
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_exercises }}</div>
                     </div>
-                    <div class="col-md-6 text-md-end">
-                        <div class="d-flex align-items-center justify-content-md-end">
-                            <div class="me-3">
-                                <small class="d-block text-muted">Usuario actual</small>
-                                <strong>{{ current_user.username }}</strong>
-                            </div>
-                            <div class="status-indicator">
-                                <span class="badge bg-success">
-                                    <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
-                                    En línea
-                                </span>
-                            </div>
+                    <div class="col-auto">
+                        <i class="bi bi-journal-text fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Ejercicios Recientes
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ recent_exercises }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-clock-history fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Usuarios Activos
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_users }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-people fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Estado del Bot
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            <span class="badge bg-success">Activo</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-robot fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts and Content -->
+<div class="row">
+    <!-- Activity Chart -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Actividad del Sistema</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots-vertical fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                        <a class="dropdown-item" href="#">Últimos 7 días</a>
+                        <a class="dropdown-item" href="#">Último mes</a>
+                        <a class="dropdown-item" href="#">Último año</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Actividad Reciente</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">No hay actividad reciente registrada.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Grid -->
+<div class="row">
+    <!-- Progress by Level -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Progreso por Nivel</h6>
+            </div>
+            <div class="card-body">
+                <div class="row no-gutters align-items-center mb-3">
+                    <div class="col">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Principiante</span>
+                            <span class="badge bg-primary">0%</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 8px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row no-gutters align-items-center mb-3">
+                    <div class="col">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Intermedio</span>
+                            <span class="badge bg-success">0%</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row no-gutters align-items-center mb-3">
+                    <div class="col">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Avanzado</span>
+                            <span class="badge bg-warning">0%</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 8px;">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row no-gutters align-items-center">
+                    <div class="col">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Experto</span>
+                            <span class="badge bg-danger">0%</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 8px;">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Professional Statistics Cards -->
-        <div class="container-fluid mb-4">
-            <div class="row g-4">
-                <!-- Ejercicios Card -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card stat-card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="stat-icon bg-primary bg-gradient text-white">
-                                    <i class="fas fa-book"></i>
-                                </div>
-                                <div class="ms-3">
-                                    <h6 class="text-muted mb-1">Ejercicios Totales</h6>
-                                    <div class="stat-number text-primary">{{ total_exercises }}</div>
-                                    <small class="text-muted">Ejercicios en el sistema</small>
-                                </div>
+    <!-- System Health -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Salud del Sistema</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <div class="text-center">
+                            <div class="h4 mb-1 text-success">
+                                <i class="bi bi-check-circle-fill"></i> Online
                             </div>
+                            <small class="text-muted">Estado del Bot</small>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Bot Status Card -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card stat-card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="stat-icon bg-success bg-gradient text-white">
-                                    <i class="fas fa-robot"></i>
-                                </div>
-                                <div class="ms-3">
-                                    <h6 class="text-muted mb-1">Estado del Bot</h6>
-                                    <div class="stat-number text-success">Activo</div>
-                                    <small class="text-muted">Bot funcionando</small>
-                                </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="text-center">
+                            <div class="h4 mb-1 text-success">
+                                <i class="bi bi-database-fill"></i> OK
                             </div>
+                            <small class="text-muted">Base de Datos</small>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Recent Activity Card -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="card stat-card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="stat-icon bg-info bg-gradient text-white">
-                                    <i class="fas fa-chart-line"></i>
-                                </div>
-                                <div class="ms-3">
-                                    <h6 class="text-muted mb-1">Actividad Reciente</h6>
-                                    <div class="stat-number text-info">{{ recent_exercises }}</div>
-                                    <small class="text-muted">Ejercicios (7 días)</small>
-                                </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="text-center">
+                            <div class="h4 mb-1 text-info">
+                                <i class="bi bi-cpu-fill"></i> 0%
                             </div>
+                            <small class="text-muted">CPU Usage</small>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="text-center">
+                            <div class="h4 mb-1 text-warning">
+                                <i class="bi bi-memory-fill"></i> 0GB
+                            </div>
+                            <small class="text-muted">Memory Usage</small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Main Dashboard Content -->
-        <div class="container-fluid">
-            <div class="row g-4">
-                <!-- Security Logs Section -->
-                <div class="col-lg-8">
-                    <div class="card h-100">
-                        <div class="card-header bg-white border-0 pt-4">
-                            <h5 class="mb-0">
-                                <i class="fas fa-shield-alt text-primary me-2"></i>
-                                Logs de Seguridad Recientes
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <div class="activity-timeline">
-                                    {% for log in security_logs %}
-                                    <div class="activity-item">
-                                        <div class="d-flex align-items-start">
-                                            <div class="me-3">
-                                                <span class="badge bg-light text-dark">
-                                                    <i class="fas fa-cog me-1"></i>
-                                                    Sistema
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <div class="d-flex align-items-center justify-content-between">
-                                                    <code class="bg-primary bg-opacity-10 text-primary px-2 py-1 rounded">
-                                                        {{ log.action }}
-                                                    </code>
-                                                    <small class="text-muted">
-                                                        <i class="far fa-clock me-1"></i>
-                                                        {{ log.created_at.strftime('%d/%m %H:%M') }}
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Actions Section -->
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-white border-0 pt-4">
-                            <h5 class="mb-0">
-                                <i class="fas fa-bolt text-warning me-2"></i>
-                                Acciones Rápidas
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{{ url_for('admin_exercises') }}" class="quick-action-btn btn-success">
-                                    <i class="fas fa-book me-2"></i>
-                                    Gestionar Ejercicios
-                                </a>
-                                
-                                <a href="{{ url_for('change_password') }}" class="quick-action-btn btn-secondary">
-                                    <i class="fas fa-key me-2"></i>
-                                    Cambiar Contraseña
-                                </a>
-                                
-                                <a href="{{ url_for('admin_bot_control') }}" class="quick-action-btn btn-primary">
-                                    <i class="fas fa-robot me-2"></i>
-                                    Control del Bot
-                                </a>
-                            </div>
-                            
-                            <!-- System Status -->
-                            <div class="mt-4 pt-3 border-top">
-                                <h6 class="mb-3">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    Estado del Sistema
-                                </h6>
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <div class="text-center p-3 bg-light rounded">
-                                            <div class="mb-2">
-                                                <i class="fas fa-database fa-lg text-primary"></i>
-                                            </div>
-                                            <small class="d-block">Base de datos</small>
-                                            <span class="badge bg-success">OK</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="text-center p-3 bg-light rounded">
-                                            <div class="mb-2">
-                                                <i class="fas fa-server fa-lg text-success"></i>
-                                            </div>
-                                            <small class="d-block">Servidor</small>
-                                            <span class="badge bg-success">Activo</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<!-- Quick Actions Modal -->
+<div class="modal fade" id="quickActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Acciones Rápidas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin_exercises') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Agregar Nuevo Ejercicio
+                    </a>
+                    <a href="{{ url_for('admin_bot_control') }}" class="btn btn-outline-success">
+                        <i class="bi bi-play-circle me-2"></i>Iniciar Bot
+                    </a>
+                    <a href="#" class="btn btn-outline-info">
+                        <i class="bi bi-download me-2"></i>Generar Reporte
+                    </a>
+                    <a href="#" class="btn btn-outline-warning">
+                        <i class="bi bi-arrow-repeat me-2"></i>Reiniciar Sistema
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Activity Chart
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    const activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+            datasets: [{
+                label: 'Ejercicios Completados',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                borderColor: 'rgb(13, 110, 253)',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Usuarios Activos',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                borderColor: 'rgb(25, 135, 84)',
+                backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Auto-refresh dashboard
+    setInterval(function() {
+        // Update time-based elements
+        updateSystemTime();
+    }, 30000); // Update every 30 seconds
+});
+
+function refreshDashboard() {
+    location.reload();
+}
+
+function updateSystemTime() {
+    // Update any time-sensitive elements
+    console.log('Dashboard refreshed at:', new Date());
+}
+</script>
 {% endblock %}
