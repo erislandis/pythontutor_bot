@@ -707,37 +707,249 @@ def api_delete_exercise(exercise_id):
         logger.error(f"API delete exercise error: {e}")
         return jsonify({'error': f'Database error: {str(e)}'}), 500
 
+@app.route('/api/admin/exercises/import/test', methods=['POST'])
+@admin_required
+def api_test_import_exercises():
+    """Endpoint de diagnóstico para probar importación con datos de prueba"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Datos de prueba basados en tu JSON
+        test_exercises = [
+            {
+                "level": "principiante",
+                "question": "¿Qué devuelve el siguiente código?\n\nnumero = \"18\"\nresultado = int(numero)",
+                "options": [
+                    "18",
+                    "17",
+                    "19",
+                    "36"
+                ],
+                "correct_answer": 1,
+                "explanation": "int() convierte el string \"18\" al número entero 18"
+            },
+            {
+                "level": "principiante",
+                "question": "¿Qué valor tendrá \"resultado\" después de ejecutar este código?\n\nresultado = []\nfor i in range(8):\n    resultado.append(i * 2)",
+                "options": [
+                    "[0, 2, 4, 6, 8, 10, 12, 14]",
+                    "KeyError",
+                    "None",
+                    "1"
+                ],
+                "correct_answer": 1,
+                "explanation": "Lista de números pares desde 0 hasta 14"
+            },
+            {
+                "level": "principiante",
+                "question": "¿Qué valor tendrá la variable \"resultado\" después de ejecutar este código?\n\na = 31\nb = 30\nresultado = a >= b",
+                "options": [
+                    "True",
+                    "Opción 4",
+                    "False",
+                    "Opción 3"
+                ],
+                "correct_answer": 1,
+                "explanation": "La operación a >= b resulta en True"
+            }
+        ]
+        
+        logger.info(f"Starting test import with {len(test_exercises)} exercises")
+        
+        # Probar cada paso del proceso
+        diagnostic_results = []
+        
+        for index, exercise in enumerate(test_exercises):
+            result = {
+                'exercise_index': index + 1,
+                'original_data': exercise,
+                'steps': []
+            }
+            
+            try:
+                # Paso 1: Normalización
+                result['steps'].append({
+                    'step': 'normalization',
+                    'status': 'starting',
+                    'message': f'Processing: {exercise.get("question", "")[:50]}...'
+                })
+                
+                normalized_exercise = normalize_exercise_data(exercise)
+                
+                result['steps'].append({
+                    'step': 'normalization',
+                    'status': 'completed',
+                    'normalized_data': normalized_exercise,
+                    'message': f'Normalized: level={normalized_exercise["level"]}, correct_answer={normalized_exercise["correct_answer"]}'
+                })
+                
+                # Paso 2: Validación
+                result['steps'].append({
+                    'step': 'validation',
+                    'status': 'starting',
+                    'message': 'Validating structure...'
+                })
+                
+                validation_result = validate_exercise_structure(normalized_exercise)
+                
+                result['steps'].append({
+                    'step': 'validation',
+                    'status': 'completed' if validation_result['valid'] else 'failed',
+                    'validation_result': validation_result,
+                    'message': f'Validation: {"PASSED" if validation_result["valid"] else "FAILED"} - {validation_result.get("error", "")}'
+                })
+                
+                if not validation_result['valid']:
+                    result['final_status'] = 'failed'
+                    result['error'] = validation_result['error']
+                    diagnostic_results.append(result)
+                    continue
+                
+                # Paso 3: Detección de duplicados
+                result['steps'].append({
+                    'step': 'duplicate_check',
+                    'status': 'starting',
+                    'message': 'Checking for duplicates...'
+                })
+                
+                is_duplicate = is_duplicate_exercise(normalized_exercise['question'])
+                
+                result['steps'].append({
+                    'step': 'duplicate_check',
+                    'status': 'completed',
+                    'is_duplicate': is_duplicate,
+                    'message': f'Duplicate check: {"DUPLICATE" if is_duplicate else "UNIQUE"}'
+                })
+                
+                if is_duplicate:
+                    result['final_status'] = 'skipped'
+                    result['error'] = 'Duplicate exercise'
+                    diagnostic_results.append(result)
+                    continue
+                
+                # Paso 4: Inserción (solo si no es modo dry-run)
+                dry_run = request.json.get('dry_run', True) if request.json else True
+                
+                if not dry_run:
+                    result['steps'].append({
+                        'step': 'insertion',
+                        'status': 'starting',
+                        'message': 'Inserting into database...'
+                    })
+                    
+                    exercise_data = {
+                        'question': normalized_exercise['question'],
+                        'level': normalized_exercise['level'],
+                        'options': json.dumps(normalized_exercise['options']),
+                        'correct_answer': normalized_exercise['correct_answer'],
+                        'explanation': normalized_exercise.get('explanation', ''),
+                        'created_at': datetime.now().isoformat()
+                    }
+                    
+                    insert_result = supabase.table('exercises').insert(exercise_data).execute()
+                    
+                    if insert_result.data:
+                        result['steps'].append({
+                            'step': 'insertion',
+                            'status': 'completed',
+                            'inserted_id': insert_result.data[0].get('id'),
+                            'message': f'Successfully inserted with ID {insert_result.data[0].get("id")}'
+                        })
+                        result['final_status'] = 'success'
+                    else:
+                        result['steps'].append({
+                            'step': 'insertion',
+                            'status': 'failed',
+                            'message': 'Database insertion failed - no data returned'
+                        })
+                        result['final_status'] = 'failed'
+                        result['error'] = 'Database insertion failed'
+                else:
+                    result['steps'].append({
+                        'step': 'insertion',
+                        'status': 'skipped',
+                        'message': 'Dry run mode - insertion skipped'
+                    })
+                    result['final_status'] = 'dry_run_success'
+                
+            except Exception as e:
+                result['final_status'] = 'error'
+                result['error'] = str(e)
+                result['steps'].append({
+                    'step': 'error',
+                    'status': 'error',
+                    'message': f'Exception: {str(e)}'
+                })
+                logger.error(f"Test import error for exercise {index + 1}: {e}", exc_info=True)
+            
+            diagnostic_results.append(result)
+        
+        # Resumen de resultados
+        summary = {
+            'total': len(test_exercises),
+            'success': len([r for r in diagnostic_results if r.get('final_status') == 'success']),
+            'dry_run_success': len([r for r in diagnostic_results if r.get('final_status') == 'dry_run_success']),
+            'failed': len([r for r in diagnostic_results if r.get('final_status') == 'failed']),
+            'skipped': len([r for r in diagnostic_results if r.get('final_status') == 'skipped']),
+            'error': len([r for r in diagnostic_results if r.get('final_status') == 'error'])
+        }
+        
+        logger.info(f"Test import completed: {summary}")
+        
+        return jsonify({
+            'mode': 'dry_run' if (request.json.get('dry_run', True) if request.json else True) else 'live',
+            'summary': summary,
+            'diagnostic_results': diagnostic_results
+        })
+        
+    except Exception as e:
+        logger.error(f"Test import endpoint error: {e}", exc_info=True)
+        return jsonify({'error': f'Test failed: {str(e)}'}), 500
+
 @app.route('/api/admin/exercises/import', methods=['POST'])
 @admin_required
 def api_import_exercises():
     """Import exercises from JSON - MEJORADO"""
     try:
         if not supabase:
+            logger.error("Import failed: Supabase not connected")
             return jsonify({'error': 'Database connection error'}), 500
         
         data = request.json
         exercises = data.get('exercises', [])
         
         if not isinstance(exercises, list):
+            logger.error(f"Import failed: exercises is not a list, got {type(exercises)}")
             return jsonify({'error': 'Exercises must be an array'}), 400
+        
+        logger.info(f"Starting import process: {len(exercises)} exercises to process")
         
         imported_count = 0
         errors = []
+        skipped_duplicates = 0
         
         for index, exercise in enumerate(exercises):
             try:
+                logger.debug(f"Processing exercise {index + 1}: {exercise.get('question', 'NO QUESTION')[:50]}...")
+                
                 # Normalize exercise data
                 normalized_exercise = normalize_exercise_data(exercise)
+                logger.debug(f"Normalized exercise {index + 1}: level={normalized_exercise['level']}, correct_answer={normalized_exercise['correct_answer']}")
                 
                 # Validate structure
                 validation_result = validate_exercise_structure(normalized_exercise)
                 if not validation_result['valid']:
-                    errors.append(f"Ejercicio {index + 1}: {validation_result['error']}")
+                    error_msg = f"Ejercicio {index + 1}: {validation_result['error']}"
+                    logger.warning(error_msg)
+                    errors.append(error_msg)
                     continue
                 
                 # Check for duplicates (optional)
                 if is_duplicate_exercise(normalized_exercise['question']):
-                    errors.append(f"Ejercicio {index + 1}: Pregunta duplicada - omitido")
+                    error_msg = f"Ejercicio {index + 1}: Pregunta duplicada - omitido"
+                    logger.info(error_msg)
+                    skipped_duplicates += 1
                     continue
                 
                 # Insert in database
@@ -750,24 +962,32 @@ def api_import_exercises():
                     'created_at': datetime.now().isoformat()
                 }
                 
+                logger.debug(f"Attempting to insert exercise {index + 1} into database")
                 result = supabase.table('exercises').insert(exercise_data).execute()
+                
                 if result.data:
                     imported_count += 1
+                    logger.info(f"Successfully imported exercise {index + 1}")
                 else:
-                    errors.append(f"Ejercicio {index + 1}: Error al insertar en base de datos")
+                    error_msg = f"Ejercicio {index + 1}: Error al insertar en base de datos - no data returned"
+                    logger.error(error_msg)
+                    errors.append(error_msg)
                     
             except Exception as e:
-                errors.append(f"Ejercicio {index + 1}: {str(e)}")
+                error_msg = f"Ejercicio {index + 1}: {str(e)}"
+                logger.error(error_msg, exc_info=True)
+                errors.append(error_msg)
         
-        logger.info(f"Import completed: {imported_count}/{len(exercises)} exercises imported")
+        logger.info(f"Import completed: {imported_count} imported, {skipped_duplicates} duplicates skipped, {len(errors)} errors out of {len(exercises)} total")
         
         return jsonify({
             'imported': imported_count,
+            'skipped_duplicates': skipped_duplicates,
             'total': len(exercises),
             'errors': errors
         })
     except Exception as e:
-        logger.error(f"API import exercises error: {e}")
+        logger.error(f"API import exercises error: {e}", exc_info=True)
         return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/api/admin/exercises/export/json', methods=['GET'])
@@ -887,8 +1107,8 @@ def normalize_exercise_data(exercise):
         normalized['level'] = 'principiante'  # Default
     
     # Copiar campos directos
-    normalized['question'] = exercise.get('question', '')
-    normalized['explanation'] = exercise.get('explanation', '')
+    normalized['question'] = exercise.get('question', '').strip()
+    normalized['explanation'] = exercise.get('explanation', '').strip()
     
     # Procesar opciones
     options = exercise.get('options', [])
@@ -899,20 +1119,30 @@ def normalize_exercise_data(exercise):
         answer = exercise.get('answer', '1')
         normalized['options'] = generate_fallback_options(answer)
     
-    # Procesar correct_answer
+    # Procesar correct_answer - CRITICAL FIX
     correct_answer = exercise.get('correct_answer')
+    
+    # Si correct_answer es string numérico, convertir a int
     if isinstance(correct_answer, str) and correct_answer.isdigit():
         correct_answer = int(correct_answer)
+    
+    # Si no es int, intentar obtener del campo 'answer'
     elif not isinstance(correct_answer, int):
-        # Intentar encontrar el índice de la respuesta correcta
         answer = exercise.get('answer', str(normalized['options'][0]))
         correct_answer = find_correct_answer_index(normalized['options'], answer)
     
-    # Asegurar que correct_answer esté en rango válido
-    if not isinstance(correct_answer, int) or correct_answer < 1 or correct_answer > 4:
+    # Asegurar que correct_answer esté en rango válido (1-4 para base-1)
+    if isinstance(correct_answer, int):
+        if correct_answer < 1 or correct_answer > 4:
+            logger.warning(f"correct_answer {correct_answer} out of range [1-4], defaulting to 1")
+            correct_answer = 1
+    else:
+        logger.warning(f"Invalid correct_answer type: {type(correct_answer)}, defaulting to 1")
         correct_answer = 1
     
     normalized['correct_answer'] = correct_answer
+    
+    logger.debug(f"Normalized exercise: question='{normalized['question'][:30]}...', level={normalized['level']}, correct_answer={normalized['correct_answer']}, options_count={len(normalized['options'])}")
     
     return normalized
 
@@ -950,12 +1180,16 @@ def validate_exercise_structure(exercise):
     if not isinstance(exercise['options'], list) or len(exercise['options']) != 4:
         return {'valid': False, 'error': 'Debe tener exactamente 4 opciones'}
     
-    # Validar que las opciones no estén vacías
+    # Validar que las opciones no estén vacías (más flexible)
     for i, option in enumerate(exercise['options']):
         if not option or str(option).strip() == '':
             return {'valid': False, 'error': f'Opción {i+1} está vacía'}
+        
+        # Validar que la opción tenga longitud mínima razonable
+        if len(str(option).strip()) < 1:
+            return {'valid': False, 'error': f'Opción {i+1} es demasiado corta'}
     
-    # Validar correct_answer
+    # Validar correct_answer (base-1 index)
     if not isinstance(exercise['correct_answer'], int) or not (1 <= exercise['correct_answer'] <= 4):
         return {'valid': False, 'error': 'correct_answer debe ser un número entre 1 y 4'}
     
@@ -963,19 +1197,64 @@ def validate_exercise_structure(exercise):
     if len(exercise['question'].strip()) < 5:
         return {'valid': False, 'error': 'La pregunta es demasiado corta (mínimo 5 caracteres)'}
     
+    # Validar que la respuesta correcta corresponda a una opción existente
+    correct_index = exercise['correct_answer'] - 1  # Convertir a base-0
+    if correct_index >= len(exercise['options']):
+        return {'valid': False, 'error': f'correct_answer {exercise["correct_answer"]} no corresponde a ninguna opción'}
+    
+    # Validar que la opción correcta no esté vacía
+    if not exercise['options'][correct_index] or str(exercise['options'][correct_index]).strip() == '':
+        return {'valid': False, 'error': f'La opción correcta ({exercise["correct_answer"]}) está vacía'}
+    
     return {'valid': True, 'error': None}
 
 def is_duplicate_exercise(question):
     """Verifica si ya existe un ejercicio con la misma pregunta"""
     try:
         if not supabase:
+            logger.warning("Cannot check duplicates: Supabase not connected")
             return False
         
-        # Use ilike for case-insensitive search
-        result = supabase.table('exercises').select('id').ilike('question', question.strip()).execute()
-        return len(result.data) > 0
-    except:
+        # Limpiar y normalizar la pregunta para comparación
+        normalized_question = question.strip().lower()
+        
+        # Buscar coincidencias exactas primero (case-insensitive)
+        result = supabase.table('exercises').select('id', 'question').ilike('question', question.strip()).execute()
+        
+        if result.data and len(result.data) > 0:
+            # Verificación adicional para evitar falsos positivos
+            for existing_exercise in result.data:
+                existing_question = existing_exercise.get('question', '').strip().lower()
+                # Comparación más estricta: eliminar espacios extras y normalizar
+                if normalized_question == existing_question:
+                    logger.info(f"Duplicate found: '{question[:30]}...' matches existing exercise ID {existing_exercise.get('id')}")
+                    return True
+                # Comparación de similitud (opcional, para casos muy similares)
+                elif calculate_similarity(normalized_question, existing_question) > 0.9:
+                    logger.info(f"Near duplicate found: '{question[:30]}...' is very similar to existing exercise ID {existing_exercise.get('id')}")
+                    return True
+        
         return False
+    except Exception as e:
+        logger.error(f"Error checking duplicates: {e}")
+        return False  # En caso de error, permitir la inserción
+
+def calculate_similarity(str1, str2):
+    """Calcula la similitud entre dos strings (implementación simple)"""
+    try:
+        # Implementación simple de similitud de Jaccard
+        words1 = set(str1.split())
+        words2 = set(str2.split())
+        
+        if not words1 or not words2:
+            return 0.0
+        
+        intersection = words1.intersection(words2)
+        union = words1.union(words2)
+        
+        return len(intersection) / len(union) if union else 0.0
+    except:
+        return 0.0
 
 def generate_fallback_options(answer):
     """Genera opciones de respaldo cuando no se proporcionan"""
