@@ -56,7 +56,7 @@
                             </div>
                             <div class="col-sm-6 col-lg-3 mb-3">
                                 <div class="small text-muted">Tiempo Actividad</div>
-                                <div class="h4 text-warning" id="uptime">0d 0h 0m</div>
+                                <div class="h4 text-warning" id="activityTime">0d 0h 0m</div>
                             </div>
                         </div>
                     </div>
@@ -274,6 +274,9 @@ function updateBotStatus() {
             // Update bot status display
             updateStatusDisplay(data.bot_status, getStatusText(data.bot_status), getStatusColor(data.bot_status));
             
+            // Update connection status
+            updateConnectionStatus(data.connection_status, data.service_healthy);
+            
             // Update registration status
             updateRegistrationStatus(data.bot_status);
             
@@ -283,6 +286,7 @@ function updateBotStatus() {
             console.error('Error fetching bot status:', data.message);
             // Show connection error
             updateStatusDisplay('unknown', 'Error de Conexión', 'warning');
+            updateConnectionStatus('error', false);
             updateRegistrationStatus('unknown');
         }
     })
@@ -290,8 +294,101 @@ function updateBotStatus() {
         console.error('Error fetching bot status:', error);
         // Show connection error
         updateStatusDisplay('unknown', 'Error de Conexión', 'warning');
+        updateConnectionStatus('error', false);
         updateRegistrationStatus('unknown');
     });
+
+    // Also update user stats
+    updateUserStats();
+}
+
+function updateUserStats() {
+    // Fetch real user statistics
+    fetch('/api/admin/users/stats', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && !data.error) {
+            // Update active users
+            document.getElementById('activeUsers').textContent = data.active || 0;
+            
+            // Update other stats if we have them
+            if (data.total !== undefined) {
+                // We could update more stats here if needed
+                console.log('Total users:', data.total);
+            }
+        } else {
+            console.error('Error fetching user stats:', data?.error || 'Unknown error');
+            document.getElementById('activeUsers').textContent = '0';
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching user stats:', error);
+        document.getElementById('activeUsers').textContent = '0';
+    });
+
+    // Fetch bot activity stats
+    updateTodayActivity();
+}
+
+function updateTodayActivity() {
+    // Fetch detailed bot statistics
+    fetch('/api/admin/bot/stats', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && !data.error) {
+            // Update today's messages
+            document.getElementById('messagesToday').textContent = data.messages_today || 0;
+            
+            // Update exercises completed
+            document.getElementById('exercisesCompleted').textContent = data.exercises_completed || 0;
+            
+            // Update activity time/uptime
+            document.getElementById('activityTime').textContent = data.uptime || '0d 0h 0m';
+            
+            console.log('Bot stats updated:', data);
+        } else {
+            console.error('Error fetching bot stats:', data?.error || 'Unknown error');
+            // Set default values
+            document.getElementById('messagesToday').textContent = '0';
+            document.getElementById('exercisesCompleted').textContent = '0';
+            document.getElementById('activityTime').textContent = '0d 0h 0m';
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching bot stats:', error);
+        // Set default values
+        document.getElementById('messagesToday').textContent = '0';
+        document.getElementById('exercisesCompleted').textContent = '0';
+        document.getElementById('activityTime').textContent = '0d 0h 0m';
+    });
+}
+
+function updateConnectionStatus(connectionStatus, serviceHealthy) {
+    const connectionStatusElement = document.getElementById('connectionStatus');
+    
+    if (connectionStatus === 'connected' && serviceHealthy) {
+        connectionStatusElement.textContent = 'Conectado';
+        connectionStatusElement.className = 'ms-2 text-success';
+    } else if (connectionStatus === 'disconnected' || !serviceHealthy) {
+        connectionStatusElement.textContent = 'Desconectado';
+        connectionStatusElement.className = 'ms-2 text-danger';
+    } else if (connectionStatus === 'error') {
+        connectionStatusElement.textContent = 'Error';
+        connectionStatusElement.className = 'ms-2 text-warning';
+    } else {
+        connectionStatusElement.textContent = 'Verificando...';
+        connectionStatusElement.className = 'ms-2 text-secondary';
+    }
 }
 
 function updateRegistrationStatus(status) {

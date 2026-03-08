@@ -1954,65 +1954,208 @@ def admin_help():
         return render_template('admin/help.html')
 
 # Bot Control API Endpoints
+
+def check_bot_service_health():
+    """Check if bot service is actually running"""
+    try:
+        bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+        response = requests.get(f"{bot_service_url}/health", timeout=5)
+        return response.status_code == 200
+    except Exception as e:
+        logger.error(f"Bot service health check failed: {e}")
+        return False
+
+def get_database_bot_status():
+    """Get bot status from database"""
+    try:
+        response = supabase.table('bot_status').select('*').order('last_updated', desc=True).limit(1).execute()
+        if response.data:
+            return response.data[0]
+        return None
+    except Exception as e:
+        logger.error(f"Error getting database bot status: {e}")
+        return None
+
+def create_initial_bot_status():
+    """Create initial bot status record if none exists"""
+    try:
+        service_healthy = check_bot_service_health()
+        initial_status = {
+            'status': 'active' if service_healthy else 'inactive',
+            'message': 'Bot status initialized' if service_healthy else 'Bot service not responding',
+            'updated_by': 'system',
+            'last_updated': datetime.now().isoformat()
+        }
+        
+        response = supabase.table('bot_status').insert(initial_status).execute()
+        if response.data:
+            logger.info(f"Initial bot status created: {initial_status['status']}")
+            return True
+        return False
+    except Exception as e:
+        logger.error(f"Error creating initial bot status: {e}")
+        return False
+
+def update_bot_status_in_db(status, message, updated_by):
+    """Update bot status in database"""
+    try:
+        status_data = {
+            'status': status,
+            'message': message,
+            'updated_by': updated_by,
+            'last_updated': datetime.now().isoformat()
+        }
+        
+        response = supabase.table('bot_status').insert(status_data).execute()
+        return response.data is not None
+    except Exception as e:
+        logger.error(f"Error updating bot status in database: {e}")
+        return False
+
 @app.route('/api/admin/bot/status', methods=['GET'])
 @admin_required
 def get_bot_status():
-    """Get current bot status"""
+    """Get current bot status with health check"""
     try:
         if not supabase:
             return jsonify({
                 'status': 'error',
                 'message': 'Database not connected',
-                'bot_status': 'unknown'
+                'bot_status': 'unknown',
+                'connection_status': 'error'
             }), 500
         
-        # Get latest bot status from database
-        response = supabase.table('bot_status').select('*').order('last_updated', desc=True).limit(1).execute()
+        # Check database status
+        db_status = get_database_bot_status()
         
-        if response.data:
-            bot_status_data = response.data[0]
-            return jsonify({
-                'status': 'success',
-                'bot_status': bot_status_data['status'],
-                'message': bot_status_data.get('message', ''),
-                'last_updated': bot_status_data['last_updated'],
-                'updated_by': bot_status_data.get('updated_by', '')
-            }), 200
+        # Check actual service health
+        service_healthy = check_bot_service_health()
+        
+        # Determine actual status and connection
+        if not service_healthy:
+            actual_status = 'stopped'
+            connection_status = 'disconnected'
+        elif db_status:
+            actual_status = db_status['status']
+            connection_status = 'connected'
         else:
-            # Default status if no record exists
-            return jsonify({
-                'status': 'success',
-                'bot_status': 'inactive',
-                'message': 'Bot status not set, assuming inactive',
-                'last_updated': datetime.now().isoformat(),
-                'updated_by': 'system'
-            }), 200
+            # No database record, check service health
+            if service_healthy:
+                actual_status = 'active'
+                connection_status = 'connected'
+                # Create initial status record
+                create_initial_bot_status()
+                db_status = get_database_bot_status()  # Refresh after creation
+            else:
+                actual_status = 'inactive'
+                connection_status = 'disconnected'
+        
+        return jsonify({
+            'status': 'success',
+            'bot_status': actual_status,
+            'connection_status': connection_status,
+            'service_healthy': service_healthy,
+            'message': db_status.get('message', '') if db_status else '',
+            'last_updated': db_status.get('last_updated', datetime.now().isoformat()) if db_status else datetime.now().isoformat(),
+            'updated_by': db_status.get('updated_by', 'system') if db_status else 'system'
+        }), 200
             
     except Exception as e:
         logger.error(f"Error getting bot status: {e}")
         return jsonify({
             'status': 'error',
             'message': 'Failed to get bot status',
-            'bot_status': 'unknown'
+            'bot_status': 'unknown',
+            'connection_status': 'error'
         }), 500
+
+@app.route('/api/admin/bot/stats', methods=['GET'])
+@admin_required
+def get_bot_stats():
+    """Get detailed bot statistics including daily activity"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database not connected'}), 500
+        
+        stats = {}
+        
+        # Get basic user stats
+        try:
+            total_response = supabase.table('users').select('*', count='exact').execute()
+            active_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
+            
+            stats['active_users'] = active_response.count if hasattr(active_response, 'count') else 0
+            stats['total_users'] = total_response.count if hasattr(total_response, 'count') else 0
+        except Exception as e:
+            logger.error(f"Error getting user stats: {e}")
+            stats['active_users'] = 0
+            stats['total_users'] = 0
+        
+        # Get today's activity
+        try:
+            today = datetime.now().date()
+            today_start = datetime.combine(today, datetime.min.time()).isoformat()
+            today_end = datetime.combine(today, datetime.max.time()).isoformat()
+            
+            # For messages today - we would need a message logs table
+            # For now, we'll estimate based on user activity
+            recent_users_response = supabase.table('users').select('*', count='exact').gte('last_activity', today_start).execute()
+            stats['messages_today'] = recent_users_response.count if hasattr(recent_users_response, 'count') else 0
+            
+            # For exercises completed - sum from users table
+            users_response = supabase.table('users').select('total_questions_answered').execute()
+            if users_response.data:
+                total_exercises = sum(user.get('total_questions_answered', 0) for user in users_response.data)
+                stats['exercises_completed'] = total_exercises
+            else:
+                stats['exercises_completed'] = 0
+                
+        except Exception as e:
+            logger.error(f"Error getting activity stats: {e}")
+            stats['messages_today'] = 0
+            stats['exercises_completed'] = 0
+        
+        # Calculate uptime (simplified - based on bot status)
+        try:
+            bot_status_response = supabase.table('bot_status').select('*').order('last_updated', desc=True).limit(1).execute()
+            if bot_status_response.data:
+                last_status = bot_status_response.data[0]
+                if last_status['status'] in ['active', 'maintenance']:
+                    # Calculate uptime from last status change
+                    last_update = datetime.fromisoformat(last_status['last_updated'].replace('Z', '+00:00'))
+                    uptime = datetime.now() - last_update
+                    days = uptime.days
+                    hours = uptime.seconds // 3600
+                    minutes = (uptime.seconds % 3600) // 60
+                    stats['uptime'] = f"{days}d {hours}h {minutes}m"
+                else:
+                    stats['uptime'] = "0d 0h 0m"
+            else:
+                stats['uptime'] = "0d 0h 0m"
+        except Exception as e:
+            logger.error(f"Error calculating uptime: {e}")
+            stats['uptime'] = "0d 0h 0m"
+        
+        return jsonify(stats), 200
+        
+    except Exception as e:
+        logger.error(f"Error getting bot stats: {e}")
+        return jsonify({'error': 'Failed to get bot stats'}), 500
 
 @app.route('/api/admin/bot/start', methods=['POST'])
 @admin_required
 def start_bot():
-    """Start the bot service"""
+    """Start the bot service with verification"""
     try:
         if not supabase:
-            return jsonify({
-                'status': 'error',
-                'message': 'Database not connected'
-            }), 500
+            return jsonify({'status': 'error', 'message': 'Database not connected'}), 500
         
-        # Update bot status in database
+        # Update database to starting status first
         status_data = {
-            'status': 'active',
-            'last_updated': datetime.now().isoformat(),
+            'status': 'starting',
+            'message': 'Bot is starting...',
             'updated_by': current_user.username,
-            'message': 'Bot started successfully'
+            'last_updated': datetime.now().isoformat()
         }
         
         response = supabase.table('bot_status').insert(status_data).execute()
@@ -2026,32 +2169,64 @@ def start_bot():
                     json={"command": "start", "message": "Bot started by admin"},
                     timeout=10
                 )
+                
                 if bot_response.status_code == 200:
                     logger.info(f"Bot service start command sent successfully")
+                    
+                    # Wait a moment and verify service actually started
+                    import time
+                    time.sleep(3)  # Give service time to start
+                    
+                    if check_bot_service_health():
+                        # Service is responding, update to active
+                        update_bot_status_in_db('active', 'Bot started successfully', current_user.username)
+                        return jsonify({
+                            'status': 'success',
+                            'bot_status': 'active',
+                            'message': 'Bot started successfully'
+                        }), 200
+                    else:
+                        # Service not responding after start command
+                        update_bot_status_in_db('error', 'Bot failed to start - service not responding', current_user.username)
+                        return jsonify({
+                            'status': 'error',
+                            'message': 'Bot failed to start - service not responding'
+                        }), 500
                 else:
                     logger.warning(f"Bot service responded with status: {bot_response.status_code}")
-            except requests.RequestException as e:
+                    update_bot_status_in_db('error', f'Bot service error: {bot_response.status_code}', current_user.username)
+                    return jsonify({
+                        'status': 'error',
+                        'message': f'Bot service responded with status: {bot_response.status_code}'
+                    }), 500
+                    
+            except requests.exceptions.ConnectionError:
+                logger.error(f"Cannot connect to bot service at {bot_service_url}")
+                update_bot_status_in_db('error', 'Cannot connect to bot service', current_user.username)
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Cannot connect to bot service'
+                }), 500
+            except requests.exceptions.Timeout:
+                logger.error("Bot service timeout during start command")
+                update_bot_status_in_db('error', 'Bot service timeout during start', current_user.username)
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Bot service timeout during start'
+                }), 500
+            except Exception as e:
                 logger.error(f"Failed to send start command to bot service: {e}")
-            
-            logger.info(f"Bot started by admin: {current_user.username}")
-            return jsonify({
-                'status': 'success',
-                'bot_status': 'active',
-                'message': 'Bot started successfully',
-                'timestamp': datetime.now().isoformat()
-            }), 200
+                update_bot_status_in_db('error', f'Failed to start: {str(e)}', current_user.username)
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Failed to communicate with bot service'
+                }), 500
         else:
-            return jsonify({
-                'status': 'error',
-                'message': 'Failed to start bot'
-            }), 500
+            return jsonify({'status': 'error', 'message': 'Failed to update database'}), 500
             
     except Exception as e:
         logger.error(f"Error starting bot: {e}")
-        return jsonify({
-            'status': 'error',
-            'message': 'Failed to start bot'
-        }), 500
+        return jsonify({'status': 'error', 'message': 'Internal server error'}), 500
 
 @app.route('/api/admin/bot/stop', methods=['POST'])
 @admin_required

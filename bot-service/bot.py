@@ -1031,7 +1031,8 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
         [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_menu")],
-        [InlineKeyboardButton("🔄 Actualizar Ranking", callback_data="ranking")]
+        [InlineKeyboardButton("🔄 Actualizar Ranking", callback_data="ranking")],
+        [InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
