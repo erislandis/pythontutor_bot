@@ -309,10 +309,10 @@ def invalidate_exercises_cache():
 # ============================================
 
 def get_user_from_supabase(telegram_id):
-    """Obtener usuario directamente desde Supabase"""
+    """Obtener usuario directamente desde Supabase (tabla 'users')"""
     try:
         logger.info(f"Getting user {telegram_id} from Supabase")
-        result = supabase.table('users').select('*').eq('telegram_id', str(telegram_id)).execute()
+        result = supabase.table('users').select('*').eq('telegram_id', int(telegram_id)).execute()
         
         if result.data and len(result.data) > 0:
             logger.info(f"User {telegram_id} found in Supabase")
@@ -326,64 +326,84 @@ def get_user_from_supabase(telegram_id):
         return None
 
 def create_user_in_supabase(user_data):
-    """Crear usuario directamente en Supabase"""
+    """Crear usuario directamente en Supabase (tabla 'users')"""
     try:
-        logger.info(f"Creating user in Supabase: {user_data}")
+        logger.info(f"Creating user in Supabase with data: {user_data}")
         
-        # Ensure telegram_id is string
+        # Ensure telegram_id is integer
         if 'telegram_id' in user_data:
-            user_data['telegram_id'] = str(user_data['telegram_id'])
+            user_data['telegram_id'] = int(user_data['telegram_id'])
         
-        # Set default values if not provided
-        defaults = {
+        # Prepare data according to actual schema
+        db_user_data = {
+            'telegram_id': user_data['telegram_id'],
+            'first_name': user_data.get('first_name', ''),
+            'username': user_data.get('username', ''),
             'current_level': 'principiante',
             'level_progress': 0,
-            'total_exercises_completed': 0,
-            'current_streak': 0,
-            'longest_streak': 0,
-            'created_at': datetime.now().isoformat(),
+            'total_questions_answered': 0,
+            'correct_answers': 0,
             'last_activity': datetime.now().isoformat(),
-            'is_active': True
+            'created_at': datetime.now().isoformat()
         }
         
-        for key, value in defaults.items():
-            if key not in user_data:
-                user_data[key] = value
-        
-        result = supabase.table('users').insert(user_data).execute()
+        result = supabase.table('users').insert(db_user_data).execute()
         
         if result.data and len(result.data) > 0:
             logger.info(f"User created successfully in Supabase: {result.data[0]}")
             return {"success": True, "data": result.data[0]}
         else:
             logger.error("No data returned from Supabase insert")
-            return {"success": False, "error": "no_data_returned"}
+            return {"success": False, "error": "No se pudo crear el usuario"}
             
     except Exception as e:
-        logger.error(f"Error creating user in Supabase: {e}")
-        return {"success": False, "error": str(e)}
+        error_msg = str(e)
+        logger.error(f"Error creating user in Supabase: {error_msg}")
+        return {"success": False, "error": "Error en la base de datos", "details": error_msg}
 
 def update_user_in_supabase(telegram_id, updates):
-    """Actualizar usuario en Supabase"""
+    """Actualizar usuario en Supabase (tabla 'users')"""
     try:
-        telegram_id = str(telegram_id)
-        updates['last_activity'] = datetime.now().isoformat()
+        telegram_id = int(telegram_id)
         
-        result = supabase.table('users').update(updates).eq('telegram_id', telegram_id).execute()
+        # Map common field names to actual schema
+        field_mapping = {
+            'total_exercises_completed': 'total_questions_answered',
+            'exercises_completed': 'total_questions_answered',
+            'score': 'correct_answers'
+        }
         
-        if result.data and len(result.data) > 0:
-            logger.info(f"User {telegram_id} updated successfully")
-            return result.data[0]
-        else:
-            logger.warning(f"No user found to update: {telegram_id}")
-            return None
+        db_updates = {}
+        for key, value in updates.items():
+            # Map to actual column name if needed
+            db_key = field_mapping.get(key, key)
+            db_updates[db_key] = value
+        
+        # Always update last_activity
+        db_updates['last_activity'] = datetime.now().isoformat()
+        
+        # Remove fields that don't exist in schema
+        allowed_fields = ['current_level', 'level_progress', 'total_questions_answered', 
+                         'correct_answers', 'last_activity', 'first_name', 'username']
+        
+        final_updates = {k: v for k, v in db_updates.items() if k in allowed_fields}
+        
+        if final_updates:
+            result = supabase.table('users').update(final_updates).eq('telegram_id', telegram_id).execute()
+            
+            if result.data and len(result.data) > 0:
+                logger.info(f"User {telegram_id} updated successfully with fields: {list(final_updates.keys())}")
+                return result.data[0]
+        
+        # If no updates were applied, just return the current user
+        return get_user_from_supabase(telegram_id)
             
     except Exception as e:
         logger.error(f"Error updating user in Supabase: {e}")
         return None
 
 def get_exercises_from_supabase(level):
-    """Obtener ejercicios desde Supabase"""
+    """Obtener ejercicios desde Supabase (tabla 'exercises')"""
     try:
         logger.info(f"Getting exercises for level: {level} from Supabase")
         result = supabase.table('exercises').select('*').eq('level', level).execute()
@@ -402,7 +422,7 @@ def get_exercises_from_supabase(level):
 def update_progress_in_supabase(telegram_id, exercise_id, completed):
     """Actualizar progreso en Supabase"""
     try:
-        telegram_id = str(telegram_id)
+        telegram_id = int(telegram_id)
         
         # Get current user data
         user = get_user_from_supabase(telegram_id)
@@ -410,33 +430,51 @@ def update_progress_in_supabase(telegram_id, exercise_id, completed):
             logger.error(f"User {telegram_id} not found for progress update")
             return False
         
-        # Update user statistics
-        updates = {}
-        if completed:
-            updates['total_exercises_completed'] = user.get('total_exercises_completed', 0) + 1
-            updates['level_progress'] = user.get('level_progress', 0) + 1
-            updates['current_streak'] = user.get('current_streak', 0) + 1
-            
-            # Update longest streak if needed
-            if updates['current_streak'] > user.get('longest_streak', 0):
-                updates['longest_streak'] = updates['current_streak']
-        else:
-            updates['current_streak'] = 0
+        # Prepare updates
+        updates = {
+            'total_questions_answered': user.get('total_questions_answered', 0) + 1
+        }
         
-        updates['last_activity'] = datetime.now().isoformat()
+        if completed:
+            updates['correct_answers'] = user.get('correct_answers', 0) + 1
+        
+        # Update level progress (each question counts as progress)
+        current_progress = user.get('level_progress', 0)
+        updates['level_progress'] = current_progress + 1
         
         # Update user
         update_user_in_supabase(telegram_id, updates)
         
-        # Record exercise completion
-        progress_data = {
-            'user_id': user.get('id'),
-            'exercise_id': exercise_id,
-            'completed_at': datetime.now().isoformat(),
-            'was_correct': completed
-        }
-        
-        supabase.table('user_progress').insert(progress_data).execute()
+        # Record exercise completion in user_progress table if it exists
+        try:
+            # Get user's internal ID from users table
+            user_record = supabase.table('users').select('id').eq('telegram_id', telegram_id).execute()
+            if user_record.data and len(user_record.data) > 0:
+                user_internal_id = user_record.data[0]['id']
+                
+                progress_data = {
+                    'user_id': user_internal_id,
+                    'exercise_id': exercise_id,
+                    'attempts': 1,
+                    'completed': completed,
+                    'last_attempt': datetime.now().isoformat()
+                }
+                
+                # Check if progress record exists
+                existing = supabase.table('user_progress').select('*').eq('user_id', user_internal_id).eq('exercise_id', exercise_id).execute()
+                
+                if existing.data and len(existing.data) > 0:
+                    # Update existing
+                    supabase.table('user_progress').update({
+                        'attempts': existing.data[0].get('attempts', 0) + 1,
+                        'completed': completed or existing.data[0].get('completed', False),
+                        'last_attempt': datetime.now().isoformat()
+                    }).eq('id', existing.data[0]['id']).execute()
+                else:
+                    # Insert new
+                    supabase.table('user_progress').insert(progress_data).execute()
+        except Exception as e:
+            logger.warning(f"Could not update user_progress table: {e}")
         
         logger.info(f"Progress updated for user {telegram_id}, exercise {exercise_id}")
         return True
@@ -448,7 +486,8 @@ def update_progress_in_supabase(telegram_id, exercise_id, completed):
 def get_global_ranking_from_supabase():
     """Obtener ranking global desde Supabase"""
     try:
-        result = supabase.table('users').select('telegram_id, first_name, total_exercises_completed').order('total_exercises_completed', desc=True).limit(50).execute()
+        # Use total_questions_answered for ranking
+        result = supabase.table('users').select('telegram_id, first_name, total_questions_answered').order('total_questions_answered', desc=True).limit(50).execute()
         
         if result.data:
             return result.data
@@ -493,7 +532,7 @@ def create_local_user_session(telegram_id, user):
         'mode': None,
         'learning_session': {
             'current_exercise': 0,
-            'streak': 0,
+            'streak': 0,  # Streak is stored in memory only
             'completed_today': 0
         },
         'practice_session': {
@@ -502,7 +541,7 @@ def create_local_user_session(telegram_id, user):
             'correct_count': 0,
             'current_exercise': None
         },
-        'score': 0,
+        'score': 0,  # Score is stored in memory only
         'local_mode': True
     }
     logger.info(f"Created local session for user {telegram_id} ({user.first_name})")
@@ -530,20 +569,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode='Markdown'
         )
         
-        # Create user in Supabase
+        # Create user in Supabase with correct schema
         new_user_data = {
-            'telegram_id': str(telegram_id),
-            'username': user.username or '',
+            'telegram_id': telegram_id,
             'first_name': user.first_name or '',
-            'last_name': user.last_name or '',
-            'current_level': 'principiante',
-            'level_progress': 0,
-            'total_exercises_completed': 0,
-            'current_streak': 0,
-            'longest_streak': 0,
-            'created_at': datetime.now().isoformat(),
-            'last_activity': datetime.now().isoformat(),
-            'is_active': True
+            'username': user.username or ''
         }
         
         created_user = create_user_in_supabase(new_user_data)
@@ -557,39 +587,40 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             error_msg = f"❌ *Error al crear tu perfil*\n\n"
             error_msg += f"🔄 *{created_user.get('error', 'Error desconocido')}*\n\n"
-            error_msg += "💡 *Por favor intenta de nuevo en unos momentos*"
+            
+            if created_user.get('details'):
+                error_msg += f"📋 *Detalles:* {created_user.get('details')}\n\n"
+            
+            error_msg += "💡 *Por favor intenta de nuevo en unos momentos o contacta al administrador*"
             
             await update.message.reply_text(error_msg, parse_mode='Markdown')
             return
     
-    # Check and update level based on progress
-    updated_level = check_and_update_level(telegram_id, user_data)
-    if updated_level != user_data.get('current_level'):
-        user_data['current_level'] = updated_level
-        update_user_in_supabase(telegram_id, {'current_level': updated_level})
+    # Initialize user session with streak in memory only
+    if telegram_id not in user_sessions:
+        user_sessions[telegram_id] = {
+            'current_level': user_data.get('current_level', 'principiante'),
+            'mode': None,
+            'learning_session': {
+                'current_exercise': 0,
+                'streak': 0,  # Streak is stored in memory only
+                'completed_today': 0
+            },
+            'practice_session': {
+                'target_count': 0,
+                'completed_count': 0,
+                'correct_count': 0,
+                'current_exercise': None
+            },
+            'score': 0  # Score is stored in memory only
+        }
     
-    # Initialize user session
-    user_sessions[telegram_id] = {
-        'current_level': user_data.get('current_level', 'principiante'),
-        'mode': None,
-        'learning_session': {
-            'current_exercise': 0,
-            'streak': 0,
-            'completed_today': 0
-        },
-        'practice_session': {
-            'target_count': 0,
-            'completed_count': 0,
-            'correct_count': 0,
-            'current_exercise': None
-        },
-        'score': 0
-    }
-    
-    # Get progression info
+    # Get progression info using correct field names
     current_level = user_data.get('current_level', 'principiante')
-    total_completed = user_data.get('total_exercises_completed', 0)
-    next_level_info = get_next_level_info(current_level, total_completed)
+    total_answered = user_data.get('total_questions_answered', 0)
+    level_progress = user_data.get('level_progress', 0)
+    
+    next_level_info = get_next_level_info(current_level, total_answered)
     
     # Duolingo-style welcome interface
     welcome_text = f"""
@@ -604,8 +635,9 @@ Soy tu tutor personal de Python. Te ayudaré a aprender programación con ejerci
 
 🎯 *Tu Progreso Actual:*
 • Nivel Actual: {current_level.title()}
-• Ejercicios Completados: {total_completed}
-• Progreso del Nivel: {user_data.get('level_progress', 0)}/50
+• Preguntas Respondidas: {total_answered}
+• Respuestas Correctas: {user_data.get('correct_answers', 0)}
+• Progreso del Nivel: {level_progress}/50
 
 {next_level_info}
 
@@ -711,20 +743,9 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'completed_today': 0
     })
     
-    # Check and update level based on progress
-    updated_level = check_and_update_level(telegram_id, user_data)
-    if updated_level != user_data.get('current_level'):
-        user_data['current_level'] = updated_level
-        update_user_in_supabase(telegram_id, {'current_level': updated_level})
-        if update.callback_query:
-            await celebrate_level_up(update.callback_query, user_data.get('current_level'), updated_level)
-        else:
-            await celebrate_level_up(update, user_data.get('current_level'), updated_level)
-        return
-    
     current_level = user_data.get('current_level', 'principiante')
     level_progress = user_data.get('level_progress', 0)
-    total_completed = user_data.get('total_exercises_completed', 0)
+    total_answered = user_data.get('total_questions_answered', 0)
     
     # Get exercises from cache
     exercises = get_cached_exercises(current_level)
@@ -755,8 +776,8 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
 {question}
 
 📊 *Progreso del Nivel:* {progress_bar} {level_progress}/50
-🔥 *Racha Actual:* {streak} ejercicios seguidos
-🏆 *Total Completados:* {total_completed} ejercicios
+🔥 *Racha Actual:* {streak} preguntas seguidas
+🏆 *Total Respondidas:* {total_answered} preguntas
 
 🔘 *Opciones:*
 """
@@ -816,8 +837,7 @@ async def practice_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Elige cuántos ejercicios quieres practicar:
 
 📚 *Características del Modo Práctica:*
-• No ganas experiencia (XP)
-• No afecta tu nivel de progreso
+• No afecta tu progreso en la base de datos
 • Ideal para practicar y dominar conceptos
 • Repite ejercicios tantas veces como quieras
 
@@ -909,7 +929,7 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
 📊 *Sesión de Práctica:* {progress_text} ejercicios
 ✅ *Precisión:* {accuracy}
 
-📚 *Recuerda:* Este modo no afecta tu nivel de progreso
+📚 *Recuerda:* Este modo no afecta tu progreso en la base de datos
 
 🔘 *Opciones:*
 """
@@ -971,7 +991,11 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     # Find user's position
-    user_position = next((i+1 for i, user in enumerate(ranking_data) if str(user['telegram_id']) == str(telegram_id)), None)
+    user_position = None
+    for i, user_rank in enumerate(ranking_data):
+        if int(user_rank.get('telegram_id')) == int(telegram_id):
+            user_position = i + 1
+            break
     
     ranking_text = "🏆 *Ranking Mundial de PythonBot*\n\n"
     
@@ -979,24 +1003,29 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for i, user_rank in enumerate(ranking_data[:10]):
         medal = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
         
+        # Get the score
+        score = user_rank.get('total_questions_answered', 0)
+        name = user_rank.get('first_name', 'Usuario')
+        
         # Highlight current user
-        if str(user_rank['telegram_id']) == str(telegram_id):
-            ranking_text += f"👤 *{medal} {user_rank['first_name']}* - {user_rank['total_exercises_completed']} pts\n"
+        if int(user_rank.get('telegram_id')) == int(telegram_id):
+            ranking_text += f"👤 *{medal} {name}* - {score} preguntas\n"
         else:
-            ranking_text += f"{medal} {user_rank['first_name']} - {user_rank['total_exercises_completed']} pts\n"
+            ranking_text += f"{medal} {name} - {score} preguntas\n"
     
     ranking_text += "\n"
     
     # Show user's position if not in top 10
     if user_position and user_position > 10:
+        user_score = user_data.get('total_questions_answered', 0)
         ranking_text += f"👤 *Tu Posición: #{user_position}*\n"
-        ranking_text += f"📊 *Tus Puntos: {user_data.get('total_exercises_completed', 0)}*\n\n"
+        ranking_text += f"📊 *Tus Preguntas: {user_score}*\n\n"
     
     ranking_text += "📈 *Categorías del Ranking:*\n"
-    ranking_text += "• 🌱 Principiantes: 0-49 ejercicios\n"
-    ranking_text += "• 🌿 Intermedios: 50-149 ejercicios\n"
-    ranking_text += "• 🚀 Avanzados: 150-299 ejercicios\n"
-    ranking_text += "• 👑 Expertos: 300+ ejercicios\n\n"
+    ranking_text += "• 🌱 Principiantes: 0-49 preguntas\n"
+    ranking_text += "• 🌿 Intermedios: 50-149 preguntas\n"
+    ranking_text += "• 🚀 Avanzados: 150-299 preguntas\n"
+    ranking_text += "• 👑 Expertos: 300+ preguntas\n\n"
     ranking_text += "🔄 Ranking actualizado en tiempo real"
     
     keyboard = [
@@ -1033,23 +1062,26 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
     
-    # Check and update level based on progress
-    updated_level = check_and_update_level(telegram_id, user_data)
-    if updated_level != user_data.get('current_level'):
-        user_data['current_level'] = updated_level
-        update_user_in_supabase(telegram_id, {'current_level': updated_level})
-    
+    # Get values using correct field names
     current_level = user_data.get('current_level', 'principiante')
-    total_completed = user_data.get('total_exercises_completed', 0)
+    total_answered = user_data.get('total_questions_answered', 0)
+    correct_answers = user_data.get('correct_answers', 0)
     level_progress = user_data.get('level_progress', 0)
     
+    # Calculate accuracy
+    accuracy = (correct_answers / total_answered * 100) if total_answered > 0 else 0
+    
     # Calculate progression info
-    next_level_info = get_next_level_info(current_level, total_completed)
+    next_level_info = get_next_level_info(current_level, total_answered)
     progress_bar = create_progress_bar(level_progress, 50)
-    completion_percentage = calculate_completion_percentage(telegram_id)
     
     # Get achievements
     achievements = get_user_achievements(user_data)
+    
+    # Get streak from session (memory only)
+    streak = 0
+    if telegram_id in user_sessions:
+        streak = user_sessions[telegram_id].get('learning_session', {}).get('streak', 0)
     
     stats_text = f"""
 📊 *Mis Estadísticas - PythonBot*
@@ -1060,8 +1092,9 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 📚 *Progreso Actual:*
 • Nivel Actual: {current_level.title()}
 • Progreso del Nivel: {progress_bar} {level_progress}/50
-• Total Completados: {total_completed} ejercicios
-• Porcentaje Total: {completion_percentage}%
+• Preguntas Respondidas: {total_answered}
+• Respuestas Correctas: {correct_answers}
+• Precisión: {accuracy:.1f}%
 
 {next_level_info}
 
@@ -1069,11 +1102,10 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 {achievements}
 
 📈 *Estadísticas Detalladas:*
-• Racha Actual: 🔥 {user_data.get('current_streak', 0)} días
-• Mejor Racha: ⭐ {user_data.get('longest_streak', 0)} días
+• Racha Actual: 🔥 {streak} preguntas seguidas (sesión actual)
 
 🎯 *Próximos Objetivos:*
-{get_next_objectives(current_level, total_completed)}
+{get_next_objectives(current_level, total_answered)}
     """
     
     keyboard = [
@@ -1161,12 +1193,14 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await start(update, context)
         return
     
+    total_answered = user_data.get('total_questions_answered', 0)
+    
     welcome_text = f"""
 🐍 *PythonBot - Menú Principal*
 
 👤 *Usuario:* {user_data.get('first_name', 'N/A')}
 📚 *Nivel Actual:* {user_data.get('current_level', 'principiante').title()}
-🏆 *Ejercicios:* {user_data.get('total_exercises_completed', 0)}
+🏆 *Preguntas:* {total_answered}
 
 ⭐ *Elige una opción:*
     """
@@ -1233,7 +1267,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await practice_answer_callback(query, context, exercise_id, answer_index)
 
 async def learning_answer_callback(query, context, exercise_id, answer_index):
-    """Handle learning mode answer callback - XP earning"""
+    """Handle learning mode answer callback - Updates database"""
     telegram_id = query.from_user.id
     
     # Get exercises from cache
@@ -1251,7 +1285,7 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     # Update progress in Supabase
     update_progress_in_supabase(telegram_id, exercise_id, is_correct)
     
-    # Update learning session streak
+    # Update learning session streak (in memory only)
     if telegram_id not in user_sessions:
         user_sessions[telegram_id] = {'learning_session': {'streak': 0, 'completed_today': 0}, 'score': 0}
     
@@ -1267,21 +1301,13 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     
     # Get updated user data to check for level up
     user_data = get_user_from_supabase(telegram_id)
-    if user_data:
-        old_level = user_data.get('current_level', 'principiante')
-        new_level = check_and_update_level(telegram_id, user_data)
-        
-        # Check if user leveled up
-        if new_level != old_level:
-            await celebrate_level_up(query, old_level, new_level)
-            return
     
     # Format response
     options = json.loads(exercise['options']) if isinstance(exercise['options'], str) else exercise['options']
     
     if is_correct:
         response_text = "✅ *¡Correcto!*\n\n"
-        response_text += f"🔥 *Racha actual:* {session['streak']} ejercicios seguidos\n\n"
+        response_text += f"🔥 *Racha actual:* {session['streak']} preguntas seguidas\n\n"
     else:
         response_text = f"❌ *Incorrecto.*\n\n"
         response_text += f"La respuesta correcta es: {options[correct_answer]}\n\n"
@@ -1290,7 +1316,7 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     if exercise.get('explanation'):
         response_text += f"💡 *Explicación:*\n{exercise['explanation']}\n\n"
     
-    response_text += f"🏆 *Puntos:* {user_sessions[telegram_id].get('score', 0)} puntos"
+    response_text += f"🏆 *Puntos de sesión:* {user_sessions[telegram_id].get('score', 0)}"
     
     keyboard = [
         [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")],
@@ -1306,7 +1332,7 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     )
 
 async def practice_answer_callback(query, context, exercise_id, answer_index):
-    """Handle practice mode answer callback - No XP earned"""
+    """Handle practice mode answer callback - No database updates"""
     telegram_id = query.from_user.id
     
     # Get exercises from cache
@@ -1321,7 +1347,7 @@ async def practice_answer_callback(query, context, exercise_id, answer_index):
     correct_answer = exercise['correct_answer']
     is_correct = answer_index == correct_answer
     
-    # Update practice session (no XP)
+    # Update practice session (no database updates)
     if telegram_id not in user_sessions or 'practice_session' not in user_sessions[telegram_id]:
         await query.edit_message_text("❌ Sesión de práctica no encontrada. Por favor inicia una nueva sesión.")
         return
@@ -1379,7 +1405,7 @@ async def complete_practice_session(query, context):
     session = user_sessions[telegram_id]['practice_session']
     
     completion_text = f"""
-🎉 *¡Sesión de Práctica Completada!*\n\n📊 *Resultados:*\n• Ejercicios realizados: {session['completed_count']}\n• Respuestas correctas: {session['correct_count']}\n• Precisión: {(session['correct_count']/max(1, session['completed_count'])*100):.0f}%\n\n📚 *Recuerda:* Estos ejercicios no afectaron tu nivel de progreso.\n\n¿Qué te gustaría hacer ahora?
+🎉 *¡Sesión de Práctica Completada!*\n\n📊 *Resultados:*\n• Ejercicios realizados: {session['completed_count']}\n• Respuestas correctas: {session['correct_count']}\n• Precisión: {(session['correct_count']/max(1, session['completed_count'])*100):.0f}%\n\n📚 *Recuerda:* Estos ejercicios no afectaron tu progreso en la base de datos.\n\n¿Qué te gustaría hacer ahora?
     """
     
     keyboard = [
@@ -1454,7 +1480,7 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
 📊 *Sesión de Práctica:* {progress_text} ejercicios
 ✅ *Precisión:* {accuracy}
 
-📚 *Recuerda:* Este modo no afecta tu nivel de progreso
+📚 *Recuerda:* Este modo no afecta tu progreso en la base de datos
 
 🔘 *Opciones:*
 """
@@ -1529,7 +1555,7 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
 {question}
 
 📊 *Progreso del Nivel:* {progress_bar} {level_progress}/50
-🔥 *Racha Actual:* {streak} ejercicios seguidos
+🔥 *Racha Actual:* {streak} preguntas seguidas
 
 🔘 *Opciones:*
 """
@@ -1575,23 +1601,23 @@ async def explanation_callback(query, context, exercise_id):
 # Helper functions for progression system
 def check_and_update_level(telegram_id, user_data):
     """Check if user should level up and update their level"""
-    total_completed = user_data.get('total_exercises_completed', 0)
+    total_answered = user_data.get('total_questions_answered', 0)
     current_level = user_data.get('current_level', 'principiante')
     
     # Check each level requirement
     for level in LEVELS:
-        if total_completed >= LEVEL_REQUIREMENTS[level]:
+        if total_answered >= LEVEL_REQUIREMENTS[level]:
             if LEVELS.index(level) > LEVELS.index(current_level) if current_level in LEVELS else 0:
                 # User should level up
                 return level
     
     # Check if user should be graduated
-    if total_completed >= LEVEL_REQUIREMENTS['graduado']:
+    if total_answered >= LEVEL_REQUIREMENTS['graduado']:
         return 'graduado'
     
     return current_level
 
-def get_next_level_info(current_level, total_completed):
+def get_next_level_info(current_level, total_answered):
     """Get information about next level unlock"""
     if current_level == 'graduado':
         return "🎓 *¡Felicidades! Ya eres un graduado de PythonBot!*"
@@ -1601,12 +1627,12 @@ def get_next_level_info(current_level, total_completed):
     if current_index < len(LEVELS) - 1:
         next_level = LEVELS[current_index + 1]
         required = LEVEL_REQUIREMENTS[next_level]
-        remaining = max(0, required - total_completed)
+        remaining = max(0, required - total_answered)
         
         if remaining == 0:
             return f"🎉 *¡{next_level.title()} desbloqueado! Usa /practice para comenzar."
         else:
-            return f"🔓 *Siguiente Nivel:* {next_level.title()}\n📝 *Necesitas:* {remaining} ejercicios más"
+            return f"🔓 *Siguiente Nivel:* {next_level.title()}\n📝 *Necesitas:* {remaining} preguntas más"
     
     return ""
 
@@ -1623,45 +1649,45 @@ def create_progress_bar(current, total, length=10):
 def get_user_achievements(user_data):
     """Get user achievements based on their progress"""
     achievements = []
-    total_completed = user_data.get('total_exercises_completed', 0)
+    total_answered = user_data.get('total_questions_answered', 0)
     
     # Milestone achievements
-    if total_completed >= 1:
-        achievements.append("🌟 Primer Ejercicio")
-    if total_completed >= 10:
-        achievements.append("🔥 10 Ejercicios")
-    if total_completed >= 50:
+    if total_answered >= 1:
+        achievements.append("🌟 Primera Pregunta")
+    if total_answered >= 10:
+        achievements.append("🔥 10 Preguntas")
+    if total_answered >= 50:
         achievements.append("🌿 Nivel Intermedio")
-    if total_completed >= 100:
+    if total_answered >= 100:
         achievements.append("💯 Centenario")
-    if total_completed >= 150:
+    if total_answered >= 150:
         achievements.append("🚀 Nivel Avanzado")
-    if total_completed >= 300:
+    if total_answered >= 300:
         achievements.append("👑 Nivel Experto")
-    if total_completed >= 500:
+    if total_answered >= 500:
         achievements.append("🎓 Graduado")
     
     return "\n".join(f"• {achievement}" for achievement in achievements) if achievements else "• 🎯 Sin logros aún"
 
-def get_next_objectives(current_level, total_completed):
+def get_next_objectives(current_level, total_answered):
     """Get next objectives for the user"""
     objectives = []
     
     # Next milestone
     milestones = [10, 25, 50, 100, 150, 200, 300, 500]
-    next_milestone = next((m for m in milestones if m > total_completed), None)
+    next_milestone = next((m for m in milestones if m > total_answered), None)
     if next_milestone:
-        objectives.append(f"📝 Alcanzar {next_milestone} ejercicios")
+        objectives.append(f"📝 Alcanzar {next_milestone} preguntas")
     
     # Level specific objectives
     if current_level == 'principiante':
-        objectives.append("🌱 Desbloquear nivel Intermedio")
+        objectives.append("🌱 Desbloquear nivel Intermedio (50 preguntas)")
     elif current_level == 'intermedio':
-        objectives.append("🌿 Desbloquear nivel Avanzado")
+        objectives.append("🌿 Desbloquear nivel Avanzado (150 preguntas)")
     elif current_level == 'avanzado':
-        objectives.append("🚀 Desbloquear nivel Experto")
+        objectives.append("🚀 Desbloquear nivel Experto (300 preguntas)")
     elif current_level == 'experto':
-        objectives.append("👑 Convertirte en Graduado")
+        objectives.append("👑 Convertirte en Graduado (500 preguntas)")
     
     return "\n".join(f"• {obj}" for obj in objectives)
 
@@ -1679,13 +1705,13 @@ async def celebrate_level_up(query, old_level, new_level):
 • Nuevos logros por descubrir
 • Mayor reconocimiento en el ranking
 
-📝 *¡Usa /practice para comenzar en tu nuevo nivel!*
+📝 *¡Sigue practicando para alcanzar el siguiente nivel!*
 
 ¡Sigue así! 🚀
     """
     
     keyboard = [
-        [InlineKeyboardButton("🎉 ¡Comenzar Ya!", callback_data="practice_menu")],
+        [InlineKeyboardButton("🎉 ¡Continuar!", callback_data="learning_mode")],
         [InlineKeyboardButton("📊 Ver Progreso", callback_data="stats")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -1703,11 +1729,11 @@ def calculate_completion_percentage(telegram_id):
         result = supabase.table('exercises').select('count', count='exact').execute()
         total_exercises = result.count if hasattr(result, 'count') else 1200
         
-        # Get user's completed exercises
+        # Get user's answered questions
         user_data = get_user_from_supabase(telegram_id)
-        completed = user_data.get('total_exercises_completed', 0) if user_data else 0
+        answered = user_data.get('total_questions_answered', 0) if user_data else 0
         
-        percentage = (completed / total_exercises) * 100 if total_exercises > 0 else 0
+        percentage = (answered / total_exercises) * 100 if total_exercises > 0 else 0
         return f"{percentage:.1f}"
     except Exception as e:
         logger.error(f"Error calculating completion percentage: {e}")
