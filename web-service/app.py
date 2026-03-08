@@ -1466,6 +1466,208 @@ def api_export_exercises_json():
         logger.error(f"Error exporting exercises to JSON: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/admin/exercises/import/csv', methods=['POST'])
+@admin_required
+def api_import_exercises_csv():
+    """Import exercises from CSV file"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Check if file was uploaded
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file provided'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if not file.filename.lower().endswith('.csv'):
+            return jsonify({'error': 'File must be a CSV'}), 400
+        
+        logger.info(f"CSV import started: {file.filename}")
+        
+        # Read and parse CSV
+        exercises, csv_errors = parse_csv_exercises(file)
+        
+        if not exercises:
+            return jsonify({
+                'error': 'No valid exercises found in CSV',
+                'errors': csv_errors,
+                'imported': 0,
+                'total': 0
+            }), 400
+        
+        # Use existing import logic
+        import_result = process_exercises_import(exercises)
+        
+        # Combine CSV errors with import errors
+        all_errors = csv_errors + import_result.get('errors', [])
+        
+        return jsonify({
+            'imported': import_result['imported'],
+            'skipped_duplicates': import_result['skipped_duplicates'],
+            'validation_errors': import_result['validation_errors'],
+            'total_errors': import_result['total_errors'] + len(csv_errors),
+            'errors': all_errors[-10:] if len(all_errors) > 10 else all_errors,
+            'total': len(exercises),
+            'csv_errors': csv_errors,
+            'format': 'csv'
+        })
+        
+    except Exception as e:
+        logger.error(f"CSV import error: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+def parse_csv_exercises(csv_file):
+    """Parse CSV file and extract exercises"""
+    exercises = []
+    errors = []
+    
+    try:
+        # Read CSV content
+        stream = StringIO(csv_file.read().decode('utf-8-sig'))  # Handle BOM
+        reader = csv.DictReader(stream)
+        
+        # Validate headers
+        required_headers = ['question', 'level', 'option1', 'option2', 'option3', 'option4', 'correct_answer']
+        headers = reader.fieldnames or []
+        
+        missing_headers = [h for h in required_headers if h.lower() not in [f.lower() for f in headers]]
+        if missing_headers:
+            errors.append(f"Missing required columns: {', '.join(missing_headers)}")
+            return exercises, errors
+        
+        logger.info(f"CSV headers validated: {headers}")
+        
+        # Process each row
+        for row_num, row in enumerate(reader, start=2):  # Start at 2 (after header)
+            try:
+                exercise = validate_and_normalize_csv_row(row, row_num)
+                if exercise:
+                    exercises.append(exercise)
+            except Exception as e:
+                error_msg = f"Row {row_num}: {str(e)}"
+                errors.append(error_msg)
+                logger.warning(error_msg)
+        
+        logger.info(f"CSV parsing completed: {len(exercises)} exercises, {len(errors)} errors")
+        
+    except Exception as e:
+        error_msg = f"CSV parsing error: {str(e)}"
+        errors.append(error_msg)
+        logger.error(error_msg)
+    
+    return exercises, errors
+
+def validate_and_normalize_csv_row(row, row_num):
+    """Validate and normalize a single CSV row"""
+    
+    # Extract and validate required fields
+    question = row.get('question', '').strip()
+    level = row.get('level', '').strip().lower()
+    
+    if not question:
+        raise ValueError("Question cannot be empty")
+    
+    valid_levels = ['principiante', 'intermedio', 'avanzado', 'experto']
+    if not level or level not in valid_levels:
+        raise ValueError(f"Invalid level: {level}. Valid levels: {', '.join(valid_levels)}")
+    
+    # Extract options (handle different column names)
+    options = [
+        row.get('option1', '').strip() or row.get('opcion1', '').strip() or row.get('a', '').strip(),
+        row.get('option2', '').strip() or row.get('opcion2', '').strip() or row.get('b', '').strip(),
+        row.get('option3', '').strip() or row.get('opcion3', '').strip() or row.get('c', '').strip(),
+        row.get('option4', '').strip() or row.get('opcion4', '').strip() or row.get('d', '').strip()
+    ]
+    
+    if any(not opt for opt in options):
+        raise ValueError("All options must be provided")
+    
+    # Validate correct answer
+    correct_answer_str = row.get('correct_answer', '').strip()
+    try:
+        correct_answer = int(correct_answer_str)
+        if correct_answer < 1 or correct_answer > 4:
+            raise ValueError("Correct answer must be between 1 and 4")
+    except ValueError:
+        raise ValueError(f"Invalid correct answer: {correct_answer_str}")
+    
+    # Get optional explanation
+    explanation = row.get('explanation', '').strip() or row.get('explicacion', '').strip()
+    
+    return {
+        'question': question,
+        'level': level,
+        'options': options,
+        'correct_answer': correct_answer,
+        'explanation': explanation,
+        'created_at': datetime.now().isoformat()
+    }
+
+def process_exercises_import(exercises):
+    """Process exercises import using existing logic"""
+    try:
+        # Use existing import logic but with our pre-validated exercises
+        imported_count = 0
+        errors = []
+        skipped_duplicates = 0
+        validation_errors = 0
+        
+        # Process in batches
+        batch_size = 50
+        total_batches = (len(exercises) + batch_size - 1) // batch_size
+        
+        logger.info(f"Processing {len(exercises)} exercises in {total_batches} batches")
+        
+        for batch_num in range(total_batches):
+            start_idx = batch_num * batch_size
+            end_idx = min(start_idx + batch_size, len(exercises))
+            batch_exercises = exercises[start_idx:end_idx]
+            
+            # Normalize exercises for database
+            batch_data = []
+            for exercise in batch_exercises:
+                try:
+                    normalized = normalize_exercise_data(exercise)
+                    if normalized:
+                        batch_data.append(normalized)
+                except Exception as e:
+                    errors.append(f"Exercise normalization error: {str(e)}")
+                    validation_errors += 1
+            
+            # Insert batch
+            if batch_data:
+                try:
+                    result = supabase.table('exercises').insert(batch_data).execute()
+                    if result.data:
+                        batch_imported = len(result.data)
+                        imported_count += batch_imported
+                        logger.info(f"Batch {batch_num + 1}: {batch_imported} exercises imported")
+                    else:
+                        errors.append(f"Batch {batch_num + 1}: No data returned from insert")
+                except Exception as e:
+                    errors.append(f"Batch {batch_num + 1} insert error: {str(e)}")
+        
+        return {
+            'imported': imported_count,
+            'skipped_duplicates': skipped_duplicates,
+            'validation_errors': validation_errors,
+            'total_errors': len(errors),
+            'errors': errors
+        }
+        
+    except Exception as e:
+        logger.error(f"Process import error: {e}")
+        return {
+            'imported': 0,
+            'skipped_duplicates': 0,
+            'validation_errors': 0,
+            'total_errors': 1,
+            'errors': [str(e)]
+        }
+
 @app.route('/api/admin/exercises/export/csv', methods=['GET'])
 @admin_required
 def api_export_exercises_csv():

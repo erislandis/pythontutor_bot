@@ -255,8 +255,30 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
+                    <label class="form-label">Formato del Archivo</label>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="importFormat" id="formatJson" value="json" checked>
+                        <label class="btn btn-outline-primary" for="formatJson">
+                            <i class="bi bi-file-earmark-text me-1"></i>JSON
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="importFormat" id="formatCsv" value="csv">
+                        <label class="btn btn-outline-primary" for="formatCsv">
+                            <i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- JSON Format Info -->
+                <div id="jsonFormatInfo">
                     <h6 class="text-muted">Selecciona un archivo JSON para importar ejercicios</h6>
                     <p class="text-muted small">El archivo debe contener un array de ejercicios en el formato especificado.</p>
+                </div>
+                
+                <!-- CSV Format Info -->
+                <div id="csvFormatInfo" style="display: none;">
+                    <h6 class="text-muted">Selecciona un archivo CSV para importar ejercicios</h6>
+                    <p class="text-muted small">El archivo debe tener las columnas requeridas según el formato especificado.</p>
                 </div>
                 
                 <!-- File Upload Area -->
@@ -266,8 +288,8 @@
                          ondragover="handleDragOver(event)" 
                          ondragleave="handleDragLeave(event)">
                         <i class="bi bi-cloud-upload display-4 text-muted"></i>
-                        <p class="mt-2 mb-2">Arrastra un archivo JSON aquí o haz clic para seleccionar</p>
-                        <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleFileSelect(event)">
+                        <p class="mt-2 mb-2" id="uploadText">Arrastra un archivo JSON aquí o haz clic para seleccionar</p>
+                        <input type="file" id="importFileInput" accept=".json,.csv" style="display: none;" onchange="handleFileSelect(event)">
                         <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('importFileInput').click()">
                             <i class="bi bi-folder-open me-1"></i>Seleccionar Archivo
                         </button>
@@ -308,11 +330,13 @@
                 
                 <!-- Format Information -->
                 <div class="mt-3">
-                    <details>
-                        <summary class="text-primary small" style="cursor: pointer;">Ver formato de archivo esperado</summary>
-                        <div class="mt-2 p-3 bg-light rounded">
-                            <h6>Formato JSON esperado:</h6>
-                            <pre class="small"><code>[
+                    <!-- JSON Format Info -->
+                    <div id="jsonFormatDetails">
+                        <details>
+                            <summary class="text-primary small" style="cursor: pointer;">Ver formato de archivo JSON esperado</summary>
+                            <div class="mt-2 p-3 bg-light rounded">
+                                <h6>Formato JSON esperado:</h6>
+                                <pre class="small"><code>[
   {
     "question": "Pregunta del ejercicio",
     "level": "principiante",
@@ -321,13 +345,96 @@
     "explanation": "Explicación del ejercicio"
   }
 ]</code></pre>
-                            <p class="text-muted small mb-0">
-                                <strong>Niveles válidos:</strong> principiante, intermedio, avanzado, experto<br>
-                                <strong>correct_answer:</strong> Número entre 1 y 4 (índice base 1)<br>
-                                <strong>options:</strong> Array con exactamente 4 opciones
-                            </p>
-                        </div>
-                    </details>
+                                <p class="text-muted small mb-0">
+                                    <strong>Niveles válidos:</strong> principiante, intermedio, avanzado, experto<br>
+                                    <strong>correct_answer:</strong> Número entre 1 y 4 (índice base 1)<br>
+                                    <strong>options:</strong> Array con exactamente 4 opciones
+                                </p>
+                            </div>
+                        </details>
+                    </div>
+                    
+                    <!-- CSV Format Info -->
+                    <div id="csvFormatDetails" style="display: none;">
+                        <details>
+                            <summary class="text-primary small" style="cursor: pointer;">Ver formato de archivo CSV esperado</summary>
+                            <div class="mt-2 p-3 bg-light rounded">
+                                <h6>Formato CSV esperado:</h6>
+                                <p class="small mb-2">El archivo CSV debe tener las siguientes columnas:</p>
+                                <div class="table-responsive">
+                                    <table class="table table-sm small">
+                                        <thead>
+                                            <tr>
+                                                <th>Columna</th>
+                                                <th>Requerida</th>
+                                                <th>Descripción</th>
+                                                <th>Ejemplo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>question</td>
+                                                <td>Sí</td>
+                                                <td>Pregunta del ejercicio</td>
+                                                <td>¿Qué es print() en Python?</td>
+                                            </tr>
+                                            <tr>
+                                                <td>level</td>
+                                                <td>Sí</td>
+                                                <td>Nivel (principiante/intermedio/avanzado/experto)</td>
+                                                <td>principiante</td>
+                                            </tr>
+                                            <tr>
+                                                <td>option1</td>
+                                                <td>Sí</td>
+                                                <td>Opción A</td>
+                                                <td>Función para imprimir</td>
+                                            </tr>
+                                            <tr>
+                                                <td>option2</td>
+                                                <td>Sí</td>
+                                                <td>Opción B</td>
+                                                <td>Función para calcular</td>
+                                            </tr>
+                                            <tr>
+                                                <td>option3</td>
+                                                <td>Sí</td>
+                                                <td>Opción C</td>
+                                                <td>Variable especial</td>
+                                            </tr>
+                                            <tr>
+                                                <td>option4</td>
+                                                <td>Sí</td>
+                                                <td>Opción D</td>
+                                                <td>Comentario especial</td>
+                                            </tr>
+                                            <tr>
+                                                <td>correct_answer</td>
+                                                <td>Sí</td>
+                                                <td>Número de respuesta correcta (1-4)</td>
+                                                <td>1</td>
+                                            </tr>
+                                            <tr>
+                                                <td>explanation</td>
+                                                <td>No</td>
+                                                <td>Explicación de la respuesta</td>
+                                                <td>print() muestra texto en consola</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-3">
+                                    <h6 class="small">Ejemplo de archivo CSV:</h6>
+                                    <pre class="small"><code>question,level,option1,option2,option3,option4,correct_answer,explanation
+¿Qué es print() en Python?,principiante,Función para imprimir,Función para calcular,Variable especial,Comentario especial,1,print() muestra texto en consola
+¿Cuál es el resultado de 2+2?,principiante,3,4,5,2,2,La suma de 2 y 2 es 4</code></pre>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    <strong>Nota:</strong> También se aceptan columnas en español: pregunta, nivel, opcion1, opcion2, opcion3, opcion4, respuesta_correcta, explicacion
+                                </p>
+                            </div>
+                        </details>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -369,7 +476,44 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Search functionality
     document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+    
+    // Format selection handler
+    document.addEventListener('change', function(e) {
+        if (e.target.name === 'importFormat') {
+            const format = e.target.value;
+            updateFormatUI(format);
+        }
+    });
 });
+
+function updateFormatUI(format) {
+    const jsonInfo = document.getElementById('jsonFormatInfo');
+    const csvInfo = document.getElementById('csvFormatInfo');
+    const jsonDetails = document.getElementById('jsonFormatDetails');
+    const csvDetails = document.getElementById('csvFormatDetails');
+    const uploadText = document.getElementById('uploadText');
+    
+    if (format === 'csv') {
+        jsonInfo.style.display = 'none';
+        csvInfo.style.display = 'block';
+        jsonDetails.style.display = 'none';
+        csvDetails.style.display = 'block';
+        uploadText.textContent = 'Arrastra un archivo CSV aquí o haz clic para seleccionar';
+    } else {
+        jsonInfo.style.display = 'block';
+        csvInfo.style.display = 'none';
+        jsonDetails.style.display = 'block';
+        csvDetails.style.display = 'none';
+        uploadText.textContent = 'Arrastra un archivo JSON aquí o haz clic para seleccionar';
+    }
+    
+    // Clear selected file when format changes
+    clearSelectedFile();
+}
+
+function getSelectedFormat() {
+    return document.querySelector('input[name="importFormat"]:checked').value;
+}
 
 function initializeTable() {
     // Add any table initialization here
@@ -722,8 +866,16 @@ function importExercises(file) {
         return;
     }
     
+    const format = getSelectedFormat();
     const fileName = file.name.toLowerCase();
-    if (!fileName.endsWith('.json')) {
+    
+    // Validate file format matches selection
+    if (format === 'csv' && !fileName.endsWith('.csv')) {
+        showAlert('danger', 'Por favor selecciona un archivo CSV');
+        return;
+    }
+    
+    if (format === 'json' && !fileName.endsWith('.json')) {
         showAlert('danger', 'Por favor selecciona un archivo JSON');
         return;
     }
@@ -798,42 +950,61 @@ async function startImport() {
         return;
     }
     
+    const format = getSelectedFormat();
+    
     // Show progress
     document.getElementById('importProgress').style.display = 'block';
     document.getElementById('importResults').style.display = 'none';
     document.getElementById('importButton').disabled = true;
     
     try {
-        // Read file content
-        const content = await readFileContent(selectedFile);
-        const exercises = JSON.parse(content);
+        let response;
         
-        if (!Array.isArray(exercises)) {
-            throw new Error('El archivo debe contener un array de ejercicios');
+        if (format === 'csv') {
+            // Handle CSV import with FormData
+            updateImportProgress(10, 'Leyendo archivo CSV...');
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            updateImportProgress(30, 'Enviando archivo CSV...');
+            
+            response = await fetch('/api/admin/exercises/import/csv', {
+                method: 'POST',
+                body: formData
+            });
+        } else {
+            // Handle JSON import (existing logic)
+            updateImportProgress(10, 'Leyendo archivo JSON...');
+            
+            const content = await readFileContent(selectedFile);
+            const exercises = JSON.parse(content);
+            
+            if (!Array.isArray(exercises)) {
+                throw new Error('El archivo debe contener un array de ejercicios');
+            }
+            
+            if (exercises.length === 0) {
+                throw new Error('El archivo no contiene ejercicios');
+            }
+            
+            updateImportProgress(30, 'Validando ejercicios JSON...');
+            
+            response = await fetch('/api/admin/exercises/import', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    exercises: exercises,
+                    metadata: {
+                        filename: selectedFile.name,
+                        filesize: selectedFile.size,
+                        upload_time: new Date().toISOString()
+                    }
+                })
+            });
         }
-        
-        if (exercises.length === 0) {
-            throw new Error('El archivo no contiene ejercicios');
-        }
-        
-        // Update progress
-        updateImportProgress(10, 'Validando ejercicios...');
-        
-        // Send to backend API
-        const response = await fetch('/api/admin/exercises/import', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                exercises: exercises,
-                metadata: {
-                    filename: selectedFile.name,
-                    filesize: selectedFile.size,
-                    upload_time: new Date().toISOString()
-                }
-            })
-        });
         
         updateImportProgress(50, 'Procesando en servidor...');
         

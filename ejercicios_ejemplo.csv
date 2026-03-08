@@ -1,0 +1,26 @@
+question,level,option1,option2,option3,option4,correct_answer,explanation
+¿Qué es print() en Python?,principiante,Función para imprimir,Función para calcular,Variable especial,Comentario especial,1,print() muestra texto en consola
+¿Cuál es el resultado de 2+2?,principiante,3,4,5,2,2,La suma de 2 y 2 es 4
+¿Cómo se declara una variable en Python?,principiante,var x = 5,x = 5,declare x = 5,variable x = 5,2,En Python se usa: nombre_variable = valor
+¿Qué tipo de dato es "Hola"?,principiante,Número,Booleano,String,Lista,3,"Hola" es un string (texto)
+¿Cuál es el resultado de 10 > 5?,principiante,True,False,Error,10,1,10 es mayor que 5, por lo tanto True
+¿Cómo se crea una lista en Python?,principiante,[] = lista,lista = [],list() = [],create lista = [],2,Se usa: mi_lista = [] o mi_lista = list()
+¿Qué hace len("Python")?,principiante,6,5,Error,True,1,len() cuenta los caracteres, "Python" tiene 6
+¿Cuál es el operador de módulo?,principiante,%,/,*,//,1,El operador % devuelve el residuo de una división
+¿Cómo se comenta una línea en Python?,principiante,//,#,<!--,--,2,En Python se usa # para comentarios de una línea
+¿Qué es una función en Python?,intermedio,Variable para almacenar datos,Bloque de código reutilizable,Tipo de dato especial,Operador matemático,2,Una función es un bloque de código que se puede llamar múltiples veces
+¿Cuál es la diferencia entre list y tuple?,intermedio,list es mutable, tuple es inmutable,Ambos son iguales,list es más rápida,tuple no puede contener datos,1,Las listas se pueden modificar, las tuplas no después de creadas
+¿Qué es un diccionario en Python?,intermedio,Colección ordenada de elementos,Colección de pares clave-valor,Tipo de número especial,Lista de números,2,Un diccionario almacena datos en formato clave: valor
+¿Cómo se itera sobre una lista?,intermedio,for item in lista:,iterate lista:,loop lista:,for(lista):,1,Se usa un bucle for: for elemento in mi_lista:
+¿Qué es __init__ en Python?,intermedio,Constructor de clase,Método para destruir objetos,Variable especial,Función principal,1,__init__ es el método constructor que se llama al crear un objeto
+¿Cuál es el resultado de [1,2,3] * 2?,intermedio,[2,4,6],[1,2,3,1,2,3],Error,[1,2,3]*2,2,El operador * duplica la lista
+¿Qué es el método append()?,intermedio,Elimina elementos,Ordena la lista,Agrega elementos al final,Busca elementos,3,append() agrega un elemento al final de una lista
+¿Cómo se maneja un archivo en Python?,avanzado,open("archivo.txt"),file.open("archivo.txt"),read_file("archivo.txt"),get_file("archivo.txt"),1,Se usa la función open() para manejar archivos
+¿Qué es el manejo de excepciones?,avanzado,Corregir errores automáticamente,Manejar errores sin que el programa se detenga,Optimizar el código,Comentar el código,2,try-except permite manejar errores sin detener el programa
+¿Qué es una lista comprehensión?,avanzado,Forma de crear listas de manera concisa,Tipo de dato especial,Método de ordenamiento,Operador lógico,1,[x for x in range(10)] es una lista comprehensión
+¿Cuál es el propósito de __name__ == "__main__"?,avanzado,Define el nombre del programa,Permite ejecutar código solo cuando el script es el programa principal,Crea una variable principal,Importa módulos automáticamente,2,Este código se ejecuta solo cuando el archivo se corre directamente
+¿Qué es el decorador @property?,experto,Decorador para crear propiedades,Decorador para métodos estáticos,Decorador para clases abstractas,Decorador para herencia,1,@property convierte un método en un atributo de solo lectura
+¿Cómo se implementa la herencia múltiple?,experto,class A(B, C):,class A: inherit B C,class A < B, C:,inherit class A from B, C,1,En Python: class Hija(Padre1, Padre2):
+¿Qué es el protocolo de iteración?,experto,Forma en que Python implementa los iteradores,Protocolo de red,Formato de archivo,Estándar de codificación,1,Los iteradores usan __iter__ y __next__ en Python
+¿Cuál es la diferencia entre __str__ y __repr__?,experto,Ambos son iguales,__str__ es para usuarios, __repr__ para desarrolladores,__str__ es para depuración, __repr__ para usuarios,__str__ es más rápido, __repr__ más lento,2,__str__ devuelve representación amigable, __repr__ representación técnica
+¿Qué es el GIL en Python?,experto,Global Interpreter Lock,General Input Lock,Global Internet Lock,General Interface Lock,1,El GIL permite que solo un hilo ejecute bytecode Python a la vez
