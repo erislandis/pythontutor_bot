@@ -3,184 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <title>Panel de Control - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
+    <style>
+        /* Professional Dashboard Styles */
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .sidebar-header {
+            background: rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 1.5rem;
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 1rem 1.5rem;
+            margin: 0.25rem 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        .nav-link.active {
+            background: rgba(102, 126, 234, 0.3);
+            color: white;
+            border-left: 3px solid #667eea;
+        }
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .bg-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        .activity-timeline {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .activity-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+        }
+        .activity-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-left: 1rem;
+        }
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        .quick-action-btn {
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .status-indicator {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 280px;
+                height: 100vh;
+                z-index: 999;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .stat-card {
+                margin-bottom: 1rem;
+            }
+            .dashboard-header {
+                padding: 1.5rem 1rem;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h4><i class="fas fa-robot"></i> Panel de Control</h4>
-            <p class="text-muted mb-0">Panel Administrativo</p>
-        </div>
-        
-        <div class="sidebar-menu">
-            <a href="/admin/dashboard" class="active">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a href="/admin/users">
-                <i class="fas fa-users"></i> Usuarios
-            </a>
-            <a href="/admin/bot-control">
-                <i class="fas fa-robot"></i> Control del Bot
-            </a>
-            <a href="/admin/exercises">
-                <i class="fas fa-book"></i> Ejercicios
-            </a>
-            <a href="/admin/change-password">
-                <i class="fas fa-key"></i> Cambiar Contraseña
-            </a>
-            
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <a href="/admin/logout" style="color: #ef5350;">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </a>
+            <div class="d-flex align-items-center">
+                <div class="user-avatar me-3">
+                    <i class="fas fa-user-circle fa-2x"></i>
+                </div>
+                <div>
+                    <h5 class="mb-0">{{ current_user.username }}</h5>
+                    <p class="text-muted small mb-0">Administrador</p>
+                </div>
             </div>
         </div>
+        
+        <nav class="sidebar-menu">
+            <a href="/admin/dashboard" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-home me-3"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/admin/users" class="nav-link {% if request.endpoint == 'admin_users' %}active{% endif %}">
+                <i class="fas fa-users me-3"></i>
+                <span>Usuarios</span>
+            </a>
+            <a href="/admin/bot-control" class="nav-link {% if request.endpoint == 'admin_bot_control' %}active{% endif %}">
+                <i class="fas fa-robot me-3"></i>
+                <span>Control del Bot</span>
+            </a>
+            <a href="/admin/exercises" class="nav-link {% if request.endpoint == 'admin_exercises' %}active{% endif %}">
+                <i class="fas fa-book me-3"></i>
+                <span>Ejercicios</span>
+            </a>
+            <a href="/admin/change-password" class="nav-link {% if request.endpoint == 'change_password' %}active{% endif %}">
+                <i class="fas fa-key me-3"></i>
+                <span>Cambiar Contraseña</span>
+            </a>
+            
+            <div class="mt-auto pt-3 border-top">
+                <a href="/admin/logout" class="nav-link text-danger">
+                    <i class="fas fa-sign-out-alt me-3"></i>
+                    <span>Cerrar Sesión</span>
+                </a>
+            </div>
+        </nav>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <div class="header-bar">
-            <div>
-                <h1 class="h3 mb-2" style="color: #2c3e50;">Dashboard de Control</h1>
-                <p class="text-muted mb-0">Resumen general del sistema</p>
-            </div>
-            <div class="user-badge">
-                <i class="fas fa-user-circle me-2"></i>
-                {{ current_user.username }}
-                <span class="status-badge status-online ms-2">
-                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Activo
-                </span>
-            </div>
-        </div>
-
-        <!-- Estadísticas -->
-        <div class="row">
-            <div class="col-md-4">
-                <div class="stat-card exercises">
-                    <div class="stat-icon text-primary">
-                        <i class="fas fa-book"></i>
+    <div class="main-content" id="mainContent">
+        <!-- Professional Header -->
+        <div class="dashboard-header">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1 class="mb-0">
+                            <i class="fas fa-chart-line me-3"></i>
+                            Dashboard de Control
+                        </h1>
+                        <p class="mb-0 opacity-75">Resumen general del sistema en tiempo real</p>
                     </div>
-                    <h6 class="text-muted">Ejercicios Totales</h6>
-                    <div class="stat-number">{{ total_exercises }}</div>
-                    <small class="text-muted">Ejercicios en el sistema</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card active">
-                    <div class="stat-icon text-success">
-                        <i class="fas fa-robot"></i>
+                    <div class="col-md-6 text-md-end">
+                        <div class="d-flex align-items-center justify-content-md-end">
+                            <div class="me-3">
+                                <small class="d-block text-muted">Usuario actual</small>
+                                <strong>{{ current_user.username }}</strong>
+                            </div>
+                            <div class="status-indicator">
+                                <span class="badge bg-success">
+                                    <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
+                                    En línea
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <h6 class="text-muted">Estado del Bot</h6>
-                    <div class="stat-number">Activo</div>
-                    <small class="text-muted">Bot funcionando</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card recent">
-                    <div class="stat-icon text-info">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h6 class="text-muted">Actividad Reciente</h6>
-                    <div class="stat-number">{{ recent_exercises }}</div>
-                    <small class="text-muted">Ejercicios (7 días)</small>
                 </div>
             </div>
         </div>
 
-        <!-- Contenido Principal -->
-        <div class="row mt-4">
-            <!-- Logs de Seguridad -->
-            <div class="col-md-8">
-                <div class="logs-table">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 style="color: #2c3e50;">
-                            <i class="fas fa-shield-alt text-primary me-2"></i>
-                            Logs de Seguridad Recientes
-                        </h5>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead style="background: #f5f7fa;">
-                                <tr>
-                                    <th><i class="fas fa-cog me-1"></i> Sistema</th>
-                                    <th><i class="fas fa-bolt me-1"></i> Acción</th>
-                                    <th><i class="fas fa-clock me-1"></i> Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for log in security_logs %}
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-light text-dark">
-                                            <i class="fas fa-cog me-1"></i>
-                                            Sistema
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <code style="background: #f1f8ff; padding: 3px 8px; border-radius: 4px;">
-                                            {{ log.action }}
-                                        </code>
-                                    </td>
-                                    <td>
-                                        <small class="text-muted">
-                                            <i class="far fa-clock me-1"></i>
-                                            {{ log.created_at.strftime('%d/%m %H:%M') }}
-                                        </small>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Acciones Rápidas -->
-            <div class="col-md-4">
-                <div class="quick-actions">
-                    <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                        <i class="fas fa-bolt text-warning me-2"></i>
-                        Acciones Rápidas
-                    </h5>
-                    
-                    <div class="d-grid gap-3">
-                        <a href="/admin/exercises" class="btn btn-success action-btn">
-                            <i class="fas fa-book"></i>
-                            Gestionar Ejercicios
-                        </a>
-                        
-                        <a href="/admin/change-password" class="btn btn-secondary action-btn">
-                            <i class="fas fa-key"></i>
-                            Cambiar Contraseña
-                        </a>
-                    </div>
-                    
-                    <!-- Estado del Sistema -->
-                    <div class="mt-4 pt-4 border-top">
-                        <h6 class="mb-3"><i class="fas fa-info-circle me-2"></i> Estado del Sistema</h6>
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="text-center p-2">
-                                    <div class="mb-2">
-                                        <i class="fas fa-database fa-lg text-primary"></i>
-                                    </div>
-                                    <small class="d-block">Base de datos</small>
-                                    <span class="status-badge status-online">OK</span>
+        <!-- Professional Statistics Cards -->
+        <div class="container-fluid mb-4">
+            <div class="row g-4">
+                <!-- Ejercicios Card -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card stat-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon bg-primary bg-gradient text-white">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="text-muted mb-1">Ejercicios Totales</h6>
+                                    <div class="stat-number text-primary">{{ total_exercises }}</div>
+                                    <small class="text-muted">Ejercicios en el sistema</small>
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <div class="text-center p-2">
-                                    <div class="mb-2">
-                                        <i class="fas fa-server fa-lg text-success"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bot Status Card -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card stat-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon bg-success bg-gradient text-white">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="text-muted mb-1">Estado del Bot</h6>
+                                    <div class="stat-number text-success">Activo</div>
+                                    <small class="text-muted">Bot funcionando</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity Card -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card stat-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon bg-info bg-gradient text-white">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="ms-3">
+                                    <h6 class="text-muted mb-1">Actividad Reciente</h6>
+                                    <div class="stat-number text-info">{{ recent_exercises }}</div>
+                                    <small class="text-muted">Ejercicios (7 días)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div class="container-fluid">
+            <div class="row g-4">
+                <!-- Security Logs Section -->
+                <div class="col-lg-8">
+                    <div class="card h-100">
+                        <div class="card-header bg-white border-0 pt-4">
+                            <h5 class="mb-0">
+                                <i class="fas fa-shield-alt text-primary me-2"></i>
+                                Logs de Seguridad Recientes
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div class="activity-timeline">
+                                    {% for log in security_logs %}
+                                    <div class="activity-item">
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-3">
+                                                <span class="badge bg-light text-dark">
+                                                    <i class="fas fa-cog me-1"></i>
+                                                    Sistema
+                                                </span>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <code class="bg-primary bg-opacity-10 text-primary px-2 py-1 rounded">
+                                                        {{ log.action }}
+                                                    </code>
+                                                    <small class="text-muted">
+                                                        <i class="far fa-clock me-1"></i>
+                                                        {{ log.created_at.strftime('%d/%m %H:%M') }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <small class="d-block">Servidor</small>
-                                    <span class="status-badge status-online">Activo</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Section -->
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white border-0 pt-4">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bolt text-warning me-2"></i>
+                                Acciones Rápidas
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="/admin/exercises" class="quick-action-btn btn-success">
+                                    <i class="fas fa-book me-2"></i>
+                                    Gestionar Ejercicios
+                                </a>
+                                
+                                <a href="/admin/change-password" class="quick-action-btn btn-secondary">
+                                    <i class="fas fa-key me-2"></i>
+                                    Cambiar Contraseña
+                                </a>
+                                
+                                <a href="/admin/bot-control" class="quick-action-btn btn-primary">
+                                    <i class="fas fa-robot me-2"></i>
+                                    Control del Bot
+                                </a>
+                            </div>
+                            
+                            <!-- System Status -->
+                            <div class="mt-4 pt-3 border-top">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Estado del Sistema
+                                </h6>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <div class="mb-2">
+                                                <i class="fas fa-database fa-lg text-primary"></i>
+                                            </div>
+                                            <small class="d-block">Base de datos</small>
+                                            <span class="badge bg-success">OK</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <div class="mb-2">
+                                                <i class="fas fa-server fa-lg text-success"></i>
+                                            </div>
+                                            <small class="d-block">Servidor</small>
+                                            <span class="badge bg-success">Activo</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -190,12 +439,136 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Actualizar automáticamente cada 30 segundos
-        setTimeout(() => {
-            window.location.reload();
-        }, 30000);
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                
+                // Add overlay for mobile
+                if (!document.getElementById('mobileOverlay')) {
+                    const overlay = document.createElement('div');
+                    overlay.id = 'mobileOverlay';
+                    overlay.className = 'mobile-overlay';
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.5);
+                        z-index: 999;
+                        display: none;
+                    `;
+                    document.body.appendChild(overlay);
+                    
+                    overlay.addEventListener('click', function() {
+                        sidebar.classList.remove('active');
+                        overlay.style.display = 'none';
+                    });
+                }
+                
+                const overlay = document.getElementById('mobileOverlay');
+                if (sidebar.classList.contains('active')) {
+                    overlay.style.display = 'block';
+                } else {
+                    overlay.style.display = 'none';
+                }
+            });
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                    const overlay = document.getElementById('mobileOverlay');
+                    if (overlay) {
+                        overlay.style.display = 'none';
+                    }
+                }
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                const overlay = document.getElementById('mobileOverlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+            }
+        });
+        
+        // Add hover effects to cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Add click animations to action buttons
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                // Add ripple effect
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.5);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Add CSS for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            .ripple {
+                animation: ripple 0.6s linear;
+            }
+            
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            .mobile-overlay {
+                backdrop-filter: blur(2px);
+            }
+            
+            .sidebar {
+                transition: transform 0.3s ease;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
