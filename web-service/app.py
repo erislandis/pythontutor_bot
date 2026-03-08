@@ -1450,12 +1450,8 @@ def api_import_exercises():
                         skipped_duplicates += 1
                         continue
                     
-                    # Preparar datos para inserción con orden descendente
-                    # El primer ejercicio del JSON (índice 0) será el último en insertarse
-                    order_index = len(exercises) - exercise_index + 1
+                    # Preparar datos para inserción
                     created_time = datetime.now()
-                    # Ajustar tiempo para mantener orden descendente
-                    adjusted_time = created_time - timedelta(seconds=len(exercises) - exercise_index)
                     
                     exercise_data = {
                         'question': normalized_exercise['question'],
@@ -1463,8 +1459,7 @@ def api_import_exercises():
                         'options': json.dumps(normalized_exercise['options']),
                         'correct_answer': normalized_exercise['correct_answer'],
                         'explanation': normalized_exercise.get('explanation', ''),
-                        'created_at': adjusted_time.isoformat(),
-                        'order_index': order_index
+                        'created_at': created_time.isoformat()
                     }
                     
                     batch_data.append(exercise_data)
