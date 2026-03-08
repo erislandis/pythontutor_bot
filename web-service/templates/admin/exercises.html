@@ -1469,6 +1469,7 @@ async function startImport() {
             }
         }
         
+        // Solo ejecutar esta parte si la respuesta fue exitosa
         const result = await response.json();
         console.log('✅ Import result:', result);
         updateImportProgress(100, 'Importación completada');
