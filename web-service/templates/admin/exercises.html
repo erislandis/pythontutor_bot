@@ -442,6 +442,9 @@
                 <button type="button" class="btn btn-outline-info" onclick="diagnoseImportIssues()">
                     <i class="bi bi-bug me-1"></i>Diagnosticar
                 </button>
+                <button type="button" class="btn btn-outline-success" onclick="verifyDatabase()">
+                    <i class="bi bi-database-check me-1"></i>Verificar BD
+                </button>
                 <button type="button" class="btn btn-primary" id="importButton" onclick="startImport()" disabled>
                     <i class="bi bi-upload me-1"></i>Importar Ejercicios
                 </button>
@@ -883,7 +886,64 @@ function updateExerciseTable(exercises) {
 }
 
 function refreshExercises() {
-    location.reload();
+    console.log('🔄 refreshExercises() called');
+    
+    // Opción 1: Recarga completa (fallback)
+    const performFullReload = () => {
+        console.log('🔄 Performing full page reload...');
+        showAlert('info', 'Recargando página...');
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    };
+    
+    // Opción 2: Actualización AJAX (preferida)
+    const performAjaxRefresh = async () => {
+        try {
+            console.log('🔄 Attempting AJAX refresh...');
+            
+            // Obtener ejercicios actualizados via API
+            const response = await fetch('/api/admin/exercises');
+            if (!response.ok) {
+                throw new Error('Failed to fetch exercises');
+            }
+            
+            const newExercises = await response.json();
+            console.log('📊 Retrieved exercises via AJAX:', newExercises.length);
+            
+            // Actualizar datos locales
+            exercisesData = newExercises;
+            
+            // Actualizar tabla
+            updateExerciseTable(newExercises);
+            
+            // Actualizar contador
+            const countElement = document.getElementById('exerciseCount');
+            if (countElement) {
+                countElement.textContent = `${newExercises.length} ejercicios`;
+            }
+            
+            // Mostrar mensaje de éxito
+            showAlert('success', `✅ Lista actualizada: ${newExercises.length} ejercicios encontrados`);
+            
+            // Actualizar datos del script tag para futuras referencias
+            const dataElement = document.getElementById('exercises-data');
+            if (dataElement) {
+                dataElement.textContent = JSON.stringify(newExercises);
+                console.log('✅ Updated exercises data in script tag');
+            }
+            
+            console.log('✅ AJAX refresh completed successfully');
+            
+        } catch (error) {
+            console.error('❌ AJAX refresh failed:', error);
+            showAlert('warning', 'La actualización automática falló, recargando página...');
+            performFullReload();
+        }
+    };
+    
+    // Intentar AJAX primero, fallback a recarga completa
+    performAjaxRefresh();
 }
 
 function exportExercises(format) {
@@ -1282,12 +1342,16 @@ function formatFileSize(bytes) {
 }
 
 async function startImport() {
+    console.log('🚀 startImport() called');
+    console.log('Selected file:', selectedFile);
+    
     if (!selectedFile) {
         showAlert('warning', 'Por favor selecciona un archivo');
         return;
     }
     
     const format = getSelectedFormat();
+    console.log('Import format:', format);
     
     // Show progress
     document.getElementById('importProgress').style.display = 'block';
@@ -1306,6 +1370,7 @@ async function startImport() {
             
             updateImportProgress(30, 'Enviando archivo CSV...');
             
+            console.log('📤 Sending CSV import request...');
             response = await fetch('/api/admin/exercises/import/csv', {
                 method: 'POST',
                 body: formData
@@ -1315,7 +1380,10 @@ async function startImport() {
             updateImportProgress(10, 'Leyendo archivo JSON...');
             
             const content = await readFileContent(selectedFile);
+            console.log('📖 File content length:', content.length);
+            
             const exercises = JSON.parse(content);
+            console.log('📊 Parsed exercises:', exercises.length);
             
             if (!Array.isArray(exercises)) {
                 throw new Error('El archivo debe contener un array de ejercicios');
@@ -1325,46 +1393,85 @@ async function startImport() {
                 throw new Error('El archivo no contiene ejercicios');
             }
             
+            // Mostrar preview de los primeros ejercicios
+            console.log('🔍 First exercise preview:', exercises[0]);
+            
             updateImportProgress(30, 'Validando ejercicios JSON...');
+            
+            const requestData = {
+                exercises: exercises,
+                metadata: {
+                    filename: selectedFile.name,
+                    filesize: selectedFile.size,
+                    upload_time: new Date().toISOString()
+                }
+            };
+            
+            console.log('📤 Sending JSON import request:', {
+                exerciseCount: exercises.length,
+                filename: selectedFile.name
+            });
             
             response = await fetch('/api/admin/exercises/import', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    exercises: exercises,
-                    metadata: {
-                        filename: selectedFile.name,
-                        filesize: selectedFile.size,
-                        upload_time: new Date().toISOString()
-                    }
-                })
+                body: JSON.stringify(requestData)
             });
         }
         
         updateImportProgress(50, 'Procesando en servidor...');
         
+        console.log('📥 Response status:', response.status);
+        console.log('📥 Response headers:', response.headers);
+        
         if (!response.ok) {
             const error = await response.json();
+            console.error('❌ Server error response:', error);
             throw new Error(error.error || 'Error al importar ejercicios');
         }
         
         const result = await response.json();
+        console.log('✅ Import result:', result);
         updateImportProgress(100, 'Importación completada');
         
         // Show results
         showImportResults(result);
         
+        // Verificación inmediata de ejercicios en la base de datos
+        console.log('🔍 Verifying exercises in database...');
+        try {
+            const verifyResponse = await fetch('/admin/exercises/debug');
+            if (verifyResponse.ok) {
+                const debugInfo = await verifyResponse.json();
+                console.log('📊 Database verification:', debugInfo);
+                
+                if (debugInfo.raw_exercises_count > 0) {
+                    showAlert('success', `✅ Importación exitosa y verificada: ${debugInfo.raw_exercises_count} ejercicios en la base de datos`);
+                } else {
+                    showAlert('warning', '⚠️ La importación pareció exitosa pero no hay ejercicios en la base de datos');
+                }
+            }
+        } catch (verifyError) {
+            console.warn('⚠️ Could not verify database:', verifyError);
+        }
+        
         // Refresh exercises list if successful
         if (result.imported > 0) {
+            console.log('🔄 Refreshing exercises list...');
+            showAlert('info', 'Actualizando lista de ejercicios...');
+            
             setTimeout(() => {
                 refreshExercises();
             }, 2000);
+        } else {
+            console.warn('⚠️ No exercises were imported according to server response');
+            showAlert('warning', 'El servidor indica que no se importaron ejercicios');
         }
         
     } catch (error) {
-        console.error('Import error:', error);
+        console.error('❌ Import error:', error);
         showAlert('danger', 'Error al importar: ' + error.message);
         document.getElementById('importProgress').style.display = 'none';
         document.getElementById('importButton').disabled = false;
@@ -1601,5 +1708,101 @@ function diagnoseImportIssues() {
 
 // Agregar función de diagnóstico al objeto global para acceso desde consola
 window.diagnoseImportIssues = diagnoseImportIssues;
+
+// Función para verificar el estado de la base de datos
+async function verifyDatabase() {
+    console.log('🔍 verifyDatabase() called');
+    
+    try {
+        showAlert('info', 'Verificando estado de la base de datos...');
+        
+        // Verificar endpoint de debug
+        const debugResponse = await fetch('/admin/exercises/debug');
+        if (!debugResponse.ok) {
+            throw new Error('No se pudo acceder al endpoint de debug');
+        }
+        
+        const debugInfo = await debugResponse.json();
+        console.log('📊 Debug info:', debugInfo);
+        
+        // Verificar API de ejercicios
+        const apiResponse = await fetch('/api/admin/exercises');
+        if (!apiResponse.ok) {
+            throw new Error('No se pudo acceder a la API de ejercicios');
+        }
+        
+        const apiExercises = await apiResponse.json();
+        console.log('📊 API exercises:', apiExercises.length);
+        
+        // Mostrar resultados detallados
+        let resultsHtml = `
+            <div class="alert alert-success">
+                <h6><i class="bi bi-database-check me-2"></i>Estado de la Base de Datos</h6>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <strong>Endpoint Debug:</strong><br>
+                        • Conexión: ${debugInfo.supabase_connected ? '✅ Activa' : '❌ Inactiva'}<br>
+                        • Ejercicios en BD: ${debugInfo.raw_exercises_count}<br>
+                        • Ejercicios procesados: ${debugInfo.template_data_count}<br>
+                        • Timestamp: ${new Date(debugInfo.timestamp).toLocaleString()}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>API Response:</strong><br>
+                        • Ejercicios via API: ${apiExercises.length}<br>
+                        • Primer ejercicio: ${apiExercises.length > 0 ? apiExercises[0].question?.substring(0, 30) + '...' : 'N/A'}<br>
+                        • Último ID: ${apiExercises.length > 0 ? apiExercises[0].id : 'N/A'}<br>
+                        • Estado: ✅ Funcionando
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Agregar muestra de ejercicios si hay
+        if (apiExercises.length > 0) {
+            resultsHtml += `
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-list-ul me-2"></i>Últimos Ejercicios (primeros 3)</h6>
+                    <div class="small">
+                        ${apiExercises.slice(0, 3).map((ex, i) => `
+                            <div class="mb-2">
+                                <strong>${i + 1}.</strong> ID: ${ex.id} | 
+                                Nivel: <span class="badge bg-info">${ex.level}</span> | 
+                                Pregunta: ${ex.question?.substring(0, 50)}...
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Mostrar resultados
+        const resultsDiv = document.getElementById('importResults');
+        if (resultsDiv) {
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = resultsHtml;
+        }
+        
+        showAlert('success', `✅ Base de datos verificada: ${apiExercises.length} ejercicios encontrados`);
+        
+    } catch (error) {
+        console.error('❌ Error verifying database:', error);
+        showAlert('danger', 'Error al verificar base de datos: ' + error.message);
+        
+        // Mostrar error en resultados
+        const resultsDiv = document.getElementById('importResults');
+        if (resultsDiv) {
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6><i class="bi bi-exclamation-triangle me-2"></i>Error de Verificación</h6>
+                    <p class="mb-0">${error.message}</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Agregar función al objeto global
+window.verifyDatabase = verifyDatabase;
 </script>
 {% endblock %}
