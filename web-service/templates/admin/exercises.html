@@ -1432,31 +1432,40 @@ async function startImport() {
         if (!response.ok) {
             let errorData;
             try {
-                errorData = await response.json();
-                console.error('❌ Server error response:', errorData);
-                
-                // Mostrar error detallado
-                let errorMessage = errorData.error || 'Error al importar ejercicios';
-                if (errorData.error_type) {
-                    errorMessage += ` (${errorData.error_type})`;
-                }
-                if (errorData.exercise_index !== undefined) {
-                    errorMessage += ` - Exercise ${errorData.exercise_index + 1}`;
-                }
-                
-                // Mostrar traceback si está en debug mode
-                if (errorData.traceback && errorData.debug_info) {
-                    console.warn('🔍 Server traceback:', errorData.traceback);
-                    errorMessage += '\n\nDetalles en consola del navegador.';
-                }
-                
-                throw new Error(errorMessage);
-                
-            } catch (parseError) {
-                // Si no podemos parsear JSON, mostrar la respuesta cruda
+                // Leer respuesta como texto primero (solo una vez)
                 const responseText = await response.text();
                 console.error('❌ Raw server response:', responseText);
-                throw new Error(`Error del servidor (${response.status}): ${responseText.substring(0, 200)}...`);
+                
+                // Intentar parsear JSON desde el texto
+                try {
+                    errorData = JSON.parse(responseText);
+                    console.error('❌ Server error response:', errorData);
+                    
+                    // Mostrar error detallado
+                    let errorMessage = errorData.error || 'Error al importar ejercicios';
+                    if (errorData.error_type) {
+                        errorMessage += ` (${errorData.error_type})`;
+                    }
+                    if (errorData.exercise_index !== undefined) {
+                        errorMessage += ` - Exercise ${errorData.exercise_index + 1}`;
+                    }
+                    
+                    // Mostrar traceback si está en debug mode
+                    if (errorData.traceback && errorData.debug_info) {
+                        console.warn('🔍 Server traceback:', errorData.traceback);
+                        errorMessage += '\n\nDetalles en consola del navegador.';
+                    }
+                    
+                    throw new Error(errorMessage);
+                    
+                } catch (jsonParseError) {
+                    // Si no podemos parsear JSON, usar el texto directamente
+                    throw new Error(`Error del servidor (${response.status}): ${responseText.substring(0, 200)}...`);
+                }
+                
+            } catch (textError) {
+                // Si ni siquiera podemos leer el texto
+                throw new Error(`Error del servidor (${response.status}): No se pudo leer la respuesta`);
             }
         }
         
