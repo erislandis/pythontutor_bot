@@ -142,7 +142,7 @@ def handle_exception(e):
 @app.route('/')
 def index():
     """Root route - redirect to admin login"""
-    return redirect(url_for('admin_login'))
+    return redirect(url_for('login'))
 
 # Verificar variables de entorno críticas
 required_env_vars = ['SUPABASE_URL', 'SUPABASE_KEY']
