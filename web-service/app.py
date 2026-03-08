@@ -38,6 +38,67 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Helper Functions
+def verify_system_logs_table():
+    """Verify if system_logs table exists and has correct structure"""
+    try:
+        if not supabase:
+            logger.error("Supabase client is None")
+            return False
+            
+        # Method 1: Try to get table info
+        try:
+            result = supabase.table('system_logs').select('*').limit(1).execute()
+            if result.data:
+                logger.info(f"system_logs table exists. Sample structure: {list(result.data[0].keys())}")
+                return True
+            else:
+                logger.warning("system_logs table exists but has no data")
+                return True
+        except Exception as e:
+            logger.error(f"Error accessing system_logs table: {e}", exc_info=True)
+            
+        # Method 2: Try alternative table names
+        for table_name in ['logs', 'app_logs', 'system_log']:
+            try:
+                result = supabase.table(table_name).select('*').limit(1).execute()
+                if result.data:
+                    logger.info(f"Found alternative table: {table_name}")
+                    return table_name
+            except Exception as e:
+                continue
+                
+        logger.error("No suitable logs table found")
+        return False
+        
+    except Exception as e:
+        logger.error(f"Table verification failed: {e}", exc_info=True)
+        return False
+
+def create_system_logs_table():
+    """Create system_logs table if it doesn't exist"""
+    try:
+        # Try to create table using Supabase SQL
+        create_sql = """
+        CREATE TABLE IF NOT EXISTS system_logs (
+            id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+            level VARCHAR(20) NOT NULL,
+            message TEXT NOT NULL,
+            source VARCHAR(50) NOT NULL,
+            user_id BIGINT,
+            metadata JSONB,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+        """
+        
+        result = supabase.rpc('exec_sql', {'sql': create_sql}).execute()
+        logger.info(f"Table creation result: {result}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Table creation failed: {e}", exc_info=True)
+        return False
+
 # Health check endpoint for Render
 @app.route('/health')
 def health_check():
@@ -468,17 +529,27 @@ def api_get_logs():
 @app.route('/api/admin/logs', methods=['DELETE'])
 @admin_required
 def api_delete_logs():
-    """API endpoint to delete logs - MEJORADO CON DEBUGGING"""
+    """API endpoint to delete logs - CON VERIFICACIÓN DE TABLA"""
     try:
         if not supabase:
             return jsonify({'error': 'Database connection error'}), 500
         
+        # Verificar que la tabla existe antes de operar
+        logger.info("=== INICIANDO ELIMINACIÓN DE LOGS CON VERIFICACIÓN ===")
+        table_exists = verify_system_logs_table()
+        
+        if not table_exists:
+            logger.error("system_logs table does not exist, attempting to create...")
+            if create_system_logs_table():
+                logger.info("system_logs table created successfully")
+            else:
+                return jsonify({'error': 'No se pudo crear la tabla de logs. Contacte al administrador.'}), 500
+        
         # Debug: Verificar conexión y tabla
-        logger.info("=== INICIANDO DEBUGGING DE ELIMINACIÓN DE LOGS ===")
         logger.info(f"Supabase client type: {type(supabase)}")
         
         try:
-            # Verificar si la tabla existe
+            # Verificar si la tabla existe y tiene datos
             test_result = supabase.table('system_logs').select('count').execute()
             logger.info(f"Table access test result: {test_result}")
         except Exception as e:
