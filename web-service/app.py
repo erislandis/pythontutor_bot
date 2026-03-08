@@ -298,6 +298,53 @@ def admin_notifications():
         flash('Error al cargar la página de notificaciones', 'error')
         return render_template('admin/notifications.html', db_connected=False)
 
+@app.route('/admin/exercises/debug')
+@admin_required
+def debug_exercises():
+    """Debug endpoint para diagnosticar problemas con ejercicios"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Supabase not connected'}), 500
+        
+        logger.info("🔍 Debug: Fetching exercises from Supabase...")
+        exercises_response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
+        exercises = exercises_response.data or []
+        
+        debug_info = {
+            'supabase_connected': True,
+            'raw_exercises_count': len(exercises),
+            'exercises_sample': exercises[:3] if exercises else [],
+            'template_data_count': len(exercises),
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Verificar estructura de datos
+        if exercises:
+            sample_exercise = exercises[0]
+            debug_info['sample_structure'] = {
+                'id': sample_exercise.get('id'),
+                'question_length': len(sample_exercise.get('question', '')),
+                'question_preview': sample_exercise.get('question', '')[:100] + '...' if len(sample_exercise.get('question', '')) > 100 else sample_exercise.get('question', ''),
+                'level': sample_exercise.get('level'),
+                'options_type': type(sample_exercise.get('options')),
+                'options_length': len(sample_exercise.get('options', [])),
+                'correct_answer': sample_exercise.get('correct_answer'),
+                'correct_answer_type': type(sample_exercise.get('correct_answer')),
+                'has_explanation': bool(sample_exercise.get('explanation')),
+                'created_at': sample_exercise.get('created_at')
+            }
+        
+        logger.info(f"🔍 Debug info: {debug_info}")
+        
+        return jsonify(debug_info)
+        
+    except Exception as e:
+        logger.error(f"🔍 Debug endpoint error: {e}", exc_info=True)
+        return jsonify({
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
 @app.route('/admin/exercises')
 @admin_required
 def admin_exercises():
@@ -305,33 +352,60 @@ def admin_exercises():
     try:
         if not supabase:
             flash('Error de conexión a la base de datos', 'danger')
+            logger.error("Admin exercises: Supabase not connected")
             return render_template('admin/exercises.html', exercises=[])
         
         # Get all exercises from Supabase
+        logger.info("Fetching exercises from Supabase...")
         exercises_response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
         exercises = exercises_response.data or []
         
+        logger.info(f"Raw response from Supabase: {len(exercises)} exercises")
+        
         # Process exercises to ensure correct format
-        for exercise in exercises:
+        processed_exercises = []
+        for i, exercise in enumerate(exercises):
+            logger.debug(f"Processing exercise {i+1}: ID={exercise.get('id')}, question={exercise.get('question', '')[:50]}...")
+            
             # Parse options if they're stored as JSON string
             if isinstance(exercise.get('options'), str):
                 try:
                     exercise['options'] = json.loads(exercise['options'])
-                except:
+                    logger.debug(f"Exercise {i+1}: Parsed JSON options successfully")
+                except Exception as e:
                     exercise['options'] = ['', '', '', '']
+                    logger.error(f"Exercise {i+1}: Failed to parse JSON options: {e}")
+            else:
+                logger.debug(f"Exercise {i+1}: Options already in correct format")
             
             # Ensure options is always a list
             if not isinstance(exercise.get('options'), list):
                 exercise['options'] = ['', '', '', '']
+                logger.warning(f"Exercise {i+1}: Options not a list, setting empty array")
             
             # Ensure correct_answer is integer
             if 'correct_answer' in exercise:
-                exercise['correct_answer'] = int(exercise['correct_answer'])
+                try:
+                    exercise['correct_answer'] = int(exercise['correct_answer'])
+                    logger.debug(f"Exercise {i+1}: Set correct_answer to {exercise['correct_answer']}")
+                except (ValueError, TypeError) as e:
+                    exercise['correct_answer'] = 1
+                    logger.error(f"Exercise {i+1}: Invalid correct_answer type: {e}")
+            
+            processed_exercises.append(exercise)
         
-        logger.info(f"Loaded {len(exercises)} exercises from Supabase")
-        return render_template('admin/exercises.html', exercises=exercises)
+        logger.info(f"Processed {len(processed_exercises)} exercises for template")
+        logger.debug(f"Sample exercise data for template: {processed_exercises[0] if processed_exercises else 'None'}")
+        
+        # Debug: Log template data
+        template_data = {
+            'exercises': processed_exercises
+        }
+        logger.info(f"Passing to template: {len(template_data['exercises'])} exercises")
+        
+        return render_template('admin/exercises.html', exercises=processed_exercises)
     except Exception as e:
-        logger.error(f"Admin exercises error: {e}")
+        logger.error(f"Admin exercises error: {e}", exc_info=True)
         flash('Error al cargar ejercicios', 'danger')
         return render_template('admin/exercises.html', exercises=[])
 

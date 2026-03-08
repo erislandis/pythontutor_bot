@@ -456,7 +456,17 @@
     <script src="{{ url_for('static', filename='js/exercises.js') }}"></script>
     <script>
         // Pass exercises data to JavaScript
+        console.log('Template exercises data received:', {{ exercises | tojson | safe }});
+        console.log('Number of exercises in template:', {{ exercises | length }});
         window.exercisesData = {{ exercises | tojson | safe }};
+        
+        // Debug: Verify data structure
+        if (window.exercisesData && Array.isArray(window.exercisesData)) {
+            console.log('✅ Template data is valid array with', window.exercisesData.length, 'exercises');
+            console.log('Sample exercise from template:', window.exercisesData[0]);
+        } else {
+            console.error('❌ Template data is invalid:', typeof window.exercisesData);
+        }
     </script>
 </body>
 </html>

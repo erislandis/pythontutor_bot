@@ -6,17 +6,27 @@ let allExercises = [];
 
 // Initialize when document is ready
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Exercises.js initialized');
+    
     // Initialize Bootstrap modal
     const modalElement = document.getElementById('exerciseModal');
     if (modalElement) {
         exerciseModal = new bootstrap.Modal(modalElement);
+        console.log('✅ Bootstrap modal initialized');
+    } else {
+        console.error('❌ Modal element not found');
     }
     
     // Load exercises from window data or fetch from API
+    console.log('📊 Checking window.exercisesData:', typeof window.exercisesData);
+    
     if (window.exercisesData) {
+        console.log('✅ Using window.exercisesData:', window.exercisesData.length, 'exercises');
         allExercises = window.exercisesData;
         renderExercises(allExercises);
+        updateStats();
     } else {
+        console.log('⬇️ Fetching exercises from API...');
         loadExercises();
     }
     
@@ -28,20 +38,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function loadExercises() {
+    console.log('🔄 loadExercises() called');
     try {
         showLoading(true);
+        console.log('📡 Fetching from /api/admin/exercises...');
         const response = await fetch('/api/admin/exercises');
+        console.log('📡 Response status:', response.status);
+        
         const data = await response.json();
+        console.log('📡 Response data:', data);
         
         if (response.ok) {
+            console.log('✅ API response OK, setting allExercises:', data.exercises?.length || 0);
             allExercises = data.exercises;
             renderExercises(allExercises);
             updateStats();
         } else {
+            console.error('❌ API response failed:', data.error);
             showNotification('Error al cargar ejercicios: ' + data.error, 'danger');
         }
     } catch (error) {
-        console.error('Error loading exercises:', error);
+        console.error('💥 Error in loadExercises():', error);
         showNotification('Error de conexión al cargar ejercicios', 'danger');
     } finally {
         showLoading(false);
@@ -49,10 +66,26 @@ async function loadExercises() {
 }
 
 function renderExercises(exercises) {
+    console.log('🎨 renderExercises() called with:', exercises?.length || 0, 'exercises');
+    
     const tbody = document.getElementById('exercisesTableBody');
+    if (!tbody) {
+        console.error('❌ exercisesTableBody not found');
+        return;
+    }
+    
     tbody.innerHTML = '';
     
-    exercises.forEach(exercise => {
+    if (!exercises || exercises.length === 0) {
+        console.log('⚠️ No exercises to render');
+        updatePaginationVisibility();
+        return;
+    }
+    
+    console.log('✅ Rendering', exercises.length, 'exercises in table');
+    
+    exercises.forEach((exercise, index) => {
+        console.log(`📝 Rendering exercise ${index + 1}:`, exercise.id, exercise.question?.substring(0, 30) + '...');
         const row = createExerciseRow(exercise);
         tbody.appendChild(row);
     });
