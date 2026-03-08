@@ -439,6 +439,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-outline-info" onclick="diagnoseImportIssues()">
+                    <i class="bi bi-bug me-1"></i>Diagnosticar
+                </button>
                 <button type="button" class="btn btn-primary" id="importButton" onclick="startImport()" disabled>
                     <i class="bi bi-upload me-1"></i>Importar Ejercicios
                 </button>
@@ -467,23 +470,74 @@ try {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize table with DataTables or similar
-    initializeTable();
+    console.log('✓ DOM loaded - initializing exercises page...');
     
-    // Form submission
-    document.getElementById('exerciseForm').addEventListener('submit', saveExercise);
-    document.getElementById('filterForm').addEventListener('submit', applyFilters);
+    // Verificar elementos críticos
+    const criticalElements = [
+        'importFileInput',
+        'importButton', 
+        'importModal',
+        'fileUploadArea',
+        'exerciseForm',
+        'filterForm'
+    ];
     
-    // Search functionality
-    document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
-    
-    // Format selection handler
-    document.addEventListener('change', function(e) {
-        if (e.target.name === 'importFormat') {
-            const format = e.target.value;
-            updateFormatUI(format);
+    let allElementsFound = true;
+    criticalElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            console.log(`✓ Element found: ${id}`);
+        } else {
+            console.error(`✗ Element missing: ${id}`);
+            allElementsFound = false;
         }
     });
+    
+    if (!allElementsFound) {
+        showAlert('danger', 'Error: Faltan elementos críticos en la página. Recarga la página.');
+        return;
+    }
+    
+    // Initialize table with DataTables or similar
+    try {
+        initializeTable();
+        console.log('✓ Table initialized');
+    } catch (error) {
+        console.error('✗ Error initializing table:', error);
+    }
+    
+    // Form submission
+    try {
+        document.getElementById('exerciseForm').addEventListener('submit', saveExercise);
+        document.getElementById('filterForm').addEventListener('submit', applyFilters);
+        console.log('✓ Form listeners attached');
+    } catch (error) {
+        console.error('✗ Error attaching form listeners:', error);
+    }
+    
+    // Search functionality
+    try {
+        document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+        console.log('✓ Search listener attached');
+    } catch (error) {
+        console.error('✗ Error attaching search listener:', error);
+    }
+    
+    // Format selection handler
+    try {
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'importFormat') {
+                console.log('Format changed to:', e.target.value);
+                const format = e.target.value;
+                updateFormatUI(format);
+            }
+        });
+        console.log('✓ Format listeners attached');
+    } catch (error) {
+        console.error('✗ Error attaching format listeners:', error);
+    }
+    
+    console.log('✓ Exercises page initialization completed');
 });
 
 function updateFormatUI(format) {
@@ -861,34 +915,104 @@ function exportExercisesCSV(exercises) {
 let selectedFile = null;
 
 function importExercises(file) {
+    console.log('🔄 importExercises called with:', file);
+    
     if (!file) {
+        console.warn('No file provided to importExercises');
         showAlert('warning', 'Por favor selecciona un archivo');
         return;
     }
     
-    const format = getSelectedFormat();
-    const fileName = file.name.toLowerCase();
-    
-    // Validate file format matches selection
-    if (format === 'csv' && !fileName.endsWith('.csv')) {
-        showAlert('danger', 'Por favor selecciona un archivo CSV');
-        return;
+    try {
+        const format = getSelectedFormat();
+        const fileName = file.name.toLowerCase();
+        
+        console.log('File format:', format);
+        console.log('File name:', fileName);
+        
+        // Validar formato
+        if (format === 'csv' && !fileName.endsWith('.csv')) {
+            console.error('Format mismatch: expected CSV, got:', fileName);
+            showAlert('danger', 'Por favor selecciona un archivo CSV');
+            return;
+        }
+        
+        if (format === 'json' && !fileName.endsWith('.json')) {
+            console.error('Format mismatch: expected JSON, got:', fileName);
+            showAlert('danger', 'Por favor selecciona un archivo JSON');
+            return;
+        }
+        
+        console.log('✓ File format validation passed');
+        
+        selectedFile = file;
+        showFileInfo(file);
+        
+        // Habilitar botón y verificar
+        const importButton = document.getElementById('importButton');
+        if (importButton) {
+            importButton.disabled = false;
+            console.log('✓ Import button enabled:', !importButton.disabled);
+            console.log('Button element:', importButton);
+        } else {
+            console.error('❌ Import button not found!');
+            showAlert('danger', 'Error: No se encontró el botón de importación');
+            return;
+        }
+        
+        showAlert('success', 'Archivo seleccionado correctamente: ' + file.name);
+        console.log('✓ importExercises completed successfully');
+        
+    } catch (error) {
+        console.error('❌ Error in importExercises:', error);
+        showAlert('danger', 'Error al procesar archivo: ' + error.message);
     }
-    
-    if (format === 'json' && !fileName.endsWith('.json')) {
-        showAlert('danger', 'Por favor selecciona un archivo JSON');
-        return;
-    }
-    
-    selectedFile = file;
-    showFileInfo(file);
-    document.getElementById('importButton').disabled = false;
 }
 
 function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (file) {
-        importExercises(file);
+    console.log('📁 handleFileSelect called');
+    console.log('Event object:', event);
+    console.log('Event target:', event.target);
+    console.log('Files available:', event.target.files);
+    
+    try {
+        const file = event.target.files[0];
+        console.log('Selected file:', file);
+        
+        if (file) {
+            console.log('File details:', {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                lastModified: file.lastModified
+            });
+            
+            // Validaciones básicas
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                showAlert('danger', 'El archivo es demasiado grande. Máximo 10MB.');
+                clearSelectedFile();
+                return;
+            }
+            
+            const allowedTypes = ['.json', '.csv'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowedTypes.includes(fileExtension)) {
+                showAlert('danger', 'Tipo de archivo no permitido. Solo se acepta .json y .csv');
+                clearSelectedFile();
+                return;
+            }
+            
+            console.log('File passed validation, calling importExercises...');
+            importExercises(file);
+        } else {
+            console.warn('No file selected');
+            showAlert('warning', 'No se seleccionó ningún archivo');
+        }
+    } catch (error) {
+        console.error('❌ Error in handleFileSelect:', error);
+        showAlert('danger', 'Error al seleccionar archivo: ' + error.message);
+        clearSelectedFile();
     }
 }
 
@@ -922,18 +1046,94 @@ function handleDragLeave(event) {
 }
 
 function showFileInfo(file) {
-    document.getElementById('fileName').textContent = file.name;
-    document.getElementById('fileSize').textContent = `(${formatFileSize(file.size)})`;
-    document.getElementById('fileInfo').style.display = 'block';
+    console.log('📋 showFileInfo called with:', file);
+    
+    try {
+        const fileNameElement = document.getElementById('fileName');
+        const fileSizeElement = document.getElementById('fileSize');
+        const fileInfoElement = document.getElementById('fileInfo');
+        
+        console.log('Elements found:', {
+            fileName: !!fileNameElement,
+            fileSize: !!fileSizeElement,
+            fileInfo: !!fileInfoElement
+        });
+        
+        if (fileNameElement) {
+            fileNameElement.textContent = file.name;
+        } else {
+            console.error('fileName element not found');
+        }
+        
+        if (fileSizeElement) {
+            fileSizeElement.textContent = `(${formatFileSize(file.size)})`;
+        } else {
+            console.error('fileSize element not found');
+        }
+        
+        if (fileInfoElement) {
+            fileInfoElement.style.display = 'block';
+            console.log('✓ File info displayed');
+        } else {
+            console.error('fileInfo element not found');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error in showFileInfo:', error);
+        showAlert('danger', 'Error al mostrar información del archivo: ' + error.message);
+    }
 }
 
 function clearSelectedFile() {
-    selectedFile = null;
-    document.getElementById('importFileInput').value = '';
-    document.getElementById('fileInfo').style.display = 'none';
-    document.getElementById('importButton').disabled = true;
-    document.getElementById('importResults').style.display = 'none';
-    document.getElementById('importProgress').style.display = 'none';
+    console.log('🗑️ clearSelectedFile called');
+    
+    try {
+        selectedFile = null;
+        
+        // Limpiar input de archivo
+        const fileInput = document.getElementById('importFileInput');
+        if (fileInput) {
+            fileInput.value = '';
+            console.log('✓ File input cleared');
+        } else {
+            console.error('❌ File input not found');
+        }
+        
+        // Ocultar información del archivo
+        const fileInfo = document.getElementById('fileInfo');
+        if (fileInfo) {
+            fileInfo.style.display = 'none';
+            console.log('✓ File info hidden');
+        } else {
+            console.error('❌ File info element not found');
+        }
+        
+        // Deshabilitar botón de importación
+        const importButton = document.getElementById('importButton');
+        if (importButton) {
+            importButton.disabled = true;
+            console.log('✓ Import button disabled');
+        } else {
+            console.error('❌ Import button not found');
+        }
+        
+        // Ocultar resultados
+        const importResults = document.getElementById('importResults');
+        if (importResults) {
+            importResults.style.display = 'none';
+        }
+        
+        // Ocultar progreso
+        const importProgress = document.getElementById('importProgress');
+        if (importProgress) {
+            importProgress.style.display = 'none';
+        }
+        
+        console.log('✓ clearSelectedFile completed');
+        
+    } catch (error) {
+        console.error('❌ Error in clearSelectedFile:', error);
+    }
 }
 
 function formatFileSize(bytes) {
@@ -1192,5 +1392,77 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
+
+// Función de diagnóstico para ayudar a identificar problemas
+function diagnoseImportIssues() {
+    console.log('🔍 Starting import diagnosis...');
+    
+    const diagnosis = {
+        timestamp: new Date().toISOString(),
+        checks: {}
+    };
+    
+    // Verificar elementos críticos
+    const criticalElements = [
+        'importFileInput',
+        'importButton', 
+        'importModal',
+        'fileUploadArea',
+        'fileName',
+        'fileSize',
+        'fileInfo'
+    ];
+    
+    criticalElements.forEach(id => {
+        const element = document.getElementById(id);
+        diagnosis.checks[id] = {
+            exists: !!element,
+            tagName: element?.tagName,
+            type: element?.type,
+            disabled: element?.disabled,
+            display: element ? window.getComputedStyle(element).display : 'N/A'
+        };
+    });
+    
+    // Verificar funciones críticas
+    const criticalFunctions = [
+        'handleFileSelect',
+        'importExercises',
+        'showFileInfo',
+        'clearSelectedFile',
+        'startImport',
+        'showAlert'
+    ];
+    
+    criticalFunctions.forEach(funcName => {
+        diagnosis.checks[funcName] = {
+            exists: typeof window[funcName] === 'function',
+            type: typeof window[funcName]
+        };
+    });
+    
+    // Verificar Bootstrap
+    diagnosis.checks.bootstrap = {
+        modal: typeof bootstrap !== 'undefined',
+        modalFunction: typeof bootstrap?.Modal === 'function'
+    };
+    
+    console.log('📋 Diagnosis results:', diagnosis);
+    
+    // Mostrar resultados en la interfaz
+    let resultsHtml = '<div class="alert alert-info"><h6>Resultados del Diagnóstico:</h6><pre class="small">' + 
+                     JSON.stringify(diagnosis, null, 2) + '</pre></div>';
+    
+    const resultsDiv = document.getElementById('importResults');
+    if (resultsDiv) {
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = resultsHtml;
+    }
+    
+    return diagnosis;
+}
+
+// Agregar función de diagnóstico al objeto global para acceso desde consola
+window.diagnoseImportIssues = diagnoseImportIssues;
 </script>
 {% endblock %}
