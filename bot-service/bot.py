@@ -132,12 +132,14 @@ def get_user_from_api(telegram_id):
         logger.info(f"Attempting to connect to API: {WEB_API_URL}/api/user/{telegram_id}")
         response = requests.get(f"{WEB_API_URL}/api/user/{telegram_id}", timeout=10)
         
+        if response.status_code == 404:
+            # Usuario eliminado o no existe - no es error de servicio
+            logger.info(f"User {telegram_id} not found (possibly deleted)")
+            return None
+            
         if response.status_code == 200:
             logger.info(f"Successfully retrieved user {telegram_id}")
             return response.json()
-        elif response.status_code == 404:
-            logger.info(f"User {telegram_id} not found, will create new user")
-            return None
         else:
             logger.error(f"API error: {response.status_code} - {response.text}")
             return None
@@ -214,40 +216,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_data = get_user_from_api(telegram_id)
     
     if not user_data:
-        # Create new user
-        new_user = {
-            'telegram_id': telegram_id,
-            'username': user.username,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'current_level': 'principiante',
-            'level_progress': 0,
-            'total_exercises_completed': 0,
-            'last_activity': 'now()'
-        }
-        
-        created_user = create_user_in_api(new_user)
-        if created_user:
-            user_data = created_user
-        else:
-            # Fallback: Create user in memory if API fails
-            logger.warning(f"API failed, creating user {telegram_id} in memory as fallback")
-            user_data = {
-                'telegram_id': telegram_id,
-                'username': user.username,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'current_level': 'principiante',
-                'level_progress': 0,
-                'total_exercises_completed': 0,
-                'last_activity': 'now()'
-            }
-            
-            await update.message.reply_text(
-                "⚠️ El servicio está temporalmente no disponible, pero puedes continuar usando el bot.\n\n"
-                "✅ Tu perfil ha sido creado localmente.\n"
-                "🔄 Se sincronizará cuando el servicio esté disponible."
-            )
+        # User not found - could be new user or deleted user
+        await update.message.reply_text(
+            "👋 ¡Hola! Parece que eres un nuevo usuario.\n\n"
+            "📝 Vamos a crear tu perfil para que puedas empezar a aprender Python.\n"
+            "✅ Tu perfil está siendo creado localmente.\n"
+            "🔄 Se sincronizará cuando el servicio esté disponible."
+        )
+        return
     
     # Check and update level based on progress
     updated_level = check_and_update_level(telegram_id, user_data)

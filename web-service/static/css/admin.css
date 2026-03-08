@@ -2377,7 +2377,7 @@ input:hover + .user-status-slider {
     color: var(--text-muted);
 }
 
-/* Users Table Professional Styles */
+/* Users Table Professional Styles - Enhanced */
 .logs-table {
     background: var(--bg-primary);
     border-radius: var(--radius-lg);
@@ -2390,10 +2390,12 @@ input:hover + .user-status-slider {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     border-radius: var(--radius-md);
+    max-width: 100%;
 }
 
 .users-table {
     width: 100%;
+    min-width: 900px; /* Ancho mínimo para todas las columnas */
     margin: 0;
     border-collapse: separate;
     border-spacing: 0;
@@ -2414,6 +2416,11 @@ input:hover + .user-status-slider {
     position: sticky;
     top: 0;
     z-index: 10;
+    white-space: nowrap; /* Evitar que los títulos se corten */
+}
+
+.users-table thead th:nth-child(8) {
+    min-width: 180px; /* Ancho mínimo para columna de acciones */
 }
 
 .users-table tbody tr {
@@ -2438,10 +2445,15 @@ input:hover + .user-status-slider {
     color: var(--text-primary);
 }
 
-/* User Avatar and Profile Styles */
+.users-table td:nth-child(8) {
+    min-width: 180px; /* Ancho mínimo para columna de acciones */
+    white-space: nowrap; /* Evitar que los botones se corten */
+}
+
+/* User Avatar and Profile Styles - Enhanced */
 .user-avatar-sm {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     background: var(--gradient-primary);
     color: var(--text-inverse);
     border-radius: 50%;
@@ -2451,6 +2463,7 @@ input:hover + .user-status-slider {
     font-weight: var(--font-weight-bold);
     font-size: var(--font-size-sm);
     flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
 }
 
 .user-progress-mini {
@@ -2467,14 +2480,16 @@ input:hover + .user-status-slider {
     border-radius: var(--radius-sm);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
+    white-space: nowrap;
 }
 
 .user-exercises-count {
     color: var(--text-muted);
     font-size: var(--font-size-xs);
+    white-space: nowrap;
 }
 
-/* User Status Toggle Professional */
+/* User Status Toggle Professional - Enhanced */
 .user-status-toggle {
     position: relative;
     display: inline-block;
@@ -2482,8 +2497,8 @@ input:hover + .user-status-slider {
 }
 
 .user-status-toggle input[type="checkbox"] {
-    width: 44px;
-    height: 24px;
+    width: 48px;
+    height: 26px;
     appearance: none;
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
@@ -2501,17 +2516,17 @@ input:hover + .user-status-slider {
 .user-status-toggle input[type="checkbox"]::before {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
     background: var(--text-secondary);
     border-radius: 50%;
     transition: var(--transition-fast);
 }
 
 .user-status-toggle input[type="checkbox"]:checked::before {
-    transform: translateX(20px);
+    transform: translateX(22px);
     background: var(--text-inverse);
 }
 
@@ -2530,18 +2545,20 @@ input:hover + .user-status-slider {
     background: var(--success-color);
 }
 
-/* Action Buttons Professional */
+/* Action Buttons Professional - Enhanced */
 .action-buttons {
     display: flex;
     gap: var(--spacing-sm);
     align-items: center;
     justify-content: center;
+    flex-wrap: nowrap; /* Evitar que los botones se corten */
+    min-width: 160px; /* Ancho mínimo para todos los botones */
 }
 
 .action-buttons .btn {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
     transition: var(--transition-normal);
     border: 2px solid var(--border-color);
@@ -2549,8 +2566,10 @@ input:hover + .user-status-slider {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-xs);
-    min-width: 80px;
+    min-width: 70px; /* Ancho mínimo individual */
     justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .action-buttons .btn:hover {
@@ -2562,6 +2581,7 @@ input:hover + .user-status-slider {
 .action-buttons .btn-outline-primary {
     color: var(--primary-color);
     background: transparent;
+    border-color: var(--primary-color);
 }
 
 .action-buttons .btn-outline-primary:hover {
@@ -2572,11 +2592,54 @@ input:hover + .user-status-slider {
 .action-buttons .btn-outline-danger {
     color: var(--danger-color);
     background: transparent;
+    border-color: var(--danger-color);
 }
 
 .action-buttons .btn-outline-danger:hover {
     background: var(--gradient-danger);
     color: var(--text-inverse);
+}
+
+/* Enhanced responsive design for users table */
+@media (max-width: 1200px) {
+    .users-table {
+        min-width: 800px;
+    }
+    
+    .users-table thead th:nth-child(8) {
+        min-width: 160px;
+    }
+    
+    .users-table td:nth-child(8) {
+        min-width: 160px;
+    }
+}
+
+@media (max-width: 992px) {
+    .users-table {
+        min-width: 700px;
+    }
+    
+    .users-table thead th:nth-child(8) {
+        min-width: 140px;
+    }
+    
+    .users-table td:nth-child(8) {
+        min-width: 140px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        min-width: 80px;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        min-width: 80px;
+        padding: var(--spacing-xs) var(--spacing-xs);
+        font-size: var(--font-size-xs);
+    }
 }
 
 /* Filter Controls Card Professional */
