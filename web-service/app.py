@@ -31,6 +31,51 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Health check endpoint for Render
+@app.route('/health')
+def health_check():
+    """Health check endpoint for Render deployment verification"""
+    try:
+        # Basic health check
+        return jsonify({
+            'status': 'healthy',
+            'timestamp': datetime.now().isoformat(),
+            'service': 'pythontutor-web',
+            'version': '1.0.0'
+        }), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+# Global error handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    """Handle 404 errors"""
+    logger.warning(f"404 error: {request.url}")
+    return jsonify({'error': 'Page not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors"""
+    logger.error(f"500 error: {error}")
+    return jsonify({'error': 'Internal server error'}), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Handle uncaught exceptions"""
+    logger.error(f"Uncaught exception: {e}", exc_info=True)
+    return jsonify({'error': 'An unexpected error occurred'}), 500
+
+# Root route to redirect to admin login
+@app.route('/')
+def index():
+    """Root route - redirect to admin login"""
+    return redirect(url_for('admin_login'))
+
 # Verificar variables de entorno críticas
 required_env_vars = ['SUPABASE_URL', 'SUPABASE_KEY']
 missing_vars = [var for var in required_env_vars if not os.getenv(var)]
@@ -2045,4 +2090,12 @@ def change_password():
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    logger.info(f"Starting Flask application on port {port}")
+    logger.info(f"Environment: {os.getenv('FLASK_ENV', 'development')}")
+    logger.info(f"Supabase connected: {supabase is not None}")
+    
+    try:
+        app.run(host='0.0.0.0', port=port, debug=False)
+    except Exception as e:
+        logger.error(f"Failed to start Flask application: {e}")
+        raise
