@@ -1,0 +1,23 @@
+[
+  {
+    "level": "principiante",
+    "question": "¿Qué valor tendrá la variable \"x\" después de ejecutar?\n\nx = 42",
+    "options": ["42", "24", "84", "0"],
+    "correct_answer": 1,
+    "explanation": "La asignación simple guarda el valor 42 en la variable x"
+  },
+  {
+    "level": "principiante", 
+    "question": "¿Cuál es el resultado de 2 + 3?",
+    "options": ["5", "6", "4", "7"],
+    "correct_answer": 1,
+    "explanation": "La suma de 2 y 3 es 5"
+  },
+  {
+    "level": "principiante",
+    "question": "¿Qué imprime este código?\n\nprint('Hola Mundo')",
+    "options": ["Hola Mundo", "Error", "Nada", "print('Hola Mundo')"],
+    "correct_answer": 1,
+    "explanation": "La función print() muestra el texto en consola"
+  }
+]

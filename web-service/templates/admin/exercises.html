@@ -479,7 +479,9 @@ document.addEventListener('DOMContentLoaded', function() {
         'importModal',
         'fileUploadArea',
         'exerciseForm',
-        'filterForm'
+        'filterForm',
+        'formatJson',
+        'formatCsv'
     ];
     
     let allElementsFound = true;
@@ -496,6 +498,29 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!allElementsFound) {
         showAlert('danger', 'Error: Faltan elementos críticos en la página. Recarga la página.');
         return;
+    }
+    
+    // Asegurar que el radio button JSON esté seleccionado por defecto
+    try {
+        const jsonRadio = document.getElementById('formatJson');
+        const csvRadio = document.getElementById('formatCsv');
+        
+        if (jsonRadio && !jsonRadio.checked) {
+            jsonRadio.checked = true;
+            console.log('✅ JSON radio button checked by default');
+        }
+        
+        if (csvRadio && csvRadio.checked) {
+            csvRadio.checked = false;
+            console.log('✅ CSV radio button unchecked');
+        }
+        
+        // Forzar actualización de UI
+        updateFormatUI('json');
+        console.log('✅ Format UI updated to JSON');
+        
+    } catch (error) {
+        console.error('❌ Error setting default format:', error);
     }
     
     // Initialize table with DataTables or similar
@@ -537,7 +562,24 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('✗ Error attaching format listeners:', error);
     }
     
-    console.log('✓ Exercises page initialization completed');
+    // Test functions are available
+    console.log('🧪 Testing critical functions...');
+    try {
+        console.log('  - getSelectedFormat:', typeof getSelectedFormat);
+        console.log('  - importExercises:', typeof importExercises);
+        console.log('  - showFileInfo:', typeof showFileInfo);
+        console.log('  - handleFileSelect:', typeof handleFileSelect);
+        
+        // Test getSelectedFormat
+        const testFormat = getSelectedFormat();
+        console.log('  - Test getSelectedFormat():', testFormat);
+        
+    } catch (error) {
+        console.error('❌ Error testing functions:', error);
+    }
+    
+    console.log('✅ Exercises page initialization completed');
+    console.log('🎯 Ready for file import testing!');
 });
 
 function updateFormatUI(format) {
@@ -566,7 +608,20 @@ function updateFormatUI(format) {
 }
 
 function getSelectedFormat() {
-    return document.querySelector('input[name="importFormat"]:checked').value;
+    try {
+        const checked = document.querySelector('input[name="importFormat"]:checked');
+        if (!checked) {
+            console.warn('⚠️ No format selected, defaulting to json');
+            return 'json';
+        }
+        const format = checked.value;
+        console.log('✓ Selected format:', format);
+        return format;
+    } catch (error) {
+        console.error('❌ Error in getSelectedFormat():', error);
+        console.warn('⚠️ Defaulting to json format due to error');
+        return 'json';
+    }
 }
 
 function initializeTable() {
@@ -918,29 +973,52 @@ function importExercises(file) {
     console.log('🔄 importExercises called with:', file);
     
     if (!file) {
-        console.warn('No file provided to importExercises');
+        console.warn('❌ No file provided to importExercises');
         showAlert('warning', 'Por favor selecciona un archivo');
         return;
     }
     
     try {
-        const format = getSelectedFormat();
-        const fileName = file.name.toLowerCase();
-        
-        console.log('File format:', format);
-        console.log('File name:', fileName);
-        
-        // Validar formato
-        if (format === 'csv' && !fileName.endsWith('.csv')) {
-            console.error('Format mismatch: expected CSV, got:', fileName);
-            showAlert('danger', 'Por favor selecciona un archivo CSV');
-            return;
+        // Obtener formato de manera segura
+        let format;
+        try {
+            format = getSelectedFormat();
+        } catch (error) {
+            console.error('❌ Error getting format:', error);
+            format = 'json'; // Default seguro
         }
         
-        if (format === 'json' && !fileName.endsWith('.json')) {
-            console.error('Format mismatch: expected JSON, got:', fileName);
-            showAlert('danger', 'Por favor selecciona un archivo JSON');
-            return;
+        const fileName = file.name.toLowerCase();
+        
+        console.log('📋 File details:');
+        console.log('  - Name:', fileName);
+        console.log('  - Size:', file.size);
+        console.log('  - Type:', file.type);
+        console.log('  - Selected format:', format);
+        
+        // Validación básica de formato (menos estricta)
+        if (fileName.endsWith('.csv')) {
+            if (format !== 'csv') {
+                console.warn('⚠️ CSV file detected but JSON format selected, switching to CSV');
+                // Cambiar automáticamente a formato CSV
+                const csvRadio = document.getElementById('formatCsv');
+                if (csvRadio) {
+                    csvRadio.checked = true;
+                    updateFormatUI('csv');
+                }
+            }
+        } else if (fileName.endsWith('.json')) {
+            if (format !== 'json') {
+                console.warn('⚠️ JSON file detected but CSV format selected, switching to JSON');
+                // Cambiar automáticamente a formato JSON
+                const jsonRadio = document.getElementById('formatJson');
+                if (jsonRadio) {
+                    jsonRadio.checked = true;
+                    updateFormatUI('json');
+                }
+            }
+        } else {
+            showAlert('warning', 'Tipo de archivo no reconocido. Se intentará procesar como JSON.');
         }
         
         console.log('✓ File format validation passed');
@@ -952,20 +1030,60 @@ function importExercises(file) {
         const importButton = document.getElementById('importButton');
         if (importButton) {
             importButton.disabled = false;
-            console.log('✓ Import button enabled:', !importButton.disabled);
-            console.log('Button element:', importButton);
+            console.log('✅ Import button enabled successfully');
+            console.log('Button state - disabled:', importButton.disabled);
         } else {
             console.error('❌ Import button not found!');
-            showAlert('danger', 'Error: No se encontró el botón de importación');
+            showAlert('danger', 'Error crítico: No se encontró el botón de importación');
             return;
         }
         
-        showAlert('success', 'Archivo seleccionado correctamente: ' + file.name);
-        console.log('✓ importExercises completed successfully');
+        // Mostrar mensaje de éxito
+        showAlert('success', `Archivo "${file.name}" listo para importar (${format.toUpperCase()})`);
+        console.log('✅ importExercises completed successfully');
+        
+        // Pequeña validación del contenido para JSON
+        if (fileName.endsWith('.json')) {
+            try {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        const data = JSON.parse(content);
+                        
+                        if (Array.isArray(data)) {
+                            console.log(`✅ JSON contains ${data.length} exercises`);
+                            showAlert('info', `Se detectaron ${data.length} ejercicios en el archivo`);
+                        } else {
+                            console.warn('⚠️ JSON does not contain an array');
+                            showAlert('warning', 'El JSON no contiene un array de ejercicios');
+                        }
+                    } catch (parseError) {
+                        console.warn('⚠️ JSON parsing error:', parseError);
+                        showAlert('warning', 'El archivo JSON podría tener errores de formato');
+                    }
+                };
+                reader.readAsText(file);
+            } catch (error) {
+                console.warn('⚠️ Could not preview file content:', error);
+            }
+        }
         
     } catch (error) {
         console.error('❌ Error in importExercises:', error);
         showAlert('danger', 'Error al procesar archivo: ' + error.message);
+        
+        // Intentar recuperación
+        try {
+            selectedFile = file;
+            const importButton = document.getElementById('importButton');
+            if (importButton) {
+                importButton.disabled = false;
+                console.log('🔧 Recovery: Import button force-enabled');
+            }
+        } catch (recoveryError) {
+            console.error('❌ Recovery failed:', recoveryError);
+        }
     }
 }
 
@@ -1053,34 +1171,53 @@ function showFileInfo(file) {
         const fileSizeElement = document.getElementById('fileSize');
         const fileInfoElement = document.getElementById('fileInfo');
         
-        console.log('Elements found:', {
-            fileName: !!fileNameElement,
-            fileSize: !!fileSizeElement,
-            fileInfo: !!fileInfoElement
-        });
+        console.log('🔍 Looking for elements...');
+        console.log('  - fileName element:', !!fileNameElement);
+        console.log('  - fileSize element:', !!fileSizeElement);
+        console.log('  - fileInfo element:', !!fileInfoElement);
         
+        // Mostrar nombre del archivo (crítico)
         if (fileNameElement) {
             fileNameElement.textContent = file.name;
+            console.log('✅ File name set to:', file.name);
         } else {
-            console.error('fileName element not found');
+            console.error('❌ fileName element not found - this is critical!');
+            // Intentar crear el elemento si no existe
+            const fileInfo = document.getElementById('fileInfo');
+            if (fileInfo) {
+                const fileNameDiv = fileInfo.querySelector('.d-flex div');
+                if (fileNameDiv) {
+                    fileNameDiv.innerHTML = `<i class="bi bi-file-earmark-text me-2"></i><span id="fileName">${file.name}</span><span class="text-muted small ms-2" id="fileSize">(${formatFileSize(file.size)})</span>`;
+                    console.log('🔧 Created file name element dynamically');
+                }
+            }
         }
         
+        // Mostrar tamaño del archivo
         if (fileSizeElement) {
-            fileSizeElement.textContent = `(${formatFileSize(file.size)})`;
+            const sizeText = `(${formatFileSize(file.size)})`;
+            fileSizeElement.textContent = sizeText;
+            console.log('✅ File size set to:', sizeText);
         } else {
-            console.error('fileSize element not found');
+            console.warn('⚠️ fileSize element not found');
         }
         
+        // Mostrar el contenedor de información
         if (fileInfoElement) {
             fileInfoElement.style.display = 'block';
-            console.log('✓ File info displayed');
+            console.log('✅ File info container shown');
         } else {
-            console.error('fileInfo element not found');
+            console.error('❌ fileInfo container not found!');
+            // Intentar mostrar alerta como fallback
+            showAlert('info', `Archivo seleccionado: ${file.name} (${formatFileSize(file.size)})`);
         }
+        
+        console.log('✅ showFileInfo completed successfully');
         
     } catch (error) {
         console.error('❌ Error in showFileInfo:', error);
-        showAlert('danger', 'Error al mostrar información del archivo: ' + error.message);
+        // Fallback: mostrar alerta simple
+        showAlert('info', `Archivo: ${file.name} (${formatFileSize(file.size)})`);
     }
 }
 
