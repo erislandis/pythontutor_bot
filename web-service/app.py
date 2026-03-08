@@ -588,7 +588,7 @@ def api_get_logs():
             
         # Filter out test records if requested
         if exclude_test_sources:
-            query = query.not_.in('source', ('system', 'diagnosis', 'test'))
+            query = query.not_in('source', ('system', 'diagnosis', 'test'))
             logger.info("Excluding test records from display")
         
         # Get total count
@@ -605,7 +605,7 @@ def api_get_logs():
             count_query = count_query.ilike('message', f'%{search_filter}%')
             
         if exclude_test_sources:
-            count_query = count_query.not_.in('source', ('system', 'diagnosis', 'test'))
+            count_query = count_query.not_in('source', ('system', 'diagnosis', 'test'))
         
         count_result = count_query.execute()
         total_logs = len(count_result.data) if count_result.data else 0
