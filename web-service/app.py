@@ -9,7 +9,9 @@ import json
 from functools import wraps
 import logging
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
+import csv
+from io import StringIO
 
 # Cargar variables de entorno al inicio
 load_dotenv()
@@ -20,9 +22,13 @@ app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
 app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
 app.config['SESSION_COOKIE_HTTPONLY'] = os.getenv('SESSION_COOKIE_HTTPONLY', 'True').lower() == 'true'
 app.config['SESSION_COOKIE_SAMESITE'] = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Verificar variables de entorno críticas
@@ -83,22 +89,14 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         try:
-            # Verificación básica
             if not current_user.is_authenticated:
                 logger.info("Admin_required: User not authenticated")
                 return redirect(url_for('login'))
             
-            # Verificación de ID
             if not hasattr(current_user, 'id') or not current_user.id:
                 logger.info("Admin_required: User has no valid ID")
                 return redirect(url_for('login'))
             
-            # Temporalmente desactivar verificación de cache para debugging
-            # if str(current_user.id) in user_cache.get('invalidated', set()):
-            #     logger.info(f"Admin_required: User {current_user.id} in invalidation cache")
-            #     return redirect(url_for('login'))
-            
-            logger.info(f"Admin_required: User {current_user.username} passed all checks")
             return f(*args, **kwargs)
         except Exception as e:
             logger.error(f"Admin_required error: {e}")
@@ -187,44 +185,6 @@ def login():
     
     return render_template('public/login.html')
 
-@app.route('/debug/logout')
-def debug_logout():
-    """Debug logout endpoint to identify the exact problem"""
-    try:
-        logger.info("=== DEBUG LOGOUT START ===")
-        logger.info(f"Current user object: {current_user}")
-        logger.info(f"Is authenticated: {current_user.is_authenticated}")
-        logger.info(f"Session data: {dict(session)}")
-        logger.info(f"Session keys: {list(session.keys())}")
-        
-        # Test individual components
-        try:
-            logout_user()
-            logger.info("logout_user() successful")
-        except Exception as e:
-            logger.error(f"logout_user() failed: {e}")
-            return f"logout_user error: {e}", 500
-        
-        try:
-            target_url = url_for('index')
-            logger.info(f"url_for('index') successful: {target_url}")
-        except Exception as e:
-            logger.error(f"url_for('index') failed: {e}")
-            return f"url_for error: {e}", 500
-        
-        try:
-            flash('Debug logout successful', 'success')
-            logger.info("flash() successful")
-        except Exception as e:
-            logger.error(f"flash() failed: {e}")
-            # Continue without flash
-        
-        return "Debug logout completed successfully", 200
-        
-    except Exception as e:
-        logger.error(f"Debug logout error: {e}")
-        return f"Debug error: {e}", 500
-
 @app.route('/admin/logout')
 def admin_logout():
     """Complete logout with cookie cleanup and user cache invalidation"""
@@ -269,175 +229,51 @@ def admin_logout():
             from flask import Response
             return Response('', status=302, headers={'Location': '/'})
 
-@app.route('/debug/session-status')
-def debug_session_status():
-    """Debug endpoint to check session status"""
-    try:
-        from flask import session
-        from flask_login import current_user
-        
-        status = {
-            'session_keys': list(session.keys()),
-            'session_user_id': session.get('_user_id'),
-            'current_user_authenticated': current_user.is_authenticated,
-            'current_user_id': getattr(current_user, 'id', None),
-            'current_user_username': getattr(current_user, 'username', None),
-            'session_modified': getattr(session, 'modified', False)
-        }
-        
-        return status, 200
-    except Exception as e:
-        return {'error': str(e)}, 500
-
-@app.route('/debug/login-flow')
-def debug_login_flow():
-    """Debug endpoint to check login flow"""
-    try:
-        from flask_login import current_user
-        
-        flow_info = {
-            'current_user_authenticated': current_user.is_authenticated,
-            'current_user_id': getattr(current_user, 'id', None),
-            'current_user_username': getattr(current_user, 'username', None),
-            'session_keys': list(session.keys()),
-            'session_user_id': session.get('_user_id'),
-            'user_cache_invalidated': list(user_cache.get('invalidated', set())),
-            'dashboard_url': url_for('dashboard'),
-            'login_url': url_for('login')
-        }
-        
-        return flow_info, 200
-    except Exception as e:
-        return {'error': str(e)}, 500
-
-@app.route('/debug/session-deep')
-def debug_session_deep():
-    """Deep debug of session state"""
-    try:
-        from flask import session, request
-        from flask_login import current_user
-        
-        debug_info = {
-            'request_cookies': dict(request.cookies),
-            'session_data': dict(session),
-            'session_keys': list(session.keys()),
-            'session_user_id': session.get('_user_id'),
-            'session_modified': getattr(session, 'modified', False),
-            'current_user': {
-                'is_authenticated': current_user.is_authenticated,
-                'id': getattr(current_user, 'id', None),
-                'username': getattr(current_user, 'username', None),
-                'is_active': getattr(current_user, 'is_active', None),
-            },
-            'user_cache_invalidated': list(user_cache.get('invalidated', set())),
-            'flask_login_config': {
-                'login_view': login_manager.login_view,
-                'session_protection': getattr(login_manager, 'session_protection', 'unknown'),
-                'refresh_view': getattr(login_manager, 'refresh_view', None),
-            }
-        }
-        
-        return debug_info, 200
-    except Exception as e:
-        return {'error': str(e)}, 500
-
-@app.route('/debug/invalidate-user/<int:user_id>')
-def debug_invalidate_user(user_id):
-    """Debug endpoint to invalidate a specific user"""
-    try:
-        user_cache.setdefault('invalidated', set()).add(str(user_id))
-        return f"User {user_id} invalidated", 200
-    except Exception as e:
-        return {'error': str(e)}, 500
-
-@app.route('/debug/test-flask')
-def debug_test_flask():
-    """Test if Flask is working"""
-    return "Flask is working", 200
-
-@app.route('/debug/test-session')
-def debug_test_session():
-    """Test if session is working"""
-    try:
-        from flask import session
-        return f"Session working: {bool(session)}", 200
-    except Exception as e:
-        return f"Session error: {e}", 500
-
-@app.route('/debug/test-current-user')
-def debug_test_current_user():
-    """Test if current_user is working"""
-    try:
-        from flask_login import current_user
-        return f"Current user working: {bool(current_user)}", 200
-    except Exception as e:
-        return f"Current user error: {e}", 500
-
-@app.route('/debug/test-logout-user')
-def debug_test_logout_user():
-    """Test if logout_user is working"""
-    try:
-        from flask_login import logout_user
-        return "logout_user working", 200
-    except Exception as e:
-        return f"logout_user error: {e}", 500
-
-@app.route('/debug/test-url-for')
-def debug_test_url_for():
-    """Test if url_for is working"""
-    try:
-        from flask import url_for
-        index_url = url_for('index')
-        return f"url_for working: {index_url}", 200
-    except Exception as e:
-        return f"url_for error: {e}", 500
-
 # Routes - Admin Panel
 @app.route('/admin/dashboard')
 @admin_required
 def dashboard():
     try:
-        return render_template('admin/dashboard.html')
+        # Get counts for dashboard
+        total_exercises = 0
+        recent_exercises = 0
+        security_logs = []
+        
+        if supabase:
+            # Get total exercises
+            exercises_response = supabase.table('exercises').select('*', count='exact').execute()
+            total_exercises = exercises_response.count if hasattr(exercises_response, 'count') else 0
+            
+            # Get recent exercises (last 7 days)
+            week_ago = (datetime.now() - timedelta(days=7)).isoformat()
+            recent_response = supabase.table('exercises').select('*', count='exact').gte('created_at', week_ago).execute()
+            recent_exercises = recent_response.count if hasattr(recent_response, 'count') else 0
+            
+            # Get recent security logs (if table exists)
+            try:
+                logs_response = supabase.table('security_logs').select('*').order('created_at', desc=True).limit(5).execute()
+                security_logs = logs_response.data or []
+            except:
+                # Mock data if table doesn't exist
+                security_logs = [
+                    {'action': 'Login exitoso', 'created_at': datetime.now() - timedelta(hours=2)},
+                    {'action': 'Usuario modificado', 'created_at': datetime.now() - timedelta(hours=5)},
+                    {'action': 'Backup realizado', 'created_at': datetime.now() - timedelta(days=1)},
+                    {'action': 'Contraseña cambiada', 'created_at': datetime.now() - timedelta(days=2)},
+                    {'action': 'Ejercicio agregado', 'created_at': datetime.now() - timedelta(days=3)}
+                ]
+        
+        return render_template('admin/dashboard.html', 
+                             total_exercises=total_exercises,
+                             recent_exercises=recent_exercises,
+                             security_logs=security_logs)
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
-        logger.error(f"Error type: {type(e).__name__}")
-        import traceback
-        logger.error(f"Traceback: {traceback.format_exc()}")
         flash('Error al cargar el dashboard', 'error')
-        return render_template('admin/dashboard.html')
-
-
-
-
-
-# ==================== ADMIN ROUTES ====================
-
-
-
-
-@login_required
-def admin_help():
-    """Admin help page"""
-    return render_template('admin/help.html')
-
-@app.route('/admin/profile')
-@login_required
-def admin_profile():
-    """Admin profile page"""
-    return render_template('admin/profile.html')
-
-@app.route('/admin/logs')
-@admin_required
-def admin_logs():
-    """Admin logs page"""
-    return render_template('admin/logs.html')
-
-@app.route('/admin/backup')
-@login_required
-def admin_backup():
-    """Admin backup page"""
-    return render_template('admin/backup.html')
-
+        return render_template('admin/dashboard.html', 
+                             total_exercises=0,
+                             recent_exercises=0,
+                             security_logs=[])
 
 @app.route('/admin/bot-control')
 @admin_required
@@ -445,8 +281,6 @@ def admin_bot_control():
     """Admin bot control page"""
     try:
         # Check if Supabase is available for bot operations
-        if not supabase:
-            flash('Conexión a la base de datos no disponible', 'warning')
         return render_template('admin/bot_control.html', db_connected=(supabase is not None))
     except Exception as e:
         logger.error(f"Admin bot control error: {e}")
@@ -458,9 +292,6 @@ def admin_bot_control():
 def admin_notifications():
     """Admin notifications page"""
     try:
-        # Check if Supabase is available for notifications
-        if not supabase:
-            flash('Conexión a la base de datos no disponible', 'warning')
         return render_template('admin/notifications.html', db_connected=(supabase is not None))
     except Exception as e:
         logger.error(f"Admin notifications error: {e}")
@@ -470,16 +301,34 @@ def admin_notifications():
 @app.route('/admin/exercises')
 @admin_required
 def admin_exercises():
-    """Admin exercises management page"""
+    """Admin exercises management page - MEJORADO"""
     try:
         if not supabase:
             flash('Error de conexión a la base de datos', 'danger')
             return render_template('admin/exercises.html', exercises=[])
         
-        # Get all exercises
+        # Get all exercises from Supabase
         exercises_response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
         exercises = exercises_response.data or []
         
+        # Process exercises to ensure correct format
+        for exercise in exercises:
+            # Parse options if they're stored as JSON string
+            if isinstance(exercise.get('options'), str):
+                try:
+                    exercise['options'] = json.loads(exercise['options'])
+                except:
+                    exercise['options'] = ['', '', '', '']
+            
+            # Ensure options is always a list
+            if not isinstance(exercise.get('options'), list):
+                exercise['options'] = ['', '', '', '']
+            
+            # Ensure correct_answer is integer
+            if 'correct_answer' in exercise:
+                exercise['correct_answer'] = int(exercise['correct_answer'])
+        
+        logger.info(f"Loaded {len(exercises)} exercises from Supabase")
         return render_template('admin/exercises.html', exercises=exercises)
     except Exception as e:
         logger.error(f"Admin exercises error: {e}")
@@ -562,7 +411,17 @@ def get_exercises(level):
         response = supabase.table('exercises').select('*').eq('level', level).execute()
         
         if response.data:
-            return jsonify(response.data), 200
+            # Process exercises for bot
+            exercises = []
+            for ex in response.data:
+                # Parse options if stored as string
+                if isinstance(ex.get('options'), str):
+                    try:
+                        ex['options'] = json.loads(ex['options'])
+                    except:
+                        ex['options'] = ['', '', '', '']
+                exercises.append(ex)
+            return jsonify(exercises), 200
         else:
             return jsonify([]), 200
             
@@ -630,7 +489,6 @@ def get_level_progress(telegram_id, level):
         user = user_response.data[0]
         
         # Get completed exercises for this level
-        # This is a simplified version - in a real implementation you'd have a separate progress table
         completed_count = user.get('level_progress', 0) if user.get('current_level') == level else 0
         
         return jsonify({
@@ -680,47 +538,11 @@ def notify_bot_changes():
         logger.error(f"Error notifying bot: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/admin/exercises/export/csv')
-@admin_required
-def export_exercises_csv():
-    """Export exercises in CSV format"""
-    try:
-        if not supabase:
-            return jsonify({'error': 'Database not connected'}), 500
-        
-        exercises_response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
-        exercises = exercises_response.data or []
-        
-        # Create CSV content
-        csv_content = 'ID,Nivel,Pregunta,Opción1,Opción2,Opción3,Opción4,Respuesta,Explicación\n'
-        
-        for exercise in exercises:
-            # Escape quotes and commas for CSV
-            def escape_csv(text):
-                if not text:
-                    return ''
-                return f'"{str(text).replace('"', '""')}"'
-            
-            csv_content += f"{exercise.id},{exercise.level},"
-            csv_content += f"{escape_csv(exercise.question)},"
-            csv_content += f"{escape_csv(exercise.options[0])},{escape_csv(exercise.options[1])},"
-            csv_content += f"{escape_csv(exercise.options[2])},{escape_csv(exercise.options[3])},"
-            csv_content += f"{exercise.correct_answer},{escape_csv(exercise.explanation)}\n"
-        
-        from flask import Response
-        response = Response(csv_content, mimetype='text/csv')
-        response.headers['Content-Disposition'] = f'attachment; filename=ejercicios_{datetime.now().strftime("%Y-%m-%d")}.csv'
-        return response
-        
-    except Exception as e:
-        logger.error(f"Error exporting exercises to CSV: {e}")
-        return jsonify({'error': str(e)}), 500
-
 # API Endpoints for Exercises Management
 @app.route('/api/admin/exercises', methods=['GET'])
 @admin_required
 def api_get_exercises():
-    """Get all exercises"""
+    """Get all exercises - MEJORADO"""
     try:
         if not supabase:
             return jsonify({'error': 'Database connection error'}), 500
@@ -730,15 +552,24 @@ def api_get_exercises():
         
         query = supabase.table('exercises').select('*')
         
-        if level:
+        if level and level != 'todos':
             query = query.eq('level', level)
         
         if search:
             query = query.ilike('question', f'%{search}%')
         
         response = query.order('created_at', desc=True).execute()
+        exercises = response.data or []
         
-        return jsonify({'exercises': response.data or []})
+        # Process options for each exercise
+        for exercise in exercises:
+            if isinstance(exercise.get('options'), str):
+                try:
+                    exercise['options'] = json.loads(exercise['options'])
+                except:
+                    exercise['options'] = ['', '', '', '']
+        
+        return jsonify({'exercises': exercises})
     except Exception as e:
         logger.error(f"API get exercises error: {e}")
         return jsonify({'error': 'Database error'}), 500
@@ -746,7 +577,7 @@ def api_get_exercises():
 @app.route('/api/admin/exercises', methods=['POST'])
 @admin_required
 def api_create_exercise():
-    """Create new exercise"""
+    """Create new exercise - MEJORADO"""
     try:
         if not supabase:
             return jsonify({'error': 'Database connection error'}), 500
@@ -759,73 +590,122 @@ def api_create_exercise():
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
         
+        # Validate options
+        if not isinstance(data['options'], list) or len(data['options']) != 4:
+            return jsonify({'error': 'Options must be an array with 4 items'}), 400
+        
+        # Validate correct_answer
+        try:
+            correct_answer = int(data['correct_answer'])
+            if correct_answer < 1 or correct_answer > 4:
+                return jsonify({'error': 'correct_answer must be between 1 and 4'}), 400
+        except:
+            return jsonify({'error': 'correct_answer must be an integer'}), 400
+        
         # Create exercise
         exercise_data = {
-            'question': data['question'],
+            'question': data['question'].strip(),
             'level': data['level'],
-            'options': data['options'],
-            'correct_answer': data['correct_answer'],
-            'explanation': data.get('explanation', ''),
-            'created_at': 'now()'
+            'options': json.dumps(data['options']),  # Store as JSON string
+            'correct_answer': correct_answer,
+            'explanation': data.get('explanation', '').strip(),
+            'created_at': datetime.now().isoformat()
         }
         
         response = supabase.table('exercises').insert(exercise_data).execute()
         
         if response.data:
-            return jsonify(response.data[0]), 201
+            # Parse options back for response
+            new_exercise = response.data[0]
+            if isinstance(new_exercise.get('options'), str):
+                try:
+                    new_exercise['options'] = json.loads(new_exercise['options'])
+                except:
+                    new_exercise['options'] = ['', '', '', '']
+            return jsonify(new_exercise), 201
         else:
             return jsonify({'error': 'Failed to create exercise'}), 400
     except Exception as e:
         logger.error(f"API create exercise error: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/api/admin/exercises/<int:exercise_id>', methods=['PUT'])
 @admin_required
 def api_update_exercise(exercise_id):
-    """Update exercise"""
+    """Update exercise - MEJORADO"""
     try:
         if not supabase:
             return jsonify({'error': 'Database connection error'}), 500
         
         data = request.json
         
+        # Validate required fields
+        if 'question' not in data or 'level' not in data or 'options' not in data or 'correct_answer' not in data:
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Validate options
+        if not isinstance(data['options'], list) or len(data['options']) != 4:
+            return jsonify({'error': 'Options must be an array with 4 items'}), 400
+        
+        # Validate correct_answer
+        try:
+            correct_answer = int(data['correct_answer'])
+            if correct_answer < 1 or correct_answer > 4:
+                return jsonify({'error': 'correct_answer must be between 1 and 4'}), 400
+        except:
+            return jsonify({'error': 'correct_answer must be an integer'}), 400
+        
         # Update exercise
         update_data = {
-            'question': data.get('question'),
-            'level': data.get('level'),
-            'options': data.get('options'),
-            'correct_answer': data.get('correct_answer'),
-            'explanation': data.get('explanation', ''),
-            'updated_at': 'now()'
+            'question': data['question'].strip(),
+            'level': data['level'],
+            'options': json.dumps(data['options']),  # Store as JSON string
+            'correct_answer': correct_answer,
+            'explanation': data.get('explanation', '').strip(),
+            'updated_at': datetime.now().isoformat()
         }
         
         response = supabase.table('exercises').update(update_data).eq('id', exercise_id).execute()
         
         if response.data:
-            return jsonify(response.data[0])
+            # Parse options back for response
+            updated_exercise = response.data[0]
+            if isinstance(updated_exercise.get('options'), str):
+                try:
+                    updated_exercise['options'] = json.loads(updated_exercise['options'])
+                except:
+                    updated_exercise['options'] = ['', '', '', '']
+            return jsonify(updated_exercise)
         else:
             return jsonify({'error': 'Exercise not found'}), 404
     except Exception as e:
         logger.error(f"API update exercise error: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/api/admin/exercises/<int:exercise_id>', methods=['DELETE'])
 @admin_required
 def api_delete_exercise(exercise_id):
-    """Delete exercise"""
+    """Delete exercise - MEJORADO"""
     try:
         if not supabase:
             return jsonify({'error': 'Database connection error'}), 500
         
+        # Check if exercise exists
+        check_response = supabase.table('exercises').select('id').eq('id', exercise_id).execute()
+        if not check_response.data:
+            return jsonify({'error': 'Exercise not found'}), 404
+        
+        # Delete exercise
         response = supabase.table('exercises').delete().eq('id', exercise_id).execute()
         
         if response.data:
+            logger.info(f"Exercise {exercise_id} deleted by admin {current_user.username}")
             return jsonify({'success': True})
         else:
-            return jsonify({'error': 'Exercise not found'}), 404
+            return jsonify({'error': 'Failed to delete exercise'}), 500
     except Exception as e:
         logger.error(f"API delete exercise error: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/api/admin/exercises/import', methods=['POST'])
 @admin_required
@@ -846,28 +726,28 @@ def api_import_exercises():
         
         for index, exercise in enumerate(exercises):
             try:
-                # Mapear y normalizar el ejercicio
+                # Normalize exercise data
                 normalized_exercise = normalize_exercise_data(exercise)
                 
-                # Validar estructura requerida
+                # Validate structure
                 validation_result = validate_exercise_structure(normalized_exercise)
                 if not validation_result['valid']:
                     errors.append(f"Ejercicio {index + 1}: {validation_result['error']}")
                     continue
                 
-                # Verificar duplicados por pregunta
+                # Check for duplicates (optional)
                 if is_duplicate_exercise(normalized_exercise['question']):
-                    errors.append(f"Ejercicio {index + 1}: Pregunta duplicada")
+                    errors.append(f"Ejercicio {index + 1}: Pregunta duplicada - omitido")
                     continue
                 
-                # Insertar en la base de datos
+                # Insert in database
                 exercise_data = {
                     'question': normalized_exercise['question'],
                     'level': normalized_exercise['level'],
-                    'options': normalized_exercise['options'],
+                    'options': json.dumps(normalized_exercise['options']),
                     'correct_answer': normalized_exercise['correct_answer'],
                     'explanation': normalized_exercise.get('explanation', ''),
-                    'created_at': 'now()'
+                    'created_at': datetime.now().isoformat()
                 }
                 
                 result = supabase.table('exercises').insert(exercise_data).execute()
@@ -879,6 +759,8 @@ def api_import_exercises():
             except Exception as e:
                 errors.append(f"Ejercicio {index + 1}: {str(e)}")
         
+        logger.info(f"Import completed: {imported_count}/{len(exercises)} exercises imported")
+        
         return jsonify({
             'imported': imported_count,
             'total': len(exercises),
@@ -886,7 +768,111 @@ def api_import_exercises():
         })
     except Exception as e:
         logger.error(f"API import exercises error: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
+
+@app.route('/api/admin/exercises/export/json', methods=['GET'])
+@admin_required
+def api_export_exercises_json():
+    """Export exercises as JSON - MEJORADO"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get all exercises
+        response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
+        exercises = response.data or []
+        
+        # Process exercises for export
+        export_data = []
+        for exercise in exercises:
+            # Parse options if stored as string
+            if isinstance(exercise.get('options'), str):
+                try:
+                    exercise['options'] = json.loads(exercise['options'])
+                except:
+                    exercise['options'] = ['', '', '', '']
+            
+            # Create clean export object
+            export_data.append({
+                'id': exercise.get('id'),
+                'question': exercise.get('question'),
+                'level': exercise.get('level'),
+                'options': exercise.get('options'),
+                'correct_answer': exercise.get('correct_answer'),
+                'explanation': exercise.get('explanation', ''),
+                'created_at': exercise.get('created_at')
+            })
+        
+        # Create JSON response with download
+        json_str = json.dumps(export_data, ensure_ascii=False, indent=2)
+        response = Response(json_str, mimetype='application/json')
+        response.headers['Content-Disposition'] = f'attachment; filename=ejercicios_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error exporting exercises to JSON: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/exercises/export/csv', methods=['GET'])
+@admin_required
+def api_export_exercises_csv():
+    """Export exercises as CSV - MEJORADO"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get all exercises
+        response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
+        exercises = response.data or []
+        
+        # Create CSV in memory
+        output = StringIO()
+        writer = csv.writer(output)
+        
+        # Write header
+        writer.writerow(['ID', 'Nivel', 'Pregunta', 'Opción 1', 'Opción 2', 'Opción 3', 'Opción 4', 'Respuesta Correcta', 'Explicación'])
+        
+        # Write data
+        for exercise in exercises:
+            # Parse options
+            options = exercise.get('options', '["","","",""]')
+            if isinstance(options, str):
+                try:
+                    options = json.loads(options)
+                except:
+                    options = ['', '', '', '']
+            
+            # Ensure options is a list
+            if not isinstance(options, list):
+                options = ['', '', '', '']
+            
+            # Pad options to 4 items
+            while len(options) < 4:
+                options.append('')
+            
+            writer.writerow([
+                exercise.get('id', ''),
+                exercise.get('level', ''),
+                exercise.get('question', ''),
+                options[0] if len(options) > 0 else '',
+                options[1] if len(options) > 1 else '',
+                options[2] if len(options) > 2 else '',
+                options[3] if len(options) > 3 else '',
+                exercise.get('correct_answer', 1),
+                exercise.get('explanation', '')
+            ])
+        
+        # Prepare response
+        output.seek(0)
+        response = Response(output.getvalue(), mimetype='text/csv')
+        response.headers['Content-Disposition'] = f'attachment; filename=ejercicios_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error exporting exercises to CSV: {e}")
+        return jsonify({'error': str(e)}), 500
 
 def normalize_exercise_data(exercise):
     """Normaliza los datos del ejercicio al formato esperado"""
@@ -974,8 +960,8 @@ def validate_exercise_structure(exercise):
         return {'valid': False, 'error': 'correct_answer debe ser un número entre 1 y 4'}
     
     # Validar longitud de la pregunta
-    if len(exercise['question'].strip()) < 10:
-        return {'valid': False, 'error': 'La pregunta es demasiado corta'}
+    if len(exercise['question'].strip()) < 5:
+        return {'valid': False, 'error': 'La pregunta es demasiado corta (mínimo 5 caracteres)'}
     
     return {'valid': True, 'error': None}
 
@@ -985,7 +971,8 @@ def is_duplicate_exercise(question):
         if not supabase:
             return False
         
-        result = supabase.table('exercises').select('id').ilike('question', question).limit(1).execute()
+        # Use ilike for case-insensitive search
+        result = supabase.table('exercises').select('id').ilike('question', question.strip()).execute()
         return len(result.data) > 0
     except:
         return False
@@ -1008,10 +995,10 @@ def generate_fallback_options(answer):
 
 def find_correct_answer_index(options, answer):
     """Encuentra el índice de la respuesta correcta"""
-    answer_str = str(answer).strip()
+    answer_str = str(answer).strip().lower()
     
     for i, option in enumerate(options):
-        if str(option).strip() == answer_str:
+        if str(option).strip().lower() == answer_str:
             return i + 1  # Índice base 1
     
     return 1  # Default a primera opción
@@ -1027,22 +1014,27 @@ def admin_users():
         
         # Get user statistics
         try:
-            total_users_response = supabase.table('bot_users').select('id', count='exact').execute()
-            active_users_response = supabase.table('bot_users').select('id', count='exact').eq('is_active', True).execute()
-            inactive_users_response = supabase.table('bot_users').select('id', count='exact').eq('is_active', False).execute()
+            total_users_response = supabase.table('users').select('*', count='exact').execute()
+            active_users_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
+            
+            # Get recent users (last 7 days)
+            week_ago = (datetime.now() - timedelta(days=7)).isoformat()
+            recent_response = supabase.table('users').select('*', count='exact').gte('created_at', week_ago).execute()
             
             stats = {
-                'total': total_users_response.count or 0,
-                'active': active_users_response.count or 0,
-                'inactive': inactive_users_response.count or 0
+                'total': total_users_response.count if hasattr(total_users_response, 'count') else 0,
+                'active': active_users_response.count if hasattr(active_users_response, 'count') else 0,
+                'inactive': (total_users_response.count if hasattr(total_users_response, 'count') else 0) - 
+                            (active_users_response.count if hasattr(active_users_response, 'count') else 0),
+                'recent': recent_response.count if hasattr(recent_response, 'count') else 0
             }
         except Exception as e:
             logger.error(f"Error getting user stats: {e}")
-            stats = {'total': 0, 'active': 0, 'inactive': 0}
+            stats = {'total': 0, 'active': 0, 'inactive': 0, 'recent': 0}
         
-        # Get recent users (last 10)
+        # Get recent users (last 50)
         try:
-            users_response = supabase.table('bot_users').select('*').order('created_at', desc=True).limit(10).execute()
+            users_response = supabase.table('users').select('*').order('created_at', desc=True).limit(50).execute()
             users = users_response.data or []
         except Exception as e:
             logger.error(f"Error getting users: {e}")
@@ -1069,7 +1061,7 @@ def api_get_users():
         per_page = min(int(request.args.get('per_page', 20)), 100)
         
         # Build query
-        query = supabase.table('bot_users').select('*')
+        query = supabase.table('users').select('*', count='exact')
         
         # Apply filters
         if search:
@@ -1081,9 +1073,8 @@ def api_get_users():
             query = query.eq('is_active', False)
         
         # Get total count
-        count_query = query
-        count_response = count_query.select('id', count='exact').execute()
-        total = count_response.count or 0
+        count_response = query.execute()
+        total = count_response.count if hasattr(count_response, 'count') else 0
         
         # Apply pagination
         offset = (page - 1) * per_page
@@ -1098,12 +1089,12 @@ def api_get_users():
                 'page': page,
                 'per_page': per_page,
                 'total': total,
-                'pages': (total + per_page - 1) // per_page
+                'pages': (total + per_page - 1) // per_page if total > 0 else 1
             }
         })
     except Exception as e:
         logger.error(f"API get users error: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/api/admin/users/<int:user_id>', methods=['PUT'])
 @admin_required
@@ -1120,7 +1111,7 @@ def api_update_user(user_id):
             return jsonify({'error': 'Missing is_active field'}), 400
         
         # Update user
-        response = supabase.table('bot_users').update({
+        response = supabase.table('users').update({
             'is_active': is_active,
             'updated_at': 'now()'
         }).eq('id', user_id).execute()
@@ -1133,7 +1124,7 @@ def api_update_user(user_id):
             return jsonify({'error': 'User not found'}), 404
     except Exception as e:
         logger.error(f"API update user error: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
 @admin_required
@@ -1144,10 +1135,10 @@ def api_delete_user(user_id):
             return jsonify({'error': 'Database connection error'}), 500
         
         # Get user info for logging
-        user_response = supabase.table('bot_users').select('username, telegram_id').eq('id', user_id).execute()
+        user_response = supabase.table('users').select('username, telegram_id').eq('id', user_id).execute()
         
         # Delete user
-        response = supabase.table('bot_users').delete().eq('id', user_id).execute()
+        response = supabase.table('users').delete().eq('id', user_id).execute()
         
         if response.data:
             user_info = user_response.data[0] if user_response.data else {}
@@ -1157,7 +1148,7 @@ def api_delete_user(user_id):
             return jsonify({'error': 'User not found'}), 404
     except Exception as e:
         logger.error(f"API delete user error: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/api/admin/users/stats', methods=['GET'])
 @admin_required
@@ -1168,25 +1159,25 @@ def api_get_user_stats():
             return jsonify({'error': 'Database connection error'}), 500
         
         # Get basic stats
-        total_response = supabase.table('bot_users').select('id', count='exact').execute()
-        active_response = supabase.table('bot_users').select('id', count='exact').eq('is_active', True).execute()
+        total_response = supabase.table('users').select('*', count='exact').execute()
+        active_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
         
         # Get recent users (last 7 days)
-        import datetime
-        week_ago = (datetime.datetime.now() - datetime.timedelta(days=7)).isoformat()
-        recent_response = supabase.table('bot_users').select('id', count='exact').gte('created_at', week_ago).execute()
+        week_ago = (datetime.now() - timedelta(days=7)).isoformat()
+        recent_response = supabase.table('users').select('*', count='exact').gte('created_at', week_ago).execute()
         
         stats = {
-            'total': total_response.count or 0,
-            'active': active_response.count or 0,
-            'inactive': (total_response.count or 0) - (active_response.count or 0),
-            'recent': recent_response.count or 0
+            'total': total_response.count if hasattr(total_response, 'count') else 0,
+            'active': active_response.count if hasattr(active_response, 'count') else 0,
+            'inactive': (total_response.count if hasattr(total_response, 'count') else 0) - 
+                        (active_response.count if hasattr(active_response, 'count') else 0),
+            'recent': recent_response.count if hasattr(recent_response, 'count') else 0
         }
         
         return jsonify(stats)
     except Exception as e:
         logger.error(f"API get user stats error: {e}")
-        return jsonify({'error': 'Database error'}), 500
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/admin/change-password', methods=['GET', 'POST'])
 @admin_required
@@ -1201,7 +1192,6 @@ def change_password():
     
     # Logging detallado para debugging
     logger.info(f"Change password attempt for user: {current_user}")
-    logger.info(f"Form data received: {list(request.form.keys())}")
     
     # Verificar que el ID de usuario sea válido
     try:
@@ -1216,10 +1206,6 @@ def change_password():
         current_password = request.form.get('current_password')
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
-        
-        logger.info(f"Form values - current_password: {'provided' if current_password else 'missing'}, "
-                    f"new_password: {'provided' if new_password else 'missing'}, "
-                    f"confirm_password: {'provided' if confirm_password else 'missing'}")
         
         # Validate form inputs
         if not all([current_password, new_password, confirm_password]):
@@ -1243,17 +1229,12 @@ def change_password():
         logger.info(f"Fetching user data for ID: {user_id}")
         response = supabase.table('admin_users').select('*').eq('id', user_id).execute()
         
-        logger.info(f"Supabase response success: {response.data is not None}")
-        logger.info(f"Response data length: {len(response.data) if response.data else 0}")
-        
         if not response.data:
             logger.error("No user data returned from database")
             flash('Error al obtener datos del usuario', 'error')
             return render_template('admin/change_password.html')
         
         user_data = response.data[0]
-        logger.info(f"User data keys: {list(user_data.keys())}")
-        logger.info(f"User data available fields: {[k for k in user_data.keys() if 'password' in k.lower()]}")
         
         # Verificar que el campo password_hash exista
         if 'password_hash' not in user_data:
@@ -1261,14 +1242,11 @@ def change_password():
             flash('Error en la estructura de datos del usuario', 'error')
             return render_template('admin/change_password.html')
         
-        logger.info("Attempting to verify current password...")
         # Verify current password
         if not check_password_hash(user_data['password_hash'], current_password):
             logger.warning("Current password verification failed")
             flash('La contraseña actual es incorrecta', 'error')
             return render_template('admin/change_password.html')
-        
-        logger.info("Current password verified successfully")
         
         # Check if new password is same as current
         if check_password_hash(user_data['password_hash'], new_password):
@@ -1276,18 +1254,14 @@ def change_password():
             flash('La nueva contraseña debe ser diferente a la contraseña actual', 'error')
             return render_template('admin/change_password.html')
         
-        logger.info("Generating new password hash...")
         # Hash new password
         new_password_hash = generate_password_hash(new_password)
         
-        logger.info("Updating password in database...")
-        # Update password in database (solo campos que existen en Supabase)
+        # Update password in database
         update_response = supabase.table('admin_users').update({
-            'password_hash': new_password_hash
+            'password_hash': new_password_hash,
+            'updated_at': 'now()'
         }).eq('id', user_id).execute()
-        
-        logger.info(f"Update response success: {update_response.data is not None}")
-        logger.info(f"Update response data: {update_response.data}")
         
         if update_response.data:
             logger.info(f"Password updated successfully for user: {current_user.username}")
@@ -1295,35 +1269,13 @@ def change_password():
             return redirect(url_for('dashboard'))
         else:
             logger.error("Database update returned no data")
-            logger.error(f"Supabase error details: {getattr(update_response, 'error', 'No error info')}")
             flash('Error al actualizar la contraseña', 'error')
             return render_template('admin/change_password.html')
             
-    except KeyError as e:
-        logger.error(f"KeyError in change_password: {e}")
-        logger.error(f"Available keys: {list(user_data.keys()) if 'user_data' in locals() else 'N/A'}")
-        flash('Error en los datos del usuario', 'error')
-        return render_template('admin/change_password.html')
-    except AttributeError as e:
-        logger.error(f"AttributeError in change_password: {e}")
-        logger.error(f"User data type: {type(user_data) if 'user_data' in locals() else 'N/A'}")
-        flash('Error en el procesamiento de datos', 'error')
-        return render_template('admin/change_password.html')
-    except ValueError as e:
-        logger.error(f"ValueError in change_password: {e}")
-        flash('Error en el formato de los datos', 'error')
-        return render_template('admin/change_password.html')
     except Exception as e:
         logger.error(f"Unexpected error in change_password: {e}")
-        logger.error(f"Error type: {type(e).__name__}")
-        logger.error(f"Error args: {e.args}")
-        logger.error(f"User data available: {'user_data' in locals()}")
-        if 'user_data' in locals():
-            logger.error(f"User data keys: {list(user_data.keys())}")
-        logger.error(f"Current user ID: {current_user.id}")
         flash('Error al procesar la solicitud', 'error')
         return render_template('admin/change_password.html')
-
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))

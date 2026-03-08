@@ -845,3 +845,50 @@ function showNotification(message, type) {
         bsAlert.close();
     }, 5000);
 }
+
+// Función para manejar la exportación según el formato
+function exportExercisesByFormat(format) {
+    if (format === 'csv') {
+        exportExercisesCSV();
+    } else {
+        exportExercises();
+    }
+}
+
+// Función para exportar a JSON
+function exportExercises() {
+    window.location.href = '/api/admin/exercises/export/json';
+}
+
+// Función para exportar a CSV
+function exportExercisesCSV() {
+    window.location.href = '/api/admin/exercises/export/csv';
+}
+
+// Función para descargar plantilla
+function downloadTemplate() {
+    const template = [
+        {
+            "level": "principiante",
+            "question": "¿Cuál es la salida de print(2 ** 3)?",
+            "options": ["5", "6", "8", "9"],
+            "correct_answer": 3,
+            "explanation": "El operador ** significa exponenciación. 2 ** 3 = 2 * 2 * 2 = 8"
+        }
+    ];
+    
+    const dataStr = JSON.stringify(template, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', 'plantilla_ejercicios.json');
+    linkElement.click();
+    
+    showNotification('Plantilla descargada exitosamente', 'success');
+}
+
+// Función para refrescar ejercicios
+function refreshExercises() {
+    location.reload();
+}
