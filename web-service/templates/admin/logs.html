@@ -531,6 +531,49 @@
             bootstrap.Modal.getInstance(document.getElementById('clearLogsModal')).hide();
         }
 
+        function cleanTestLogs() {
+            if (!confirm('¿Estás seguro de que quieres eliminar los logs de prueba del sistema?')) {
+                return;
+            }
+            
+            // Show loading state
+            const cleanBtn = event.target;
+            const originalText = cleanBtn.innerHTML;
+            cleanBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Limpiando...';
+            cleanBtn.disabled = true;
+            
+            fetch('/api/admin/logs/cleanup-test', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    showNotification(`Error: ${data.error}`, 'danger');
+                } else {
+                    showNotification(data.message || 'Logs de prueba eliminados exitosamente', 'success');
+                    refreshLogs();
+                }
+            })
+            .catch(error => {
+                console.error('Error cleaning test logs:', error);
+                showNotification(`Error al limpiar logs de prueba: ${error.message}`, 'danger');
+            })
+            .finally(() => {
+                // Restore button state
+                cleanBtn.innerHTML = originalText;
+                cleanBtn.disabled = false;
+            });
+        }
+
         function diagnoseLogs() {
             console.log('🔍 Starting logs system diagnosis...');
             
