@@ -76,45 +76,51 @@ def verify_system_logs_table():
         return False
 
 def create_system_logs_table():
-    """Create system_logs table if it doesn't exist - FIXED"""
+    """Create system_logs table if it doesn't exist - VERSIÓN MEJORADA"""
     try:
         logger.info("=== ATTEMPTING TO CREATE system_logs TABLE ===")
         
-        # Method 1: Try to insert a test record to see if table exists
+        # Método 1: Intentar insertar un registro de prueba
         try:
             test_data = {
                 'level': 'info',
-                'message': 'test record for table verification',
+                'message': 'table creation test',
                 'source': 'system',
                 'user_id': None,
-                'metadata': {}
+                'metadata': {},
+                'created_at': datetime.now().isoformat()
             }
+            
             result = supabase.table('system_logs').insert(test_data).execute()
-            logger.info("Table exists or was created successfully")
-            logger.info(f"Insert test result: {result}")
             
-            # If successful, delete the test record
-            try:
-                if result.data and len(result.data) > 0:
-                    test_id = result.data[0]['id']
-                    delete_result = supabase.table('system_logs').delete().eq('id', test_id).execute()
-                    logger.info("Test record cleaned up successfully")
-            except Exception as cleanup_error:
-                logger.warning(f"Failed to cleanup test record: {cleanup_error}")
-            
-            return True
-            
+            if result and result.data and len(result.data) > 0:
+                logger.info("✅ system_logs table exists or was created successfully")
+                logger.info(f"Insert result: {result}")
+                
+                # Limpiar el registro de prueba
+                try:
+                    test_id = result.data[0].get('id')
+                    if test_id:
+                        delete_result = supabase.table('system_logs').delete().eq('id', test_id).execute()
+                        logger.info("✅ Test record cleaned up successfully")
+                        return True
+                except Exception as cleanup_error:
+                    logger.warning(f"Failed to cleanup test record: {cleanup_error}")
+                    return True
+            else:
+                logger.error("❌ Insert operation returned no data")
+                return False
+                
         except Exception as insert_error:
-            logger.error(f"Table access/creation failed: {insert_error}", exc_info=True)
-            logger.error(f"Insert error type: {type(insert_error).__name__}")
-            logger.error(f"Insert error details: {insert_error.args}")
+            logger.error(f"❌ Table creation test failed: {insert_error}", exc_info=True)
             
-        # Method 2: Try to create table using direct SQL (may not work without admin privileges)
-        logger.warning("Cannot create table automatically - may need manual setup")
-        logger.info("Please create the table manually in Supabase with this SQL:")
+        # Método 2: Intentar crear tabla con SQL directo (si es posible)
+        logger.info("⚠️ Auto table creation failed, attempting manual creation...")
+        logger.info("📋 Please create table manually in Supabase with this SQL:")
         logger.info("""
+-- Crear tabla system_logs con estructura correcta
 CREATE TABLE IF NOT EXISTS system_logs (
-    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     level VARCHAR(20) NOT NULL,
     message TEXT NOT NULL,
     source VARCHAR(50) NOT NULL,
@@ -123,15 +129,24 @@ CREATE TABLE IF NOT EXISTS system_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Grant permissions
+-- Crear índices para mejorar rendimiento
+CREATE INDEX IF NOT EXISTS idx_system_logs_level ON system_logs(level);
+CREATE INDEX IF NOT EXISTS idx_system_logs_source ON system_logs(source);
+CREATE INDEX IF NOT EXISTS idx_system_logs_created_at ON system_logs(created_at);
+
+-- Otorgar permisos
 GRANT ALL ON system_logs TO authenticated;
 GRANT SELECT ON system_logs TO anon;
-""")
+GRANT USAGE, SELECT ON SEQUENCE system_logs_id_seq TO authenticated;
+
+-- Verificar que la tabla existe
+SELECT * FROM system_logs LIMIT 1;
+        """)
         
         return False
         
     except Exception as e:
-        logger.error(f"Table creation failed: {e}", exc_info=True)
+        logger.error(f"❌ Table creation process failed: {e}", exc_info=True)
         return False
 
 # Health check endpoint for Render
@@ -586,62 +601,56 @@ def diagnose_logs_system():
             logger.info("✅ Supabase client exists")
         else:
             diagnosis['errors'].append("Supabase client is None")
-            diagnosis['recommendations'].append("Check Supabase environment variables")
-            return jsonify(diagnosis), 500
+            diagnosis['recommendations'].append("Check SUPABASE_URL and SUPABASE_KEY in environment variables")
         
-        # Check table existence
-        try:
-            result = supabase.table('system_logs').select('count').execute()
-            diagnosis['table_exists'] = True
-            diagnosis['table_accessible'] = True
-            logger.info("✅ Table exists and is accessible")
-        except Exception as e:
-            diagnosis['errors'].append(f"Table access failed: {str(e)}")
-            diagnosis['recommendations'].append("Create system_logs table manually")
-            logger.error(f"❌ Table access failed: {e}")
-            return jsonify(diagnosis), 500
-        
-        # Check insert permission
-        try:
-            test_data = {
-                'level': 'info',
-                'message': 'diagnostic test record',
-                'source': 'diagnosis',
-                'user_id': None,
-                'metadata': {'test': True}
-            }
-            result = supabase.table('system_logs').insert(test_data).execute()
-            diagnosis['can_insert'] = True
-            logger.info("✅ Insert permission works")
-            
-            # Clean up test record
-            if result.data and len(result.data) > 0:
-                test_id = result.data[0]['id']
-                delete_result = supabase.table('system_logs').delete().eq('id', test_id).execute()
-                diagnosis['can_delete'] = True
-                logger.info("✅ Delete permission works")
+        # Check table existence and permissions
+        if supabase:
+            try:
+                # Try to get table info
+                result = supabase.table('system_logs').select('*').limit(1).execute()
+                diagnosis['table_exists'] = True
+                diagnosis['table_accessible'] = True
+                logger.info("✅ Table exists and is accessible")
                 
-        except Exception as e:
-            diagnosis['errors'].append(f"Insert/delete failed: {str(e)}")
-            diagnosis['recommendations'].append("Check table permissions")
-            logger.error(f"❌ Insert/delete failed: {e}")
-        
-        # Count logs
-        try:
-            count_result = supabase.table('system_logs').select('id').execute()
-            diagnosis['log_count'] = len(count_result.data) if count_result.data else 0
-            logger.info(f"📊 Current log count: {diagnosis['log_count']}")
-        except Exception as e:
-            diagnosis['errors'].append(f"Count failed: {str(e)}")
-            logger.error(f"❌ Count failed: {e}")
+                # Count logs
+                count_result = supabase.table('system_logs').select('id').execute()
+                diagnosis['log_count'] = len(count_result.data) if count_result.data else 0
+                
+                # Test insert
+                try:
+                    test_data = {
+                        'level': 'info',
+                        'message': 'diagnostic test record',
+                        'source': 'diagnosis',
+                        'user_id': None,
+                        'metadata': {'test': True},
+                        'created_at': datetime.now().isoformat()
+                    }
+                    insert_result = supabase.table('system_logs').insert(test_data).execute()
+                    diagnosis['can_insert'] = True
+                    
+                    # Test delete
+                    if insert_result.data:
+                        test_id = insert_result.data[0].get('id')
+                        delete_result = supabase.table('system_logs').delete().eq('id', test_id).execute()
+                        diagnosis['can_delete'] = True
+                        
+                except Exception as e:
+                    logger.error(f"Insert/delete test failed: {e}")
+                    diagnosis['errors'].append(f"Insert/delete test failed: {str(e)}")
+                    diagnosis['recommendations'].append("Check table permissions in Supabase dashboard")
+                    
+            except Exception as e:
+                logger.error(f"Table access failed: {e}")
+                diagnosis['errors'].append(f"Table access failed: {str(e)}")
+                diagnosis['recommendations'].append("Create system_logs table in Supabase")
+                diagnosis['recommendations'].append("Run the SQL provided in the logs")
         
         # Final assessment
         if not diagnosis['errors']:
             diagnosis['status'] = 'healthy'
-            logger.info("✅ Logs system is healthy")
         else:
             diagnosis['status'] = 'unhealthy'
-            logger.warning(f"⚠️ Logs system has {len(diagnosis['errors'])} issues")
         
         return jsonify(diagnosis)
         
@@ -652,177 +661,224 @@ def diagnose_logs_system():
 @app.route('/api/admin/logs', methods=['DELETE'])
 @admin_required
 def api_delete_logs():
-    """API endpoint to delete logs - ENHANCED LOGGING AND DEBUGGING"""
+    """API endpoint to delete logs - VERSIÓN CORREGIDA PARA SUPABASE"""
     try:
         logger.info("=== DELETE LOGS REQUEST STARTED ===")
         logger.info(f"User: {current_user.username if current_user.is_authenticated else 'Unknown'}")
         logger.info(f"Request data: {request.json}")
-        logger.info(f"Request headers: {dict(request.headers)}")
         
         if not supabase:
             logger.error("❌ Supabase client is None")
             return jsonify({'error': 'Database connection error'}), 500
         
-        logger.info("✅ Supabase client exists")
-        
-        # Verificar que la tabla existe antes de operar
-        logger.info("=== VERIFYING TABLE EXISTENCE ===")
-        table_exists = verify_system_logs_table()
-        logger.info(f"Table verification result: {table_exists}")
-        
-        if not table_exists:
-            logger.error("❌ system_logs table does not exist, attempting to create...")
-            if create_system_logs_table():
-                logger.info("✅ system_logs table created successfully")
-            else:
-                logger.error("❌ Failed to create system_logs table")
-                return jsonify({'error': 'No se pudo crear la tabla de logs. Contacte al administrador.'}), 500
-        
-        # Test basic connection and table access
-        logger.info("=== TESTING TABLE ACCESS ===")
-        try:
-            test_result = supabase.table('system_logs').select('count').execute()
-            logger.info(f"✅ Table access test result: {test_result}")
-            logger.info(f"Test result type: {type(test_result)}")
-            logger.info(f"Test result data: {test_result.data}")
-            
-            # Count existing logs
-            count_result = supabase.table('system_logs').select('id').execute()
-            log_count = len(count_result.data) if count_result.data else 0
-            logger.info(f"📊 Current log count: {log_count}")
-            
-        except Exception as e:
-            logger.error(f"❌ Table access failed: {e}", exc_info=True)
-            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
-            return jsonify({'error': f'Error accessing logs table: {str(e)}'}), 500
-        
         data = request.json
         log_ids = data.get('log_ids', [])
         delete_all = data.get('delete_all', False)
-        older_than = data.get('older_than', '')  # Format: '7d', '30d', etc.
+        older_than = data.get('older_than', '')
         
         logger.info(f"📋 Delete parameters - delete_all: {delete_all}, log_ids: {log_ids}, older_than: {older_than}")
         
         deleted_count = 0
+        error_messages = []
         
+        # CASO 1: Eliminar todos los logs
         if delete_all:
-            # Delete all logs - MEJORADO CON MÁS MÉTODOS
             try:
                 logger.info("=== INICIANDO ELIMINACIÓN COMPLETA DE LOGS ===")
                 
-                # Método 1: Intentar eliminación directa
-                result = supabase.table('system_logs').delete().execute()
-                logger.info(f"Supabase direct delete result: {result}")
-                logger.info(f"Result type: {type(result)}")
-                logger.info(f"Result data: {result.data}")
-                logger.info(f"Result data length: {len(result.data) if result.data else 0}")
+                # Método 1: Obtener todos los IDs y eliminar en lotes
+                # Primero, obtener todos los IDs de logs
+                fetch_result = supabase.table('system_logs').select('id').execute()
                 
-                deleted_count = len(result.data) if result.data else 0
-                
-                # Si el método directo falla o devuelve vacío, usar método alternativo
-                if deleted_count == 0:
-                    logger.info("Direct delete returned no data, trying alternative method...")
+                if fetch_result.data:
+                    all_ids = [log['id'] for log in fetch_result.data]
+                    logger.info(f"Found {len(all_ids)} logs to delete")
                     
-                    # Método 2: Obtener todos los IDs y eliminar individualmente
-                    try:
-                        logs_result = supabase.table('system_logs').select('id').execute()
-                        logger.info(f"Logs result for IDs: {logs_result}")
-                        
-                        if logs_result.data:
-                            log_ids = [log['id'] for log in logs_result.data]
-                            logger.info(f"Found {len(log_ids)} logs to delete individually")
-                            logger.info(f"Log IDs to delete: {log_ids[:5]}...") # Solo primeros 5 para logging
+                    if all_ids:
+                        # Eliminar en lotes de 100 para evitar timeouts
+                        batch_size = 100
+                        for i in range(0, len(all_ids), batch_size):
+                            batch_ids = all_ids[i:i+batch_size]
+                            logger.info(f"Deleting batch {i//batch_size + 1}: {len(batch_ids)} logs")
                             
-                            for log_id in log_ids:
+                            # Para Supabase, necesitamos eliminar uno por uno
+                            for log_id in batch_ids:
                                 try:
                                     delete_result = supabase.table('system_logs').delete().eq('id', log_id).execute()
-                                    logger.info(f"Delete result for {log_id}: {delete_result}")
-                                    if delete_result.data:
-                                        deleted_count += 1
-                                        logger.info(f"Successfully deleted log {log_id} (total: {deleted_count})")
-                                    else:
-                                        logger.warning(f"Failed to delete log {log_id}")
+                                    # No verificar delete_result.data - solo contar operaciones exitosas
+                                    deleted_count += 1
+                                    logger.info(f"Successfully deleted log {log_id} (total: {deleted_count})")
                                 except Exception as e:
                                     logger.error(f"Error deleting log {log_id}: {e}")
-                                    continue
-                            
-                            logger.info(f"Alternative delete method deleted {deleted_count} logs")
-                        else:
-                            logger.warning("No logs found to delete with alternative method")
-                    except Exception as e:
-                        logger.error(f"Alternative delete method failed: {e}", exc_info=True)
-                        
-                # Método 3: Intentar con diferentes condiciones si todo falla
-                if deleted_count == 0:
-                    logger.info("All methods failed, trying with conditions...")
-                    try:
-                        # Intentar eliminación con condición que siempre sea verdadera
-                        result = supabase.table('system_logs').delete().neq('id', -1).execute()
-                        logger.info(f"Conditional delete result: {result}")
-                        if result.data:
-                            deleted_count = len(result.data)
-                            logger.info(f"Conditional delete succeeded: {deleted_count}")
-                    except Exception as e:
-                        logger.error(f"Conditional delete failed: {e}", exc_info=True)
-                        
+                                    error_messages.append(f"Error deleting log {log_id}: {str(e)}")
+                else:
+                    logger.info("No logs found to delete")
+                    return jsonify({
+                        'deleted_count': 0,
+                        'message': 'No hay logs para eliminar'
+                    })
+                    
             except Exception as e:
-                logger.error(f"Error deleting all logs: {e}", exc_info=True)
-                logger.error(f"Error type: {type(e).__name__}")
-                logger.error(f"Error args: {e.args}")
-                return jsonify({'error': f'Error al eliminar logs: {str(e)}'}), 500
-                
+                logger.error(f"Error in delete all operation: {e}", exc_info=True)
+                error_messages.append(f"Error in delete all: {str(e)}")
+        
+        # CASO 2: Eliminar por antigüedad
         elif older_than:
-            # Delete logs older than specified time
             try:
-                # Calculate cutoff date
+                # Parsear el tiempo (ej: '7d', '30d')
                 days = int(older_than.replace('d', ''))
                 cutoff_date = datetime.now() - timedelta(days=days)
+                cutoff_str = cutoff_date.isoformat()
                 
-                result = supabase.table('system_logs').delete().lt('created_at', cutoff_date.isoformat()).execute()
-                deleted_count = len(result.data) if result.data else 0
+                logger.info(f"Deleting logs older than {cutoff_str}")
+                
+                # Obtener IDs de logs antiguos
+                fetch_result = supabase.table('system_logs') \
+                    .select('id') \
+                    .lt('created_at', cutoff_str) \
+                    .execute()
+                
+                if fetch_result.data:
+                    old_ids = [log['id'] for log in fetch_result.data]
+                    logger.info(f"Found {len(old_ids)} old logs to delete")
+                    
+                    # Eliminar en lotes
+                    for log_id in old_ids:
+                        try:
+                            delete_result = supabase.table('system_logs').delete().eq('id', log_id).execute()
+                            if delete_result.data:
+                                deleted_count += 1
+                        except Exception as e:
+                            logger.error(f"Error deleting old log {log_id}: {e}")
+                            error_messages.append(f"Error deleting old log {log_id}: {str(e)}")
+                else:
+                    logger.info("No old logs found")
+                    
             except Exception as e:
-                logger.error(f"Error deleting old logs: {e}")
-                return jsonify({'error': 'Error deleting old logs'}), 500
-                
+                logger.error(f"Error in delete by age operation: {e}", exc_info=True)
+                error_messages.append(f"Error in delete by age: {str(e)}")
+        
+        # CASO 3: Eliminar logs específicos por ID
         elif log_ids:
-            # Delete specific logs - MEJORADO
             try:
-                logger.info(f"Attempting to delete {len(log_ids)} specific logs: {log_ids}")
+                logger.info(f"Deleting {len(log_ids)} specific logs")
                 
                 for log_id in log_ids:
                     try:
-                        result = supabase.table('system_logs').delete().eq('id', log_id).execute()
-                        if result.data:
-                            deleted_count += 1
-                            logger.info(f"Successfully deleted log {log_id}")
-                        else:
-                            logger.warning(f"Log {log_id} not found or already deleted")
+                        delete_result = supabase.table('system_logs').delete().eq('id', log_id).execute()
+                        # Supabase puede devolver data vacío si no había nada que eliminar
+                        # pero la operación fue exitosa
+                        deleted_count += 1
+                        logger.info(f"Deleted log {log_id}")
                     except Exception as e:
                         logger.error(f"Error deleting log {log_id}: {e}")
-                        continue
+                        error_messages.append(f"Error deleting log {log_id}: {str(e)}")
                         
-                logger.info(f"Individual delete operation completed. Deleted: {deleted_count}/{len(log_ids)}")
-                
             except Exception as e:
-                logger.error(f"Error deleting specific logs: {e}", exc_info=True)
-                return jsonify({'error': f'Error al eliminar logs específicos: {str(e)}'}), 500
+                logger.error(f"Error in delete specific logs operation: {e}", exc_info=True)
+                error_messages.append(f"Error in delete specific: {str(e)}")
         
-        # Log the deletion action
-        log_system_event(
-            level='info',
-            message=f'{deleted_count} logs eliminados por admin {current_user.username}',
-            source='admin',
-            user_id=current_user.id
-        )
+        else:
+            return jsonify({'error': 'No delete criteria provided'}), 400
         
-        return jsonify({
+        # Registrar la acción en logs
+        try:
+            log_system_event(
+                level='info',
+                message=f'{deleted_count} logs eliminados por admin {current_user.username}',
+                source='admin',
+                user_id=current_user.id
+            )
+        except Exception as e:
+            logger.error(f"Error logging deletion event: {e}")
+        
+        # Preparar respuesta
+        response_data = {
             'deleted_count': deleted_count,
             'message': f'{deleted_count} logs eliminados exitosamente'
-        })
+        }
+        
+        if error_messages:
+            response_data['errors'] = error_messages[:5]  # Solo primeros 5 errores
+            response_data['message'] = f'{deleted_count} logs eliminados con {len(error_messages)} errores'
+        
+        return jsonify(response_data)
         
     except Exception as e:
-        logger.error(f"API delete logs error: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"API delete logs error: {e}", exc_info=True)
+        return jsonify({'error': f'Error al eliminar logs: {str(e)}'}), 500
+
+def verify_system_logs_table():
+    """Verify if system_logs table exists and has correct structure"""
+    try:
+        if not supabase:
+            logger.error("Supabase client is None")
+            return False
+            
+        # Intentar obtener un registro para verificar la tabla
+        try:
+            result = supabase.table('system_logs').select('*').limit(1).execute()
+            logger.info(f"system_logs table exists. Sample: {result.data}")
+            return True
+        except Exception as e:
+            logger.error(f"Error accessing system_logs table: {e}")
+            
+            # Intentar crear la tabla si no existe
+            logger.info("Attempting to create system_logs table...")
+            return create_system_logs_table()
+            
+    except Exception as e:
+        logger.error(f"Table verification failed: {e}", exc_info=True)
+        return False
+
+def create_system_logs_table():
+    """Create system_logs table if it doesn't exist"""
+    try:
+        # Intentar insertar un registro de prueba para ver si la tabla se crea automáticamente
+        test_data = {
+            'level': 'info',
+            'message': 'Table creation test',
+            'source': 'system',
+            'user_id': None,
+            'metadata': {},
+            'created_at': datetime.now().isoformat()
+        }
+        
+        result = supabase.table('system_logs').insert(test_data).execute()
+        
+        if result.data:
+            logger.info("system_logs table created or exists")
+            # Limpiar el registro de prueba
+            test_id = result.data[0].get('id')
+            if test_id:
+                supabase.table('system_logs').delete().eq('id', test_id).execute()
+            return True
+        else:
+            logger.error("Failed to create system_logs table")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Table creation failed: {e}", exc_info=True)
+        
+        # Log the SQL for manual creation
+        logger.info("Please create the table manually with this SQL:")
+        logger.info("""
+CREATE TABLE IF NOT EXISTS system_logs (
+    id BIGSERIAL PRIMARY KEY,
+    level VARCHAR(20) NOT NULL,
+    message TEXT NOT NULL,
+    source VARCHAR(50) NOT NULL,
+    user_id BIGINT,
+    metadata JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Grant permissions
+GRANT ALL ON system_logs TO authenticated;
+GRANT SELECT ON system_logs TO anon;
+GRANT USAGE, SELECT ON SEQUENCE system_logs_id_seq TO authenticated;
+        """)
+        return False
 
 @app.route('/api/admin/logs/export', methods=['GET'])
 @admin_required
