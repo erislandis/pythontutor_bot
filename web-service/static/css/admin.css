@@ -2537,11 +2537,28 @@ input:hover + .user-status-slider {
     background: var(--bg-primary);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
-    margin-top: 2rem; /* Add more space above */
+    margin-top: 3rem !important; /* Add more space above - increased from 2rem */
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
     overflow: hidden;
     position: relative;
+}
+
+/* Logs Header Section - Enhanced spacing */
+.logs-header-section {
+    margin-bottom: 2rem !important;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logs-header-section h5 {
+    margin-bottom: 0;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.logs-header-section .btn-group {
+    gap: 0.5rem;
 }
 
 .logs-table::before {

@@ -481,13 +481,36 @@ def api_delete_logs():
         deleted_count = 0
         
         if delete_all:
-            # Delete all logs
+            # Delete all logs - MEJORADO
             try:
+                # Método 1: Intentar eliminación directa
                 result = supabase.table('system_logs').delete().execute()
+                logger.info(f"Supabase direct delete result: {result}")
                 deleted_count = len(result.data) if result.data else 0
+                
+                # Si el método directo falla, usar método alternativo
+                if deleted_count == 0 and not result.data:
+                    logger.info("Direct delete returned no data, trying alternative method...")
+                    
+                    # Método 2: Obtener todos los IDs y eliminar individualmente
+                    logs_result = supabase.table('system_logs').select('id').execute()
+                    if logs_result.data:
+                        log_ids = [log['id'] for log in logs_result.data]
+                        logger.info(f"Found {len(log_ids)} logs to delete individually")
+                        
+                        for log_id in log_ids:
+                            delete_result = supabase.table('system_logs').delete().eq('id', log_id).execute()
+                            if delete_result.data:
+                                deleted_count += 1
+                        
+                        logger.info(f"Alternative delete method deleted {deleted_count} logs")
+                    else:
+                        logger.warning("No logs found to delete")
+                        
             except Exception as e:
-                logger.error(f"Error deleting all logs: {e}")
-                return jsonify({'error': 'Error deleting all logs'}), 500
+                logger.error(f"Error deleting all logs: {e}", exc_info=True)
+                logger.error(f"Supabase client state: {type(supabase)}")
+                return jsonify({'error': f'Error al eliminar logs: {str(e)}'}), 500
                 
         elif older_than:
             # Delete logs older than specified time
@@ -503,15 +526,27 @@ def api_delete_logs():
                 return jsonify({'error': 'Error deleting old logs'}), 500
                 
         elif log_ids:
-            # Delete specific logs
+            # Delete specific logs - MEJORADO
             try:
+                logger.info(f"Attempting to delete {len(log_ids)} specific logs: {log_ids}")
+                
                 for log_id in log_ids:
-                    result = supabase.table('system_logs').delete().eq('id', log_id).execute()
-                    if result.data:
-                        deleted_count += 1
+                    try:
+                        result = supabase.table('system_logs').delete().eq('id', log_id).execute()
+                        if result.data:
+                            deleted_count += 1
+                            logger.info(f"Successfully deleted log {log_id}")
+                        else:
+                            logger.warning(f"Log {log_id} not found or already deleted")
+                    except Exception as e:
+                        logger.error(f"Error deleting log {log_id}: {e}")
+                        continue
+                        
+                logger.info(f"Individual delete operation completed. Deleted: {deleted_count}/{len(log_ids)}")
+                
             except Exception as e:
-                logger.error(f"Error deleting specific logs: {e}")
-                return jsonify({'error': 'Error deleting logs'}), 500
+                logger.error(f"Error deleting specific logs: {e}", exc_info=True)
+                return jsonify({'error': f'Error al eliminar logs específicos: {str(e)}'}), 500
         
         # Log the deletion action
         log_system_event(
