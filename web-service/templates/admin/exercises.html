@@ -445,6 +445,9 @@
                 <button type="button" class="btn btn-outline-success" onclick="verifyDatabase()">
                     <i class="bi bi-database-check me-1"></i>Verificar BD
                 </button>
+                <button type="button" class="btn btn-outline-warning" onclick="testSimpleImport()">
+                    <i class="bi bi-play-circle me-1"></i>Test Simple
+                </button>
                 <button type="button" class="btn btn-primary" id="importButton" onclick="startImport()" disabled>
                     <i class="bi bi-upload me-1"></i>Importar Ejercicios
                 </button>
@@ -1427,9 +1430,34 @@ async function startImport() {
         console.log('📥 Response headers:', response.headers);
         
         if (!response.ok) {
-            const error = await response.json();
-            console.error('❌ Server error response:', error);
-            throw new Error(error.error || 'Error al importar ejercicios');
+            let errorData;
+            try {
+                errorData = await response.json();
+                console.error('❌ Server error response:', errorData);
+                
+                // Mostrar error detallado
+                let errorMessage = errorData.error || 'Error al importar ejercicios';
+                if (errorData.error_type) {
+                    errorMessage += ` (${errorData.error_type})`;
+                }
+                if (errorData.exercise_index !== undefined) {
+                    errorMessage += ` - Exercise ${errorData.exercise_index + 1}`;
+                }
+                
+                // Mostrar traceback si está en debug mode
+                if (errorData.traceback && errorData.debug_info) {
+                    console.warn('🔍 Server traceback:', errorData.traceback);
+                    errorMessage += '\n\nDetalles en consola del navegador.';
+                }
+                
+                throw new Error(errorMessage);
+                
+            } catch (parseError) {
+                // Si no podemos parsear JSON, mostrar la respuesta cruda
+                const responseText = await response.text();
+                console.error('❌ Raw server response:', responseText);
+                throw new Error(`Error del servidor (${response.status}): ${responseText.substring(0, 200)}...`);
+            }
         }
         
         const result = await response.json();
@@ -1804,5 +1832,52 @@ async function verifyDatabase() {
 
 // Agregar función al objeto global
 window.verifyDatabase = verifyDatabase;
+
+// Función para probar importación simple
+async function testSimpleImport() {
+    console.log('🧪 testSimpleImport() called');
+    
+    try {
+        showAlert('info', 'Probando importación simple con datos mínimos...');
+        
+        const response = await fetch('/api/admin/exercises/import/simple', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        console.log('🧪 Simple test response status:', response.status);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('❌ Simple test failed:', errorData);
+            showAlert('danger', `Test simple falló: ${errorData.error} (${errorData.error_type})`);
+            return;
+        }
+        
+        const result = await response.json();
+        console.log('✅ Simple test result:', result);
+        
+        if (result.success) {
+            showAlert('success', `✅ Test simple exitoso: Ejercicio ${result.exercise_id} insertado`);
+            
+            // Verificar que aparezca en la base de datos
+            setTimeout(() => {
+                verifyDatabase();
+            }, 1000);
+            
+        } else {
+            showAlert('warning', `Test simple incompleto: ${result.message}`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Simple test error:', error);
+        showAlert('danger', 'Error en test simple: ' + error.message);
+    }
+}
+
+// Agregar función al objeto global
+window.testSimpleImport = testSimpleImport;
 </script>
 {% endblock %}

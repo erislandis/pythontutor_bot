@@ -1226,36 +1226,134 @@ def api_test_import_exercises():
         logger.error(f"Test import endpoint error: {e}", exc_info=True)
         return jsonify({'error': f'Test failed: {str(e)}'}), 500
 
+@app.route('/api/admin/exercises/import/simple', methods=['POST'])
+@admin_required
+def api_simple_import_test():
+    """Simple import test with minimal data"""
+    try:
+        logger.info("=== SIMPLE IMPORT TEST START ===")
+        
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Datos de prueba simples
+        test_exercise = {
+            'question': 'Test question - ¿Cuánto es 2+2?',
+            'level': 'principiante',
+            'options': ['3', '4', '5', '6'],
+            'correct_answer': 2,
+            'explanation': '2+2=4'
+        }
+        
+        logger.info(f"Inserting test exercise: {test_exercise['question']}")
+        
+        # Insertar directamente
+        result = supabase.table('exercises').insert({
+            'question': test_exercise['question'],
+            'level': test_exercise['level'],
+            'options': json.dumps(test_exercise['options']),
+            'correct_answer': test_exercise['correct_answer'],
+            'explanation': test_exercise['explanation'],
+            'created_at': datetime.now().isoformat()
+        }).execute()
+        
+        if result.data:
+            exercise_id = result.data[0].get('id')
+            logger.info(f"✅ Simple test successful: Exercise ID {exercise_id}")
+            return jsonify({
+                'success': True,
+                'imported': 1,
+                'exercise_id': exercise_id,
+                'message': 'Test exercise inserted successfully'
+            })
+        else:
+            logger.error("❌ Simple test failed: No data returned")
+            return jsonify({'error': 'No data returned from insert'}), 500
+            
+    except Exception as e:
+        logger.error(f"Simple test error: {e}", exc_info=True)
+        return jsonify({
+            'error': str(e),
+            'error_type': type(e).__name__,
+            'message': 'Simple test failed'
+        }), 500
+
 @app.route('/api/admin/exercises/import', methods=['POST'])
 @admin_required
 def api_import_exercises():
     """Import exercises from JSON - MEJORADO PARA 300+ EJERCICIOS"""
+    import traceback
+    
+    logger.info("=== IMPORT START ===")
+    logger.info(f"User: {getattr(current_user, 'username', 'unknown')}")
+    logger.info(f"Request headers: {dict(request.headers)}")
+    
     try:
         if not supabase:
             logger.error("Import failed: Supabase not connected")
             return jsonify({'error': 'Database connection error'}), 500
         
         # Obtener datos del request con metadata
-        data = request.json
-        exercises = data.get('exercises', [])
-        metadata = data.get('metadata', {})
-        
-        logger.info(f"Import request received: {len(exercises)} exercises, metadata: {metadata}")
+        try:
+            data = request.json
+            if not data:
+                logger.error("No JSON data in request")
+                return jsonify({'error': 'No JSON data provided'}), 400
+                
+            exercises = data.get('exercises', [])
+            metadata = data.get('metadata', {})
+            
+            logger.info(f"Import request received: {len(exercises)} exercises, metadata: {metadata}")
+            
+        except Exception as json_error:
+            logger.error(f"JSON parsing error: {json_error}")
+            return jsonify({'error': f'Invalid JSON: {str(json_error)}'}), 400
         
         if not isinstance(exercises, list):
             logger.error(f"Import failed: exercises is not a list, got {type(exercises)}")
             return jsonify({'error': 'Exercises must be an array'}), 400
         
-        # Validar límite de ejercicios
-        if len(exercises) > 1000:
-            logger.error(f"Import failed: Too many exercises ({len(exercises)} > 1000)")
-            return jsonify({'error': 'Too many exercises. Maximum allowed: 1000'}), 400
+        # Validar límite de ejercicios (reducido para testing)
+        if len(exercises) > 500:
+            logger.error(f"Import failed: Too many exercises ({len(exercises)} > 500)")
+            return jsonify({'error': f'Too many exercises. Maximum allowed: 500 (got {len(exercises)})'}), 400
         
         if len(exercises) == 0:
             logger.warning("Import failed: No exercises provided")
             return jsonify({'error': 'No exercises provided'}), 400
         
         logger.info(f"Starting import process: {len(exercises)} exercises to process")
+        
+        # Validar primeros 5 ejercicios para detectar problemas temprano
+        logger.info("Validating first 5 exercises...")
+        for i, exercise in enumerate(exercises[:5]):
+            try:
+                required_fields = ['question', 'level', 'options', 'correct_answer']
+                missing_fields = [field for field in required_fields if field not in exercise]
+                if missing_fields:
+                    error_msg = f"Exercise {i+1} missing required fields: {missing_fields}"
+                    logger.error(error_msg)
+                    return jsonify({'error': error_msg, 'exercise_index': i}), 400
+                    
+                # Validar nivel
+                valid_levels = ['principiante', 'intermedio', 'avanzado', 'experto']
+                if exercise['level'] not in valid_levels:
+                    error_msg = f"Exercise {i+1} has invalid level: {exercise['level']}"
+                    logger.error(error_msg)
+                    return jsonify({'error': error_msg, 'exercise_index': i}), 400
+                    
+                # Validar opciones
+                if not isinstance(exercise['options'], list) or len(exercise['options']) != 4:
+                    error_msg = f"Exercise {i+1} must have exactly 4 options"
+                    logger.error(error_msg)
+                    return jsonify({'error': error_msg, 'exercise_index': i}), 400
+                    
+            except Exception as validation_error:
+                error_msg = f"Exercise {i+1} validation error: {str(validation_error)}"
+                logger.error(error_msg)
+                return jsonify({'error': error_msg, 'exercise_index': i}), 400
+        
+        logger.info("✅ First 5 exercises validation passed")
         
         # Preparar contadores
         imported_count = 0
@@ -1264,8 +1362,8 @@ def api_import_exercises():
         validation_errors = 0
         batch_errors = 0
         
-        # Procesar en lotes para mejor rendimiento
-        batch_size = 50
+        # Procesar en lotes más pequeños para mejor rendimiento
+        batch_size = 25  # Reducido de 50 a 25
         total_batches = (len(exercises) + batch_size - 1) // batch_size
         
         logger.info(f"Processing in {total_batches} batches of {batch_size} exercises each")
@@ -1419,8 +1517,44 @@ def api_import_exercises():
         return jsonify(response_data)
         
     except Exception as e:
-        logger.error(f"API import exercises error: {e}", exc_info=True)
-        return jsonify({'error': f'Database error: {str(e)}'}), 500
+        # Capturar CUALQUIER excepción para asegurar respuesta JSON
+        error_type = type(e).__name__
+        error_msg = str(e)
+        traceback_str = traceback.format_exc()
+        
+        logger.error(f"=== IMPORT ERROR ===")
+        logger.error(f"Error type: {error_type}")
+        logger.error(f"Error message: {error_msg}")
+        logger.error(f"Traceback: {traceback_str}")
+        logger.error(f"User: {getattr(current_user, 'username', 'unknown')}")
+        logger.error("=== END ERROR ===")
+        
+        # SIEMPRE retornar JSON, nunca HTML
+        error_response = {
+            'error': error_msg,
+            'error_type': error_type,
+            'imported': 0,
+            'skipped_duplicates': 0,
+            'validation_errors': 0,
+            'batch_errors': 1,
+            'total': 0,
+            'total_errors': 1,
+            'errors': [f"Server error: {error_msg}"],
+            'traceback': traceback_str if app.debug else None,
+            'debug_info': {
+                'user': getattr(current_user, 'username', 'unknown'),
+                'timestamp': datetime.now().isoformat(),
+                'endpoint': '/api/admin/exercises/import'
+            }
+        }
+        
+        # Asegurar respuesta JSON válida
+        try:
+            return jsonify(error_response), 500
+        except Exception as json_error:
+            # ULTIMO fallback - si incluso jsonify falla
+            logger.error(f"CRITICAL: Even jsonify failed: {json_error}")
+            return '{"error": "Critical server error", "error_type": "JsonifyError"}', 500, {'Content-Type': 'application/json'}
 
 @app.route('/api/admin/exercises/export/json', methods=['GET'])
 @admin_required
