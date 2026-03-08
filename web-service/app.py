@@ -329,10 +329,15 @@ def admin_bot_control():
     """Admin bot control page"""
     try:
         # Check if Supabase is available for bot operations
-        return render_template('admin/bot_control.html', db_connected=(supabase is not None))
+        db_connected = supabase is not None
+        if db_connected:
+            logger.info("Bot control page loaded successfully with database connection")
+        else:
+            logger.warning("Bot control page loaded without database connection")
+        return render_template('admin/bot_control.html', db_connected=db_connected)
     except Exception as e:
-        logger.error(f"Admin bot control error: {e}")
-        flash('Error al cargar la página de control del bot', 'error')
+        logger.error(f"Admin bot control error: {e}", exc_info=True)
+        # Don't flash error to user, just render the page with db_connected=False
         return render_template('admin/bot_control.html', db_connected=False)
 
 @app.route('/admin/notifications')
@@ -399,8 +404,7 @@ def admin_exercises():
     """Admin exercises management page - MEJORADO"""
     try:
         if not supabase:
-            flash('Error de conexión a la base de datos', 'danger')
-            logger.error("Admin exercises: Supabase not connected")
+            logger.warning("Admin exercises page loaded without database connection")
             return render_template('admin/exercises.html', exercises=[])
         
         # Get all exercises from Supabase
@@ -445,16 +449,10 @@ def admin_exercises():
         logger.info(f"Processed {len(processed_exercises)} exercises for template")
         logger.debug(f"Sample exercise data for template: {processed_exercises[0] if processed_exercises else 'None'}")
         
-        # Debug: Log template data
-        template_data = {
-            'exercises': processed_exercises
-        }
-        logger.info(f"Passing to template: {len(template_data['exercises'])} exercises")
-        
         return render_template('admin/exercises.html', exercises=processed_exercises)
     except Exception as e:
         logger.error(f"Admin exercises error: {e}", exc_info=True)
-        flash('Error al cargar ejercicios', 'danger')
+        # Don't flash error to user, just return empty exercises list
         return render_template('admin/exercises.html', exercises=[])
 
 # API Endpoints for Bot
