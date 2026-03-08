@@ -49,7 +49,7 @@ async function loadExercises() {
         console.log('📡 Response data:', data);
         
         if (response.ok) {
-            console.log('✅ API response OK, setting allExercises:', data.exercises?.length || 0);
+            console.log('✅ API response OK, setting allExercises:', (data.exercises && data.exercises.length) || 0);
             allExercises = data.exercises;
             renderExercises(allExercises);
             updateStats();
@@ -66,7 +66,7 @@ async function loadExercises() {
 }
 
 function renderExercises(exercises) {
-    console.log('🎨 renderExercises() called with:', exercises?.length || 0, 'exercises');
+    console.log('🎨 renderExercises() called with:', (exercises && exercises.length) || 0, 'exercises');
     
     const tbody = document.getElementById('exercisesTableBody');
     if (!tbody) {
@@ -85,7 +85,7 @@ function renderExercises(exercises) {
     console.log('✅ Rendering', exercises.length, 'exercises in table');
     
     exercises.forEach((exercise, index) => {
-        console.log(`📝 Rendering exercise ${index + 1}:`, exercise.id, exercise.question?.substring(0, 30) + '...');
+        console.log(`📝 Rendering exercise ${index + 1}:`, exercise.id, (exercise.question && exercise.question.substring(0, 30)) + '...');
         const row = createExerciseRow(exercise);
         tbody.appendChild(row);
     });
@@ -256,7 +256,10 @@ function openAddModal() {
     }
     
     // Reset correct answer radio
-    document.querySelector('input[name="correctAnswer"]:checked')?.checked = false;
+    const checkedRadio = document.querySelector('input[name="correctAnswer"]:checked');
+    if (checkedRadio) {
+        checkedRadio.checked = false;
+    }
     
     exerciseModal.show();
 }
@@ -471,7 +474,8 @@ function previewExercise() {
     
     for (let i = 1; i <= 4; i++) {
         const option = document.getElementById(`option${i}`).value;
-        const isCorrect = document.querySelector(`input[name="correctAnswer"][value="${i}"]`)?.checked;
+        const isCorrectInput = document.querySelector(`input[name="correctAnswer"][value="${i}"]`);
+        const isCorrect = isCorrectInput ? isCorrectInput.checked : false;
         const marker = isCorrect ? '✅' : '○';
         preview += `${marker} Opción ${i}: ${option}\n`;
     }
