@@ -519,10 +519,46 @@ def admin_logs():
                             logs=[], 
                             stats={'total': 0, 'info': 0, 'success': 0, 'warning': 0, 'error': 0})
 
+@app.route('/api/admin/logs/cleanup-test', methods=['DELETE'])
+@admin_required
+def cleanup_test_logs():
+    """Remove test records from system_logs table"""
+    try:
+        logger.info("=== CLEANING UP TEST LOGS ===")
+        
+        # Delete test records by source
+        test_sources = ['system', 'diagnosis']
+        deleted_count = 0
+        
+        for source in test_sources:
+            try:
+                result = supabase.table('system_logs').delete().eq('source', source).execute()
+                logger.info(f"✅ Cleaned up test logs from source: {source}")
+                logger.info(f"Cleanup result: {result}")
+            except Exception as e:
+                logger.error(f"Error cleaning test logs from {source}: {e}")
+                
+        # Log the cleanup action
+        log_system_event(
+            level='info',
+            message=f'{len(test_sources)} test log sources cleaned up by admin {current_user.username}',
+            source='admin',
+            user_id=current_user.id
+        )
+        
+        return jsonify({
+            'deleted_count': len(test_sources),
+            'message': f'{len(test_sources)} test log sources cleaned up successfully'
+        })
+        
+    except Exception as e:
+        logger.error(f"Test log cleanup failed: {e}", exc_info=True)
+        return jsonify({'error': f'Error cleaning test logs: {str(e)}'}), 500
+
 @app.route('/api/admin/logs', methods=['GET'])
 @admin_required
 def api_get_logs():
-    """API endpoint to get logs with filtering"""
+    """API endpoint to get logs with filtering - FIXED"""
     try:
         if not supabase:
             return jsonify({'error': 'Database connection error'}), 500
@@ -530,46 +566,76 @@ def api_get_logs():
         # Get parameters
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 50, type=int)
-        level_filter = request.args.get('level', 'all')
-        source_filter = request.args.get('source', 'all')
+        level_filter = request.args.get('level', '')
+        source_filter = request.args.get('source', '')
         search_filter = request.args.get('search', '')
+        exclude_test_sources = request.args.get('exclude_test', 'false').lower() == 'true'
+        
+        logger.info(f"Get logs parameters: page={page}, per_page={per_page}, level={level_filter}, source={source_filter}, search={search_filter}, exclude_test={exclude_test_sources}")
         
         # Build query
         query = supabase.table('system_logs').select('*')
         
         # Apply filters
-        if level_filter != 'all':
+        if level_filter:
             query = query.eq('level', level_filter)
-        
-        if source_filter != 'all':
+            
+        if source_filter:
             query = query.eq('source', source_filter)
-        
+            
         if search_filter:
             query = query.ilike('message', f'%{search_filter}%')
+            
+        # Filter out test records if requested
+        if exclude_test_sources:
+            query = query.not_.in('source', ('system', 'diagnosis', 'test'))
+            logger.info("Excluding test records from display")
         
         # Get total count
-        try:
-            count_result = query.execute()
-            total_logs = len(count_result.data) if count_result.data else 0
-        except:
-            total_logs = 0
+        count_query = supabase.table('system_logs').select('id')
         
-        # Apply pagination and ordering
+        # Apply same filters to count
+        if level_filter:
+            count_query = count_query.eq('level', level_filter)
+            
+        if source_filter:
+            count_query = count_query.eq('source', source_filter)
+            
+        if search_filter:
+            count_query = count_query.ilike('message', f'%{search_filter}%')
+            
+        if exclude_test_sources:
+            count_query = count_query.not_.in('source', ('system', 'diagnosis', 'test'))
+        
+        count_result = count_query.execute()
+        total_logs = len(count_result.data) if count_result.data else 0
+        
+        # Get paginated results
         offset = (page - 1) * per_page
-        query = query.order('created_at', desc=True).range(offset, offset + per_page - 1)
+        query = query.range(offset, per_page).order('created_at', desc=True)
         
-        try:
-            result = query.execute()
-            logs = result.data or []
-        except:
-            logs = []
+        result = query.execute()
+        logs = result.data if result.data else []
+        
+        logger.info(f"Returning {len(logs)} logs (page {page}, total {total_logs})")
+        
+        # Calculate stats
+        stats = {'total': total_logs, 'info': 0, 'success': 0, 'warning': 0, 'error': 0}
+        if logs:
+            for log in logs:
+                level = log.get('level', 'info')
+                if level in stats:
+                    stats[level] += 1
         
         return jsonify({
             'logs': logs,
-            'total': total_logs,
-            'page': page,
-            'per_page': per_page,
-            'total_pages': (total_logs + per_page - 1) // per_page
+            'stats': stats,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': total_logs,
+                'total_pages': (total_logs + per_page - 1) // per_page
+            }
         })
         
     except Exception as e:
