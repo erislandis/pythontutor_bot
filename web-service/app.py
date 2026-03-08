@@ -76,24 +76,59 @@ def verify_system_logs_table():
         return False
 
 def create_system_logs_table():
-    """Create system_logs table if it doesn't exist"""
+    """Create system_logs table if it doesn't exist - FIXED"""
     try:
-        # Try to create table using Supabase SQL
-        create_sql = """
-        CREATE TABLE IF NOT EXISTS system_logs (
-            id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-            level VARCHAR(20) NOT NULL,
-            message TEXT NOT NULL,
-            source VARCHAR(50) NOT NULL,
-            user_id BIGINT,
-            metadata JSONB,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );
-        """
+        logger.info("=== ATTEMPTING TO CREATE system_logs TABLE ===")
         
-        result = supabase.rpc('exec_sql', {'sql': create_sql}).execute()
-        logger.info(f"Table creation result: {result}")
-        return True
+        # Method 1: Try to insert a test record to see if table exists
+        try:
+            test_data = {
+                'level': 'info',
+                'message': 'test record for table verification',
+                'source': 'system',
+                'user_id': None,
+                'metadata': {}
+            }
+            result = supabase.table('system_logs').insert(test_data).execute()
+            logger.info("Table exists or was created successfully")
+            logger.info(f"Insert test result: {result}")
+            
+            # If successful, delete the test record
+            try:
+                if result.data and len(result.data) > 0:
+                    test_id = result.data[0]['id']
+                    delete_result = supabase.table('system_logs').delete().eq('id', test_id).execute()
+                    logger.info("Test record cleaned up successfully")
+            except Exception as cleanup_error:
+                logger.warning(f"Failed to cleanup test record: {cleanup_error}")
+            
+            return True
+            
+        except Exception as insert_error:
+            logger.error(f"Table access/creation failed: {insert_error}", exc_info=True)
+            logger.error(f"Insert error type: {type(insert_error).__name__}")
+            logger.error(f"Insert error details: {insert_error.args}")
+            
+        # Method 2: Try to create table using direct SQL (may not work without admin privileges)
+        logger.warning("Cannot create table automatically - may need manual setup")
+        logger.info("Please create the table manually in Supabase with this SQL:")
+        logger.info("""
+CREATE TABLE IF NOT EXISTS system_logs (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    level VARCHAR(20) NOT NULL,
+    message TEXT NOT NULL,
+    source VARCHAR(50) NOT NULL,
+    user_id BIGINT,
+    metadata JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Grant permissions
+GRANT ALL ON system_logs TO authenticated;
+GRANT SELECT ON system_logs TO anon;
+""")
+        
+        return False
         
     except Exception as e:
         logger.error(f"Table creation failed: {e}", exc_info=True)
@@ -529,31 +564,47 @@ def api_get_logs():
 @app.route('/api/admin/logs', methods=['DELETE'])
 @admin_required
 def api_delete_logs():
-    """API endpoint to delete logs - CON VERIFICACIÓN DE TABLA"""
+    """API endpoint to delete logs - ENHANCED LOGGING AND DEBUGGING"""
     try:
+        logger.info("=== DELETE LOGS REQUEST STARTED ===")
+        logger.info(f"User: {current_user.username if current_user.is_authenticated else 'Unknown'}")
+        logger.info(f"Request data: {request.json}")
+        logger.info(f"Request headers: {dict(request.headers)}")
+        
         if not supabase:
+            logger.error("❌ Supabase client is None")
             return jsonify({'error': 'Database connection error'}), 500
         
+        logger.info("✅ Supabase client exists")
+        
         # Verificar que la tabla existe antes de operar
-        logger.info("=== INICIANDO ELIMINACIÓN DE LOGS CON VERIFICACIÓN ===")
+        logger.info("=== VERIFYING TABLE EXISTENCE ===")
         table_exists = verify_system_logs_table()
+        logger.info(f"Table verification result: {table_exists}")
         
         if not table_exists:
-            logger.error("system_logs table does not exist, attempting to create...")
+            logger.error("❌ system_logs table does not exist, attempting to create...")
             if create_system_logs_table():
-                logger.info("system_logs table created successfully")
+                logger.info("✅ system_logs table created successfully")
             else:
+                logger.error("❌ Failed to create system_logs table")
                 return jsonify({'error': 'No se pudo crear la tabla de logs. Contacte al administrador.'}), 500
         
-        # Debug: Verificar conexión y tabla
-        logger.info(f"Supabase client type: {type(supabase)}")
-        
+        # Test basic connection and table access
+        logger.info("=== TESTING TABLE ACCESS ===")
         try:
-            # Verificar si la tabla existe y tiene datos
             test_result = supabase.table('system_logs').select('count').execute()
-            logger.info(f"Table access test result: {test_result}")
+            logger.info(f"✅ Table access test result: {test_result}")
+            logger.info(f"Test result type: {type(test_result)}")
+            logger.info(f"Test result data: {test_result.data}")
+            
+            # Count existing logs
+            count_result = supabase.table('system_logs').select('id').execute()
+            log_count = len(count_result.data) if count_result.data else 0
+            logger.info(f"📊 Current log count: {log_count}")
+            
         except Exception as e:
-            logger.error(f"Table access failed: {e}", exc_info=True)
+            logger.error(f"❌ Table access failed: {e}", exc_info=True)
             logger.error(f"Error details: {type(e).__name__}: {str(e)}")
             return jsonify({'error': f'Error accessing logs table: {str(e)}'}), 500
         
@@ -562,7 +613,7 @@ def api_delete_logs():
         delete_all = data.get('delete_all', False)
         older_than = data.get('older_than', '')  # Format: '7d', '30d', etc.
         
-        logger.info(f"Delete request data: {data}")
+        logger.info(f"📋 Delete parameters - delete_all: {delete_all}, log_ids: {log_ids}, older_than: {older_than}")
         
         deleted_count = 0
         

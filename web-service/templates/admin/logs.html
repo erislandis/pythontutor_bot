@@ -608,45 +608,72 @@
                     message: error.message,
                     stack: error.stack,
                     response: error.response,
-                    type: typeof error
+                    type: typeof error,
+                    keys: Object.keys(error || {})
                 });
                 
-                // Extraer información del error de forma segura
+                // Extraer información del error de forma segura y mejorada
                 let errorMessage = 'Error al eliminar logs';
                 let status = 'unknown';
                 
-                // Verificar diferentes estructuras de error
-                if (error.response) {
-                    // Error de fetch API
-                    status = error.response.status;
-                    if (status === 500) {
-                        errorMessage = 'Error del servidor al eliminar logs. Contacte al administrador.';
-                    } else if (status === 403) {
-                        errorMessage = 'No tiene permisos para eliminar logs.';
-                    } else if (status === 404) {
-                        errorMessage = 'No se encontraron logs para eliminar.';
-                    } else if (status >= 400) {
-                        errorMessage = `Error HTTP ${status}: ${error.response.statusText || 'Error desconocido'}`;
+                // Intentar diferentes formas de obtener el status
+                if (error && typeof error === 'object') {
+                    // Método 1: Verificar response property (fetch API)
+                    if (error.response) {
+                        status = error.response.status || 'unknown';
+                        console.log(`✅ Status from response: ${status}`);
+                    } 
+                    // Método 2: Verificar status directo
+                    else if (error.status) {
+                        status = error.status;
+                        console.log(`✅ Status from error.status: ${status}`);
                     }
-                } else if (error.status) {
-                    // Error directo con status
-                    status = error.status;
-                    if (status === 500) {
-                        errorMessage = 'Error del servidor al eliminar logs. Contacte al administrador.';
-                    } else if (status === 403) {
-                        errorMessage = 'No tiene permisos para eliminar logs.';
-                    } else if (status === 404) {
-                        errorMessage = 'No se encontraron logs para eliminar.';
+                    // Método 3: Extraer del mensaje (nuevo método)
+                    else if (error.message && error.message.includes('status:')) {
+                        const match = error.message.match(/status:\s*(\d+)/);
+                        if (match) {
+                            status = match[1];
+                            console.log(`✅ Status extracted from message: ${status}`);
+                        }
                     }
-                } else if (error.message) {
-                    // Error con mensaje pero sin status
-                    errorMessage = `Error al eliminar logs: ${error.message}`;
+                    // Método 4: Extraer del stack trace
+                    else if (error.stack && error.stack.includes('status:')) {
+                        const match = error.stack.match(/status:\s*(\d+)/);
+                        if (match) {
+                            status = match[1];
+                            console.log(`✅ Status extracted from stack: ${status}`);
+                        }
+                    }
+                    
+                    // Establecer mensaje específico según el status
+                    if (status === '500') {
+                        errorMessage = 'Error del servidor al eliminar logs. Contacte al administrador.';
+                    } else if (status === '403') {
+                        errorMessage = 'No tiene permisos para eliminar logs.';
+                    } else if (status === '404') {
+                        errorMessage = 'No se encontraron logs para eliminar.';
+                    } else if (status === '400') {
+                        errorMessage = 'Solicitud inválida para eliminar logs.';
+                    } else if (status === '401') {
+                        errorMessage = 'No está autenticado. Por favor inicie sesión.';
+                    } else if (status !== 'unknown') {
+                        errorMessage = `Error HTTP ${status}: ${error.statusText || 'Error desconocido'}`;
+                    } else if (error.message) {
+                        errorMessage = `Error al eliminar logs: ${error.message}`;
+                    } else {
+                        errorMessage = 'Error desconocido al eliminar logs. Intente nuevamente.';
+                    }
                 } else {
-                    // Error completamente desconocido
-                    errorMessage = 'Error desconocido al eliminar logs. Intente nuevamente.';
+                    // Error no es un objeto o es null/undefined
+                    errorMessage = 'Error inesperado al eliminar logs. Intente nuevamente.';
                 }
                 
-                console.log(`Final error message: ${errorMessage} (status: ${status})`);
+                console.log(`🔍 Final error analysis:`, {
+                    message: errorMessage,
+                    status: status,
+                    originalError: error
+                });
+                
                 showNotification(errorMessage, 'danger');
             })
             .finally(() => {
