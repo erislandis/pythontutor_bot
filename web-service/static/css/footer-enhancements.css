@@ -63,15 +63,15 @@
 }
 
 .footer-links a {
-    color: #adb5bd;
-    text-decoration: none;
+    color: #e9ecef !important;
+    text-decoration: none !important;
     transition: all 0.3s ease;
     display: inline-block;
     padding: 2px 0;
 }
 
 .footer-links a:hover {
-    color: var(--bs-primary);
+    color: #ffffff !important;
     transform: translateX(5px);
 }
 
@@ -102,7 +102,7 @@
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;
-    color: #adb5bd;
+    color: #e9ecef !important;
     font-size: 0.9rem;
 }
 
@@ -212,6 +212,10 @@
     color: #ffffff !important;
     font-weight: 600;
     margin-bottom: 0.75rem;
+}
+
+.footer-section p {
+    color: #e9ecef !important;
 }
 
 .footer-social a {

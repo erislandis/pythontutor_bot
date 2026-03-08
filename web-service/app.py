@@ -2016,12 +2016,25 @@ def check_bot_service_health():
     """Check if bot service is actually running"""
     try:
         bot_service_url = os.getenv('BOT_SERVICE_URL', 'https://pythontutor-bot.onrender.com')
-        response = requests.get(f"{bot_service_url}/health", timeout=5)
+        logger.info(f"Checking bot health at: {bot_service_url}")
+        
+        response = requests.get(f"{bot_service_url}/health", timeout=10)
+        logger.info(f"Health check response status: {response.status_code}")
         
         if response.status_code == 200:
             data = response.json()
-            return data.get('bot_running', False) and data.get('status') == 'ok'
-        return False
+            logger.info(f"Health check response data: {data}")
+            
+            bot_running = data.get('bot_running', False)
+            status_ok = data.get('status') == 'ok'
+            
+            logger.info(f"Bot running: {bot_running}, Status OK: {status_ok}")
+            
+            return bot_running and status_ok
+        else:
+            logger.warning(f"Health check failed with status: {response.status_code}")
+            return False
+            
     except Exception as e:
         logger.error(f"Bot service health check failed: {e}")
         return False
@@ -2202,6 +2215,58 @@ def get_bot_stats():
     except Exception as e:
         logger.error(f"Error getting bot stats: {e}")
         return jsonify({'error': 'Failed to get bot stats'}), 500
+
+@app.route('/api/admin/debug/config', methods=['GET'])
+@admin_required
+def debug_config():
+    """Debug endpoint to check configuration"""
+    try:
+        bot_service_url = os.getenv('BOT_SERVICE_URL')
+        
+        # Test health check
+        health_result = check_bot_service_health()
+        
+        return jsonify({
+            'BOT_SERVICE_URL': bot_service_url if bot_service_url else 'NOT_SET (using default)',
+            'default_url': 'https://pythontutor-bot.onrender.com',
+            'supabase_connected': supabase is not None,
+            'health_check_result': health_result,
+            'current_time': datetime.now().isoformat()
+        }), 200
+    except Exception as e:
+        logger.error(f"Debug config error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/bot/refresh-status', methods=['POST'])
+@admin_required
+def refresh_bot_status():
+    """Force refresh bot status"""
+    try:
+        service_healthy = check_bot_service_health()
+        
+        if service_healthy:
+            update_bot_status_in_db('active', 'Bot status refreshed - service is running', 'system')
+            return jsonify({
+                'status': 'success',
+                'message': 'Bot is running and connected',
+                'service_healthy': True,
+                'bot_status': 'active'
+            }), 200
+        else:
+            update_bot_status_in_db('inactive', 'Bot status refreshed - service not responding', 'system')
+            return jsonify({
+                'status': 'error',
+                'message': 'Bot service not responding',
+                'service_healthy': False,
+                'bot_status': 'inactive'
+            }), 500
+    except Exception as e:
+        logger.error(f"Refresh bot status error: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'service_healthy': False
+        }), 500
 
 @app.route('/api/admin/bot/start', methods=['POST'])
 @admin_required

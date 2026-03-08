@@ -78,8 +78,11 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="card shadow">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">Control del Bot</h6>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshBotStatus()" title="Refrescar Estado">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refrescar
+                </button>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -652,14 +655,38 @@ function saveBotConfig(e) {
 }
 
 function refreshBotStatus() {
-    showLoading(document.querySelector('button[onclick="refreshBotStatus()"]'));
+    const refreshBtn = document.querySelector('button[onclick="refreshBotStatus()"]');
+    const originalContent = refreshBtn.innerHTML;
     
-    updateBotStatus();
+    refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Refrescando...';
+    refreshBtn.disabled = true;
     
-    setTimeout(() => {
-        hideLoading(document.querySelector('button[onclick="refreshBotStatus()"]'));
-        showAlert('info', 'Estado actualizado');
-    }, 1000);
+    fetch('/api/admin/bot/refresh-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showAlert('success', data.message);
+            // Update status immediately
+            updateBotStatus();
+        } else {
+            showAlert('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error refreshing bot status:', error);
+        showAlert('error', 'Error de conexión al refrescar el estado');
+    })
+    .finally(() => {
+        setTimeout(() => {
+            refreshBtn.innerHTML = originalContent;
+            refreshBtn.disabled = false;
+        }, 1000);
+    });
 }
 
 function toggleMaintenance() {
