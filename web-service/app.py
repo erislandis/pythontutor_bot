@@ -167,6 +167,25 @@ def admin_required(f):
             return redirect(url_for('login'))
     return decorated_function
 
+def admin_required_api(f):
+    """Admin required decorator for API endpoints - returns JSON errors instead of redirects"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            if not current_user.is_authenticated:
+                logger.warning("API Admin_required: User not authenticated")
+                return jsonify({'error': 'Authentication required', 'error_type': 'AuthError'}), 401
+            
+            if not hasattr(current_user, 'id') or not current_user.id:
+                logger.warning("API Admin_required: User has no valid ID")
+                return jsonify({'error': 'Invalid user session', 'error_type': 'AuthError'}), 401
+            
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"API Admin_required error: {e}", exc_info=True)
+            return jsonify({'error': 'Authentication error', 'error_type': 'AuthError', 'details': str(e)}), 500
+    return decorated_function
+
 # Custom Jinja filters
 @app.template_filter('fromjson')
 def fromjson_filter(value):
@@ -1027,7 +1046,7 @@ def api_delete_exercise(exercise_id):
         return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/api/admin/exercises/import/test', methods=['POST'])
-@admin_required
+@admin_required_api
 def api_test_import_exercises():
     """Endpoint de diagnóstico para probar importación con datos de prueba"""
     try:
@@ -1279,7 +1298,7 @@ def api_simple_import_test():
         }), 500
 
 @app.route('/api/admin/exercises/import', methods=['POST'])
-@admin_required
+@admin_required_api
 def api_import_exercises():
     """Import exercises from JSON - MEJORADO PARA 300+ EJERCICIOS"""
     import traceback
