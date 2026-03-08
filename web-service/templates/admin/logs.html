@@ -532,6 +532,12 @@
         }
 
         function clearAllLogs() {
+            // Validación inicial
+            if (!window.location.pathname.includes('/admin/logs')) {
+                showNotification('Error: No estás en la página correcta', 'danger');
+                return;
+            }
+            
             // Double confirmation for destructive action
             if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar TODOS los logs?')) {
                 return;
@@ -541,11 +547,27 @@
                 return;
             }
             
-            // Show loading state
-            const clearBtn = event.target;
+            // Encontrar el botón y mostrar loading
+            let clearBtn = event.target;
+            if (!clearBtn) {
+                clearBtn = document.querySelector('button[onclick*="clearAllLogs"]');
+            }
+            
+            if (!clearBtn) {
+                showNotification('Error: No se encontró el botón de eliminación', 'danger');
+                return;
+            }
+            
             const originalText = clearBtn.innerHTML;
             clearBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
             clearBtn.disabled = true;
+            
+            // Preparar datos de la solicitud
+            const requestData = {
+                delete_all: true
+            };
+            
+            console.log('Sending delete request:', requestData);
             
             fetch('/api/admin/logs', {
                 method: 'DELETE',
@@ -553,9 +575,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                 },
-                body: JSON.stringify({
-                    delete_all: true
-                })
+                body: JSON.stringify(requestData)
             })
             .then(response => {
                 if (!response.ok) {
@@ -583,25 +603,50 @@
             .catch(error => {
                 console.error('Error deleting logs:', error);
                 console.error('Error details:', {
-                    status: error.status,
-                    statusText: error.statusText,
+                    status: error.status || error.response?.status,
+                    statusText: error.statusText || error.response?.statusText,
                     message: error.message,
-                    stack: error.stack
+                    stack: error.stack,
+                    response: error.response,
+                    type: typeof error
                 });
                 
-                // Show user-friendly error message based on status
+                // Extraer información del error de forma segura
                 let errorMessage = 'Error al eliminar logs';
+                let status = 'unknown';
                 
-                if (error.status === 500) {
-                    errorMessage = 'Error del servidor al eliminar logs. Contacte al administrador.';
-                } else if (error.status === 403) {
-                    errorMessage = 'No tiene permisos para eliminar logs.';
-                } else if (error.status === 404) {
-                    errorMessage = 'No se encontraron logs para eliminar.';
+                // Verificar diferentes estructuras de error
+                if (error.response) {
+                    // Error de fetch API
+                    status = error.response.status;
+                    if (status === 500) {
+                        errorMessage = 'Error del servidor al eliminar logs. Contacte al administrador.';
+                    } else if (status === 403) {
+                        errorMessage = 'No tiene permisos para eliminar logs.';
+                    } else if (status === 404) {
+                        errorMessage = 'No se encontraron logs para eliminar.';
+                    } else if (status >= 400) {
+                        errorMessage = `Error HTTP ${status}: ${error.response.statusText || 'Error desconocido'}`;
+                    }
+                } else if (error.status) {
+                    // Error directo con status
+                    status = error.status;
+                    if (status === 500) {
+                        errorMessage = 'Error del servidor al eliminar logs. Contacte al administrador.';
+                    } else if (status === 403) {
+                        errorMessage = 'No tiene permisos para eliminar logs.';
+                    } else if (status === 404) {
+                        errorMessage = 'No se encontraron logs para eliminar.';
+                    }
                 } else if (error.message) {
+                    // Error con mensaje pero sin status
                     errorMessage = `Error al eliminar logs: ${error.message}`;
+                } else {
+                    // Error completamente desconocido
+                    errorMessage = 'Error desconocido al eliminar logs. Intente nuevamente.';
                 }
                 
+                console.log(`Final error message: ${errorMessage} (status: ${status})`);
                 showNotification(errorMessage, 'danger');
             })
             .finally(() => {

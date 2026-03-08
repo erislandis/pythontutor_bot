@@ -468,48 +468,97 @@ def api_get_logs():
 @app.route('/api/admin/logs', methods=['DELETE'])
 @admin_required
 def api_delete_logs():
-    """API endpoint to delete logs"""
+    """API endpoint to delete logs - MEJORADO CON DEBUGGING"""
     try:
         if not supabase:
             return jsonify({'error': 'Database connection error'}), 500
+        
+        # Debug: Verificar conexión y tabla
+        logger.info("=== INICIANDO DEBUGGING DE ELIMINACIÓN DE LOGS ===")
+        logger.info(f"Supabase client type: {type(supabase)}")
+        
+        try:
+            # Verificar si la tabla existe
+            test_result = supabase.table('system_logs').select('count').execute()
+            logger.info(f"Table access test result: {test_result}")
+        except Exception as e:
+            logger.error(f"Table access failed: {e}", exc_info=True)
+            logger.error(f"Error details: {type(e).__name__}: {str(e)}")
+            return jsonify({'error': f'Error accessing logs table: {str(e)}'}), 500
         
         data = request.json
         log_ids = data.get('log_ids', [])
         delete_all = data.get('delete_all', False)
         older_than = data.get('older_than', '')  # Format: '7d', '30d', etc.
         
+        logger.info(f"Delete request data: {data}")
+        
         deleted_count = 0
         
         if delete_all:
-            # Delete all logs - MEJORADO
+            # Delete all logs - MEJORADO CON MÁS MÉTODOS
             try:
+                logger.info("=== INICIANDO ELIMINACIÓN COMPLETA DE LOGS ===")
+                
                 # Método 1: Intentar eliminación directa
                 result = supabase.table('system_logs').delete().execute()
                 logger.info(f"Supabase direct delete result: {result}")
+                logger.info(f"Result type: {type(result)}")
+                logger.info(f"Result data: {result.data}")
+                logger.info(f"Result data length: {len(result.data) if result.data else 0}")
+                
                 deleted_count = len(result.data) if result.data else 0
                 
-                # Si el método directo falla, usar método alternativo
-                if deleted_count == 0 and not result.data:
+                # Si el método directo falla o devuelve vacío, usar método alternativo
+                if deleted_count == 0:
                     logger.info("Direct delete returned no data, trying alternative method...")
                     
                     # Método 2: Obtener todos los IDs y eliminar individualmente
-                    logs_result = supabase.table('system_logs').select('id').execute()
-                    if logs_result.data:
-                        log_ids = [log['id'] for log in logs_result.data]
-                        logger.info(f"Found {len(log_ids)} logs to delete individually")
+                    try:
+                        logs_result = supabase.table('system_logs').select('id').execute()
+                        logger.info(f"Logs result for IDs: {logs_result}")
                         
-                        for log_id in log_ids:
-                            delete_result = supabase.table('system_logs').delete().eq('id', log_id).execute()
-                            if delete_result.data:
-                                deleted_count += 1
+                        if logs_result.data:
+                            log_ids = [log['id'] for log in logs_result.data]
+                            logger.info(f"Found {len(log_ids)} logs to delete individually")
+                            logger.info(f"Log IDs to delete: {log_ids[:5]}...") # Solo primeros 5 para logging
+                            
+                            for log_id in log_ids:
+                                try:
+                                    delete_result = supabase.table('system_logs').delete().eq('id', log_id).execute()
+                                    logger.info(f"Delete result for {log_id}: {delete_result}")
+                                    if delete_result.data:
+                                        deleted_count += 1
+                                        logger.info(f"Successfully deleted log {log_id} (total: {deleted_count})")
+                                    else:
+                                        logger.warning(f"Failed to delete log {log_id}")
+                                except Exception as e:
+                                    logger.error(f"Error deleting log {log_id}: {e}")
+                                    continue
+                            
+                            logger.info(f"Alternative delete method deleted {deleted_count} logs")
+                        else:
+                            logger.warning("No logs found to delete with alternative method")
+                    except Exception as e:
+                        logger.error(f"Alternative delete method failed: {e}", exc_info=True)
                         
-                        logger.info(f"Alternative delete method deleted {deleted_count} logs")
-                    else:
-                        logger.warning("No logs found to delete")
+                # Método 3: Intentar con diferentes condiciones si todo falla
+                if deleted_count == 0:
+                    logger.info("All methods failed, trying with conditions...")
+                    try:
+                        # Intentar eliminación con condición que siempre sea verdadera
+                        result = supabase.table('system_logs').delete().neq('id', -1).execute()
+                        logger.info(f"Conditional delete result: {result}")
+                        if result.data:
+                            deleted_count = len(result.data)
+                            logger.info(f"Conditional delete succeeded: {deleted_count}")
+                    except Exception as e:
+                        logger.error(f"Conditional delete failed: {e}", exc_info=True)
                         
             except Exception as e:
                 logger.error(f"Error deleting all logs: {e}", exc_info=True)
-                logger.error(f"Supabase client state: {type(supabase)}")
+                logger.error(f"Error type: {type(e).__name__}")
+                logger.error(f"Error args: {e.args}")
                 return jsonify({'error': f'Error al eliminar logs: {str(e)}'}), 500
                 
         elif older_than:
