@@ -1,0 +1,133 @@
+<svg width="500" height="400" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d6efd;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#6610f2;stop-opacity:0.1" />
+    </linearGradient>
+    
+    <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0d6efd" />
+      <stop offset="100%" style="stop-color:#6610f2" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Rectangle -->
+  <rect width="500" height="400" fill="url(#bgGradient)" rx="20"/>
+  
+  <!-- Title -->
+  <text x="250" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#2d3748">
+    Python Learning Path
+  </text>
+  
+  <!-- Learning Path -->
+  <path d="M 80 100 L 420 100" stroke="url(#pathGradient)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  
+  <!-- Level 1: Principiante -->
+  <g transform="translate(80, 100)">
+    <circle r="30" fill="#0d6efd" stroke="white" stroke-width="3"/>
+    <text y="5" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">1</text>
+    <text y="-50" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#2d3748">Principiante</text>
+    <text y="-65" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#718096">Variables, Tipos, Bucles</text>
+    
+    <!-- Python Icon -->
+    <g transform="translate(-15, 20)">
+      <path d="M 5 5 Q 5 0 10 0 L 20 0 Q 25 0 25 5 L 25 15 Q 25 20 20 20 L 10 20 Q 5 20 5 15 Z" fill="#3776ab"/>
+      <path d="M 8 8 Q 8 5 11 5 L 19 5 Q 22 5 22 8 L 22 12 Q 22 15 19 15 L 11 15 Q 8 15 8 12 Z" fill="#ffd43b"/>
+    </g>
+  </g>
+  
+  <!-- Level 2: Intermedio -->
+  <g transform="translate(200, 100)">
+    <circle r="30" fill="#6610f2" stroke="white" stroke-width="3"/>
+    <text y="5" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">2</text>
+    <text y="-50" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#2d3748">Intermedio</text>
+    <text y="-65" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#718096">Funciones, Clases, Módulos</text>
+    
+    <!-- Code Icon -->
+    <g transform="translate(-12, 20)">
+      <rect x="0" y="0" width="24" height="18" fill="#2d3748" rx="2"/>
+      <text x="12" y="12" font-family="monospace" font-size="8" text-anchor="middle" fill="#48bb78">&lt;/&gt;</text>
+    </g>
+  </g>
+  
+  <!-- Level 3: Avanzado -->
+  <g transform="translate(320, 100)">
+    <circle r="30" fill="#e83e8c" stroke="white" stroke-width="3"/>
+    <text y="5" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">3</text>
+    <text y="-50" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#2d3748">Avanzado</text>
+    <text y="-65" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#718096">Decoradores, Generadores, Async</text>
+    
+    <!-- Gear Icon -->
+    <g transform="translate(-12, 20)">
+      <circle cx="12" cy="9" r="8" fill="none" stroke="#2d3748" stroke-width="2"/>
+      <circle cx="12" cy="9" r="3" fill="#2d3748"/>
+      <path d="M 12 1 L 14 4 L 12 3 L 10 4 Z" fill="#2d3748"/>
+      <path d="M 12 17 L 14 14 L 12 15 L 10 14 Z" fill="#2d3748"/>
+      <path d="M 4 9 L 7 7 L 6 9 L 7 11 Z" fill="#2d3748"/>
+      <path d="M 20 9 L 17 7 L 18 9 L 17 11 Z" fill="#2d3748"/>
+    </g>
+  </g>
+  
+  <!-- Level 4: Experto -->
+  <g transform="translate(420, 100)">
+    <circle r="30" fill="#f59e0b" stroke="white" stroke-width="3"/>
+    <text y="5" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">4</text>
+    <text y="-50" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#2d3748">Experto</text>
+    <text y="-65" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#718096">Optimización, Frameworks, Arquitectura</text>
+    
+    <!-- Trophy Icon -->
+    <g transform="translate(-10, 20)">
+      <path d="M 5 5 Q 5 2 8 2 L 12 2 Q 15 2 15 5 L 15 10 Q 15 13 12 13 L 8 13 Q 5 13 5 10 Z" fill="#f59e0b"/>
+      <rect x="7" y="13" width="6" height="3" fill="#2d3748"/>
+      <rect x="5" y="16" width="10" height="2" fill="#2d3748"/>
+      <path d="M 2 6 Q 0 6 0 8 Q 0 10 2 10 L 5 8 Z" fill="#f59e0b"/>
+      <path d="M 18 6 Q 20 6 20 8 Q 20 10 18 10 L 15 8 Z" fill="#f59e0b"/>
+    </g>
+  </g>
+  
+  <!-- Progress Indicators -->
+  <g transform="translate(50, 200)">
+    <text font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#2d3748">Progreso de Aprendizaje</text>
+    
+    <!-- Progress Bars -->
+    <g transform="translate(0, 30)">
+      <text x="0" y="0" font-family="Arial, sans-serif" font-size="14" fill="#4a5568">Ejercicios Completados</text>
+      <rect x="0" y="5" width="400" height="20" fill="#e2e8f0" rx="10"/>
+      <rect x="0" y="5" width="280" height="20" fill="url(#pathGradient)" rx="10"/>
+      <text x="410" y="20" font-family="Arial, sans-serif" font-size="12" fill="#4a5568">70%</text>
+    </g>
+    
+    <g transform="translate(0, 70)">
+      <text x="0" y="0" font-family="Arial, sans-serif" font-size="14" fill="#4a5568">Nivel Actual</text>
+      <rect x="0" y="5" width="400" height="20" fill="#e2e8f0" rx="10"/>
+      <rect x="0" y="5" width="200" height="20" fill="#6610f2" rx="10"/>
+      <text x="410" y="20" font-family="Arial, sans-serif" font-size="12" fill="#4a5568">Intermedio</text>
+    </g>
+  </g>
+  
+  <!-- Features -->
+  <g transform="translate(50, 320)">
+    <text font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2d3748">Características del Bot</text>
+    
+    <g transform="translate(0, 25)">
+      <circle cx="10" cy="0" r="3" fill="#48bb78"/>
+      <text x="20" y="4" font-family="Arial, sans-serif" font-size="13" fill="#4a5568">Aprendizaje interactivo via Telegram</text>
+    </g>
+    
+    <g transform="translate(200, 25)">
+      <circle cx="10" cy="0" r="3" fill="#48bb78"/>
+      <text x="20" y="4" font-family="Arial, sans-serif" font-size="13" fill="#4a5568">Ejercicios prácticos y teoría</text>
+    </g>
+    
+    <g transform="translate(0, 45)">
+      <circle cx="10" cy="0" r="3" fill="#48bb78"/>
+      <text x="20" y="4" font-family="Arial, sans-serif" font-size="13" fill="#4a5568">Sistema de puntos y logros</text>
+    </g>
+    
+    <g transform="translate(200, 45)">
+      <circle cx="10" cy="0" r="3" fill="#48bb78"/>
+      <text x="20" y="4" font-family="Arial, sans-serif" font-size="13" fill="#4a5568">Seguimiento de progreso</text>
+    </g>
+  </g>
+</svg>

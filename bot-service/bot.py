@@ -134,7 +134,7 @@ logger.info("Health check server started in background thread")
 # ============================================
 
 # Verificar variables de entorno
-required_env_vars = ['SUPABASE_URL', 'SUPABASE_KEY', 'TELEGRAM_BOT_TOKEN', 'WEB_API_URL']
+required_env_vars = ['SUPABASE_URL', 'SUPABASE_KEY', 'TELEGRAM_BOT_TOKEN']
 missing_vars = [var for var in required_env_vars if not os.getenv(var)]
 if missing_vars:
     logger.error(f"Missing required environment variables: {missing_vars}")
@@ -147,13 +147,17 @@ try:
         os.getenv('SUPABASE_KEY')
     )
     logger.info("Supabase connected successfully")
+    
+    # Test the connection
+    test_query = supabase.table('users').select('*').limit(1).execute()
+    logger.info("Supabase query test successful")
 except Exception as e:
     logger.error(f"Supabase connection error: {e}")
     sys.exit(1)
 
 # Bot configuration
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-WEB_API_URL = os.getenv('WEB_API_URL')
+WEB_API_URL = os.getenv('WEB_API_URL', 'https://pythontutor-web.onrender.com')
 
 # User session storage (en memoria, se perderá al reiniciar)
 user_sessions = {}
@@ -250,15 +254,15 @@ def check_bot_access(handler):
 
 def get_registration_warning_message(status):
     """Get appropriate warning message for registration in limited states"""
+    warning = ""
     if status == 'maintenance':
-        return "🔧 *Modo Mantenimiento*\n\n"
+        warning = "🔧 *Modo Mantenimiento*\n\n"
     elif status == 'restarting':
-        return "🔄 *Bot Reiniciando*\n\n"
-    else:
-        return ""
+        warning = "🔄 *Bot Reiniciando*\n\n"
     
-    return "El registro está permitido, pero algunas funciones pueden estar limitadas. " \
-           "Por favor intenta más tarde para acceder a todas las funcionalidades."
+    warning += "El registro está permitido, pero algunas funciones pueden estar limitadas. " \
+               "Por favor intenta más tarde para acceder a todas las funcionalidades."
+    return warning
 
 # Exercise cache management
 exercise_cache = {}
@@ -276,7 +280,7 @@ LEVEL_REQUIREMENTS = {
 
 def refresh_exercises_cache(level):
     """Refrescar cache de ejercicios"""
-    exercises = get_exercises_from_api(level)
+    exercises = get_exercises_from_supabase(level)
     exercise_cache[level] = exercises
     cache_timestamp[level] = datetime.now()
     logger.info(f"Exercise cache refreshed for level: {level}")
@@ -300,7 +304,164 @@ def invalidate_exercises_cache():
     cache_timestamp.clear()
     logger.info("Exercise cache invalidated")
 
-# API functions
+# ============================================
+# FUNCIONES DIRECTAS DE SUPABASE
+# ============================================
+
+def get_user_from_supabase(telegram_id):
+    """Obtener usuario directamente desde Supabase"""
+    try:
+        logger.info(f"Getting user {telegram_id} from Supabase")
+        result = supabase.table('users').select('*').eq('telegram_id', str(telegram_id)).execute()
+        
+        if result.data and len(result.data) > 0:
+            logger.info(f"User {telegram_id} found in Supabase")
+            return result.data[0]
+        else:
+            logger.info(f"User {telegram_id} not found in Supabase")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error getting user from Supabase: {e}")
+        return None
+
+def create_user_in_supabase(user_data):
+    """Crear usuario directamente en Supabase"""
+    try:
+        logger.info(f"Creating user in Supabase: {user_data}")
+        
+        # Ensure telegram_id is string
+        if 'telegram_id' in user_data:
+            user_data['telegram_id'] = str(user_data['telegram_id'])
+        
+        # Set default values if not provided
+        defaults = {
+            'current_level': 'principiante',
+            'level_progress': 0,
+            'total_exercises_completed': 0,
+            'current_streak': 0,
+            'longest_streak': 0,
+            'created_at': datetime.now().isoformat(),
+            'last_activity': datetime.now().isoformat(),
+            'is_active': True
+        }
+        
+        for key, value in defaults.items():
+            if key not in user_data:
+                user_data[key] = value
+        
+        result = supabase.table('users').insert(user_data).execute()
+        
+        if result.data and len(result.data) > 0:
+            logger.info(f"User created successfully in Supabase: {result.data[0]}")
+            return {"success": True, "data": result.data[0]}
+        else:
+            logger.error("No data returned from Supabase insert")
+            return {"success": False, "error": "no_data_returned"}
+            
+    except Exception as e:
+        logger.error(f"Error creating user in Supabase: {e}")
+        return {"success": False, "error": str(e)}
+
+def update_user_in_supabase(telegram_id, updates):
+    """Actualizar usuario en Supabase"""
+    try:
+        telegram_id = str(telegram_id)
+        updates['last_activity'] = datetime.now().isoformat()
+        
+        result = supabase.table('users').update(updates).eq('telegram_id', telegram_id).execute()
+        
+        if result.data and len(result.data) > 0:
+            logger.info(f"User {telegram_id} updated successfully")
+            return result.data[0]
+        else:
+            logger.warning(f"No user found to update: {telegram_id}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error updating user in Supabase: {e}")
+        return None
+
+def get_exercises_from_supabase(level):
+    """Obtener ejercicios desde Supabase"""
+    try:
+        logger.info(f"Getting exercises for level: {level} from Supabase")
+        result = supabase.table('exercises').select('*').eq('level', level).execute()
+        
+        if result.data:
+            logger.info(f"Found {len(result.data)} exercises for level {level}")
+            return result.data
+        else:
+            logger.warning(f"No exercises found for level {level}")
+            return []
+            
+    except Exception as e:
+        logger.error(f"Error getting exercises from Supabase: {e}")
+        return []
+
+def update_progress_in_supabase(telegram_id, exercise_id, completed):
+    """Actualizar progreso en Supabase"""
+    try:
+        telegram_id = str(telegram_id)
+        
+        # Get current user data
+        user = get_user_from_supabase(telegram_id)
+        if not user:
+            logger.error(f"User {telegram_id} not found for progress update")
+            return False
+        
+        # Update user statistics
+        updates = {}
+        if completed:
+            updates['total_exercises_completed'] = user.get('total_exercises_completed', 0) + 1
+            updates['level_progress'] = user.get('level_progress', 0) + 1
+            updates['current_streak'] = user.get('current_streak', 0) + 1
+            
+            # Update longest streak if needed
+            if updates['current_streak'] > user.get('longest_streak', 0):
+                updates['longest_streak'] = updates['current_streak']
+        else:
+            updates['current_streak'] = 0
+        
+        updates['last_activity'] = datetime.now().isoformat()
+        
+        # Update user
+        update_user_in_supabase(telegram_id, updates)
+        
+        # Record exercise completion
+        progress_data = {
+            'user_id': user.get('id'),
+            'exercise_id': exercise_id,
+            'completed_at': datetime.now().isoformat(),
+            'was_correct': completed
+        }
+        
+        supabase.table('user_progress').insert(progress_data).execute()
+        
+        logger.info(f"Progress updated for user {telegram_id}, exercise {exercise_id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error updating progress in Supabase: {e}")
+        return False
+
+def get_global_ranking_from_supabase():
+    """Obtener ranking global desde Supabase"""
+    try:
+        result = supabase.table('users').select('telegram_id, first_name, total_exercises_completed').order('total_exercises_completed', desc=True).limit(50).execute()
+        
+        if result.data:
+            return result.data
+        return []
+        
+    except Exception as e:
+        logger.error(f"Error getting ranking from Supabase: {e}")
+        return []
+
+# ============================================
+# FUNCIONES API (mantenidas por compatibilidad)
+# ============================================
+
 def check_web_service_health():
     """Verificar si el servicio web está disponible"""
     try:
@@ -326,7 +487,7 @@ def check_web_service_health():
         return False, None
 
 def create_local_user_session(telegram_id, user):
-    """Crear sesión de usuario local cuando el servicio web no está disponible"""
+    """Crear sesión de usuario local"""
     user_sessions[telegram_id] = {
         'current_level': 'principiante',
         'mode': None,
@@ -342,145 +503,36 @@ def create_local_user_session(telegram_id, user):
             'current_exercise': None
         },
         'score': 0,
-        'local_mode': True  # Flag to indicate this is a local session
+        'local_mode': True
     }
     logger.info(f"Created local session for user {telegram_id} ({user.first_name})")
 
-def get_user_from_api(telegram_id):
-    """Obtener usuario desde la API del web service"""
-    try:
-        logger.info(f"Attempting to connect to API: {WEB_API_URL}/api/user/{telegram_id}")
-        response = requests.get(f"{WEB_API_URL}/api/user/{telegram_id}", timeout=10)
-        
-        logger.info(f"API Response Status: {response.status_code}")
-        logger.info(f"API Response Headers: {dict(response.headers)}")
-        
-        if response.status_code == 404:
-            # Usuario eliminado o no existe - no es error de servicio
-            logger.info(f"User {telegram_id} not found in database (404)")
-            return None
-        elif response.status_code == 200:
-            logger.info(f"Successfully retrieved user {telegram_id}")
-            return response.json()
-        else:
-            logger.error(f"API returned status {response.status_code}: {response.text}")
-            return None
-            
-    except requests.exceptions.ConnectionError as e:
-        logger.error(f"Cannot connect to API at {WEB_API_URL}: {e}")
-        logger.error("This might indicate the web service is down or unreachable")
-        return None
-    except requests.exceptions.Timeout:
-        logger.error(f"API connection timeout for user {telegram_id}")
-        return None
-    except requests.exceptions.RequestException as e:
-        logger.error(f"API request failed for user {telegram_id}: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Unexpected error getting user {telegram_id}: {e}")
-        return None
-
-def create_user_in_api(user_data):
-    """Crear usuario en la API del web service con manejo mejorado de errores"""
-    try:
-        logger.info(f"Creating user with data: {user_data}")
-        response = requests.post(f"{WEB_API_URL}/api/user", json=user_data, timeout=10)
-        
-        if response.status_code == 201:
-            logger.info(f"Successfully created user {user_data['telegram_id']}")
-            return {"success": True, "data": response.json()}
-        elif response.status_code == 200:
-            # User already exists
-            logger.info(f"User {user_data['telegram_id']} already exists")
-            return {"success": True, "data": response.json()}
-        elif response.status_code == 400:
-            logger.error(f"Validation error creating user: {response.text}")
-            return {"success": False, "error": "validation_error", "details": response.text}
-        elif response.status_code == 500:
-            logger.error(f"Database error creating user: {response.text}")
-            return {"success": False, "error": "database_error", "details": response.text}
-        else:
-            logger.error(f"Unexpected error creating user: {response.status_code} - {response.text}")
-            return {"success": False, "error": "unknown_error", "details": f"HTTP {response.status_code}"}
-            
-    except requests.exceptions.ConnectionError:
-        logger.error(f"Cannot connect to API at {WEB_API_URL} for user creation")
-        return {"success": False, "error": "connection_error", "details": "No se puede conectar al servicio web"}
-    except requests.exceptions.Timeout:
-        logger.error(f"API timeout during user creation")
-        return {"success": False, "error": "timeout_error", "details": "Tiempo de espera agotado"}
-    except Exception as e:
-        logger.error(f"Unexpected error creating user: {e}")
-        return {"success": False, "error": "unexpected_error", "details": str(e)}
-
-def get_exercises_from_api(level):
-    """Obtener ejercicios desde la API del web service"""
-    try:
-        response = requests.get(f"{WEB_API_URL}/api/exercises/{level}", timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            logger.error(f"API get_exercises error: {response.status_code}")
-            return []
-    except requests.RequestException as e:
-        logger.error(f"API connection error: {e}")
-        return []
-
-def update_progress_in_api(telegram_id, exercise_id, completed):
-    """Actualizar progreso en la API del web service"""
-    try:
-        response = requests.post(
-            f"{WEB_API_URL}/api/user/progress",
-            json={
-                'telegram_id': telegram_id,
-                'exercise_id': exercise_id,
-                'completed': completed
-            },
-            timeout=10
-        )
-        return response.status_code == 200
-    except requests.RequestException as e:
-        logger.error(f"API connection error: {e}")
-        return False
+# ============================================
+# HANDLERS DEL BOT
+# ============================================
 
 @check_bot_access
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start command handler - Enhanced with service health check"""
+    """Start command handler - Direct Supabase integration"""
     user = update.effective_user
     telegram_id = user.id
     
-    # Check web service health first
     logger.info(f"User {telegram_id} ({user.first_name}) started the bot")
-    is_healthy, health_data = check_web_service_health()
     
-    if not is_healthy:
-        # Service not available - create local session
-        await update.message.reply_text(
-            "⚠️ *El servicio web no está disponible en este momento*\n\n"
-            "📝 *Tu perfil será creado localmente*\n"
-            "🔄 *Se sincronizará automáticamente cuando el servicio vuelva*\n\n"
-            "🤖 *Puedes empezar a usar el bot de todas formas*",
-            parse_mode='Markdown'
-        )
-        
-        # Create local user session
-        create_local_user_session(telegram_id, user)
-        return
-    
-    # Service is healthy - check if user exists in database
-    user_data = get_user_from_api(telegram_id)
+    # Get user directly from Supabase
+    user_data = get_user_from_supabase(telegram_id)
     
     if not user_data:
-        # User not found - create new user
+        # User not found - create new user in Supabase
         await update.message.reply_text(
             "👋 ¡Hola! Parece que eres un nuevo usuario.\n\n"
             "📝 *Creando tu perfil en la base de datos...*",
             parse_mode='Markdown'
         )
         
-        # Create user in database
+        # Create user in Supabase
         new_user_data = {
-            'telegram_id': telegram_id,
+            'telegram_id': str(telegram_id),
             'username': user.username or '',
             'first_name': user.first_name or '',
             'last_name': user.last_name or '',
@@ -490,11 +542,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'current_streak': 0,
             'longest_streak': 0,
             'created_at': datetime.now().isoformat(),
-            'last_activity': datetime.now().isoformat()
+            'last_activity': datetime.now().isoformat(),
+            'is_active': True
         }
         
-        created_user = create_user_in_api(new_user_data)
-        if created_user and created_user.get("success"):
+        created_user = create_user_in_supabase(new_user_data)
+        if created_user.get("success"):
             user_data = created_user.get("data")
             await update.message.reply_text(
                 "✅ *¡Perfil creado exitosamente!*\n\n"
@@ -502,26 +555,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode='Markdown'
             )
         else:
-            # Handle specific error types
-            error_type = created_user.get("error", "unknown") if created_user else "unknown"
-            error_details = created_user.get("details", "Error desconocido") if created_user else "Error desconocido"
-            
-            if error_type == "connection_error":
-                error_msg = "❌ *Error de conexión*\n\n"
-                error_msg += "🔄 *No se puede conectar al servicio web*\n\n"
-                error_msg += "💡 *Por favor intenta más tarde o contacta al administrador*"
-            elif error_type == "database_error":
-                error_msg = "❌ *Error en la base de datos*\n\n"
-                error_msg += "🔄 *No se pudo guardar tu perfil*\n\n"
-                error_msg += f"💡 *Detalles: {error_details}*"
-            elif error_type == "validation_error":
-                error_msg = "❌ *Error de validación*\n\n"
-                error_msg += f"🔄 *Datos inválidos: {error_details}*\n\n"
-                error_msg += "💡 *Por favor intenta de nuevo*"
-            else:
-                error_msg = "❌ *Error al crear tu perfil*\n\n"
-                error_msg += f"🔄 *{error_details}*\n\n"
-                error_msg += "💡 *Por favor intenta de nuevo en unos momentos*"
+            error_msg = f"❌ *Error al crear tu perfil*\n\n"
+            error_msg += f"🔄 *{created_user.get('error', 'Error desconocido')}*\n\n"
+            error_msg += "💡 *Por favor intenta de nuevo en unos momentos*"
             
             await update.message.reply_text(error_msg, parse_mode='Markdown')
             return
@@ -530,11 +566,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     updated_level = check_and_update_level(telegram_id, user_data)
     if updated_level != user_data.get('current_level'):
         user_data['current_level'] = updated_level
+        update_user_in_supabase(telegram_id, {'current_level': updated_level})
     
-    # Initialize user session with Duolingo-style structure
+    # Initialize user session
     user_sessions[telegram_id] = {
         'current_level': user_data.get('current_level', 'principiante'),
-        'mode': None,  # 'learning' or 'practice'
+        'mode': None,
         'learning_session': {
             'current_exercise': 0,
             'streak': 0,
@@ -589,8 +626,7 @@ Soy tu tutor personal de Python. Te ayudaré a aprender programación con ejerci
 
 @check_bot_status
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Help command handler - Updated for progression system"""
-    # Determinar si es comando o callback
+    """Help command handler"""
     if update.callback_query:
         await update.callback_query.answer()
         message = update.callback_query.message
@@ -646,7 +682,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @check_bot_status
 async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Learning mode handler - XP-earning progression mode"""
-    # Determinar si es comando o callback
     if update.callback_query:
         await update.callback_query.answer()
         telegram_id = update.callback_query.from_user.id
@@ -658,7 +693,7 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_func = message.reply_text
     
     # Check if user exists
-    user_data = get_user_from_api(telegram_id)
+    user_data = get_user_from_supabase(telegram_id)
     if not user_data:
         await reply_func(
             "❌ Por favor usa /start para inicializar tu perfil primero."
@@ -680,6 +715,7 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     updated_level = check_and_update_level(telegram_id, user_data)
     if updated_level != user_data.get('current_level'):
         user_data['current_level'] = updated_level
+        update_user_in_supabase(telegram_id, {'current_level': updated_level})
         if update.callback_query:
             await celebrate_level_up(update.callback_query, user_data.get('current_level'), updated_level)
         else:
@@ -754,7 +790,6 @@ async def practice_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @check_bot_status
 async def practice_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Practice menu handler - Choose practice session size"""
-    # Determinar si es comando o callback
     if update.callback_query:
         await update.callback_query.answer()
         telegram_id = update.callback_query.from_user.id
@@ -766,7 +801,7 @@ async def practice_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_func = message.reply_text
     
     # Check if user exists
-    user_data = get_user_from_api(telegram_id)
+    user_data = get_user_from_supabase(telegram_id)
     if not user_data:
         await reply_func(
             "❌ Por favor usa /start para inicializar tu perfil primero."
@@ -806,7 +841,6 @@ Elige cuántos ejercicios quieres practicar:
 
 async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, target_count):
     """Setup practice session handler"""
-    # Determinar si es callback
     if update.callback_query:
         await update.callback_query.answer()
         telegram_id = update.callback_query.from_user.id
@@ -818,7 +852,7 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
         reply_func = message.reply_text
     
     # Check if user exists
-    user_data = get_user_from_api(telegram_id)
+    user_data = get_user_from_supabase(telegram_id)
     if not user_data:
         await reply_func(
             "❌ Por favor usa /start para inicializar tu perfil primero."
@@ -904,7 +938,6 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
 @check_bot_status
 async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Ranking command handler - Global leaderboard"""
-    # Determinar si es comando o callback
     if update.callback_query:
         await update.callback_query.answer()
         telegram_id = update.callback_query.from_user.id
@@ -916,7 +949,7 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_func = message.reply_text
     
     # Check if user exists
-    user_data = get_user_from_api(telegram_id)
+    user_data = get_user_from_supabase(telegram_id)
     if not user_data:
         await reply_func(
             "❌ Por favor usa /start para inicializar tu perfil primero."
@@ -928,8 +961,8 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode='Markdown'
     )
     
-    # Get global ranking data
-    ranking_data = get_global_ranking()
+    # Get global ranking data from Supabase
+    ranking_data = get_global_ranking_from_supabase()
     
     if not ranking_data:
         await reply_func(
@@ -938,7 +971,7 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     # Find user's position
-    user_position = next((i+1 for i, user in enumerate(ranking_data) if user['telegram_id'] == telegram_id), None)
+    user_position = next((i+1 for i, user in enumerate(ranking_data) if str(user['telegram_id']) == str(telegram_id)), None)
     
     ranking_text = "🏆 *Ranking Mundial de PythonBot*\n\n"
     
@@ -947,7 +980,7 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         medal = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
         
         # Highlight current user
-        if user_rank['telegram_id'] == telegram_id:
+        if str(user_rank['telegram_id']) == str(telegram_id):
             ranking_text += f"👤 *{medal} {user_rank['first_name']}* - {user_rank['total_exercises_completed']} pts\n"
         else:
             ranking_text += f"{medal} {user_rank['first_name']} - {user_rank['total_exercises_completed']} pts\n"
@@ -964,7 +997,7 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ranking_text += "• 🌿 Intermedios: 50-149 ejercicios\n"
     ranking_text += "• 🚀 Avanzados: 150-299 ejercicios\n"
     ranking_text += "• 👑 Expertos: 300+ ejercicios\n\n"
-    ranking_text += "🔄 Ranking actualizado cada hora"
+    ranking_text += "🔄 Ranking actualizado en tiempo real"
     
     keyboard = [
         [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
@@ -982,7 +1015,6 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @check_bot_status
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show statistics command handler - Enhanced with progression info"""
-    # Determinar si es comando o callback
     if update.callback_query:
         await update.callback_query.answer()
         telegram_id = update.callback_query.from_user.id
@@ -993,7 +1025,7 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = update.message
         reply_func = message.reply_text
     
-    user_data = get_user_from_api(telegram_id)
+    user_data = get_user_from_supabase(telegram_id)
     
     if not user_data:
         await reply_func(
@@ -1005,6 +1037,7 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     updated_level = check_and_update_level(telegram_id, user_data)
     if updated_level != user_data.get('current_level'):
         user_data['current_level'] = updated_level
+        update_user_in_supabase(telegram_id, {'current_level': updated_level})
     
     current_level = user_data.get('current_level', 'principiante')
     total_completed = user_data.get('total_exercises_completed', 0)
@@ -1036,12 +1069,8 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 {achievements}
 
 📈 *Estadísticas Detalladas:*
-• Racha Actual: 🔥 {get_current_streak(telegram_id)} días
-• Ejercicios por Nivel:
-  - 🌱 Principiante: {get_level_progress(telegram_id, 'principiante')}
-  - 🌿 Intermedio: {get_level_progress(telegram_id, 'intermedio')}
-  - 🚀 Avanzado: {get_level_progress(telegram_id, 'avanzado')}
-  - 👑 Experto: {get_level_progress(telegram_id, 'experto')}
+• Racha Actual: 🔥 {user_data.get('current_streak', 0)} días
+• Mejor Racha: ⭐ {user_data.get('longest_streak', 0)} días
 
 🎯 *Próximos Objetivos:*
 {get_next_objectives(current_level, total_completed)}
@@ -1063,7 +1092,6 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """About command handler"""
-    # Determinar si es comando o callback
     if update.callback_query:
         await update.callback_query.answer()
         message = update.callback_query.message
@@ -1089,15 +1117,14 @@ Hacer el aprendizaje de Python accesible, interactivo y divertido para todos.
 
 🔧 *Tecnología:*
 • Bot de Telegram
-• Base de datos en la nube
+• Base de datos Supabase
 • API RESTful
-• Machine Learning (próximamente)
 
 👨‍💻 *Desarrollado por:*
 Equipo PythonTutor
 
 📧 *Contacto:*
-• Web: pythontutor-web.onrender.com
+• Web: https://pythontutor-web.onrender.com
 • Bot: @PythonTutorBot
 
 ¡Aprende Python donde sea, cuando sea! 🚀
@@ -1128,7 +1155,7 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = update.message
         reply_func = message.reply_text
     
-    user_data = get_user_from_api(telegram_id)
+    user_data = get_user_from_supabase(telegram_id)
     
     if not user_data:
         await start(update, context)
@@ -1158,7 +1185,7 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Callback query handlers
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle button callbacks - Fixed structure"""
+    """Handle button callbacks"""
     query = update.callback_query
     await query.answer()
     
@@ -1167,7 +1194,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     logger.info(f"Callback received: {data} from user {telegram_id}")
     
-    # Single if-elif chain for all callbacks
     if data == "learning_mode":
         await learning_mode(update, context)
     elif data == "practice_menu":
@@ -1187,8 +1213,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await ranking_command(update, context)
     elif data == "refresh_ranking":
         await ranking_command(update, context)
-    elif data == "detailed_progress":
-        await stats_command(update, context)
     elif data == "help":
         await help_command(update, context)
     elif data == "about":
@@ -1200,8 +1224,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         exercise_id = int(parts[2])
         answer_index = int(parts[3])
         await learning_answer_callback(query, context, exercise_id, answer_index)
-    elif data == "practice_mode":
-        await practice_command(update, context)
     elif data == "next_practice_exercise":
         await next_practice_exercise(update, context)
     elif data.startswith("practice_answer_"):
@@ -1209,14 +1231,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         exercise_id = int(parts[2])
         answer_index = int(parts[3])
         await practice_answer_callback(query, context, exercise_id, answer_index)
-    elif data.startswith("answer_"):
-        parts = data.split("_")
-        exercise_id = int(parts[1])
-        answer_index = int(parts[2])
-        await learning_answer_callback(query, context, exercise_id, answer_index)
-    elif data.startswith("explanation_"):
-        exercise_id = int(data.split("_")[1])
-        await explanation_callback(query, context, exercise_id)
 
 async def learning_answer_callback(query, context, exercise_id, answer_index):
     """Handle learning mode answer callback - XP earning"""
@@ -1234,8 +1248,8 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     correct_answer = exercise['correct_answer']
     is_correct = answer_index == correct_answer
     
-    # Update progress (with XP)
-    update_progress_in_api(telegram_id, exercise_id, is_correct)
+    # Update progress in Supabase
+    update_progress_in_supabase(telegram_id, exercise_id, is_correct)
     
     # Update learning session streak
     if telegram_id not in user_sessions:
@@ -1252,7 +1266,7 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     user_sessions[telegram_id]['learning_session'] = session
     
     # Get updated user data to check for level up
-    user_data = get_user_from_api(telegram_id)
+    user_data = get_user_from_supabase(telegram_id)
     if user_data:
         old_level = user_data.get('current_level', 'principiante')
         new_level = check_and_update_level(telegram_id, user_data)
@@ -1504,7 +1518,7 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
     options = json.loads(exercise['options']) if isinstance(exercise['options'], str) else exercise['options']
     
     session = user_sessions[telegram_id]['learning_session']
-    user_data = get_user_from_api(telegram_id)
+    user_data = get_user_from_supabase(telegram_id)
     level_progress = user_data.get('level_progress', 0) if user_data else 0
     progress_bar = create_progress_bar(level_progress, 50)
     streak = session.get('streak', 0)
@@ -1651,28 +1665,6 @@ def get_next_objectives(current_level, total_completed):
     
     return "\n".join(f"• {obj}" for obj in objectives)
 
-def get_global_ranking():
-    """Get global ranking data (mock implementation)"""
-    # This would require a new API endpoint to get all users
-    # For now, return mock data
-    try:
-        # Try to get real data from API
-        response = requests.get(f"{WEB_API_URL}/api/users/ranking", timeout=5)
-        if response.status_code == 200:
-            return response.json()
-    except:
-        logger.warning("Using mock ranking data")
-    
-    # Mock ranking data
-    mock_ranking = [
-        {'telegram_id': 12345, 'first_name': 'Alex', 'total_exercises_completed': 450},
-        {'telegram_id': 67890, 'first_name': 'Maria', 'total_exercises_completed': 380},
-        {'telegram_id': 11111, 'first_name': 'Carlos', 'total_exercises_completed': 320},
-        {'telegram_id': 22222, 'first_name': 'Ana', 'total_exercises_completed': 280},
-        {'telegram_id': 33333, 'first_name': 'Luis', 'total_exercises_completed': 250},
-    ]
-    return mock_ranking
-
 async def celebrate_level_up(query, old_level, new_level):
     """Celebrate when user levels up"""
     celebration_text = f"""
@@ -1704,42 +1696,20 @@ async def celebrate_level_up(query, old_level, new_level):
         reply_markup=reply_markup
     )
 
-def get_level_progress(telegram_id, level):
-    """Get progress for a specific level"""
-    try:
-        response = requests.get(f"{WEB_API_URL}/api/user/progress/{telegram_id}/{level}", timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            return f"{data.get('completed_count', 0)}/{data.get('total_count', 0)}"
-        return "0/300"
-    except requests.RequestException as e:
-        logger.error(f"Error getting level progress: {e}")
-        return "0/300"
-
-def get_current_streak(telegram_id):
-    """Get current streak"""
-    try:
-        response = requests.get(f"{WEB_API_URL}/api/user/stats/{telegram_id}", timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            return str(data.get('current_streak', 0))
-        return "0"
-    except requests.RequestException as e:
-        logger.error(f"Error getting current streak: {e}")
-        return "0"
-
 def calculate_completion_percentage(telegram_id):
     """Calculate overall completion percentage"""
     try:
-        response = requests.get(f"{WEB_API_URL}/api/user/stats/{telegram_id}", timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            total_exercises = 1200  # 4 levels x 300 exercises
-            completed = data.get('total_completed', 0)
-            percentage = (completed / total_exercises) * 100
-            return f"{percentage:.1f}"
-        return "0.0"
-    except requests.RequestException as e:
+        # Get total exercises count from Supabase
+        result = supabase.table('exercises').select('count', count='exact').execute()
+        total_exercises = result.count if hasattr(result, 'count') else 1200
+        
+        # Get user's completed exercises
+        user_data = get_user_from_supabase(telegram_id)
+        completed = user_data.get('total_exercises_completed', 0) if user_data else 0
+        
+        percentage = (completed / total_exercises) * 100 if total_exercises > 0 else 0
+        return f"{percentage:.1f}"
+    except Exception as e:
         logger.error(f"Error calculating completion percentage: {e}")
         return "0.0"
 
@@ -1772,7 +1742,6 @@ def main():
     application.add_handler(CommandHandler("ranking", ranking_command))
     application.add_handler(CommandHandler("about", about_command))
     application.add_handler(CommandHandler("menu", main_menu))
-    application.add_handler(CommandHandler("progreso", stats_command))
     application.add_handler(CallbackQueryHandler(button_callback))
     
     # Start the bot
