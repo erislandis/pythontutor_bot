@@ -898,7 +898,7 @@ def api_get_exercises():
         if search:
             query = query.ilike('question', f'%{search}%')
         
-        response = query.order('created_at', desc=True).execute()
+        response = query.order('id', desc=False).execute()
         exercises = response.data or []
         
         logger.info(f"📊 Retrieved {len(exercises)} exercises from database")
