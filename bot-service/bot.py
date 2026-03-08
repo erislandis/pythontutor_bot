@@ -12,6 +12,7 @@ import sys
 import threading
 from flask import Flask, jsonify
 from datetime import datetime, timedelta
+import random
 
 # Cargar variables de entorno
 load_dotenv()
@@ -112,7 +113,7 @@ def get_cached_exercises(level):
     
     # Verificar si cache existe y no está expirada (30 minutos)
     if level not in exercise_cache or \
-       datetime.now() - cache_timestamp[level] > timedelta(minutes=30):
+       datetime.now() - cache_timestamp.get(level, datetime.min) > timedelta(minutes=30):
         return refresh_exercises_cache(level)
     
     return exercise_cache[level]
@@ -244,8 +245,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             await update.message.reply_text(
                 "⚠️ El servicio está temporalmente no disponible, pero puedes continuar usando el bot.\n\n"
-                "� Tu perfil ha sido creado localmente.\n"
-                "� Se sincronizará cuando el servicio esté disponible."
+                "✅ Tu perfil ha sido creado localmente.\n"
+                "🔄 Se sincronizará cuando el servicio esté disponible."
             )
     
     # Check and update level based on progress
@@ -301,8 +302,8 @@ Soy tu tutor personal de Python. Te ayudaré a aprender programación con ejerci
     keyboard = [
         [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
         [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_menu")],
-        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")],
-        [InlineKeyboardButton("🏆 Ranking Mundial", callback_data="world_ranking")],
+        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")],
+        [InlineKeyboardButton("🏆 Ranking Mundial", callback_data="ranking")],
         [InlineKeyboardButton("❓ Ayuda", callback_data="help")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -311,6 +312,15 @@ Soy tu tutor personal de Python. Te ayudaré a aprender programación con ejerci
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Help command handler - Updated for progression system"""
+    # Determinar si es comando o callback
+    if update.callback_query:
+        await update.callback_query.answer()
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        message = update.message
+        reply_func = message.reply_text
+    
     help_text = """
 🐍 *Comandos de PythonBot*
 
@@ -347,22 +357,31 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     
     keyboard = [
-        [InlineKeyboardButton("📝 Modo Práctica", callback_data="practice_mode")],
-        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")],
-        [InlineKeyboardButton("🏆 Ranking Mundial", callback_data="world_ranking")]
+        [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
+        [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_menu")],
+        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(help_text, parse_mode='Markdown', reply_markup=reply_markup)
+    await reply_func(help_text, parse_mode='Markdown', reply_markup=reply_markup)
 
 async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Learning mode handler - XP-earning progression mode"""
-    telegram_id = update.effective_user.id
+    # Determinar si es comando o callback
+    if update.callback_query:
+        await update.callback_query.answer()
+        telegram_id = update.callback_query.from_user.id
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        telegram_id = update.effective_user.id
+        message = update.message
+        reply_func = message.reply_text
     
     # Check if user exists
     user_data = get_user_from_api(telegram_id)
     if not user_data:
-        await update.message.reply_text(
+        await reply_func(
             "❌ Por favor usa /start para inicializar tu perfil primero."
         )
         return
@@ -370,6 +389,7 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Set mode to learning
     if telegram_id not in user_sessions:
         user_sessions[telegram_id] = {}
+    
     user_sessions[telegram_id]['mode'] = 'learning'
     user_sessions[telegram_id]['learning_session'] = user_sessions[telegram_id].get('learning_session', {
         'current_exercise': 0,
@@ -381,7 +401,10 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     updated_level = check_and_update_level(telegram_id, user_data)
     if updated_level != user_data.get('current_level'):
         user_data['current_level'] = updated_level
-        await celebrate_level_up(update, user_data.get('current_level'), updated_level)
+        if update.callback_query:
+            await celebrate_level_up(update.callback_query, user_data.get('current_level'), updated_level)
+        else:
+            await celebrate_level_up(update, user_data.get('current_level'), updated_level)
         return
     
     current_level = user_data.get('current_level', 'principiante')
@@ -392,13 +415,12 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     exercises = get_cached_exercises(current_level)
     
     if not exercises:
-        await update.message.reply_text(
+        await reply_func(
             "❌ No hay ejercicios disponibles en este nivel. Por favor intenta más tarde."
         )
         return
     
     # Get a random exercise
-    import random
     exercise = random.choice(exercises)
     
     # Store current exercise in session
@@ -434,12 +456,12 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard.append([InlineKeyboardButton("💡 Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
     keyboard.append([InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")])
-    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")])
+    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")])
     keyboard.append([InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(
+    await reply_func(
         exercise_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
@@ -451,12 +473,21 @@ async def practice_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def practice_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Practice menu handler - Choose practice session size"""
-    telegram_id = update.effective_user.id
+    # Determinar si es comando o callback
+    if update.callback_query:
+        await update.callback_query.answer()
+        telegram_id = update.callback_query.from_user.id
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        telegram_id = update.effective_user.id
+        message = update.message
+        reply_func = message.reply_text
     
     # Check if user exists
     user_data = get_user_from_api(telegram_id)
     if not user_data:
-        await update.message.reply_text(
+        await reply_func(
             "❌ Por favor usa /start para inicializar tu perfil primero."
         )
         return
@@ -486,7 +517,7 @@ Elige cuántos ejercicios quieres practicar:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(
+    await reply_func(
         practice_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
@@ -494,12 +525,21 @@ Elige cuántos ejercicios quieres practicar:
 
 async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, target_count):
     """Setup practice session handler"""
-    telegram_id = update.effective_user.id
+    # Determinar si es callback
+    if update.callback_query:
+        await update.callback_query.answer()
+        telegram_id = update.callback_query.from_user.id
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        telegram_id = update.effective_user.id
+        message = update.message
+        reply_func = message.reply_text
     
     # Check if user exists
     user_data = get_user_from_api(telegram_id)
     if not user_data:
-        await update.message.reply_text(
+        await reply_func(
             "❌ Por favor usa /start para inicializar tu perfil primero."
         )
         return
@@ -510,25 +550,28 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
     if telegram_id not in user_sessions:
         user_sessions[telegram_id] = {}
     
+    unlimited = target_count == -1
+    actual_target = float('inf') if unlimited else target_count
+    
     user_sessions[telegram_id]['mode'] = 'practice'
     user_sessions[telegram_id]['practice_session'] = {
-        'target_count': target_count,
+        'target_count': actual_target,
         'completed_count': 0,
         'correct_count': 0,
-        'current_exercise': None
+        'current_exercise': None,
+        'unlimited': unlimited
     }
     
     # Get exercises from cache
     exercises = get_cached_exercises(current_level)
     
     if not exercises:
-        await update.message.reply_text(
+        await reply_func(
             "❌ No hay ejercicios disponibles en este nivel. Por favor intenta más tarde."
         )
         return
     
     # Get first exercise
-    import random
     exercise = random.choice(exercises)
     
     # Store current exercise in session
@@ -540,8 +583,8 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
     options = json.loads(exercise['options']) if isinstance(exercise['options'], str) else exercise['options']
     
     session = user_sessions[telegram_id]['practice_session']
-    progress_text = f"{session['completed_count']}/{session['target_count']}"
-    accuracy = f"{(session['correct_count']/max(1, session['completed_count'])*100):.0f}%" if session['completed_count'] > 0 else "0.0%"
+    progress_text = f"{session['completed_count']}/∞" if unlimited else f"{session['completed_count']}/{session['target_count']}"
+    accuracy = f"{(session['correct_count']/max(1, session['completed_count'])*100):.0f}%" if session['completed_count'] > 0 else "0%"
     
     exercise_text = f"""
 📝 *Modo Práctica - Nivel {current_level.title()}*
@@ -566,31 +609,39 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
     
     keyboard.append([InlineKeyboardButton("💡 Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
     keyboard.append([InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_practice_exercise")])
-    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")])
+    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")])
     keyboard.append([InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(
+    await reply_func(
         exercise_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
 
-
 async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Ranking command handler - Global leaderboard"""
-    telegram_id = update.effective_user.id
+    # Determinar si es comando o callback
+    if update.callback_query:
+        await update.callback_query.answer()
+        telegram_id = update.callback_query.from_user.id
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        telegram_id = update.effective_user.id
+        message = update.message
+        reply_func = message.reply_text
     
     # Check if user exists
     user_data = get_user_from_api(telegram_id)
     if not user_data:
-        await update.message.reply_text(
+        await reply_func(
             "❌ Por favor usa /start para inicializar tu perfil primero."
         )
         return
     
-    await update.message.reply_text(
+    await reply_func(
         "🏆 *Cargando Ranking Mundial...*\n\n⏳ Obteniendo datos de todos los usuarios...",
         parse_mode='Markdown'
     )
@@ -599,7 +650,7 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ranking_data = get_global_ranking()
     
     if not ranking_data:
-        await update.message.reply_text(
+        await reply_func(
             "❌ No se pudo cargar el ranking. Por favor intenta más tarde."
         )
         return
@@ -634,62 +685,35 @@ async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ranking_text += "🔄 Ranking actualizado cada hora"
     
     keyboard = [
-        [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_mode")],
-        [InlineKeyboardButton("📊 Mis Estadísticas", callback_data="view_stats")],
-        [InlineKeyboardButton("🔄 Actualizar Ranking", callback_data="refresh_ranking")]
+        [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
+        [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_menu")],
+        [InlineKeyboardButton("🔄 Actualizar Ranking", callback_data="ranking")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(
+    await reply_func(
         ranking_text,
-        parse_mode='Markdown',
-        reply_markup=reply_markup
-    )
-
-async def progress_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show progress command handler"""
-    telegram_id = update.effective_user.id
-    
-    user_data = get_user_from_api(telegram_id)
-    
-    if not user_data:
-        await update.message.reply_text(
-            "❌ No se encontró tu perfil. Por favor usa /start para crear uno."
-        )
-        return
-    
-    progress_text = f"""
-📊 *Tu Progreso*
-
-👤 *Usuario:* {user_data.get('first_name', 'N/A')}
-📚 *Nivel Actual:* {user_data.get('current_level', 'principiante').title()}
-📈 *Progreso del Nivel:* {user_data.get('level_progress', 0)} ejercicios
-🏆 *Total Completados:* {user_data.get('total_exercises_completed', 0)} ejercicios
-🕐 *Última Actividad:* {user_data.get('last_activity', 'N/A')}
-
-🎯 *Siguiente Nivel:* {get_next_level(user_data.get('current_level', 'principiante'))}
-    """
-    
-    keyboard = [
-        [InlineKeyboardButton("📝 Practicar Ejercicios", callback_data="start_learning")],
-        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    await update.message.reply_text(
-        progress_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
 
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show statistics command handler - Enhanced with progression info"""
-    telegram_id = update.effective_user.id
+    # Determinar si es comando o callback
+    if update.callback_query:
+        await update.callback_query.answer()
+        telegram_id = update.callback_query.from_user.id
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        telegram_id = update.effective_user.id
+        message = update.message
+        reply_func = message.reply_text
     
     user_data = get_user_from_api(telegram_id)
     
     if not user_data:
-        await update.message.reply_text(
+        await reply_func(
             "❌ No se encontró tu perfil. Por favor usa /start para crear uno."
         )
         return
@@ -736,18 +760,19 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
   - 🚀 Avanzado: {get_level_progress(telegram_id, 'avanzado')}
   - 👑 Experto: {get_level_progress(telegram_id, 'experto')}
 
-� *Próximos Objetivos:*
+🎯 *Próximos Objetivos:*
 {get_next_objectives(current_level, total_completed)}
     """
     
     keyboard = [
-        [InlineKeyboardButton("📝 Modo Práctica", callback_data="practice_mode")],
-        [InlineKeyboardButton("🏆 Ver Ranking", callback_data="world_ranking")],
-        [InlineKeyboardButton("📊 Progreso Detallado", callback_data="detailed_progress")]
+        [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
+        [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_menu")],
+        [InlineKeyboardButton("🏆 Ver Ranking", callback_data="ranking")],
+        [InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(
+    await reply_func(
         stats_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
@@ -755,6 +780,15 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """About command handler"""
+    # Determinar si es comando o callback
+    if update.callback_query:
+        await update.callback_query.answer()
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        message = update.message
+        reply_func = message.reply_text
+    
     about_text = """
 🐍 *Acerca de PythonBot*
 
@@ -788,15 +822,56 @@ Equipo PythonTutor
     
     keyboard = [
         [InlineKeyboardButton("🌐 Visitar Web", url="https://pythontutor-web.onrender.com")],
-        [InlineKeyboardButton("📝 Comenzar a Aprender", callback_data="start_learning")]
+        [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
+        [InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(
+    await reply_func(
         about_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
+
+async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Main menu handler"""
+    if update.callback_query:
+        await update.callback_query.answer()
+        telegram_id = update.callback_query.from_user.id
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        telegram_id = update.effective_user.id
+        message = update.message
+        reply_func = message.reply_text
+    
+    user_data = get_user_from_api(telegram_id)
+    
+    if not user_data:
+        await start(update, context)
+        return
+    
+    welcome_text = f"""
+🐍 *PythonBot - Menú Principal*
+
+👤 *Usuario:* {user_data.get('first_name', 'N/A')}
+📚 *Nivel Actual:* {user_data.get('current_level', 'principiante').title()}
+🏆 *Ejercicios:* {user_data.get('total_exercises_completed', 0)}
+
+⭐ *Elige una opción:*
+    """
+    
+    keyboard = [
+        [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
+        [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_menu")],
+        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")],
+        [InlineKeyboardButton("🏆 Ranking Mundial", callback_data="ranking")],
+        [InlineKeyboardButton("❓ Ayuda", callback_data="help")],
+        [InlineKeyboardButton("ℹ️ Acerca de", callback_data="about")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await reply_func(welcome_text, parse_mode='Markdown', reply_markup=reply_markup)
 
 # Callback query handlers
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -807,28 +882,36 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     telegram_id = update.effective_user.id
     data = query.data
     
+    logger.info(f"Callback received: {data} from user {telegram_id}")
+    
     # Single if-elif chain for all callbacks
     if data == "learning_mode":
         await learning_mode(update, context)
     elif data == "practice_menu":
         await practice_menu(update, context)
     elif data.startswith("setup_practice_"):
-        count = int(data.split("_")[2])
+        count_str = data.split("_")[2]
+        if count_str == "unlimited":
+            count = -1
+        else:
+            count = int(count_str)
         await setup_practice(update, context, count)
     elif data == "main_menu":
         await main_menu(update, context)
-    elif data == "view_stats":
+    elif data == "stats":
         await stats_command(update, context)
-    elif data == "world_ranking":
+    elif data == "ranking":
         await ranking_command(update, context)
     elif data == "refresh_ranking":
         await ranking_command(update, context)
     elif data == "detailed_progress":
-        await progress_command(update, context)
+        await stats_command(update, context)
     elif data == "help":
         await help_command(update, context)
+    elif data == "about":
+        await about_command(update, context)
     elif data == "next_learning_exercise":
-        await learning_mode(update, context)
+        await next_learning_exercise(update, context)
     elif data.startswith("learning_answer_"):
         parts = data.split("_")
         exercise_id = int(parts[2])
@@ -847,42 +930,10 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parts = data.split("_")
         exercise_id = int(parts[1])
         answer_index = int(parts[2])
-        await answer_callback(query, context, exercise_id, answer_index)
+        await learning_answer_callback(query, context, exercise_id, answer_index)
     elif data.startswith("explanation_"):
         exercise_id = int(data.split("_")[1])
         await explanation_callback(query, context, exercise_id)
-    # Legacy callbacks
-    elif data == "start_learning":
-        await learning_mode(update, context)
-    elif data == "view_progress":
-        await progress_command(update, context)
-    elif data == "leaderboard":
-        await ranking_command(update, context)
-
-async def start_learning_callback(query, context):
-    """Handle start learning callback"""
-    telegram_id = query.from_user.id
-    
-    if telegram_id not in user_sessions:
-        await query.edit_message_text(
-            "❌ Por favor usa /start para inicializar tu perfil primero."
-        )
-        return
-    
-    keyboard = []
-    for level in LEVELS:
-        keyboard.append([InlineKeyboardButton(
-            f"📖 {level.title()}", 
-            callback_data=f"change_level_{level}"
-        )])
-    
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    await query.edit_message_text(
-        "📚 *Selecciona un nivel para comenzar:*",
-        parse_mode='Markdown',
-        reply_markup=reply_markup
-    )
 
 async def learning_answer_callback(query, context, exercise_id, answer_index):
     """Handle learning mode answer callback - XP earning"""
@@ -904,13 +955,18 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     update_progress_in_api(telegram_id, exercise_id, is_correct)
     
     # Update learning session streak
-    session = user_sessions[telegram_id]['learning_session']
+    if telegram_id not in user_sessions:
+        user_sessions[telegram_id] = {'learning_session': {'streak': 0, 'completed_today': 0}, 'score': 0}
+    
+    session = user_sessions[telegram_id].get('learning_session', {'streak': 0, 'completed_today': 0})
     if is_correct:
-        session['streak'] += 1
-        session['completed_today'] += 1
-        user_sessions[telegram_id]['score'] += 10
+        session['streak'] = session.get('streak', 0) + 1
+        session['completed_today'] = session.get('completed_today', 0) + 1
+        user_sessions[telegram_id]['score'] = user_sessions[telegram_id].get('score', 0) + 10
     else:
         session['streak'] = 0
+    
+    user_sessions[telegram_id]['learning_session'] = session
     
     # Get updated user data to check for level up
     user_data = get_user_from_api(telegram_id)
@@ -937,11 +993,11 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     if exercise.get('explanation'):
         response_text += f"💡 *Explicación:*\n{exercise['explanation']}\n\n"
     
-    response_text += f"🏆 *Puntos:* {user_sessions[telegram_id]['score']} puntos"
+    response_text += f"🏆 *Puntos:* {user_sessions[telegram_id].get('score', 0)} puntos"
     
     keyboard = [
         [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")],
-        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")],
+        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")],
         [InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -969,6 +1025,10 @@ async def practice_answer_callback(query, context, exercise_id, answer_index):
     is_correct = answer_index == correct_answer
     
     # Update practice session (no XP)
+    if telegram_id not in user_sessions or 'practice_session' not in user_sessions[telegram_id]:
+        await query.edit_message_text("❌ Sesión de práctica no encontrada. Por favor inicia una nueva sesión.")
+        return
+    
     session = user_sessions[telegram_id]['practice_session']
     session['completed_count'] += 1
     if is_correct:
@@ -987,19 +1047,20 @@ async def practice_answer_callback(query, context, exercise_id, answer_index):
         response_text += f"💡 *Explicación:*\n{exercise['explanation']}\n\n"
     
     # Practice session progress
-    progress_text = f"{session['completed_count']}/{session['target_count']}"
-    accuracy = f"{(session['correct_count']/session['completed_count']*100):.0f}%" if session['completed_count'] > 0 else "0.0%"
+    unlimited = session.get('unlimited', False)
+    progress_text = f"{session['completed_count']}/∞" if unlimited else f"{session['completed_count']}/{session['target_count']}"
+    accuracy = f"{(session['correct_count']/session['completed_count']*100):.0f}%" if session['completed_count'] > 0 else "0%"
     
     response_text += f"\n📊 *Sesión de Práctica:* {progress_text} ejercicios\n✅ *Precisión:* {accuracy}\n\n"
     
-    # Check if practice session is complete
-    if session['completed_count'] >= session['target_count']:
+    # Check if practice session is complete (only for limited sessions)
+    if not unlimited and session['completed_count'] >= session['target_count']:
         await complete_practice_session(query, context)
         return
     
     keyboard = [
         [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_practice_exercise")],
-        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")],
+        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")],
         [InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -1014,10 +1075,15 @@ async def complete_practice_session(query, context):
     """Complete practice session handler"""
     telegram_id = query.from_user.id
     
+    if telegram_id not in user_sessions or 'practice_session' not in user_sessions[telegram_id]:
+        await query.edit_message_text("❌ No hay sesión de práctica activa.")
+        return
+    
     session = user_sessions[telegram_id]['practice_session']
     
     completion_text = f"""
-🎉 *¡Sesión de Práctica Completada!*\n\n📊 *Resultados:*\n• Ejercicios realizados: {session['completed_count']}/{session['target_count']}\n• Respuestas correctas: {session['correct_count']}\n• Precisión: {(session['correct_count']/session['completed_count']*100):.0f}%\n\n📚 *Recuerda:* Estos ejercicios no afectaron tu nivel de progreso.\n\n¿Qué te gustaría hacer ahora?\n    """
+🎉 *¡Sesión de Práctica Completada!*\n\n📊 *Resultados:*\n• Ejercicios realizados: {session['completed_count']}\n• Respuestas correctas: {session['correct_count']}\n• Precisión: {(session['correct_count']/max(1, session['completed_count'])*100):.0f}%\n\n📚 *Recuerda:* Estos ejercicios no afectaron tu nivel de progreso.\n\n¿Qué te gustaría hacer ahora?
+    """
     
     keyboard = [
         [InlineKeyboardButton("🔄 Nueva Sesión", callback_data="practice_menu")],
@@ -1034,18 +1100,30 @@ async def complete_practice_session(query, context):
 
 async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get next practice exercise"""
-    telegram_id = update.effective_user.id
+    if update.callback_query:
+        await update.callback_query.answer()
+        telegram_id = update.callback_query.from_user.id
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        telegram_id = update.effective_user.id
+        message = update.message
+        reply_func = message.reply_text
     
     # Check if user has active practice session
     if telegram_id not in user_sessions or user_sessions[telegram_id].get('mode') != 'practice':
-        await practice_command(update, context)
+        await practice_menu(update, context)
         return
     
     session = user_sessions[telegram_id]['practice_session']
+    unlimited = session.get('unlimited', False)
     
-    # Check if practice session is complete
-    if session['completed_count'] >= session['target_count']:
-        await complete_practice_session(update, context)
+    # Check if practice session is complete (for limited sessions)
+    if not unlimited and session['completed_count'] >= session['target_count']:
+        if update.callback_query:
+            await complete_practice_session(update.callback_query, context)
+        else:
+            await complete_practice_session(update, context)
         return
     
     # Get exercises from cache
@@ -1053,13 +1131,12 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
     exercises = get_cached_exercises(current_level)
     
     if not exercises:
-        await update.message.reply_text(
+        await reply_func(
             "❌ No hay ejercicios disponibles en este nivel. Por favor intenta más tarde."
         )
         return
     
     # Get a random exercise
-    import random
     exercise = random.choice(exercises)
     
     # Store current exercise in session
@@ -1069,8 +1146,8 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
     question = exercise['question']
     options = json.loads(exercise['options']) if isinstance(exercise['options'], str) else exercise['options']
     
-    progress_text = f"{session['completed_count']}/{session['target_count']}"
-    accuracy = f"{(session['correct_count']/max(1, session['completed_count'])*100):.0f}%" if session['completed_count'] > 0 else "0.0%"
+    progress_text = f"{session['completed_count']}/∞" if unlimited else f"{session['completed_count']}/{session['target_count']}"
+    accuracy = f"{(session['correct_count']/max(1, session['completed_count'])*100):.0f}%" if session['completed_count'] > 0 else "0%"
     
     exercise_text = f"""
 📝 *Modo Práctica - Nivel {current_level.title()}*
@@ -1095,12 +1172,12 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
     
     keyboard.append([InlineKeyboardButton("💡 Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
     keyboard.append([InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_practice_exercise")])
-    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")])
+    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")])
     keyboard.append([InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(
+    await reply_func(
         exercise_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
@@ -1108,7 +1185,15 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
 
 async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get next learning exercise"""
-    telegram_id = update.effective_user.id
+    if update.callback_query:
+        await update.callback_query.answer()
+        telegram_id = update.callback_query.from_user.id
+        message = update.callback_query.message
+        reply_func = message.reply_text
+    else:
+        telegram_id = update.effective_user.id
+        message = update.message
+        reply_func = message.reply_text
     
     # Check if user has active learning session
     if telegram_id not in user_sessions or user_sessions[telegram_id].get('mode') != 'learning':
@@ -1120,13 +1205,12 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
     exercises = get_cached_exercises(current_level)
     
     if not exercises:
-        await update.message.reply_text(
+        await reply_func(
             "❌ No hay ejercicios disponibles en este nivel. Por favor intenta más tarde."
         )
         return
     
     # Get a random exercise
-    import random
     exercise = random.choice(exercises)
     
     # Store current exercise in session
@@ -1138,15 +1222,16 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
     
     session = user_sessions[telegram_id]['learning_session']
     user_data = get_user_from_api(telegram_id)
-    progress_bar = create_progress_bar(user_data.get('level_progress', 0), 50)
-    streak = session['streak']
+    level_progress = user_data.get('level_progress', 0) if user_data else 0
+    progress_bar = create_progress_bar(level_progress, 50)
+    streak = session.get('streak', 0)
     
     exercise_text = f"""
 🎯 *Lección del Día - Nivel {current_level.title()}*
 
 {question}
 
-📊 *Progreso del Nivel:* {progress_bar} {user_data.get('level_progress', 0)}/50
+📊 *Progreso del Nivel:* {progress_bar} {level_progress}/50
 🔥 *Racha Actual:* {streak} ejercicios seguidos
 
 🔘 *Opciones:*
@@ -1162,89 +1247,24 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
     
     keyboard.append([InlineKeyboardButton("💡 Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
     keyboard.append([InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")])
-    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="view_stats")])
+    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")])
     keyboard.append([InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await update.message.reply_text(
+    await reply_func(
         exercise_text,
-        parse_mode='Markdown',
-        reply_markup=reply_markup
-    )
-
-async def ranking_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Ranking command handler - Global leaderboard"""
-    telegram_id = update.effective_user.id
-    
-    # Check if user exists
-    user_data = get_user_from_api(telegram_id)
-    if not user_data:
-        await update.message.reply_text(
-            "❌ Por favor usa /start para inicializar tu perfil primero."
-        )
-        return
-    
-    await update.message.reply_text(
-        "🏆 *Cargando Ranking Mundial...*\n\n⏳ Obteniendo datos de todos los usuarios...",
-        parse_mode='Markdown'
-    )
-    
-    # Get global ranking data
-    ranking_data = get_global_ranking()
-    
-    if not ranking_data:
-        await update.message.reply_text(
-            "❌ No se pudo cargar el ranking. Por favor intenta más tarde."
-        )
-        return
-    
-    # Find user's position
-    user_position = next((i+1 for i, user in enumerate(ranking_data) if user['telegram_id'] == telegram_id), None)
-    
-    ranking_text = "🏆 *Ranking Mundial de PythonBot*\n\n"
-    
-    # Show top 10 users
-    for i, user_rank in enumerate(ranking_data[:10]):
-        medal = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"{i+1}."
-        
-        # Highlight current user
-        if user_rank['telegram_id'] == telegram_id:
-            ranking_text += f"👤 *{medal} {user_rank['first_name']}* - {user_rank['total_exercises_completed']} pts\n"
-        else:
-            ranking_text += f"{medal} {user_rank['first_name']} - {user_rank['total_exercises_completed']} pts\n"
-    
-    ranking_text += "\n"
-    
-    # Show user's position if not in top 10
-    if user_position and user_position > 10:
-        ranking_text += f"👤 *Tu Posición: #{user_position}*\n"
-        ranking_text += f"📊 *Tus Puntos: {user_data.get('total_exercises_completed', 0)}*\n\n"
-    
-    ranking_text += "📈 *Categorías del Ranking:*\n"
-    ranking_text += "• 🌱 Principiantes: 0-49 ejercicios\n"
-    ranking_text += "• 🌿 Intermedios: 50-149 ejercicios\n"
-    ranking_text += "• 🚀 Avanzados: 150-299 ejercicios\n"
-    ranking_text += "• 👑 Expertos: 300+ ejercicios\n\n"
-    ranking_text += "🔄 Ranking actualizado cada hora"
-    
-    keyboard = [
-        [InlineKeyboardButton("🎯 Lección del Día", callback_data="learning_mode")],
-        [InlineKeyboardButton("💪 Modo Práctica", callback_data="practice_menu")],
-        [InlineKeyboardButton("🔄 Actualizar Ranking", callback_data="refresh_ranking")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    await update.message.reply_text(
-        ranking_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
 
 async def explanation_callback(query, context, exercise_id):
     """Handle explanation callback"""
+    telegram_id = query.from_user.id
+    
     # Get exercises from cache
-    exercises = get_cached_exercises(user_sessions[query.from_user.id]['current_level'])
+    current_level = user_sessions.get(telegram_id, {}).get('current_level', 'principiante')
+    exercises = get_cached_exercises(current_level)
     exercise = next((e for e in exercises if e['id'] == exercise_id), None)
     
     if not exercise or not exercise.get('explanation'):
@@ -1255,16 +1275,6 @@ async def explanation_callback(query, context, exercise_id):
     
     await query.answer(explanation_text, show_alert=True)
 
-async def leaderboard_callback(query, context):
-    """Handle leaderboard callback"""
-    # This would require a new API endpoint
-    await query.edit_message_text(
-        "🏆 *Leaderboard*\n\n"
-        "📊 Función en desarrollo...\n\n"
-        "¡Pronto podrás ver el ranking de usuarios!",
-        parse_mode='Markdown'
-    )
-
 # Helper functions for progression system
 def check_and_update_level(telegram_id, user_data):
     """Check if user should level up and update their level"""
@@ -1274,7 +1284,7 @@ def check_and_update_level(telegram_id, user_data):
     # Check each level requirement
     for level in LEVELS:
         if total_completed >= LEVEL_REQUIREMENTS[level]:
-            if LEVELS.index(level) > LEVELS.index(current_level):
+            if LEVELS.index(level) > LEVELS.index(current_level) if current_level in LEVELS else 0:
                 # User should level up
                 return level
     
@@ -1363,18 +1373,22 @@ def get_global_ranking():
     # This would require a new API endpoint to get all users
     # For now, return mock data
     try:
-        # Mock ranking data - replace with actual API call
-        mock_ranking = [
-            {'telegram_id': 12345, 'first_name': 'Alex', 'total_exercises_completed': 450},
-            {'telegram_id': 67890, 'first_name': 'Maria', 'total_exercises_completed': 380},
-            {'telegram_id': 11111, 'first_name': 'Carlos', 'total_exercises_completed': 320},
-            {'telegram_id': 22222, 'first_name': 'Ana', 'total_exercises_completed': 280},
-            {'telegram_id': 33333, 'first_name': 'Luis', 'total_exercises_completed': 250},
-        ]
-        return mock_ranking
-    except Exception as e:
-        logger.error(f"Error getting global ranking: {e}")
-        return []
+        # Try to get real data from API
+        response = requests.get(f"{WEB_API_URL}/api/users/ranking", timeout=5)
+        if response.status_code == 200:
+            return response.json()
+    except:
+        logger.warning("Using mock ranking data")
+    
+    # Mock ranking data
+    mock_ranking = [
+        {'telegram_id': 12345, 'first_name': 'Alex', 'total_exercises_completed': 450},
+        {'telegram_id': 67890, 'first_name': 'Maria', 'total_exercises_completed': 380},
+        {'telegram_id': 11111, 'first_name': 'Carlos', 'total_exercises_completed': 320},
+        {'telegram_id': 22222, 'first_name': 'Ana', 'total_exercises_completed': 280},
+        {'telegram_id': 33333, 'first_name': 'Luis', 'total_exercises_completed': 250},
+    ]
+    return mock_ranking
 
 async def celebrate_level_up(query, old_level, new_level):
     """Celebrate when user levels up"""
@@ -1396,8 +1410,8 @@ async def celebrate_level_up(query, old_level, new_level):
     """
     
     keyboard = [
-        [InlineKeyboardButton("🎉 ¡Comenzar Ya!", callback_data="practice_mode")],
-        [InlineKeyboardButton("📊 Ver Progreso", callback_data="view_stats")]
+        [InlineKeyboardButton("🎉 ¡Comenzar Ya!", callback_data="practice_menu")],
+        [InlineKeyboardButton("📊 Ver Progreso", callback_data="stats")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -1473,8 +1487,9 @@ def main():
     application.add_handler(CommandHandler("practice", practice_command))
     application.add_handler(CommandHandler("stats", stats_command))
     application.add_handler(CommandHandler("ranking", ranking_command))
-    application.add_handler(CommandHandler("progress", progress_command))
     application.add_handler(CommandHandler("about", about_command))
+    application.add_handler(CommandHandler("menu", main_menu))
+    application.add_handler(CommandHandler("progreso", stats_command))
     application.add_handler(CallbackQueryHandler(button_callback))
     
     # Start the bot
