@@ -1379,7 +1379,7 @@ async function startImport() {
                 body: formData
             });
         } else {
-            // Handle JSON import (existing logic)
+            // Handle JSON import with BATCH PROCESSING
             updateImportProgress(10, 'Leyendo archivo JSON...');
             
             const content = await readFileContent(selectedFile);
@@ -1396,34 +1396,152 @@ async function startImport() {
                 throw new Error('El archivo no contiene ejercicios');
             }
             
-            // Mostrar preview de los primeros ejercicios
-            console.log('🔍 First exercise preview:', exercises[0]);
+            // BATCH PROCESSING: Split large files into smaller chunks
+            const BATCH_SIZE = 50; // Process 50 exercises at a time to avoid server limits
+            const totalBatches = Math.ceil(exercises.length / BATCH_SIZE);
             
-            updateImportProgress(30, 'Validando ejercicios JSON...');
+            console.log(`� Processing ${exercises.length} exercises in ${totalBatches} batches of ${BATCH_SIZE} each`);
             
-            const requestData = {
-                exercises: exercises,
+            let totalImported = 0;
+            let totalErrors = [];
+            let totalSkipped = 0;
+            let totalValidationErrors = 0;
+            
+            // Process each batch
+            for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+                const startIndex = batchIndex * BATCH_SIZE;
+                const endIndex = Math.min(startIndex + BATCH_SIZE, exercises.length);
+                const batchExercises = exercises.slice(startIndex, endIndex);
+                
+                const progressPercentage = Math.round((batchIndex / totalBatches) * 80) + 10; // 10-90%
+                updateImportProgress(progressPercentage, `Procesando lote ${batchIndex + 1}/${totalBatches} (${batchExercises.length} ejercicios)...`);
+                
+                console.log(`📤 Sending batch ${batchIndex + 1}/${totalBatches}: ${batchExercises.length} exercises`);
+                
+                const requestData = {
+                    exercises: batchExercises,
+                    metadata: {
+                        filename: selectedFile.name,
+                        filesize: selectedFile.size,
+                        upload_time: new Date().toISOString(),
+                        batch_index: batchIndex + 1,
+                        total_batches: totalBatches,
+                        batch_size: batchExercises.length
+                    }
+                };
+                
+                try {
+                    const batchResponse = await fetch('/api/admin/exercises/import', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestData)
+                    });
+                    
+                    console.log(`� Batch ${batchIndex + 1} response status:`, batchResponse.status);
+                    
+                    if (!batchResponse.ok) {
+                        // Handle batch error
+                        let errorData;
+                        try {
+                            const responseText = await batchResponse.text();
+                            console.error(`❌ Batch ${batchIndex + 1} error response:`, responseText);
+                            
+                            try {
+                                errorData = JSON.parse(responseText);
+                            } catch {
+                                throw new Error(`Error del servidor (${batchResponse.status}): ${responseText.substring(0, 200)}...`);
+                            }
+                        } catch (textError) {
+                            throw new Error(`Error del servidor (${batchResponse.status}): No se pudo leer la respuesta`);
+                        }
+                        
+                        throw new Error(errorData.error || `Error en lote ${batchIndex + 1}`);
+                    }
+                    
+                    // Success: process batch results
+                    const batchResult = await batchResponse.json();
+                    console.log(`✅ Batch ${batchIndex + 1} result:`, batchResult);
+                    
+                    totalImported += batchResult.imported || 0;
+                    totalSkipped += batchResult.skipped_duplicates || 0;
+                    totalValidationErrors += batchResult.validation_errors || 0;
+                    
+                    if (batchResult.errors && Array.isArray(batchResult.errors)) {
+                        totalErrors.push(...batchResult.errors.map(err => `Lote ${batchIndex + 1}: ${err}`));
+                    }
+                    
+                    // Small delay between batches to avoid overwhelming the server
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                } catch (batchError) {
+                    console.error(`❌ Batch ${batchIndex + 1} failed:`, batchError);
+                    totalErrors.push(`Lote ${batchIndex + 1}: ${batchError.message}`);
+                    
+                    // Continue with next batch even if one fails
+                    continue;
+                }
+            }
+            
+            // Create combined result from all batches
+            const combinedResult = {
+                imported: totalImported,
+                skipped_duplicates: totalSkipped,
+                validation_errors: totalValidationErrors,
+                total_errors: totalErrors.length,
+                errors: totalErrors.slice(-10), // Last 10 errors
+                total: exercises.length,
                 metadata: {
                     filename: selectedFile.name,
-                    filesize: selectedFile.size,
-                    upload_time: new Date().toISOString()
+                    batch_processing: true,
+                    total_batches: totalBatches,
+                    batch_size: BATCH_SIZE
+                },
+                processing_stats: {
+                    total_batches: totalBatches,
+                    success_rate: Math.round((totalImported / exercises.length) * 100)
                 }
             };
             
-            console.log('📤 Sending JSON import request:', {
-                exerciseCount: exercises.length,
-                filename: selectedFile.name
-            });
+            console.log('🎉 All batches completed. Combined result:', combinedResult);
             
-            response = await fetch('/api/admin/exercises/import', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestData)
-            });
+            // Show results
+            showImportResults(combinedResult);
+            
+            // Verify database
+            console.log('🔍 Verifying exercises in database...');
+            try {
+                const verifyResponse = await fetch('/admin/exercises/debug');
+                if (verifyResponse.ok) {
+                    const debugInfo = await verifyResponse.json();
+                    console.log('📊 Database verification:', debugInfo);
+                    
+                    if (debugInfo.raw_exercises_count > 0) {
+                        showAlert('success', `✅ Importación exitosa y verificada: ${debugInfo.raw_exercises_count} ejercicios en la base de datos`);
+                    } else {
+                        showAlert('warning', '⚠️ La importación pareció exitosa pero no hay ejercicios en la base de datos');
+                    }
+                }
+            } catch (verifyError) {
+                console.warn('⚠️ Could not verify database:', verifyError);
+            }
+            
+            // Refresh exercises list if successful
+            if (combinedResult.imported > 0) {
+                console.log('🔄 Refreshing exercises list...');
+                showAlert('info', 'Actualizando lista de ejercicios...');
+                
+                setTimeout(() => {
+                    refreshExercises();
+                }, 2000);
+            }
+            
+            // Don't continue to the original single-request processing
+            return;
         }
         
+        // This part only executes for CSV imports
         updateImportProgress(50, 'Procesando en servidor...');
         
         console.log('📥 Response status:', response.status);
