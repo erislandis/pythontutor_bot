@@ -561,6 +561,94 @@ def api_get_logs():
         logger.error(f"API get logs error: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/admin/logs/diagnose', methods=['GET'])
+@admin_required
+def diagnose_logs_system():
+    """Diagnose logs system - check table, connection, permissions"""
+    try:
+        logger.info("=== LOGS SYSTEM DIAGNOSIS STARTED ===")
+        
+        diagnosis = {
+            'timestamp': datetime.now().isoformat(),
+            'supabase_client': False,
+            'table_exists': False,
+            'table_accessible': False,
+            'can_insert': False,
+            'can_delete': False,
+            'log_count': 0,
+            'errors': [],
+            'recommendations': []
+        }
+        
+        # Check Supabase client
+        if supabase:
+            diagnosis['supabase_client'] = True
+            logger.info("✅ Supabase client exists")
+        else:
+            diagnosis['errors'].append("Supabase client is None")
+            diagnosis['recommendations'].append("Check Supabase environment variables")
+            return jsonify(diagnosis), 500
+        
+        # Check table existence
+        try:
+            result = supabase.table('system_logs').select('count').execute()
+            diagnosis['table_exists'] = True
+            diagnosis['table_accessible'] = True
+            logger.info("✅ Table exists and is accessible")
+        except Exception as e:
+            diagnosis['errors'].append(f"Table access failed: {str(e)}")
+            diagnosis['recommendations'].append("Create system_logs table manually")
+            logger.error(f"❌ Table access failed: {e}")
+            return jsonify(diagnosis), 500
+        
+        # Check insert permission
+        try:
+            test_data = {
+                'level': 'info',
+                'message': 'diagnostic test record',
+                'source': 'diagnosis',
+                'user_id': None,
+                'metadata': {'test': True}
+            }
+            result = supabase.table('system_logs').insert(test_data).execute()
+            diagnosis['can_insert'] = True
+            logger.info("✅ Insert permission works")
+            
+            # Clean up test record
+            if result.data and len(result.data) > 0:
+                test_id = result.data[0]['id']
+                delete_result = supabase.table('system_logs').delete().eq('id', test_id).execute()
+                diagnosis['can_delete'] = True
+                logger.info("✅ Delete permission works")
+                
+        except Exception as e:
+            diagnosis['errors'].append(f"Insert/delete failed: {str(e)}")
+            diagnosis['recommendations'].append("Check table permissions")
+            logger.error(f"❌ Insert/delete failed: {e}")
+        
+        # Count logs
+        try:
+            count_result = supabase.table('system_logs').select('id').execute()
+            diagnosis['log_count'] = len(count_result.data) if count_result.data else 0
+            logger.info(f"📊 Current log count: {diagnosis['log_count']}")
+        except Exception as e:
+            diagnosis['errors'].append(f"Count failed: {str(e)}")
+            logger.error(f"❌ Count failed: {e}")
+        
+        # Final assessment
+        if not diagnosis['errors']:
+            diagnosis['status'] = 'healthy'
+            logger.info("✅ Logs system is healthy")
+        else:
+            diagnosis['status'] = 'unhealthy'
+            logger.warning(f"⚠️ Logs system has {len(diagnosis['errors'])} issues")
+        
+        return jsonify(diagnosis)
+        
+    except Exception as e:
+        logger.error(f"Diagnosis failed: {e}", exc_info=True)
+        return jsonify({'error': f'Diagnosis failed: {str(e)}'}), 500
+
 @app.route('/api/admin/logs', methods=['DELETE'])
 @admin_required
 def api_delete_logs():
