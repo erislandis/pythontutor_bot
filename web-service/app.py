@@ -2015,9 +2015,13 @@ def admin_help():
 def check_bot_service_health():
     """Check if bot service is actually running"""
     try:
-        bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+        bot_service_url = os.getenv('BOT_SERVICE_URL', 'https://pythontutor-bot.onrender.com')
         response = requests.get(f"{bot_service_url}/health", timeout=5)
-        return response.status_code == 200
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('bot_running', False) and data.get('status') == 'ok'
+        return False
     except Exception as e:
         logger.error(f"Bot service health check failed: {e}")
         return False
@@ -2219,7 +2223,7 @@ def start_bot():
         
         if response.data:
             # Send start command to bot service
-            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'https://pythontutor-bot.onrender.com')
             try:
                 bot_response = requests.post(
                     f"{bot_service_url}/control",
@@ -2248,6 +2252,23 @@ def start_bot():
                         return jsonify({
                             'status': 'error',
                             'message': 'Bot failed to start - service not responding'
+                        }), 500
+                elif bot_response.status_code == 404:
+                    # Control endpoint doesn't exist, but bot might be running
+                    logger.warning(f"Bot service control endpoint not found (404), checking health...")
+                    if check_bot_service_health():
+                        # Bot is running but no control endpoint
+                        update_bot_status_in_db('active', 'Bot is running (no control endpoint)', current_user.username)
+                        return jsonify({
+                            'status': 'success',
+                            'bot_status': 'active',
+                            'message': 'Bot is already running (control endpoint not available)'
+                        }), 200
+                    else:
+                        update_bot_status_in_db('error', 'Bot control endpoint not found and service not responding', current_user.username)
+                        return jsonify({
+                            'status': 'error',
+                            'message': 'Bot control endpoint not available and service not responding'
                         }), 500
                 else:
                     logger.warning(f"Bot service responded with status: {bot_response.status_code}")
@@ -2308,7 +2329,7 @@ def stop_bot():
         
         if response.data:
             # Send stop command to bot service
-            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'https://pythontutor-bot.onrender.com')
             try:
                 bot_response = requests.post(
                     f"{bot_service_url}/control",
@@ -2365,7 +2386,7 @@ def pause_bot():
         
         if response.data:
             # Send pause command to bot service
-            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'https://pythontutor-bot.onrender.com')
             try:
                 bot_response = requests.post(
                     f"{bot_service_url}/control",
@@ -2422,7 +2443,7 @@ def restart_bot():
         
         if response.data:
             # Send restart command to bot service
-            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'https://pythontutor-bot.onrender.com')
             try:
                 bot_response = requests.post(
                     f"{bot_service_url}/control",
@@ -2497,7 +2518,7 @@ def toggle_maintenance():
         
         if response.data:
             # Send maintenance command to bot service
-            bot_service_url = os.getenv('BOT_SERVICE_URL', 'http://localhost:10001')
+            bot_service_url = os.getenv('BOT_SERVICE_URL', 'https://pythontutor-bot.onrender.com')
             try:
                 bot_response = requests.post(
                     f"{bot_service_url}/control",

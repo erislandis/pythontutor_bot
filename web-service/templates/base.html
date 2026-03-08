@@ -79,82 +79,109 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Enhanced Footer -->
-    <footer class="bg-dark text-light py-5 mt-5">
+    <!-- Professional Footer -->
+    <footer class="bg-gradient-dark text-light py-5 mt-5">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/footer-enhancements.css') }}">
         
         <div class="container">
             <div class="row">
-                <!-- About Section -->
-                <div class="col-lg-4 col-md-6 mb-4 footer-section">
-                    <h5><i class="bi bi-robot me-2"></i>Python Tutor Bot</h5>
-                    <p class="text-muted">Aprende Python de manera interactiva y divertida con nuestro bot de Telegram. Desde los conceptos básicos hasta temas avanzados.</p>
-                    <div class="footer-social mt-3">
-                        <a href="https://t.me/pythontutorbot" target="_blank" class="me-3" title="Telegram">
-                            <i class="bi bi-telegram fs-5"></i>
-                        </a>
-                        <a href="https://github.com/pythontutorbot" target="_blank" class="me-3" title="GitHub">
-                            <i class="bi bi-github fs-5"></i>
-                        </a>
-                        <a href="mailto:support@pythontutor.bot" title="Email">
-                            <i class="bi bi-envelope fs-5"></i>
-                        </a>
+                <!-- Brand Section -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-brand">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-robot fs-2 text-primary me-3"></i>
+                            <div>
+                                <h4 class="mb-0">Python Tutor Bot</h4>
+                                <small class="text-muted">Aprende Python Interactivo</small>
+                            </div>
+                        </div>
+                        <p class="text-muted">Domina Python con lecciones interactivas, ejercicios prácticos y seguimiento personalizado de progreso.</p>
+                        <div class="footer-social">
+                            <a href="https://t.me/pythontutorbot" class="social-icon" target="_blank" title="Telegram">
+                                <i class="bi bi-telegram"></i>
+                            </a>
+                            <a href="https://github.com/pythontutorbot" class="social-icon" target="_blank" title="GitHub">
+                                <i class="bi bi-github"></i>
+                            </a>
+                            <a href="mailto:support@pythontutor.bot" class="social-icon" title="Email">
+                                <i class="bi bi-envelope"></i>
+                            </a>
+                            <a href="https://twitter.com/pythontutorbot" class="social-icon" target="_blank" title="Twitter">
+                                <i class="bi bi-twitter"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Quick Links -->
-                <div class="col-lg-2 col-md-6 mb-4 footer-section">
-                    <h6>Enlaces Rápidos</h6>
-                    <div class="footer-links">
-                        <div class="mb-2"><a href="{{ url_for('index') }}">Inicio</a></div>
-                        <div class="mb-2"><a href="{{ url_for('features') }}">Características</a></div>
-                        <div class="mb-2"><a href="{{ url_for('about') }}">Acerca de</a></div>
-                        <div class="mb-2"><a href="{{ url_for('contact') }}">Contacto</a></div>
-                        <div class="mb-2"><a href="{{ url_for('pricing') }}">Precios</a></div>
-                    </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="footer-heading">Navegación</h6>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('index') }}">Inicio</a></li>
+                        <li><a href="{{ url_for('features') }}">Características</a></li>
+                        <li><a href="{{ url_for('about') }}">Acerca de</a></li>
+                        <li><a href="{{ url_for('pricing') }}">Precios</a></li>
+                        <li><a href="{{ url_for('contact') }}">Contacto</a></li>
+                    </ul>
                 </div>
                 
                 <!-- Resources -->
-                <div class="col-lg-3 col-md-6 mb-4 footer-section">
-                    <h6>Recursos</h6>
-                    <div class="footer-links">
-                        <div class="mb-2"><a href="{{ url_for('documentation') }}">Documentación</a></div>
-                        <div class="mb-2"><a href="{{ url_for('tutorial') }}">Tutorial</a></div>
-                        <div class="mb-2"><a href="{{ url_for('faq') }}">FAQ</a></div>
-                        <div class="mb-2"><a href="{{ url_for('blog') }}">Blog</a></div>
-                        <div class="mb-2"><a href="{{ url_for('support') }}">Soporte</a></div>
-                    </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h6 class="footer-heading">Recursos</h6>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('documentation') }}">Documentación</a></li>
+                        <li><a href="{{ url_for('tutorial') }}">Tutorial</a></li>
+                        <li><a href="{{ url_for('faq') }}">FAQ</a></li>
+                        <li><a href="{{ url_for('blog') }}">Blog</a></li>
+                        <li><a href="{{ url_for('support') }}">Soporte</a></li>
+                    </ul>
                 </div>
                 
-                <!-- Contact & Legal -->
-                <div class="col-lg-3 col-md-6 mb-4 footer-section">
-                    <h6>Contacto & Legal</h6>
-                    <div class="footer-links">
-                        <div class="mb-2">
-                            <i class="bi bi-envelope me-2"></i>support@pythontutor.bot
+                <!-- Legal & Stats -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h6 class="footer-heading">Legal & Estadísticas</h6>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('privacy') }}">Política de Privacidad</a></li>
+                        <li><a href="{{ url_for('terms') }}">Términos de Servicio</a></li>
+                    </ul>
+                    <div class="footer-stats mt-3">
+                        <div class="stat-item">
+                            <i class="bi bi-people-fill text-primary"></i>
+                            <span id="footerUsers">+1000</span> Estudiantes
                         </div>
-                        <div class="mb-2">
-                            <i class="bi bi-telegram me-2"></i>@PythonTutorBot
+                        <div class="stat-item">
+                            <i class="bi bi-code-slash text-success"></i>
+                            <span id="footerExercises">+50</span> Ejercicios
                         </div>
-                        <div class="mb-2">
-                            <i class="bi bi-globe me-2"></i>www.pythontutor.bot
+                        <div class="stat-item">
+                            <i class="bi bi-check-circle-fill text-info"></i>
+                            <span id="footerSuccess">98%</span> Éxito
                         </div>
-                        <div class="mb-2"><a href="{{ url_for('privacy') }}">Política de Privacidad</a></div>
-                        <div class="mb-2"><a href="{{ url_for('terms') }}">Términos de Servicio</a></div>
                     </div>
                 </div>
             </div>
             
-            <hr class="my-4 bg-light">
-            
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="mb-0">&copy; 2024 Python Tutor Bot. Todos los derechos reservados.</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <small class="text-muted">
-                        Hecho con <i class="bi bi-heart-fill footer-heart"></i> para la comunidad Python
-                    </small>
+            <!-- Bottom Bar -->
+            <div class="footer-bottom mt-4 pt-4 border-top border-secondary">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="mb-0 text-muted">
+                            © 2024 Python Tutor Bot. Hecho con <i class="bi bi-heart-fill text-danger"></i> para la comunidad Python.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="footer-badges">
+                            <span class="badge bg-success me-2" id="footerStatus">
+                                <i class="bi bi-check-circle"></i> Activo
+                            </span>
+                            <span class="badge bg-info">
+                                <i class="bi bi-shield-check"></i> Seguro
+                            </span>
+                            <span class="badge bg-warning">
+                                <i class="bi bi-lightning-fill"></i> Gratuito
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -164,6 +191,101 @@
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Footer Stats Update Script -->
+    <script>
+        // Update footer stats when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFooterStats();
+            updateFooterStatus();
+            // Update every 30 seconds
+            setInterval(updateFooterStats, 30000);
+            setInterval(updateFooterStatus, 10000);
+        });
+
+        function updateFooterStats() {
+            // Fetch user statistics
+            fetch('/api/admin/users/stats', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && !data.error) {
+                    // Update users count
+                    const usersElement = document.getElementById('footerUsers');
+                    if (usersElement) {
+                        if (data.total > 1000) {
+                            usersElement.textContent = `+${Math.floor(data.total / 100) * 100}`;
+                        } else {
+                            usersElement.textContent = data.total;
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.log('Could not fetch user stats for footer');
+            });
+
+            // Fetch bot statistics for exercises
+            fetch('/api/admin/bot/stats', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && !data.error) {
+                    // Update exercises count
+                    const exercisesElement = document.getElementById('footerExercises');
+                    if (exercisesElement && data.exercises_completed) {
+                        if (data.exercises_completed > 50) {
+                            exercisesElement.textContent = `+${Math.floor(data.exercises_completed / 10) * 10}`;
+                        } else {
+                            exercisesElement.textContent = data.exercises_completed;
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.log('Could not fetch bot stats for footer');
+            });
+        }
+
+        function updateFooterStatus() {
+            // Fetch bot status
+            fetch('/api/admin/bot/status', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const statusElement = document.getElementById('footerStatus');
+                    if (statusElement) {
+                        if (data.bot_status === 'active' && data.connection_status === 'connected') {
+                            statusElement.innerHTML = '<i class="bi bi-check-circle"></i> Activo';
+                            statusElement.className = 'badge bg-success me-2';
+                        } else if (data.bot_status === 'maintenance') {
+                            statusElement.innerHTML = '<i class="bi bi-tools"></i> Mantenimiento';
+                            statusElement.className = 'badge bg-warning me-2';
+                        } else {
+                            statusElement.innerHTML = '<i class="bi bi-x-circle"></i> Inactivo';
+                            statusElement.className = 'badge bg-danger me-2';
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.log('Could not fetch bot status for footer');
+            });
+        }
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>
