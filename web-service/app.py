@@ -884,7 +884,10 @@ def notify_bot_changes():
 def api_get_exercises():
     """Get all exercises - MEJORADO"""
     try:
+        logger.info("🔍 API GET /api/admin/exercises called")
+        
         if not supabase:
+            logger.error("❌ Database connection error in get exercises")
             return jsonify({'error': 'Database connection error'}), 500
         
         level = request.args.get('level')
@@ -902,6 +905,8 @@ def api_get_exercises():
         exercises = response.data or []
         
         logger.info(f"📊 Retrieved {len(exercises)} exercises from database")
+        logger.info(f"📊 First exercise ID: {exercises[0]['id'] if exercises else 'None'}")
+        logger.info(f"📊 Last exercise ID: {exercises[-1]['id'] if exercises else 'None'}")
         
         # Process options for each exercise
         for exercise in exercises:
