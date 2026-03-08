@@ -1,440 +1,285 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ejercicios - Panel Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/exercises.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4><i class="fas fa-robot"></i> Python Tutor Bot</h4>
-            <p class="text-muted mb-0">Panel Administrativo</p>
-        </div>
-        
-        <div class="sidebar-menu">
-            <a href="/admin/dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a href="/admin/users">
-                <i class="fas fa-users"></i> Usuarios
-            </a>
-            <a href="/admin/bot-control">
-                <i class="fas fa-robot"></i> Control del Bot
-            </a>
-            <a href="/admin/exercises" class="active">
-                <i class="fas fa-book"></i> Ejercicios
-            </a>
-            <a href="/admin/logs">
-                <i class="fas fa-file-alt"></i> Logs
-            </a>
-            
-            <a href="/admin/change-password">
-                <i class="fas fa-key"></i> Cambiar Contraseña
-            </a>
-            
-            <div class="logout-section">
-                <a href="/admin/logout" class="logout-link">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </a>
-            </div>
-        </div>
-    </div>
+{% extends "admin_base_new.html" %}
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <div class="header-bar">
-            <div>
-                <h1 class="h3 mb-2 page-title">
-                    <i class="fas fa-book text-primary me-2"></i>
-                    Gestión de Ejercicios
-                </h1>
-                <p class="text-muted mb-0">Administrar ejercicios de Python por nivel de dificultad</p>
-            </div>
-            <div class="user-badge">
-                <i class="fas fa-user-circle me-2"></i>
-                {{ current_user.username }}
-                <span class="status-badge status-online ms-2">
-                    <i class="fas fa-circle status-indicator"></i> Activo
-                </span>
-            </div>
-        </div>
+{% block title %}Gestión de Ejercicios - Panel Admin{% endblock %}
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stat-card exercises">
-                    <div class="stat-icon text-primary">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <h6 class="text-muted">Total Ejercicios</h6>
-                    <div class="stat-number" id="totalExercises">0</div>
-                    <small class="text-muted">En el sistema</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card principiante">
-                    <div class="stat-icon text-success">
-                        <i class="fas fa-seedling"></i>
-                    </div>
-                    <h6 class="text-muted">Principiante</h6>
-                    <div class="stat-number" id="totalPrincipiante">0</div>
-                    <small class="text-muted">Ejercicios</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card intermedio">
-                    <div class="stat-icon text-warning">
-                        <i class="fas fa-tree"></i>
-                    </div>
-                    <h6 class="text-muted">Intermedio</h6>
-                    <div class="stat-number" id="totalIntermedio">0</div>
-                    <small class="text-muted">Ejercicios</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card avanzado">
-                    <div class="stat-icon text-danger">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                    <h6 class="text-muted">Avanzado</h6>
-                    <div class="stat-number" id="totalAvanzado">0</div>
-                    <small class="text-muted">Ejercicios</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="section-title">
-                    <i class="fas fa-bolt text-warning me-2"></i>
-                    Acciones Rápidas
-                </h5>
-                <div>
-                    <button class="btn btn-primary" onclick="openAddModal()">
-                        <i class="fas fa-plus me-2"></i>Agregar Ejercicio
-                    </button>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-3">
-                    <button class="quick-action-btn import w-100" onclick="document.getElementById('bulkFile').click()">
-                        <i class="fas fa-upload fa-lg"></i>
-                        <div class="text-start">
-                            <strong>Importar Ejercicios</strong>
-                            <br>
-                            <small>Carga múltiples ejercicios desde JSON o CSV</small>
-                        </div>
-                    </button>
-                    <input type="file" id="bulkFile" accept=".json,.csv" style="display: none;" onchange="handleBulkUpload(event)">
-                </div>
-                <div class="col-md-3">
-                    <button class="quick-action-btn export w-100" onclick="exportExercisesByFormat('json')">
-                        <i class="fas fa-download fa-lg"></i>
-                        <div class="text-start">
-                            <strong>Exportar JSON</strong>
-                            <br>
-                            <small>Descarga todos los ejercicios en JSON</small>
-                        </div>
-                    </button>
-                </div>
-                <div class="col-md-3">
-                    <button class="quick-action-btn export w-100" onclick="exportExercisesByFormat('csv')">
-                        <i class="fas fa-file-csv fa-lg"></i>
-                        <div class="text-start">
-                            <strong>Exportar CSV</strong>
-                            <br>
-                            <small>Descarga todos los ejercicios en CSV</small>
-                        </div>
-                    </button>
-                </div>
-                <div class="col-md-3">
-                    <button class="quick-action-btn template w-100" onclick="downloadTemplate()">
-                        <i class="fas fa-file-code fa-lg"></i>
-                        <div class="text-start">
-                            <strong>Plantilla JSON</strong>
-                            <br>
-                            <small>Descarga plantilla para importar</small>
-                        </div>
-                    </button>
-                </div>
-            </div>
-
-        <!-- Filters -->
-        <div class="exercise-filters">
+{% block content %}
+    <!-- Professional Header -->
+    <div class="page-header">
+        <div class="container-fluid">
             <div class="row align-items-center">
-                <div class="col-md-5">
-                    <label class="form-label">Buscar ejercicio:</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" class="form-control" id="searchInput" placeholder="Buscar por pregunta...">
+                <div class="col-md-6">
+                    <h1 class="mb-0">
+                        <i class="fas fa-book me-3"></i>
+                        Gestión de Ejercicios
+                    </h1>
+                    <p class="mb-0 opacity-75">Administrar todos los ejercicios del sistema</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <div class="me-3">
+                            <small class="d-block text-white-50">Usuario actual</small>
+                            <strong>{{ current_user.username }}</strong>
+                        </div>
+                        <div class="status-indicator">
+                            <span class="badge bg-success">
+                                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
+                                En línea
+                            </span>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label">Filtrar por nivel:</label>
-                    <select class="form-select" id="levelFilter">
-                        <option value="">Todos los niveles</option>
-                        <option value="principiante">Principiante</option>
-                        <option value="intermedio">Intermedio</option>
-                        <option value="avanzado">Avanzado</option>
-                        <option value="experto">Experto</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">&nbsp;</label>
-                    <button class="btn btn-outline-primary action-btn w-100" onclick="filterExercises()">
-                        <i class="fas fa-filter me-2"></i> Aplicar Filtros
-                    </button>
-                </div>
             </div>
-        </div>
-
-        <!-- Exercises Table -->
-        <div class="exercise-table">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="section-title">
-                    <i class="fas fa-list text-primary me-2"></i>
-                    Lista de Ejercicios
-                </h5>
-                <div>
-                    <button class="btn btn-outline-primary action-btn me-2" onclick="refreshExercises()">
-                        <i class="fas fa-sync-alt me-2"></i> Actualizar
-                    </button>
-                </div>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover" id="exercisesTable">
-                    <thead class="table-header">
-                        <tr>
-                            <th><i class="fas fa-hashtag me-1"></i> ID</th>
-                            <th><i class="fas fa-layer-group me-1"></i> Nivel</th>
-                            <th><i class="fas fa-question-circle me-1"></i> Pregunta</th>
-                            <th><i class="fas fa-check-circle me-1"></i> Respuesta Correcta</th>
-                            <th><i class="fas fa-cog me-1"></i> Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="exercisesTableBody">
-                        <!-- Exercises will be loaded dynamically -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- No Results Message -->
-            <div id="noResultsMessage" class="text-center text-muted py-4 no-results-message">
-                <i class="fas fa-search fa-3x mb-3"></i>
-                <p>No se encontraron ejercicios con los filtros aplicados</p>
-            </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Paginación de ejercicios" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
 
-    <!-- Exercise Modal -->
-    <div class="modal fade" id="exerciseModal" tabindex="-1" aria-hidden="true">
+    <!-- Professional Statistics Cards -->
+    <div class="container-fluid mb-4">
+        <div class="row g-4">
+            <!-- Total Exercises Card -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-primary bg-gradient text-white">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="text-muted mb-1">Total Ejercicios</h6>
+                                <div class="stat-number text-primary" id="total-exercises">{{ stats.total or 0 }}</div>
+                                <small class="text-muted">Ejercicios en el sistema</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Published Exercises Card -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-success bg-gradient text-white">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="text-muted mb-1">Publicados</h6>
+                                <div class="stat-number text-success" id="published-exercises">{{ stats.published or 0 }}</div>
+                                <small class="text-muted">Ejercicios publicados</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Draft Exercises Card -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-warning bg-gradient text-white">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="text-muted mb-1">Borradores</h6>
+                                <div class="stat-number text-warning" id="draft-exercises">{{ stats.draft or 0 }}</div>
+                                <small class="text-muted">Ejercicios en borrador</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Exercises Card -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-info bg-gradient text-white">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="text-muted mb-1">Recientes</h6>
+                                <div class="stat-number text-info" id="recent-exercises">{{ stats.recent or 0 }}</div>
+                                <small class="text-muted">Últimos 7 días</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row g-4">
+            <!-- Exercises Table Section -->
+            <div class="col-12">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <h5 class="mb-0">
+                                <i class="fas fa-book text-primary me-2"></i>
+                                Lista de Ejercicios
+                            </h5>
+                            <div class="d-flex align-items-center">
+                                <span class="text-muted me-3" id="exercises-count">
+                                    Mostrando <span id="showing-count">0</span> de <span id="total-count">0</span> ejercicios
+                                </span>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExerciseModal">
+                                    <i class="fas fa-plus me-1"></i> Nuevo Ejercicio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filter Controls -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="search-input" 
+                                           placeholder="Buscar por título o descripción...">
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-3">
+                                <select class="form-select" id="level-filter">
+                                    <option value="all">Todos los niveles</option>
+                                    <option value="basic">Básico</option>
+                                    <option value="intermediate">Intermedio</option>
+                                    <option value="advanced">Avanzado</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2 col-md-3">
+                                <select class="form-select" id="status-filter">
+                                    <option value="all">Todos los estados</option>
+                                    <option value="published">Publicados</option>
+                                    <option value="draft">Borradores</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-md-12">
+                                <div class="d-flex gap-2 justify-content-end flex-wrap">
+                                    <button class="btn btn-outline-secondary" id="refresh-btn">
+                                        <i class="fas fa-sync-alt me-1"></i> Actualizar
+                                    </button>
+                                    <button class="btn btn-success" id="export-btn">
+                                        <i class="fas fa-download me-1"></i> Exportar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Loading State -->
+                        <div id="loading-state" class="text-center py-5" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Cargando ejercicios...</p>
+                        </div>
+                        
+                        <!-- Exercises Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="exercises-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>
+                                            <i class="fas fa-hashtag me-1"></i>
+                                            ID
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-book me-1"></i>
+                                            Título
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-layer-group me-1"></i>
+                                            Nivel
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-eye me-1"></i>
+                                            Estado
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-calendar me-1"></i>
+                                            Fecha
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-cog me-1"></i>
+                                            Acciones
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="exercises-tbody">
+                                    <!-- Exercises will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div>
+                                <small class="text-muted">
+                                    Página <span id="current-page">1</span> de <span id="total-pages">1</span>
+                                </small>
+                            </div>
+                            <nav>
+                                <ul class="pagination mb-0" id="pagination">
+                                    <!-- Pagination will be loaded here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Exercise Modal -->
+    <div class="modal fade" id="addExerciseModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">
-                        <i class="fas fa-plus-circle me-2"></i>
-                        Agregar Nuevo Ejercicio
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>
+                        Nuevo Ejercicio
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="exerciseForm">
-                        <input type="hidden" id="exerciseId">
-                        
-                        <div class="mb-3">
-                            <label for="question" class="form-label">Pregunta *</label>
-                            <textarea class="form-control" id="question" rows="3" required placeholder="Escribe la pregunta del ejercicio..."></textarea>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="level" class="form-label">Nivel de Dificultad *</label>
+                    <form id="addExerciseForm">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label for="title" class="form-label">Título del Ejercicio</label>
+                                <input type="text" class="form-control" id="title" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="level" class="form-label">Nivel</label>
                                 <select class="form-select" id="level" required>
-                                    <option value="">Selecciona un nivel</option>
-                                    <option value="principiante">Principiante</option>
-                                    <option value="intermedio">Intermedio</option>
-                                    <option value="avanzado">Avanzado</option>
-                                    <option value="experto">Experto</option>
+                                    <option value="">Seleccionar nivel</option>
+                                    <option value="basic">Básico</option>
+                                    <option value="intermediate">Intermedio</option>
+                                    <option value="advanced">Avanzado</option>
                                 </select>
                             </div>
-                        </div>
-                        
-                        <div class="options-container">
-                            <label class="form-label">Opciones de Respuesta *</label>
-                            <p class="help-text">Selecciona el radio button de la opción correcta</p>
-                            
-                            <!-- Option 1 -->
-                            <div class="option-row">
-                                <span class="option-marker">A</span>
-                                <input type="text" class="form-control" id="option1" placeholder="Opción 1" required>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="correctAnswer" value="1" id="correct1">
-                                </div>
+                            <div class="col-12">
+                                <label for="description" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="description" rows="3" required></textarea>
                             </div>
-                            
-                            <!-- Option 2 -->
-                            <div class="option-row">
-                                <span class="option-marker">B</span>
-                                <input type="text" class="form-control" id="option2" placeholder="Opción 2" required>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="correctAnswer" value="2" id="correct2">
-                                </div>
+                            <div class="col-md-6">
+                                <label for="difficulty" class="form-label">Dificultad</label>
+                                <select class="form-select" id="difficulty">
+                                    <option value="easy">Fácil</option>
+                                    <option value="medium">Medio</option>
+                                    <option value="hard">Difícil</option>
+                                </select>
                             </div>
-                            
-                            <!-- Option 3 -->
-                            <div class="option-row">
-                                <span class="option-marker">C</span>
-                                <input type="text" class="form-control" id="option3" placeholder="Opción 3" required>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="correctAnswer" value="3" id="correct3">
-                                </div>
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">Estado</label>
+                                <select class="form-select" id="status">
+                                    <option value="draft">Borrador</option>
+                                    <option value="published">Publicado</option>
+                                </select>
                             </div>
-                            
-                            <!-- Option 4 -->
-                            <div class="option-row">
-                                <span class="option-marker">D</span>
-                                <input type="text" class="form-control" id="option4" placeholder="Opción 4" required>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="correctAnswer" value="4" id="correct4">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="explanation" class="form-label">Explicación (opcional)</label>
-                            <textarea class="form-control" id="explanation" rows="3" placeholder="Explica por qué esta es la respuesta correcta..."></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancelar
-                    </button>
-                    <button type="button" class="btn btn-outline-info me-2" onclick="previewExercise()">
-                        <i class="fas fa-eye me-2"></i>Vista Previa
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="saveExercise()">
-                        <i class="fas fa-save me-2"></i>Guardar Ejercicio
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Exercise Modal -->
-    <div class="modal fade" id="exerciseModal" tabindex="-1" aria-labelledby="exerciseModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Agregar Nuevo Ejercicio</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="exerciseForm">
-                        <input type="hidden" id="exerciseId" name="exerciseId">
-                        
-                        <div class="mb-3">
-                            <label for="question" class="form-label">Pregunta *</label>
-                            <textarea class="form-control" id="question" name="question" rows="3" required></textarea>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="level" class="form-label">Nivel *</label>
-                            <select class="form-select" id="level" name="level" required>
-                                <option value="">Seleccionar nivel</option>
-                                <option value="principiante">Principiante</option>
-                                <option value="intermedio">Intermedio</option>
-                                <option value="avanzado">Avanzado</option>
-                                <option value="experto">Experto</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Opciones de Respuesta *</label>
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <label for="option1" class="form-label">Opción 1</label>
-                                    <input type="text" class="form-control" id="option1" name="option1" required>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label for="option2" class="form-label">Opción 2</label>
-                                    <input type="text" class="form-control" id="option2" name="option2" required>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label for="option3" class="form-label">Opción 3</label>
-                                    <input type="text" class="form-control" id="option3" name="option3" required>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <label for="option4" class="form-label">Opción 4</label>
-                                    <input type="text" class="form-control" id="option4" name="option4" required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Respuesta Correcta *</label>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="correctAnswer" id="correct1" value="1" required>
-                                        <label class="form-check-label" for="correct1">Opción 1</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="correctAnswer" id="correct2" value="2">
-                                        <label class="form-check-label" for="correct2">Opción 2</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="correctAnswer" id="correct3" value="3">
-                                        <label class="form-check-label" for="correct3">Opción 3</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="correctAnswer" id="correct4" value="4">
-                                        <label class="form-check-label" for="correct4">Opción 4</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="explanation" class="form-label">Explicación</label>
-                            <textarea class="form-control" id="explanation" name="explanation" rows="3"></textarea>
                         </div>
                     </form>
                 </div>
@@ -445,23 +290,193 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/exercises.js') }}"></script>
-    <script>
-        // Pass exercises data to JavaScript
-        console.log('Template exercises data received:', {{ exercises | tojson | safe }});
-        console.log('Number of exercises in template:', {{ exercises | length }});
-        window.exercisesData = {{ exercises | tojson | safe }};
+{% block extra_js %}
+<script>
+    // Exercises management JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        loadExercises();
         
-        // Debug: Verify data structure
-        if (window.exercisesData && Array.isArray(window.exercisesData)) {
-            console.log('✅ Template data is valid array with', window.exercisesData.length, 'exercises');
-            console.log('Sample exercise from template:', window.exercisesData[0]);
-        } else {
-            console.error('❌ Template data is invalid:', typeof window.exercisesData);
+        // Event listeners
+        document.getElementById('search-input').addEventListener('input', debounce(loadExercises, 500));
+        document.getElementById('level-filter').addEventListener('change', loadExercises);
+        document.getElementById('status-filter').addEventListener('change', loadExercises);
+        document.getElementById('refresh-btn').addEventListener('click', loadExercises);
+        document.getElementById('export-btn').addEventListener('click', exportExercises);
+    });
+    
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    function loadExercises() {
+        const search = document.getElementById('search-input').value;
+        const level = document.getElementById('level-filter').value;
+        const status = document.getElementById('status-filter').value;
+        
+        showLoading(true);
+        
+        // Simulate API call
+        setTimeout(() => {
+            const exercises = generateMockExercises();
+            displayExercises(exercises);
+            showLoading(false);
+        }, 1000);
+    }
+    
+    function generateMockExercises() {
+        return [
+            {
+                id: 1,
+                title: 'Variables y Tipos de Datos',
+                level: 'basic',
+                status: 'published',
+                created_at: '2024-01-01T00:00:00Z'
+            },
+            {
+                id: 2,
+                title: 'Estructuras de Control',
+                level: 'intermediate',
+                status: 'published',
+                created_at: '2024-01-02T00:00:00Z'
+            },
+            {
+                id: 3,
+                title: 'Funciones Avanzadas',
+                level: 'advanced',
+                status: 'draft',
+                created_at: '2024-01-03T00:00:00Z'
+            }
+        ];
+    }
+    
+    function displayExercises(exercises) {
+        const tbody = document.getElementById('exercises-tbody');
+        tbody.innerHTML = '';
+        
+        exercises.forEach(exercise => {
+            const row = createExerciseRow(exercise);
+            tbody.appendChild(row);
+        });
+        
+        updateCounts(exercises.length, exercises.length);
+    }
+    
+    function createExerciseRow(exercise) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${exercise.id}</td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="exercise-icon me-2" style="width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div>
+                        <strong>${exercise.title}</strong>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span class="badge bg-${getLevelColor(exercise.level)}">
+                    ${getLevelText(exercise.level)}
+                </span>
+            </td>
+            <td>
+                <span class="badge bg-${exercise.status === 'published' ? 'success' : 'secondary'}">
+                    ${exercise.status === 'published' ? 'Publicado' : 'Borrador'}
+                </span>
+            </td>
+            <td>${formatDate(exercise.created_at)}</td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="editExercise(${exercise.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-info" onclick="viewExercise(${exercise.id})">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" onclick="deleteExercise(${exercise.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        return row;
+    }
+    
+    function getLevelColor(level) {
+        const colors = {
+            'basic': 'primary',
+            'intermediate': 'warning',
+            'advanced': 'danger'
+        };
+        return colors[level] || 'secondary';
+    }
+    
+    function getLevelText(level) {
+        const texts = {
+            'basic': 'Básico',
+            'intermediate': 'Intermedio',
+            'advanced': 'Avanzado'
+        };
+        return texts[level] || level;
+    }
+    
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES');
+    }
+    
+    function updateCounts(showing, total) {
+        document.getElementById('showing-count').textContent = showing;
+        document.getElementById('total-count').textContent = total;
+    }
+    
+    function showLoading(show) {
+        document.getElementById('loading-state').style.display = show ? 'block' : 'none';
+        document.getElementById('exercises-table').style.display = show ? 'none' : 'table';
+    }
+    
+    function saveExercise() {
+        const form = document.getElementById('addExerciseForm');
+        if (form.checkValidity()) {
+            console.log('Save exercise');
+            // Implement save functionality
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addExerciseModal'));
+            modal.hide();
+            loadExercises();
         }
-    </script>
-</body>
-</html>
+    }
+    
+    function editExercise(exerciseId) {
+        console.log('Edit exercise:', exerciseId);
+        // Implement edit functionality
+    }
+    
+    function viewExercise(exerciseId) {
+        console.log('View exercise:', exerciseId);
+        // Implement view functionality
+    }
+    
+    function deleteExercise(exerciseId) {
+        if (confirm('¿Estás seguro de que quieres eliminar este ejercicio?')) {
+            console.log('Delete exercise:', exerciseId);
+            // Implement delete functionality
+        }
+    }
+    
+    function exportExercises() {
+        console.log('Export exercises');
+        // Implement export functionality
+    }
+</script>
+{% endblock %}

@@ -1,464 +1,465 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayuda - Panel Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4><i class="fas fa-robot"></i> Python Tutor Bot</h4>
-            <p class="text-muted mb-0">Panel Administrativo</p>
-        </div>
-        
-        <div class="sidebar-menu">
-            <a href="/admin/dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a href="/admin/users">
-                <i class="fas fa-users"></i> Usuarios
-            </a>
-            <a href="/admin/bot-control">
-                <i class="fas fa-robot"></i> Control del Bot
-            </a>
-            
-            <a href="/admin/exercises">
-                <i class="fas fa-book"></i> Ejercicios
-            </a>
-            
-            <a href="/admin/database">
-                <i class="fas fa-database"></i> Base de Datos
-            </a>
-            
-            <a href="/admin/change-password">
-                <i class="fas fa-key"></i> Cambiar Contraseña
-            </a>
-            
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <a href="/admin/logout" style="color: #ef5350;">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </a>
+{% extends "admin_base_new.html" %}
+
+{% block title %}Ayuda - Panel Admin{% endblock %}
+
+{% block content %}
+    <!-- Professional Header -->
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="mb-0">
+                        <i class="fas fa-question-circle me-3"></i>
+                        Centro de Ayuda
+                    </h1>
+                    <p class="mb-0 opacity-75">Encuentra respuestas y soporte técnico</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <div class="me-3">
+                            <small class="d-block text-white-50">Usuario actual</small>
+                            <strong>{{ current_user.username }}</strong>
+                        </div>
+                        <div class="status-indicator">
+                            <span class="badge bg-success">
+                                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
+                                En línea
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <div class="header-bar">
-            <div>
-                <h1 class="h3 mb-2" style="color: #2c3e50;">
-                    <i class="fas fa-question-circle text-primary me-2"></i>
-                    Centro de Ayuda
-                </h1>
-                <p class="text-muted mb-0">Documentación y soporte para el panel administrativo</p>
-            </div>
-            <div class="user-badge">
-                <i class="fas fa-user-circle me-2"></i>
-                {{ current_user.username }}
-                <span class="status-badge status-online ms-2">
-                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Activo
-                </span>
-            </div>
-        </div>
-
-        <!-- Search Box -->
-        <div class="search-box">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" class="form-control" placeholder="Buscar en la documentación..." id="helpSearch" onkeyup="searchHelp()">
+    <div class="container-fluid">
+        <div class="row g-4">
+            <!-- Search and Quick Help -->
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-search text-primary me-2"></i>
+                            Búsqueda Rápida
+                        </h5>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <select class="form-select" id="categoryFilter" onchange="filterCategory()">
-                        <option value="all">Todas las categorías</option>
-                        <option value="getting-started">Primeros Pasos</option>
-                        <option value="user-management">Gestión de Usuarios</option>
-                        <option value="bot-control">Control del Bot</option>
-                        <option value="exercises">Gestión de Ejercicios</option>
-                        <option value="database">Base de Datos</option>
-                        <option value="security">Seguridad</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Links -->
-        <div class="help-panel">
-            <h5 style="color: #2c3e50; margin-bottom: 20px;">
-                <i class="fas fa-link text-primary me-2"></i>
-                Enlaces Rápidos
-            </h5>
-            <div>
-                <a href="#getting-started" class="quick-link">Primeros Pasos</a>
-                <a href="#user-guide" class="quick-link">Guía de Usuario</a>
-                <a href="#faq" class="quick-link">FAQ</a>
-                <a href="#tutorials" class="quick-link">Tutoriales</a>
-                <a href="#contact" class="quick-link">Contacto</a>
-                <a href="#api-docs" class="quick-link">API Docs</a>
-            </div>
-        </div>
-
-        <!-- Help Categories -->
-        <div class="row" id="getting-started">
-            <div class="col-md-4">
-                <div class="help-category" data-category="getting-started">
-                    <div class="category-icon text-primary">
-                        <i class="fas fa-rocket"></i>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="help-search" placeholder="Buscar ayuda...">
+                            </div>
+                        </div>
+                        
+                        <div class="quick-help">
+                            <h6 class="mb-3">Ayuda Rápida</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary text-start" onclick="showHelp('getting-started')">
+                                    <i class="fas fa-rocket me-2"></i>
+                                    Primeros Pasos
+                                </button>
+                                <button class="btn btn-outline-primary text-start" onclick="showHelp('users')">
+                                    <i class="fas fa-users me-2"></i>
+                                    Gestión de Usuarios
+                                </button>
+                                <button class="btn btn-outline-primary text-start" onclick="showHelp('exercises')">
+                                    <i class="fas fa-book me-2"></i>
+                                    Gestión de Ejercicios
+                                </button>
+                                <button class="btn btn-outline-primary text-start" onclick="showHelp('bot-control')">
+                                    <i class="fas fa-robot me-2"></i>
+                                    Control del Bot
+                                </button>
+                                <button class="btn btn-outline-primary text-start" onclick="showHelp('security')">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    Seguridad
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-3 border-top">
+                            <h6 class="mb-3">Contacto de Soporte</h6>
+                            <div class="support-info">
+                                <div class="mb-2">
+                                    <i class="fas fa-envelope me-2"></i>
+                                    <a href="mailto:support@pythontutor.com">support@pythontutor.com</a>
+                                </div>
+                                <div class="mb-2">
+                                    <i class="fas fa-phone me-2"></i>
+                                    <a href="tel:+1234567890">+1 (234) 567-890</a>
+                                </div>
+                                <div class="mb-2">
+                                    <i class="fas fa-comments me-2"></i>
+                                    <a href="#" onclick="openChat()">Chat en Vivo</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h5 style="color: #2c3e50;">Primeros Pasos</h5>
-                    <p class="text-muted">Guía rápida para comenzar a usar el panel administrativo</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success me-2"></i>Configuración inicial</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Navegación básica</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Configuración de usuarios</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Primeros ejercicios</li>
-                    </ul>
-                    <button class="btn btn-primary btn-sm" onclick="openGuide('getting-started')">
-                        <i class="fas fa-book-open me-2"></i>Leer Guía
-                    </button>
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="help-category" data-category="user-management">
-                    <div class="category-icon text-success">
-                        <i class="fas fa-users"></i>
+            <!-- Help Content -->
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-book text-primary me-2"></i>
+                            <span id="help-title">Documentación</span>
+                        </h5>
                     </div>
-                    <h5 style="color: #2c3e50;">Gestión de Usuarios</h5>
-                    <p class="text-muted">Todo sobre la administración de usuarios del sistema</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success me-2"></i>Crear usuarios</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Permisos y roles</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Monitor de actividad</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Exportar datos</li>
-                    </ul>
-                    <button class="btn btn-success btn-sm" onclick="openGuide('user-management')">
-                        <i class="fas fa-book-open me-2"></i>Leer Guía
-                    </button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="help-category" data-category="bot-control">
-                    <div class="category-icon text-warning">
-                        <i class="fas fa-robot"></i>
+                    <div class="card-body">
+                        <div id="help-content">
+                            <!-- Getting Started Section -->
+                            <div id="getting-started-content" class="help-section">
+                                <h6 class="mb-4">
+                                    <i class="fas fa-rocket me-2"></i>
+                                    Primeros Pasos
+                                </h6>
+                                
+                                <div class="accordion" id="gettingStartedAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                                <i class="fas fa-sign-in-alt me-2"></i>
+                                                Cómo acceder al panel
+                                            </button>
+                                        </h2>
+                                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#gettingStartedAccordion">
+                                            <div class="accordion-body">
+                                                <ol>
+                                                    <li>Abre tu navegador web y visita la URL del sistema</li>
+                                                    <li>Ingresa tu nombre de usuario y contraseña</li>
+                                                    <li>Haz clic en "Iniciar Sesión"</li>
+                                                    <li>Serás redirigido automáticamente al dashboard</li>
+                                                </ol>
+                                                <div class="alert alert-info mt-3">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    Si olvidaste tu contraseña, contacta al administrador del sistema.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                                <i class="fas fa-tachometer-alt me-2"></i>
+                                                Navegación básica
+                                            </button>
+                                        </h2>
+                                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#gettingStartedAccordion">
+                                            <div class="accordion-body">
+                                                <p>El panel administrativo tiene las siguientes secciones principales:</p>
+                                                <ul>
+                                                    <li><strong>Dashboard:</strong> Vista general del sistema</li>
+                                                    <li><strong>Usuarios:</strong> Gestión de usuarios del sistema</li>
+                                                    <li><strong>Ejercicios:</strong> Administración de ejercicios</li>
+                                                    <li><strong>Control del Bot:</strong> Configuración del bot</li>
+                                                    <li><strong>Perfil:</strong> Tu información personal</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                                <i class="fas fa-user-cog me-2"></i>
+                                                Configuración inicial
+                                            </button>
+                                        </h2>
+                                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#gettingStartedAccordion">
+                                            <div class="accordion-body">
+                                                <p>Para configurar tu perfil:</p>
+                                                <ol>
+                                                    <li>Ve a la sección "Perfil"</li>
+                                                    <li>Actualiza tu información personal</li>
+                                                    <li>Configura tus preferencias de notificación</li>
+                                                    <li>Guarda los cambios</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Users Management Section -->
+                            <div id="users-content" class="help-section" style="display: none;">
+                                <h6 class="mb-4">
+                                    <i class="fas fa-users me-2"></i>
+                                    Gestión de Usuarios
+                                </h6>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="fas fa-plus-circle text-success me-2"></i>
+                                                    Crear Usuario
+                                                </h6>
+                                                <p class="card-text">Para agregar un nuevo usuario al sistema:</p>
+                                                <ol>
+                                                    <li>Ve a la sección "Usuarios"</li>
+                                                    <li>Haz clic en "Nuevo Usuario"</li>
+                                                    <li>Completa el formulario</li>
+                                                    <li>Asigna un rol y permisos</li>
+                                                    <li>Guarda los cambios</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="fas fa-edit text-primary me-2"></i>
+                                                    Editar Usuario
+                                                </h6>
+                                                <p class="card-text">Para modificar información de un usuario:</p>
+                                                <ol>
+                                                    <li>Busca al usuario en la lista</li>
+                                                    <li>Haz clic en el botón "Editar"</li>
+                                                    <li>Modifica la información necesaria</li>
+                                                    <li>Guarda los cambios</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="fas fa-trash text-danger me-2"></i>
+                                                    Eliminar Usuario
+                                                </h6>
+                                                <p class="card-text">Para eliminar un usuario:</p>
+                                                <ol>
+                                                    <li>Encuentra al usuario en la lista</li>
+                                                    <li>Haz clic en el botón "Eliminar"</li>
+                                                    <li>Confirma la acción</li>
+                                                    <li>El usuario será eliminado permanentemente</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="fas fa-key text-warning me-2"></i>
+                                                    Restablecer Contraseña
+                                                </h6>
+                                                <p class="card-text">Para resetear la contraseña de un usuario:</p>
+                                                <ol>
+                                                    <li>Selecciona al usuario</li>
+                                                    <li>Haz clic en "Resetear Contraseña"</li>
+                                                    <li>El sistema generará una nueva contraseña</li>
+                                                    <li>Comunica la nueva contraseña al usuario</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Other sections would follow similar pattern -->
+                        </div>
                     </div>
-                    <h5 style="color: #2c3e50;">Control del Bot</h5>
-                    <p class="text-muted">Administración y configuración del bot de Telegram</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success me-2"></i>Inicio y detención</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Configuración de respuestas</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Monitoreo en tiempo real</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Logs y errores</li>
-                    </ul>
-                    <button class="btn btn-warning btn-sm" onclick="openGuide('bot-control')">
-                        <i class="fas fa-book-open me-2"></i>Leer Guía
-                    </button>
                 </div>
             </div>
         </div>
-
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="help-category" data-category="exercises">
-                    <div class="category-icon text-info">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <h5 style="color: #2c3e50;">Gestión de Ejercicios</h5>
-                    <p class="text-muted">Creación y administración de ejercicios de Python</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success me-2"></i>Crear ejercicios</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Niveles de dificultad</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Importación masiva</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Estadísticas de uso</li>
-                    </ul>
-                    <button class="btn btn-info btn-sm" onclick="openGuide('exercises')">
-                        <i class="fas fa-book-open me-2"></i>Leer Guía
-                    </button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="help-category" data-category="database">
-                    <div class="category-icon text-primary">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <h5 style="color: #2c3e50;">Base de Datos</h5>
-                    <p class="text-muted">Gestión y mantenimiento de la base de datos</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success me-2"></i>Conexión y configuración</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Backups automáticos</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Consultas SQL</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Optimización</li>
-                    </ul>
-                    <button class="btn btn-primary btn-sm" onclick="openGuide('database')">
-                        <i class="fas fa-book-open me-2"></i>Leer Guía
-                    </button>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="help-category" data-category="security">
-                    <div class="category-icon text-danger">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h5 style="color: #2c3e50;">Seguridad</h5>
-                    <p class="text-muted">Mejores prácticas de seguridad y configuración</p>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success me-2"></i>Políticas de contraseña</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Autenticación 2FA</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Logs de seguridad</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Actualizaciones</li>
-                    </ul>
-                    <button class="btn btn-danger btn-sm" onclick="openGuide('security')">
-                        <i class="fas fa-book-open me-2"></i>Leer Guía
-                    </button>
-                </div>
-            </div>
-        </div>
-
+        
         <!-- FAQ Section -->
-        <div class="help-panel" id="faq">
-            <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                <i class="fas fa-question-circle text-primary me-2"></i>
-                Preguntas Frecuentes (FAQ)
-            </h5>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>¿Cómo inicio sesión por primera vez?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Para iniciar sesión por primera vez, usa las credenciales proporcionadas durante la instalación. Si no tienes credenciales, contacta al administrador del sistema. Una vez iniciada sesión, te recomendamos cambiar tu contraseña inmediatamente.
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>¿Cómo agrego nuevos ejercicios al sistema?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Ve a la sección "Ejercicios" en el menú lateral. Haz clic en "Agregar Ejercicio" y completa el formulario con la pregunta, opciones, respuesta correcta y explicación. También puedes importar ejercicios masivamente usando un archivo JSON.
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>¿Cómo configuro el bot de Telegram?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    En la sección "Control del Bot" puedes iniciar, detener y configurar el bot. Necesitarás el token del bot de Telegram y configurar las variables de entorno correspondientes. El sistema te guiará paso a paso en el proceso.
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>¿Cómo realizo un backup de la base de datos?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Ve a la sección "Base de Datos" y haz clic en "Crear Backup". El sistema generará un archivo SQL con todos tus datos. También puedes configurar backups automáticos en la sección de configuración.
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>¿Cómo soluciono problemas de conexión?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Primero verifica tu conexión a internet. Luego, revisa los logs del sistema en la sección "Logs" para identificar errores específicos. Si el problema persiste, reinicia el servicio y contacta al soporte técnico si es necesario.
-                </div>
-            </div>
-        </div>
-
-        <!-- Tutorials Section -->
-        <div class="help-panel" id="tutorials">
-            <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                <i class="fas fa-graduation-cap text-primary me-2"></i>
-                Tutoriales Interactivos
-            </h5>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="tutorial-card">
-                        <h6 style="color: #2c3e50;">
-                            <i class="fas fa-play-circle text-primary me-2"></i>
-                            Tutorial: Primeros Pasos
-                        </h6>
-                        <p class="text-muted">Aprende los conceptos básicos del panel administrativo</p>
-                        <div class="tutorial-progress">
-                            <div class="tutorial-progress-bar" style="width: 0%"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <small class="text-muted">5 pasos • 10 minutos</small>
-                            <button class="btn btn-primary btn-sm" onclick="startTutorial('basics')">
-                                <i class="fas fa-play me-2"></i>Comenzar
-                            </button>
-                        </div>
+        <div class="row g-4 mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-question-circle text-primary me-2"></i>
+                            Preguntas Frecuentes (FAQ)
+                        </h5>
                     </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="tutorial-card">
-                        <h6 style="color: #2c3e50;">
-                            <i class="fas fa-users text-success me-2"></i>
-                            Tutorial: Gestión de Usuarios
-                        </h6>
-                        <p class="text-muted">Aprende a administrar usuarios y permisos</p>
-                        <div class="tutorial-progress">
-                            <div class="tutorial-progress-bar" style="width: 0%"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <small class="text-muted">8 pasos • 15 minutos</small>
-                            <button class="btn btn-success btn-sm" onclick="startTutorial('users')">
-                                <i class="fas fa-play me-2"></i>Comenzar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="tutorial-card">
-                        <h6 style="color: #2c3e50;">
-                            <i class="fas fa-robot text-warning me-2"></i>
-                            Tutorial: Configuración del Bot
-                        </h6>
-                        <p class="text-muted">Configura y personaliza el bot de Telegram</p>
-                        <div class="tutorial-progress">
-                            <div class="tutorial-progress-bar" style="width: 0%"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <small class="text-muted">6 pasos • 12 minutos</small>
-                            <button class="btn btn-warning btn-sm" onclick="startTutorial('bot')">
-                                <i class="fas fa-play me-2"></i>Comenzar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="tutorial-card">
-                        <h6 style="color: #2c3e50;">
-                            <i class="fas fa-database text-info me-2"></i>
-                            Tutorial: Base de Datos
-                        </h6>
-                        <p class="text-muted">Gestiona y mantén tu base de datos</p>
-                        <div class="tutorial-progress">
-                            <div class="tutorial-progress-bar" style="width: 0%"></div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <small class="text-muted">7 pasos • 20 minutos</small>
-                            <button class="btn btn-info btn-sm" onclick="startTutorial('database')">
-                                <i class="fas fa-play me-2"></i>Comenzar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact Section -->
-        <div class="help-panel" id="contact">
-            <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                <i class="fas fa-headset text-primary me-2"></i>
-                Contacto y Soporte
-            </h5>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <h6 style="color: #2c3e50; margin-bottom: 20px;">Canales de Comunicación</h6>
-                    
-                    <div class="contact-method">
-                        <div class="contact-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div>
-                            <strong>Correo Electrónico</strong>
-                            <br>
-                            <small class="text-muted">support@pythontutor.bot</small>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-method">
-                        <div class="contact-icon">
-                            <i class="fab fa-telegram"></i>
-                        </div>
-                        <div>
-                            <strong>Telegram</strong>
-                            <br>
-                            <small class="text-muted">@PythonTutorSupport</small>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-method">
-                        <div class="contact-icon">
-                            <i class="fas fa-comments"></i>
-                        </div>
-                        <div>
-                            <strong>Chat en Vivo</strong>
-                            <br>
-                            <small class="text-muted">Disponible de 9:00 AM a 6:00 PM</small>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-method">
-                        <div class="contact-icon">
-                            <i class="fab fa-github"></i>
-                        </div>
-                        <div>
-                            <strong>GitHub Issues</strong>
-                            <br>
-                            <small class="text-muted">Reporta bugs y solicita funciones</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <h6 style="color: #2c3e50; margin-bottom: 20px;">Tiempo de Respuesta</h6>
-                    
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Soporte Estándar:</strong> 24-48 horas
-                    </div>
-                    
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Soporte Prioritario:</strong> 2-4 horas
-                    </div>
-                    
-                    <div class="alert alert-danger">
-                        <i class="fas fa-times-circle me-2"></i>
-                        <strong>Emergencias:</strong> 1-2 horas
-                    </div>
-                    
-                    <div class="mt-3">
-                        <h6 style="color: #2c3e50; margin-bottom: 15px;">Recursos Adicionales</h6>
-                        <div>
-                            <a href="#" class="quick-link">Wiki</a>
-                            <a href="#" class="quick-link">Foro</a>
-                            <a href="#" class="quick-link">Videos</a>
-                            <a href="#" class="quick-link">Blog</a>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="faq-item">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-question text-info me-2"></i>
+                                        ¿Cómo cambio mi contraseña?
+                                    </h6>
+                                    <p class="text-muted">Ve a la sección "Cambiar Contraseña" en el menú de navegación. Ingresa tu contraseña actual y la nueva contraseña que deseas usar.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="faq-item">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-question text-info me-2"></i>
+                                        ¿Cómo agrego un nuevo ejercicio?
+                                    </h6>
+                                    <p class="text-muted">En la sección "Ejercicios", haz clic en "Nuevo Ejercicio" y completa el formulario con la información del ejercicio.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="faq-item">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-question text-info me-2"></i>
+                                        ¿Qué hago si el bot no responde?
+                                    </h6>
+                                    <p class="text-muted">Ve a "Control del Bot" y verifica el estado. Si está inactivo, haz clic en "Iniciar Bot". Si el problema persiste, contacta soporte técnico.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="faq-item">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-question text-info me-2"></i>
+                                        ¿Cómo exporto datos del sistema?
+                                    </h6>
+                                    <p class="text-muted">La mayoría de las secciones tienen un botón "Exportar" que te permite descargar los datos en formato CSV o Excel.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% block extra_js %}
+<script>
+    // Help system JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search functionality
+        const searchInput = document.getElementById('help-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(performSearch, 300));
+        }
+    });
+    
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+    
+    function showHelp(section) {
+        // Hide all sections
+        const sections = document.querySelectorAll('.help-section');
+        sections.forEach(s => s.style.display = 'none');
+        
+        // Show selected section
+        const selectedSection = document.getElementById(section + '-content');
+        if (selectedSection) {
+            selectedSection.style.display = 'block';
+        }
+        
+        // Update title
+        const titles = {
+            'getting-started': 'Primeros Pasos',
+            'users': 'Gestión de Usuarios',
+            'exercises': 'Gestión de Ejercicios',
+            'bot-control': 'Control del Bot',
+            'security': 'Seguridad'
+        };
+        
+        document.getElementById('help-title').textContent = titles[section] || 'Ayuda';
+    }
+    
+    function performSearch() {
+        const searchTerm = document.getElementById('help-search').value.toLowerCase();
+        
+        if (searchTerm.length < 2) {
+            showHelp('getting-started');
+            return;
+        }
+        
+        // Simple search implementation
+        const sections = ['getting-started', 'users', 'exercises', 'bot-control', 'security'];
+        let found = false;
+        
+        for (const section of sections) {
+            const content = document.getElementById(section + '-content');
+            if (content) {
+                const text = content.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    showHelp(section);
+                    found = true;
+                    break;
+                }
+            }
+        }
+        
+        if (!found) {
+            showNotification('No se encontraron resultados para: ' + searchTerm, 'warning');
+        }
+    }
+    
+    function openChat() {
+        showNotification('Chat en vivo no disponible actualmente. Contacta por email o teléfono.', 'info');
+    }
+    
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+</script>
+
+<style>
+.help-section {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.faq-item {
+    padding: 1rem;
+    border-left: 3px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    border-left-color: #667eea;
+    background-color: #f8f9fa;
+}
+
+.support-info a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.support-info a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

@@ -1,257 +1,107 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control del Bot - Panel Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/admin.css') }}" rel="stylesheet">
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4><i class="fas fa-robot"></i> Python Tutor Bot</h4>
-            <p class="text-muted mb-0">Panel Administrativo</p>
-        </div>
-        
-        <div class="sidebar-menu">
-            <a href="/admin/dashboard">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
-            <a href="/admin/users">
-                <i class="fas fa-users"></i> Usuarios
-            </a>
-            <a href="/admin/bot-control" class="active">
-                <i class="fas fa-robot"></i> Control del Bot
-            </a>
-            
-            <a href="/admin/exercises">
-                <i class="fas fa-book"></i> Ejercicios
-            </a>
-            <a href="/admin/logs">
-                <i class="fas fa-file-alt"></i> Logs
-            </a>
-            <a href="/admin/change-password">
-                <i class="fas fa-key"></i> Cambiar Contraseña
-            </a>
-            
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <a href="/admin/logout" style="color: #ef5350;">
-                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                </a>
-            </div>
-        </div>
-    </div>
+{% extends "admin_base_new.html" %}
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <div class="header-bar">
-            <div>
-                <h1 class="h3 mb-2" style="color: #2c3e50;">
-                    <i class="fas fa-robot text-primary me-2"></i>
-                    Control del Bot
-                </h1>
-                <p class="text-muted mb-0">Monitorear y controlar el funcionamiento del bot</p>
-            </div>
-            <div class="user-badge">
-                <i class="fas fa-user-circle me-2"></i>
-                {{ current_user.username }}
-                <span class="status-badge status-online ms-2">
-                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Activo
-                </span>
-            </div>
-        </div>
+{% block title %}Control del Bot - Panel Admin{% endblock %}
 
-        <!-- Bot Status -->
-        <div class="status-card {% if db_connected %}online{% else %}offline{% endif %}">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 style="color: #2c3e50; margin-bottom: 15px;">
-                        <i class="fas fa-robot text-primary me-2"></i>
-                        Estado del Bot
-                    </h5>
-                    <div class="d-flex align-items-center">
+{% block content %}
+    <!-- Professional Header -->
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="mb-0">
+                        <i class="fas fa-robot me-3"></i>
+                        Control del Bot
+                    </h1>
+                    <p class="mb-0 opacity-75">Administrar y monitorear el estado del bot</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="d-flex align-items-center justify-content-md-end">
                         <div class="me-3">
-                            <span class="status-badge {% if db_connected %}status-online{% else %}status-offline{% endif %}">
-                                <i class="fas fa-circle" style="font-size: 0.6rem;"></i>
-                                {% if db_connected %}En Línea{% else %}Desconectado{% endif %}
+                            <small class="d-block text-white-50">Usuario actual</small>
+                            <strong>{{ current_user.username }}</strong>
+                        </div>
+                        <div class="status-indicator">
+                            <span class="badge bg-success">
+                                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
+                                En línea
                             </span>
                         </div>
-                        <div>
-                            <small class="text-muted">
-                                <i class="far fa-clock me-1"></i>
-                                Última actualización: <span id="lastUpdate">Hace un momento</span>
-                            </small>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-end">
-                    <div class="metric-icon {% if db_connected %}text-success{% else %}text-danger{% endif %}">
-                        <i class="fas fa-robot fa-3x"></i>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="row">
-            <!-- Control Panel -->
-            <div class="col-md-6">
-                <div class="control-panel">
-                    <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                        <i class="fas fa-gamepad text-warning me-2"></i>
-                        Panel de Control
-                    </h5>
-                    
-                    <div class="d-grid gap-3">
-                        <button class="btn btn-success control-btn" onclick="startBot()" {% if db_connected %}disabled{% endif %}>
-                            <i class="fas fa-play"></i>
-                            Iniciar Bot
-                        </button>
-                        
-                        <button class="btn btn-danger control-btn" onclick="stopBot()" {% if not db_connected %}disabled{% endif %}>
-                            <i class="fas fa-stop"></i>
-                            Detener Bot
-                        </button>
-                        
-                        <button class="btn btn-warning control-btn" onclick="restartBot()">
-                            <i class="fas fa-redo"></i>
-                            Reiniciar Bot
-                        </button>
-                        
-                        <button class="btn btn-info control-btn" onclick="checkStatus()">
-                            <i class="fas fa-heartbeat"></i>
-                            Verificar Estado
-                        </button>
-                        
-                        <button class="btn btn-secondary control-btn" onclick="clearCache()">
-                            <i class="fas fa-broom"></i>
-                            Limpiar Caché
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Metrics -->
-            <div class="col-md-6">
-                <div class="control-panel">
-                    <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                        <i class="fas fa-chart-line text-info me-2"></i>
-                        Métricas en Tiempo Real
-                    </h5>
-                    
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="metric-card">
-                                <div class="metric-icon text-primary">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <h6 class="text-muted">Usuarios Activos</h6>
-                                <div class="metric-number" id="activeUsers">0</div>
-                                <small class="text-muted">Últimas 24h</small>
+    <!-- Professional Statistics Cards -->
+    <div class="container-fluid mb-4">
+        <div class="row g-4">
+            <!-- Bot Status Card -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-success bg-gradient text-white">
+                                <i class="fas fa-robot"></i>
                             </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="metric-card">
-                                <div class="metric-icon text-success">
-                                    <i class="fas fa-comments"></i>
-                                </div>
-                                <h6 class="text-muted">Mensajes Hoy</h6>
-                                <div class="metric-number" id="messagesToday">0</div>
-                                <small class="text-muted">Procesados</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mt-3">
-                            <div class="metric-card">
-                                <div class="metric-icon text-warning">
-                                    <i class="fas fa-tasks"></i>
-                                </div>
-                                <h6 class="text-muted">Ejercicios Hoy</h6>
-                                <div class="metric-number" id="exercisesToday">0</div>
-                                <small class="text-muted">Completados</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mt-3">
-                            <div class="metric-card">
-                                <div class="metric-icon text-info">
-                                    <i class="fas fa-server"></i>
-                                </div>
-                                <h6 class="text-muted">Uso CPU</h6>
-                                <div class="metric-number" id="cpuUsage">0%</div>
-                                <small class="text-muted">Promedio</small>
+                            <div class="ms-3">
+                                <h6 class="text-muted mb-1">Estado del Bot</h6>
+                                <div class="stat-number text-success" id="bot-status">Activo</div>
+                                <small class="text-muted">Bot funcionando</small>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bot Logs -->
-        <div class="control-panel">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 style="color: #2c3e50;">
-                    <i class="fas fa-terminal text-primary me-2"></i>
-                    Logs del Bot
-                </h5>
-                <div>
-                    <button class="btn btn-sm btn-outline-primary me-2" onclick="refreshLogs()">
-                        <i class="fas fa-sync-alt"></i> Actualizar
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="clearLogs()">
-                        <i class="fas fa-trash"></i> Limpiar
-                    </button>
                 </div>
             </div>
             
-            <div class="log-console" id="botLogs">
-                <div style="color: #4caf50;">[2024-03-04 15:30:00] INFO: Bot iniciado correctamente</div>
-                <div style="color: #2196f3;">[2024-03-04 15:30:15] INFO: Conectado a la base de datos</div>
-                <div style="color: #ff9800;">[2024-03-04 15:30:30] WARNING: Usuario 123456 solicitó ejercicio</div>
-                <div style="color: #4caf50;">[2024-03-04 15:30:45] INFO: Ejercicio enviado correctamente</div>
-                <div style="color: #2196f3;">[2024-03-04 15:31:00] INFO: Usuario completó ejercicio principiante #1</div>
-                <div style="color: #f44336;">[2024-03-04 15:31:15] ERROR: Error al procesar mensaje del usuario 789012</div>
-                <div style="color: #4caf50;">[2024-03-04 15:31:30] INFO: Sistema recuperado del error</div>
-                <div style="color: #2196f3;">[2024-03-04 15:31:45] INFO: 5 usuarios activos actualmente</div>
-                <div style="color: #ff9800;">[2024-03-04 15:32:00] WARNING: Alta carga en el sistema (85% CPU)</div>
-                <div style="color: #4caf50;">[2024-03-04 15:32:15] INFO: Sistema funcionando normalmente</div>
+            <!-- Active Users Card -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-primary bg-gradient text-white">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="text-muted mb-1">Usuarios Activos</h6>
+                                <div class="stat-number text-primary" id="active-users">{{ stats.active_users or 0 }}</div>
+                                <small class="text-muted">Usuarios conectados</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="control-panel">
-                    <h5 style="color: #2c3e50; margin-bottom: 25px;">
-                        <i class="fas fa-bolt text-warning me-2"></i>
-                        Acciones Rápidas
-                    </h5>
-                    
-                    <div class="row">
-                        <div class="col-md-3">
-                            <button class="btn btn-outline-primary control-btn" onclick="sendBroadcast()">
-                                <i class="fas fa-bullhorn"></i>
-                                Enviar Broadcast
-                            </button>
+            
+            <!-- Messages Today Card -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-info bg-gradient text-white">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="text-muted mb-1">Mensajes Hoy</h6>
+                                <div class="stat-number text-info" id="messages-today">{{ stats.messages_today or 0 }}</div>
+                                <small class="text-muted">Mensajes procesados</small>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-outline-success control-btn" onclick="backupData()">
-                                <i class="fas fa-download"></i>
-                                Respaldar Datos
-                            </button>
-                        </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-outline-warning control-btn" onclick="updateBot()">
-                                <i class="fas fa-upload"></i>
-                                Actualizar Bot
-                            </button>
-                        </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-outline-info control-btn" onclick="viewStats()">
-                                <i class="fas fa-chart-bar"></i>
-                                Ver Estadísticas
-                            </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Response Time Card -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-warning bg-gradient text-white">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="text-muted mb-1">Tiempo Respuesta</h6>
+                                <div class="stat-number text-warning" id="response-time">{{ stats.response_time or 0 }}ms</div>
+                                <small class="text-muted">Tiempo promedio</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -259,6 +109,321 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- Main Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row g-4">
+            <!-- Bot Controls Section -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cog text-primary me-2"></i>
+                            Controles del Bot
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success btn-lg" id="start-bot-btn">
+                                        <i class="fas fa-play me-2"></i>
+                                        Iniciar Bot
+                                    </button>
+                                    <button class="btn btn-warning btn-lg" id="restart-bot-btn">
+                                        <i class="fas fa-redo me-2"></i>
+                                        Reiniciar Bot
+                                    </button>
+                                    <button class="btn btn-danger btn-lg" id="stop-bot-btn">
+                                        <i class="fas fa-stop me-2"></i>
+                                        Detener Bot
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="border-top pt-3">
+                                    <h6 class="mb-3">Configuración Rápida</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="debug-mode" checked>
+                                                <label class="form-check-label" for="debug-mode">
+                                                    Modo Debug
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="maintenance-mode">
+                                                <label class="form-check-label" for="maintenance-mode">
+                                                    Modo Mantenimiento
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="auto-restart">
+                                                <label class="form-check-label" for="auto-restart">
+                                                    Auto Reinicio
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="logging" checked>
+                                                <label class="form-check-label" for="logging">
+                                                    Logging Activado
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bot Status Section -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heartbeat text-success me-2"></i>
+                            Estado del Sistema
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="mb-2">
+                                        <i class="fas fa-server fa-lg text-primary"></i>
+                                    </div>
+                                    <h6 class="mb-1">Servidor</h6>
+                                    <span class="badge bg-success">Conectado</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="mb-2">
+                                        <i class="fas fa-database fa-lg text-success"></i>
+                                    </div>
+                                    <h6 class="mb-1">Base de Datos</h6>
+                                    <span class="badge bg-success">Operativa</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="mb-2">
+                                        <i class="fas fa-telegram fa-lg text-info"></i>
+                                    </div>
+                                    <h6 class="mb-1">Telegram API</h6>
+                                    <span class="badge bg-success">Activa</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <div class="mb-2">
+                                        <i class="fas fa-memory fa-lg text-warning"></i>
+                                    </div>
+                                    <h6 class="mb-1">Memoria</h6>
+                                    <span class="badge bg-warning">45%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-top pt-3 mt-3">
+                            <h6 class="mb-3">Últimas Actividades</h6>
+                            <div class="activity-timeline">
+                                <div class="activity-item">
+                                    <small class="text-muted">Hace 5 minutos</small>
+                                    <div class="text-success">Bot iniciado exitosamente</div>
+                                </div>
+                                <div class="activity-item">
+                                    <small class="text-muted">Hace 15 minutos</small>
+                                    <div class="text-info">Configuración actualizada</div>
+                                </div>
+                                <div class="activity-item">
+                                    <small class="text-muted">Hace 1 hora</small>
+                                    <div class="text-warning">Reinicio programado completado</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Logs Section -->
+            <div class="col-12">
+                <div class="card h-100">
+                    <div class="card-header bg-white border-0 pt-4">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <h5 class="mb-0">
+                                <i class="fas fa-terminal text-primary me-2"></i>
+                                Logs del Sistema
+                            </h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-secondary" id="clear-logs-btn">
+                                    <i class="fas fa-trash me-1"></i> Limpiar
+                                </button>
+                                <button class="btn btn-outline-primary" id="refresh-logs-btn">
+                                    <i class="fas fa-sync-alt me-1"></i> Actualizar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="terminal-window bg-dark text-light p-3 rounded" style="font-family: 'Courier New', monospace; max-height: 300px; overflow-y: auto;">
+                            <div id="terminal-content">
+                                <div class="text-success">[2024-01-01 10:00:00] INFO: Bot iniciado exitosamente</div>
+                                <div class="text-info">[2024-01-01 10:00:01] INFO: Conectado a base de datos</div>
+                                <div class="text-warning">[2024-01-01 10:00:02] WARNING: Configuración cargada</div>
+                                <div class="text-info">[2024-01-01 10:00:03] INFO: Bot listo para recibir mensajes</div>
+                                <div class="text-success">[2024-01-01 10:00:05] INFO: Usuario 123456 conectado</div>
+                                <div class="text-info">[2024-01-01 10:00:06] INFO: Mensaje procesado correctamente</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Bot control JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBotStatus();
+        
+        // Event listeners
+        document.getElementById('start-bot-btn').addEventListener('click', startBot);
+        document.getElementById('restart-bot-btn').addEventListener('click', restartBot);
+        document.getElementById('stop-bot-btn').addEventListener('click', stopBot);
+        document.getElementById('refresh-logs-btn').addEventListener('click', refreshLogs);
+        document.getElementById('clear-logs-btn').addEventListener('click', clearLogs);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(updateBotStatus, 30000);
+    });
+    
+    function updateBotStatus() {
+        // Simulate API call to get bot status
+        const status = Math.random() > 0.1 ? 'Activo' : 'Inactivo';
+        const activeUsers = Math.floor(Math.random() * 100);
+        const messagesToday = Math.floor(Math.random() * 500);
+        const responseTime = Math.floor(Math.random() * 100) + 50;
+        
+        document.getElementById('bot-status').textContent = status;
+        document.getElementById('active-users').textContent = activeUsers;
+        document.getElementById('messages-today').textContent = messagesToday;
+        document.getElementById('response-time').textContent = responseTime;
+        
+        // Update status badge color
+        const statusElement = document.getElementById('bot-status');
+        statusElement.className = status === 'Activo' ? 'stat-number text-success' : 'stat-number text-danger';
+    }
+    
+    function startBot() {
+        if (confirm('¿Estás seguro de que quieres iniciar el bot?')) {
+            showNotification('Iniciando bot...', 'info');
+            // Simulate API call
+            setTimeout(() => {
+                showNotification('Bot iniciado exitosamente', 'success');
+                updateBotStatus();
+                addLog('Bot iniciado exitosamente', 'success');
+            }, 2000);
+        }
+    }
+    
+    function restartBot() {
+        if (confirm('¿Estás seguro de que quieres reiniciar el bot?')) {
+            showNotification('Reiniciando bot...', 'warning');
+            // Simulate API call
+            setTimeout(() => {
+                showNotification('Bot reiniciado exitosamente', 'success');
+                updateBotStatus();
+                addLog('Bot reiniciado exitosamente', 'warning');
+            }, 3000);
+        }
+    }
+    
+    function stopBot() {
+        if (confirm('¿Estás seguro de que quieres detener el bot?')) {
+            showNotification('Deteniendo bot...', 'danger');
+            // Simulate API call
+            setTimeout(() => {
+                showNotification('Bot detenido', 'danger');
+                updateBotStatus();
+                addLog('Bot detenido', 'danger');
+            }, 2000);
+        }
+    }
+    
+    function refreshLogs() {
+        const terminal = document.getElementById('terminal-content');
+        terminal.innerHTML = '<div class="text-info">Actualizando logs...</div>';
+        
+        setTimeout(() => {
+            const logs = generateMockLogs();
+            terminal.innerHTML = logs;
+        }, 1000);
+    }
+    
+    function clearLogs() {
+        if (confirm('¿Estás seguro de que quieres limpiar todos los logs?')) {
+            document.getElementById('terminal-content').innerHTML = '<div class="text-warning">Logs limpiados</div>';
+            showNotification('Logs limpiados exitosamente', 'success');
+        }
+    }
+    
+    function generateMockLogs() {
+        const logs = [
+            '<div class="text-success">[' + new Date().toLocaleString() + '] INFO: Bot iniciado exitosamente</div>',
+            '<div class="text-info">[' + new Date().toLocaleString() + '] INFO: Conectado a base de datos</div>',
+            '<div class="text-warning">[' + new Date().toLocaleString() + '] WARNING: Configuración cargada</div>',
+            '<div class="text-info">[' + new Date().toLocaleString() + '] INFO: Bot listo para recibir mensajes</div>'
+        ];
+        return logs.join('');
+    }
+    
+    function addLog(message, type) {
+        const terminal = document.getElementById('terminal-content');
+        const timestamp = new Date().toLocaleString();
+        const colorClass = {
+            'success': 'text-success',
+            'info': 'text-info',
+            'warning': 'text-warning',
+            'danger': 'text-danger'
+        }[type] || 'text-info';
+        
+        const newLog = `<div class="${colorClass}">[${timestamp}] ${message.toUpperCase()}: ${message}</div>`;
+        terminal.innerHTML = newLog + terminal.innerHTML;
+        
+        // Keep only last 10 logs
+        const logs = terminal.children;
+        if (logs.length > 10) {
+            terminal.removeChild(logs[logs.length - 1]);
+        }
+    }
+    
+    function showNotification(message, type) {
+        // Simple notification system
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+</script>
+{% endblock %}
