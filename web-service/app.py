@@ -1812,6 +1812,28 @@ def change_password():
         flash('Error al procesar la solicitud', 'error')
         return render_template('admin/change_password.html')
 
+@app.route('/admin/profile')
+@admin_required
+def admin_profile():
+    """Admin profile page"""
+    try:
+        return render_template('admin/profile.html')
+    except Exception as e:
+        logger.error(f"Admin profile error: {e}")
+        flash('Error al cargar la página de perfil', 'error')
+        return render_template('admin/profile.html')
+
+@app.route('/admin/help')
+@admin_required
+def admin_help():
+    """Admin help page"""
+    try:
+        return render_template('admin/help.html')
+    except Exception as e:
+        logger.error(f"Admin help error: {e}")
+        flash('Error al cargar la página de ayuda', 'error')
+        return render_template('admin/help.html')
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     logger.info(f"Starting Flask application on port {port}")
