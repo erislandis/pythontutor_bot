@@ -12,6 +12,7 @@ import random
 from datetime import datetime, timedelta
 import csv
 from io import StringIO
+import requests
 
 # Cargar variables de entorno al inicio
 load_dotenv()
@@ -193,7 +194,63 @@ def features():
 
 @app.route('/about')
 def about():
+    """About page"""
+    logger.info("=== ACCESSING ABOUT PAGE ===")
     return render_template('public/about.html')
+
+@app.route('/contact')
+def contact():
+    """Contact page"""
+    logger.info("=== ACCESSING CONTACT PAGE ===")
+    return render_template('public/contact.html')
+
+@app.route('/pricing')
+def pricing():
+    """Pricing page"""
+    logger.info("=== ACCESSING PRICING PAGE ===")
+    return render_template('public/pricing.html')
+
+@app.route('/documentation')
+def documentation():
+    """Documentation page"""
+    logger.info("=== ACCESSING DOCUMENTATION PAGE ===")
+    return render_template('public/documentation.html')
+
+@app.route('/tutorial')
+def tutorial():
+    """Tutorial page"""
+    logger.info("=== ACCESSING TUTORIAL PAGE ===")
+    return render_template('public/tutorial.html')
+
+@app.route('/faq')
+def faq():
+    """FAQ page"""
+    logger.info("=== ACCESSING FAQ PAGE ===")
+    return render_template('public/faq.html')
+
+@app.route('/blog')
+def blog():
+    """Blog page"""
+    logger.info("=== ACCESSING BLOG PAGE ===")
+    return render_template('public/blog.html')
+
+@app.route('/support')
+def support():
+    """Support page"""
+    logger.info("=== ACCESSING SUPPORT PAGE ===")
+    return render_template('public/support.html')
+
+@app.route('/privacy')
+def privacy():
+    """Privacy policy page"""
+    logger.info("=== ACCESSING PRIVACY PAGE ===")
+    return render_template('public/privacy.html')
+
+@app.route('/terms')
+def terms():
+    """Terms of service page"""
+    logger.info("=== ACCESSING TERMS PAGE ===")
+    return render_template('public/terms.html')
 
 @app.route('/admin/stats')
 @admin_required

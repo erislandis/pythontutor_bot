@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Términos de Servicio - Python Tutor Bot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold">Términos de Servicio</h1>
+                <p class="lead text-muted">Condiciones de uso de Python Tutor Bot</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5>📋 Aceptación de Términos</h5>
+                    <p>Al usar Python Tutor Bot, aceptas estos términos y condiciones.</p>
+                    
+                    <h5 class="mt-4">🎯 Uso del Servicio</h5>
+                    <p>El bot está diseñado para fines educativos y de aprendizaje de programación Python.</p>
+                    
+                    <h5 class="mt-4">⚠️ Prohibiciones</h5>
+                    <p>No está permitido:</p>
+                    <ul>
+                        <li>Uso comercial sin autorización</li>
+                        <li>Intentos de hackeo o manipulación</li>
+                        <li>Compartir contenido inapropiado</li>
+                        <li>Violar derechos de autor</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">🔄 Modificaciones</h5>
+                    <p>Nos reservamos el derecho de modificar estos términos en cualquier momento.</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

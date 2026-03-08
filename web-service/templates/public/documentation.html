@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Documentación - Python Tutor Bot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold">Documentación</h1>
+                <p class="lead text-muted">Guías completas para usar Python Tutor Bot</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5>📖 Guía de Inicio Rápido</h5>
+                    <p>1. Abre Telegram y busca @PythonTutorBot</p>
+                    <p>2. Presiona /start para comenzar</p>
+                    <p>3. Sigue las lecciones interactivas</p>
+                    
+                    <h5 class="mt-4">🎯 Comandos Disponibles</h5>
+                    <ul>
+                        <li><code>/start</code> - Iniciar sesión</li>
+                        <li><code>/learning</code> - Modo aprendizaje</li>
+                        <li><code>/practice</code> - Modo práctica</li>
+                        <li><code>/ranking</code> - Ver rankings</li>
+                        <li><code>/stats</code> - Estadísticas personales</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

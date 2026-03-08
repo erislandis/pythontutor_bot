@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Política de Privacidad - Python Tutor Bot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold">Política de Privacidad</h1>
+                <p class="lead text-muted">Tu privacidad es importante para nosotros</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5>🔒 Recopilación de Datos</h5>
+                    <p>Recopilamos únicamente:</p>
+                    <ul>
+                        <li>Tu ID de Telegram</li>
+                        <li>Nombre de usuario</li>
+                        <li>Progreso de aprendizaje</li>
+                        <li>Estadísticas de uso</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">🛡️ Protección de Datos</h5>
+                    <p>Tus datos están almacenados de forma segura y nunca compartimos información personal con terceros.</p>
+                    
+                    <h5 class="mt-4">📊 Uso de Datos</h5>
+                    <p>Usamos tus datos para:</p>
+                    <ul>
+                        <li>Personalizar tu experiencia de aprendizaje</li>
+                        <li>Mejorar nuestro servicio</li>
+                        <li>Generar estadísticas anónimas</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

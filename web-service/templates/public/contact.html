@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Contacto - Python Tutor Bot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold">Contacto</h1>
+                <p class="lead text-muted">Estamos aquí para ayudarte en tu viaje de aprendizaje Python</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-telegram fs-1 text-primary mb-3"></i>
+                            <h5 class="card-title">Telegram</h5>
+                            <p class="card-text">@PythonTutorBot</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-envelope fs-1 text-primary mb-3"></i>
+                            <h5 class="card-title">Email</h5>
+                            <p class="card-text">support@pythontutor.bot</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

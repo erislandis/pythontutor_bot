@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Tutorial - Python Tutor Bot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold">Tutorial</h1>
+                <p class="lead text-muted">Aprende a usar Python Tutor Bot paso a paso</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5>🚀 Primeros Pasos</h5>
+                    <p>Comienza tu viaje de aprendizaje Python con nuestro bot interactivo.</p>
+                    <p>Pronto disponible: Video tutoriales y guías detalladas.</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

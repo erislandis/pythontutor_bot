@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Soporte - Python Tutor Bot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold">Soporte</h1>
+                <p class="lead text-muted">Estamos aquí para ayudarte</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5>🛠️ ¿Necesitas ayuda?</h5>
+                    <p>Puedes contactarnos a través de:</p>
+                    <ul>
+                        <li><strong>Telegram:</strong> @PythonTutorBot</li>
+                        <li><strong>Email:</strong> support@pythontutor.bot</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">📋 Reporta un problema</h5>
+                    <p>Si encuentras algún error, por favor repórtalo con:</p>
+                    <ul>
+                        <li>Descripción del problema</li>
+                        <li>Captura de pantalla (si aplica)</li>
+                        <li>Tu usuario de Telegram</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
