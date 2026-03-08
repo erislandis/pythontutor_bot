@@ -133,12 +133,69 @@ function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function showLoading(show) {
-    const loadingElement = document.getElementById('loadingIndicator');
+function showLoading(show, progress = null) {
+    const loadingElement = document.getElementById('loading-indicator');
     if (loadingElement) {
-        loadingElement.style.display = show ? 'block' : 'none';
+        if (show) {
+            loadingElement.style.display = 'block';
+            
+            // Si hay progreso, mostrarlo
+            if (progress !== null) {
+                let progressHTML = `
+                    <div class="progress mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: ${progress}%" 
+                             aria-valuenow="${progress}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            ${progress}%
+                        </div>
+                    </div>
+                `;
+                
+                // Buscar o crear contenedor de progreso
+                let progressContainer = document.getElementById('import-progress-container');
+                if (!progressContainer) {
+                    progressContainer = document.createElement('div');
+                    progressContainer.id = 'import-progress-container';
+                    progressContainer.className = 'mb-3';
+                    loadingElement.insertBefore(progressContainer, loadingElement.firstChild);
+                }
+                progressContainer.innerHTML = progressHTML;
+            }
+        } else {
+            loadingElement.style.display = 'none';
+            
+            // Limpiar contenedor de progreso
+            const progressContainer = document.getElementById('import-progress-container');
+            if (progressContainer) {
+                progressContainer.remove();
+            }
+        }
     }
 }
+
+function showImportProgress(current, total, message = '') {
+    const progress = Math.round((current / total) * 100);
+    showLoading(true, progress);
+    
+    // Actualizar mensaje si se proporciona
+    if (message) {
+        const loadingElement = document.getElementById('loading-indicator');
+        if (loadingElement) {
+            let messageElement = document.getElementById('import-progress-message');
+            if (!messageElement) {
+                messageElement = document.createElement('div');
+                messageElement.id = 'import-progress-message';
+                messageElement.className = 'text-center mt-2';
+                loadingElement.appendChild(messageElement);
+            }
+            messageElement.innerHTML = `<small class="text-muted">${message}</small>`;
+        }
+    }
+}
+
 function setupEventListeners() {
 
     // Search input with debounce
@@ -594,56 +651,229 @@ async function handleBulkUpload(event) {
 }
 
 async function handleJSONUpload(file) {
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-        try {
-            const exercises = JSON.parse(e.target.result);
-            if (Array.isArray(exercises) && exercises.length > 0) {
-                // Validar ejercicios
-                const validation = validateExercises(exercises);
-                if (!validation.valid) {
-                    showNotification(`Errores de validación: ${validation.errors.join(', ')}`, 'danger');
-                    return;
-                }
-                
-                showLoading(true);
-                
-                const response = await fetch('/api/admin/exercises/import', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ exercises })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showNotification(
-                        `${data.imported} de ${data.total} ejercicios importados exitosamente`, 
-                        data.errors.length > 0 ? 'warning' : 'success'
-                    );
-                    
-                    if (data.errors.length > 0) {
-                        console.warn('Import errors:', data.errors);
+    // Validar tamaño del archivo (máximo 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+        showNotification('El archivo es demasiado grande. Máximo permitido: 10MB', 'danger');
+        return;
+    }
+    
+    // Validar tipo de archivo
+    if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+        showNotification('Por favor selecciona un archivo JSON válido', 'danger');
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        // Usar Promise para mejor manejo de errores
+        const exercises = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            // Configurar timeout
+            const timeout = setTimeout(() => {
+                reader.abort();
+                reject(new Error('Tiempo de espera agotado al leer el archivo'));
+            }, 30000); // 30 segundos
+            
+            reader.onload = function(e) {
+                clearTimeout(timeout);
+                try {
+                    const result = e.target.result;
+                    if (!result || result.length === 0) {
+                        reject(new Error('El archivo está vacío'));
+                        return;
                     }
                     
-                    await loadExercises(); // Reload exercises
-                    notifyBotOfChanges(); // Notify bot
-                } else {
-                    showNotification('Error al importar ejercicios: ' + data.error, 'danger');
+                    const parsed = JSON.parse(result);
+                    resolve(parsed);
+                } catch (parseError) {
+                    reject(new Error('Error al parsear JSON: ' + parseError.message));
                 }
-            } else {
-                showNotification('El archivo no contiene ejercicios válidos', 'danger');
+            };
+            
+            reader.onerror = function() {
+                clearTimeout(timeout);
+                const error = reader.error;
+                if (error) {
+                    if (error.name === 'NetworkError' || error.message.includes('NetworkError')) {
+                        reject(new Error('Error de red al leer el archivo. Intenta con un archivo más pequeño o verifica tu conexión.'));
+                    } else {
+                        reject(new Error('Error al leer el archivo: ' + error.message));
+                    }
+                } else {
+                    reject(new Error('Error desconocido al leer el archivo'));
+                }
+            };
+            
+            reader.onabort = function() {
+                clearTimeout(timeout);
+                reject(new Error('Lectura del archivo cancelada'));
+            };
+            
+            // Iniciar lectura
+            try {
+                reader.readAsText(file);
+            } catch (readError) {
+                clearTimeout(timeout);
+                reject(new Error('Error al iniciar la lectura del archivo: ' + readError.message));
             }
-        } catch (error) {
-            console.error('Error reading JSON file:', error);
-            showNotification('Error al leer el archivo JSON: ' + error.message, 'danger');
-        } finally {
-            showLoading(false);
+        });
+        
+        // Validar que sea un array y tenga ejercicios
+        if (!Array.isArray(exercises)) {
+            showNotification('El archivo JSON debe contener un array de ejercicios', 'danger');
+            return;
         }
-    };
-    reader.readAsText(file);
+        
+        if (exercises.length === 0) {
+            showNotification('El archivo no contiene ejercicios', 'warning');
+            return;
+        }
+        
+        if (exercises.length > 1000) {
+            showNotification('El archivo contiene demasiados ejercicios. Máximo permitido: 1000', 'danger');
+            return;
+        }
+        
+        console.log(`Archivo JSON leído exitosamente: ${exercises.length} ejercicios`);
+        
+        // Validar ejercicios
+        const validation = validateExercises(exercises);
+        if (!validation.valid) {
+            showNotification(`Errores de validación: ${validation.errors.slice(0, 5).join(', ')}${validation.errors.length > 5 ? '...' : ''}`, 'danger');
+            console.error('Validation errors:', validation.errors);
+            return;
+        }
+        
+        // Preparar datos para envío
+        const importData = {
+            exercises: exercises,
+            metadata: {
+                filename: file.name,
+                size: file.size,
+                uploaded_at: new Date().toISOString(),
+                total_exercises: exercises.length
+            }
+        };
+        
+        console.log('Enviando datos al servidor...', importData.metadata);
+        
+        // Mostrar progreso inicial
+        showImportProgress(0, exercises.length, 'Iniciando importación...');
+        
+        // Enviar al servidor con timeout extendido y progreso
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutos para 300 ejercicios
+        
+        // Simular progreso mientras espera respuesta del servidor
+        let progressInterval;
+        let currentProgress = 0;
+        
+        const startProgressSimulation = () => {
+            progressInterval = setInterval(() => {
+                if (currentProgress < 90) {
+                    currentProgress += Math.random() * 5; // Incremento aleatorio
+                    currentProgress = Math.min(currentProgress, 90);
+                    showImportProgress(
+                        Math.round(currentProgress), 
+                        exercises.length, 
+                        `Procesando ejercicios... (${Math.round(currentProgress)}%)`
+                    );
+                }
+            }, 1000);
+        };
+        
+        startProgressSimulation();
+        
+        try {
+            const response = await fetch('/api/admin/exercises/import', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(importData),
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            clearInterval(progressInterval);
+            
+            // Mostrar progreso casi completo
+            showImportProgress(95, exercises.length, 'Procesando respuesta del servidor...');
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage = 'Error al importar ejercicios';
+                
+                try {
+                    const errorData = JSON.parse(errorText);
+                    errorMessage = errorData.error || errorMessage;
+                } catch {
+                    errorMessage = `${errorMessage}: ${response.status} ${response.statusText}`;
+                }
+                
+                throw new Error(errorMessage);
+            }
+            
+            const data = await response.json();
+            console.log('Respuesta del servidor:', data);
+            
+            // Progreso completo
+            showImportProgress(100, exercises.length, 'Importación completada');
+            
+            // Pequeña pausa para mostrar el 100%
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Mostrar resultados
+            const successRate = ((data.imported / data.total) * 100).toFixed(1);
+            let message = `${data.imported} de ${data.total} ejercicios importados exitosamente (${successRate}%)`;
+            
+            if (data.skipped_duplicates > 0) {
+                message += `, ${data.skipped_duplicates} duplicados omitidos`;
+            }
+            
+            if (data.errors && data.errors.length > 0) {
+                message += `, ${data.errors.length} errores`;
+                console.warn('Import errors:', data.errors);
+                
+                // Mostrar primeros 5 errores
+                const errorSummary = data.errors.slice(0, 5).join('; ');
+                showNotification(`${message}. Errores: ${errorSummary}${data.errors.length > 5 ? '...' : ''}`, 'warning');
+            } else {
+                showNotification(message, 'success');
+            }
+            
+            // Recargar ejercicios si hubo importación exitosa
+            if (data.imported > 0) {
+                await loadExercises();
+                notifyBotOfChanges();
+            }
+            
+        } catch (fetchError) {
+            clearTimeout(timeoutId);
+            clearInterval(progressInterval);
+            throw fetchError;
+        }
+        
+    } catch (error) {
+        console.error('Error en handleJSONUpload:', error);
+        
+        let errorMessage = error.message;
+        
+        if (error.name === 'AbortError') {
+            errorMessage = 'Tiempo de espera agotado. El archivo es muy grande o el servidor está tardando mucho en responder.';
+        } else if (error.message.includes('fetch')) {
+            errorMessage = 'Error de conexión con el servidor. Verifica tu conexión a internet.';
+        } else if (error.message.includes('JSON')) {
+            errorMessage = 'El archivo JSON no tiene un formato válido. Verifica la sintaxis.';
+        }
+        
+        showNotification('Error al importar ejercicios: ' + errorMessage, 'danger');
+    } finally {
+        showLoading(false);
+    }
 }
 
 async function handleCSVUpload(file) {

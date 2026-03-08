@@ -984,82 +984,195 @@ def api_test_import_exercises():
 @app.route('/api/admin/exercises/import', methods=['POST'])
 @admin_required
 def api_import_exercises():
-    """Import exercises from JSON - MEJORADO"""
+    """Import exercises from JSON - MEJORADO PARA 300+ EJERCICIOS"""
     try:
         if not supabase:
             logger.error("Import failed: Supabase not connected")
             return jsonify({'error': 'Database connection error'}), 500
         
+        # Obtener datos del request con metadata
         data = request.json
         exercises = data.get('exercises', [])
+        metadata = data.get('metadata', {})
+        
+        logger.info(f"Import request received: {len(exercises)} exercises, metadata: {metadata}")
         
         if not isinstance(exercises, list):
             logger.error(f"Import failed: exercises is not a list, got {type(exercises)}")
             return jsonify({'error': 'Exercises must be an array'}), 400
         
+        # Validar límite de ejercicios
+        if len(exercises) > 1000:
+            logger.error(f"Import failed: Too many exercises ({len(exercises)} > 1000)")
+            return jsonify({'error': 'Too many exercises. Maximum allowed: 1000'}), 400
+        
+        if len(exercises) == 0:
+            logger.warning("Import failed: No exercises provided")
+            return jsonify({'error': 'No exercises provided'}), 400
+        
         logger.info(f"Starting import process: {len(exercises)} exercises to process")
         
+        # Preparar contadores
         imported_count = 0
         errors = []
         skipped_duplicates = 0
+        validation_errors = 0
+        batch_errors = 0
         
-        for index, exercise in enumerate(exercises):
-            try:
-                logger.debug(f"Processing exercise {index + 1}: {exercise.get('question', 'NO QUESTION')[:50]}...")
+        # Procesar en lotes para mejor rendimiento
+        batch_size = 50
+        total_batches = (len(exercises) + batch_size - 1) // batch_size
+        
+        logger.info(f"Processing in {total_batches} batches of {batch_size} exercises each")
+        
+        for batch_num in range(total_batches):
+            start_idx = batch_num * batch_size
+            end_idx = min(start_idx + batch_size, len(exercises))
+            batch_exercises = exercises[start_idx:end_idx]
+            
+            logger.info(f"Processing batch {batch_num + 1}/{total_batches}: exercises {start_idx + 1}-{end_idx}")
+            
+            # Preparar ejercicios del lote
+            batch_data = []
+            batch_duplicate_questions = set()
+            
+            for i, exercise in enumerate(batch_exercises):
+                exercise_index = start_idx + i + 1
                 
-                # Normalize exercise data
-                normalized_exercise = normalize_exercise_data(exercise)
-                logger.debug(f"Normalized exercise {index + 1}: level={normalized_exercise['level']}, correct_answer={normalized_exercise['correct_answer']}")
-                
-                # Validate structure
-                validation_result = validate_exercise_structure(normalized_exercise)
-                if not validation_result['valid']:
-                    error_msg = f"Ejercicio {index + 1}: {validation_result['error']}"
-                    logger.warning(error_msg)
-                    errors.append(error_msg)
-                    continue
-                
-                # Check for duplicates (optional)
-                if is_duplicate_exercise(normalized_exercise['question']):
-                    error_msg = f"Ejercicio {index + 1}: Pregunta duplicada - omitido"
-                    logger.info(error_msg)
-                    skipped_duplicates += 1
-                    continue
-                
-                # Insert in database
-                exercise_data = {
-                    'question': normalized_exercise['question'],
-                    'level': normalized_exercise['level'],
-                    'options': json.dumps(normalized_exercise['options']),
-                    'correct_answer': normalized_exercise['correct_answer'],
-                    'explanation': normalized_exercise.get('explanation', ''),
-                    'created_at': datetime.now().isoformat()
-                }
-                
-                logger.debug(f"Attempting to insert exercise {index + 1} into database")
-                result = supabase.table('exercises').insert(exercise_data).execute()
-                
-                if result.data:
-                    imported_count += 1
-                    logger.info(f"Successfully imported exercise {index + 1}")
-                else:
-                    error_msg = f"Ejercicio {index + 1}: Error al insertar en base de datos - no data returned"
-                    logger.error(error_msg)
-                    errors.append(error_msg)
+                try:
+                    logger.debug(f"Processing exercise {exercise_index}: {exercise.get('question', 'NO QUESTION')[:50]}...")
                     
-            except Exception as e:
-                error_msg = f"Ejercicio {index + 1}: {str(e)}"
-                logger.error(error_msg, exc_info=True)
-                errors.append(error_msg)
+                    # Normalize exercise data
+                    normalized_exercise = normalize_exercise_data(exercise)
+                    logger.debug(f"Normalized exercise {exercise_index}: level={normalized_exercise['level']}, correct_answer={normalized_exercise['correct_answer']}")
+                    
+                    # Validate structure
+                    validation_result = validate_exercise_structure(normalized_exercise)
+                    if not validation_result['valid']:
+                        error_msg = f"Ejercicio {exercise_index}: {validation_result['error']}"
+                        logger.warning(error_msg)
+                        errors.append(error_msg)
+                        validation_errors += 1
+                        continue
+                    
+                    # Check for duplicates en este lote
+                    question = normalized_exercise['question'].strip().lower()
+                    if question in batch_duplicate_questions:
+                        error_msg = f"Ejercicio {exercise_index}: Pregunta duplicada en el mismo lote - omitido"
+                        logger.info(error_msg)
+                        skipped_duplicates += 1
+                        continue
+                    
+                    batch_duplicate_questions.add(question)
+                    
+                    # Check for duplicates en base de datos (optimizado)
+                    if is_duplicate_exercise(normalized_exercise['question']):
+                        error_msg = f"Ejercicio {exercise_index}: Pregunta duplicada en base de datos - omitido"
+                        logger.info(error_msg)
+                        skipped_duplicates += 1
+                        continue
+                    
+                    # Preparar datos para inserción con orden descendente
+                    # El primer ejercicio del JSON (índice 0) será el último en insertarse
+                    order_index = len(exercises) - exercise_index + 1
+                    created_time = datetime.now()
+                    # Ajustar tiempo para mantener orden descendente
+                    adjusted_time = created_time - timedelta(seconds=len(exercises) - exercise_index)
+                    
+                    exercise_data = {
+                        'question': normalized_exercise['question'],
+                        'level': normalized_exercise['level'],
+                        'options': json.dumps(normalized_exercise['options']),
+                        'correct_answer': normalized_exercise['correct_answer'],
+                        'explanation': normalized_exercise.get('explanation', ''),
+                        'created_at': adjusted_time.isoformat(),
+                        'order_index': order_index
+                    }
+                    
+                    batch_data.append(exercise_data)
+                    logger.debug(f"Prepared exercise {exercise_index} for insertion")
+                    
+                except Exception as e:
+                    error_msg = f"Ejercicio {exercise_index}: {str(e)}"
+                    logger.error(error_msg, exc_info=True)
+                    errors.append(error_msg)
+                    continue
+            
+            # Insertar lote en base de datos
+            if batch_data:
+                try:
+                    logger.info(f"Inserting batch {batch_num + 1}: {len(batch_data)} exercises")
+                    result = supabase.table('exercises').insert(batch_data).execute()
+                    
+                    if result.data:
+                        batch_imported = len(result.data)
+                        imported_count += batch_imported
+                        logger.info(f"Batch {batch_num + 1} completed: {batch_imported} exercises imported")
+                        
+                        # Log IDs de ejercicios importados
+                        imported_ids = [ex.get('id') for ex in result.data if ex.get('id')]
+                        if imported_ids:
+                            logger.debug(f"Imported IDs in batch {batch_num + 1}: {imported_ids}")
+                    else:
+                        error_msg = f"Lote {batch_num + 1}: Error al insertar en base de datos - no data returned"
+                        logger.error(error_msg)
+                        errors.append(error_msg)
+                        batch_errors += 1
+                        
+                except Exception as batch_error:
+                    error_msg = f"Lote {batch_num + 1}: Error en inserción por lotes: {str(batch_error)}"
+                    logger.error(error_msg, exc_info=True)
+                    errors.append(error_msg)
+                    batch_errors += 1
+                    
+                    # Intentar inserción individual si falla el lote
+                    logger.warning(f"Batch {batch_num + 1} failed, trying individual insertions")
+                    for j, exercise_data in enumerate(batch_data):
+                        try:
+                            individual_result = supabase.table('exercises').insert(exercise_data).execute()
+                            if individual_result.data:
+                                imported_count += 1
+                                logger.debug(f"Individual insertion successful for exercise {start_idx + j + 1}")
+                            else:
+                                error_msg = f"Ejercicio {start_idx + j + 1}: Error en inserción individual"
+                                errors.append(error_msg)
+                        except Exception as individual_error:
+                            error_msg = f"Ejercicio {start_idx + j + 1}: Error en inserción individual: {str(individual_error)}"
+                            logger.error(error_msg)
+                            errors.append(error_msg)
+            else:
+                logger.info(f"Batch {batch_num + 1}: No valid exercises to insert")
         
-        logger.info(f"Import completed: {imported_count} imported, {skipped_duplicates} duplicates skipped, {len(errors)} errors out of {len(exercises)} total")
+        # Resumen final
+        logger.info(f"Import completed: {imported_count} imported, {skipped_duplicates} duplicates skipped, {validation_errors} validation errors, {batch_errors} batch errors, {len(errors)} total errors out of {len(exercises)} total")
         
-        return jsonify({
+        # Preparar respuesta detallada
+        response_data = {
             'imported': imported_count,
             'skipped_duplicates': skipped_duplicates,
+            'validation_errors': validation_errors,
+            'batch_errors': batch_errors,
             'total': len(exercises),
-            'errors': errors
-        })
+            'errors': errors[-10:] if len(errors) > 10 else errors,  # Últimos 10 errores
+            'total_errors': len(errors),
+            'metadata': metadata,
+            'processing_stats': {
+                'total_batches': total_batches,
+                'batch_size': batch_size,
+                'success_rate': round((imported_count / len(exercises)) * 100, 2) if exercises else 0
+            }
+        }
+        
+        # Log del resultado final
+        if imported_count == len(exercises):
+            logger.info("✅ All exercises imported successfully!")
+        elif imported_count > 0:
+            logger.warning(f"⚠️ Partial import: {imported_count}/{len(exercises)} exercises imported")
+        else:
+            logger.error("❌ No exercises imported successfully")
+        
+        return jsonify(response_data)
+        
     except Exception as e:
         logger.error(f"API import exercises error: {e}", exc_info=True)
         return jsonify({'error': f'Database error: {str(e)}'}), 500
