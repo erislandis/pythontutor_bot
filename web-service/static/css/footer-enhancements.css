@@ -12,6 +12,27 @@
     50% { transform: translateY(-10px); }
 }
 
+/* Ensure all footer text is visible */
+.footer-brand small {
+    color: #ffffff !important;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.footer-brand p {
+    color: #ffffff !important;
+    opacity: 0.95;
+}
+
+.footer-brand h4 {
+    color: #ffffff !important;
+}
+
+.footer-bottom p {
+    color: #ffffff !important;
+    opacity: 0.9;
+}
+
 .social-icon {
     display: inline-flex;
     align-items: center;

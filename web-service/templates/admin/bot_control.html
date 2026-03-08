@@ -80,9 +80,14 @@
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">Control del Bot</h6>
-                <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshBotStatus()" title="Refrescar Estado">
-                    <i class="bi bi-arrow-clockwise me-1"></i>Refrescar
-                </button>
+                <div>
+                    <button type="button" class="btn btn-outline-warning btn-sm me-2" onclick="syncBotStatus()" title="Sincronizar Estado">
+                        <i class="bi bi-arrow-repeat me-1"></i>Sincronizar
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshBotStatus()" title="Refrescar Estado">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refrescar
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -398,19 +403,24 @@ function updateRegistrationStatus(status) {
     const registrationStatusElement = document.getElementById('registrationStatus');
     const badgeElement = registrationStatusElement.querySelector('span');
     
-    const registrationInfo = {
-        'active': { text: 'Habilitado', color: 'success' },
-        'inactive': { text: 'Deshabilitado', color: 'danger' },
-        'paused': { text: 'Deshabilitado', color: 'danger' },
-        'stopped': { text: 'Deshabilitado', color: 'danger' },
-        'maintenance': { text: 'Habilitado (Limitado)', color: 'warning' },
-        'restarting': { text: 'Habilitado (Limitado)', color: 'warning' },
-        'unknown': { text: 'Desconocido', color: 'secondary' }
-    };
-    
-    const info = registrationInfo[status] || registrationInfo['unknown'];
-    badgeElement.textContent = info.text;
-    badgeElement.className = `badge bg-${info.color}`;
+    // Registration should be independent of bot status
+    fetch('/api/admin/registration/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.registration_enabled) {
+                badgeElement.textContent = 'Habilitado';
+                badgeElement.className = 'badge bg-success';
+            } else {
+                badgeElement.textContent = 'Deshabilitado';
+                badgeElement.className = 'badge bg-danger';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching registration status:', error);
+            // Fallback: assume enabled if we can't check
+            badgeElement.textContent = 'Habilitado';
+            badgeElement.className = 'badge bg-success';
+        });
 }
 
 function getStatusText(status) {
@@ -685,6 +695,41 @@ function refreshBotStatus() {
         setTimeout(() => {
             refreshBtn.innerHTML = originalContent;
             refreshBtn.disabled = false;
+        }, 1000);
+    });
+}
+
+function syncBotStatus() {
+    const syncBtn = document.querySelector('button[onclick="syncBotStatus()"]');
+    const originalContent = syncBtn.innerHTML;
+    
+    syncBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>Sincronizando...';
+    syncBtn.disabled = true;
+    
+    fetch('/api/admin/bot/sync-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showAlert('success', data.message);
+            // Update status immediately
+            updateBotStatus();
+        } else {
+            showAlert('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error syncing bot status:', error);
+        showAlert('error', 'Error de conexión al sincronizar el estado');
+    })
+    .finally(() => {
+        setTimeout(() => {
+            syncBtn.innerHTML = originalContent;
+            syncBtn.disabled = false;
         }, 1000);
     });
 }

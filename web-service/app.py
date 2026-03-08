@@ -2089,7 +2089,7 @@ def update_bot_status_in_db(status, message, updated_by):
 @app.route('/api/admin/bot/status', methods=['GET'])
 @admin_required
 def get_bot_status():
-    """Get current bot status with health check"""
+    """Get bot status with health check priority"""
     try:
         if not supabase:
             return jsonify({
@@ -2099,30 +2099,33 @@ def get_bot_status():
                 'connection_status': 'error'
             }), 500
         
-        # Check database status
-        db_status = get_database_bot_status()
-        
-        # Check actual service health
+        # Check actual service health FIRST (priority over database)
         service_healthy = check_bot_service_health()
+        logger.info(f"Service healthy: {service_healthy}")
         
-        # Determine actual status and connection
-        if not service_healthy:
+        # Get database status (secondary, for reference)
+        db_status = get_database_bot_status()
+        logger.info(f"Database status: {db_status['status'] if db_status else 'None'}")
+        
+        # Determine status based on ACTUAL health, not database
+        if service_healthy:
+            actual_status = 'active'  # Bot is running, regardless of database
+            connection_status = 'connected'
+            
+            # Update database if it's wrong or missing
+            if not db_status or db_status['status'] != 'active':
+                logger.info("Updating database to 'active' - bot is running")
+                update_bot_status_in_db('active', 'Bot is running (auto-detected)', 'system')
+                db_status = get_database_bot_status()  # Refresh after update
+        else:
             actual_status = 'stopped'
             connection_status = 'disconnected'
-        elif db_status:
-            actual_status = db_status['status']
-            connection_status = 'connected'
-        else:
-            # No database record, check service health
-            if service_healthy:
-                actual_status = 'active'
-                connection_status = 'connected'
-                # Create initial status record
-                create_initial_bot_status()
-                db_status = get_database_bot_status()  # Refresh after creation
-            else:
-                actual_status = 'inactive'
-                connection_status = 'disconnected'
+            
+            # Update database if needed
+            if not db_status or db_status['status'] != 'stopped':
+                logger.info("Updating database to 'stopped' - bot not responding")
+                update_bot_status_in_db('stopped', 'Bot is not responding', 'system')
+                db_status = get_database_bot_status()  # Refresh after update
         
         return jsonify({
             'status': 'success',
@@ -2130,7 +2133,6 @@ def get_bot_status():
             'connection_status': connection_status,
             'service_healthy': service_healthy,
             'message': db_status.get('message', '') if db_status else '',
-            'last_updated': db_status.get('last_updated', datetime.now().isoformat()) if db_status else datetime.now().isoformat(),
             'updated_by': db_status.get('updated_by', 'system') if db_status else 'system'
         }), 200
             
@@ -2266,6 +2268,56 @@ def refresh_bot_status():
             'status': 'error',
             'message': str(e),
             'service_healthy': False
+        }), 500
+
+@app.route('/api/admin/registration/status', methods=['GET'])
+@admin_required
+def get_registration_status():
+    """Get user registration status (independent of bot status)"""
+    try:
+        # Registration should be enabled unless explicitly disabled
+        # This could be a separate setting in the future
+        return jsonify({
+            'registration_enabled': True,
+            'message': 'User registration is enabled'
+        }), 200
+    except Exception as e:
+        logger.error(f"Error getting registration status: {e}")
+        return jsonify({
+            'registration_enabled': True,
+            'message': 'Default: registration enabled'
+        }), 200
+
+@app.route('/api/admin/bot/sync-status', methods=['POST'])
+@admin_required
+def sync_bot_status():
+    """Force sync bot status with actual health check"""
+    try:
+        service_healthy = check_bot_service_health()
+        
+        if service_healthy:
+            # Force update to active
+            update_bot_status_in_db('active', 'Status synchronized - bot is running', 'system')
+            return jsonify({
+                'status': 'success',
+                'message': 'Bot status synchronized to ACTIVE',
+                'bot_status': 'active',
+                'connection_status': 'connected'
+            }), 200
+        else:
+            update_bot_status_in_db('stopped', 'Status synchronized - bot not responding', 'system')
+            return jsonify({
+                'status': 'error',
+                'message': 'Bot status synchronized to STOPPED',
+                'bot_status': 'stopped',
+                'connection_status': 'disconnected'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Error syncing bot status: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
         }), 500
 
 @app.route('/api/admin/bot/start', methods=['POST'])
