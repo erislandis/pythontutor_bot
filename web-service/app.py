@@ -31,6 +31,8 @@ app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'False'
 app.config['SESSION_COOKIE_HTTPONLY'] = os.getenv('SESSION_COOKIE_HTTPONLY', 'True').lower() == 'true'
 app.config['SESSION_COOKIE_SAMESITE'] = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
+# Increase max content length to handle large JSON files (16MB)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
 # Configure logging
 logging.basicConfig(
@@ -1303,22 +1305,35 @@ def api_import_exercises():
     """Import exercises from JSON - MEJORADO PARA 300+ EJERCICIOS"""
     import traceback
     
+    # EARLY DEBUG LOGGING - This should execute even if everything else fails
     logger.info("=== IMPORT START ===")
-    logger.info(f"User: {getattr(current_user, 'username', 'unknown')}")
+    logger.info(f"Request method: {request.method}")
+    logger.info(f"Request URL: {request.url}")
+    logger.info(f"Request content type: {request.content_type}")
+    logger.info(f"Request content length: {request.content_length}")
     logger.info(f"Request headers: {dict(request.headers)}")
+    logger.info(f"User: {getattr(current_user, 'username', 'unknown')}")
+    logger.info(f"User authenticated: {current_user.is_authenticated}")
     
     try:
+        logger.info("Starting import function...")
+        
         if not supabase:
             logger.error("Import failed: Supabase not connected")
             return jsonify({'error': 'Database connection error'}), 500
         
         # Obtener datos del request con metadata
         try:
+            logger.info("Attempting to parse JSON from request...")
+            logger.info(f"Request stream length: {len(request.get_data()) if request.get_data() else 'No data'}")
+            
             data = request.json
             if not data:
                 logger.error("No JSON data in request")
                 return jsonify({'error': 'No JSON data provided'}), 400
                 
+            logger.info(f"JSON parsed successfully. Data keys: {list(data.keys())}")
+            
             exercises = data.get('exercises', [])
             metadata = data.get('metadata', {})
             
@@ -1326,6 +1341,7 @@ def api_import_exercises():
             
         except Exception as json_error:
             logger.error(f"JSON parsing error: {json_error}")
+            logger.error(f"Request body preview: {request.get_data()[:500] if request.get_data() else 'No body'}")
             return jsonify({'error': f'Invalid JSON: {str(json_error)}'}), 400
         
         if not isinstance(exercises, list):
