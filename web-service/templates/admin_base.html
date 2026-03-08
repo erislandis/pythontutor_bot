@@ -37,7 +37,7 @@
                 <i class="fas fa-users"></i>
                 Usuarios
             </a>
-            <a href="{{ url_for('bot_control') }}" class="{% if request.endpoint == 'bot_control' %}active{% endif %}">
+            <a href="{{ url_for('admin_bot_control') }}" class="{% if request.endpoint == 'admin_bot_control' %}active{% endif %}">
                 <i class="fas fa-robot"></i>
                 Control del Bot
             </a>
@@ -51,7 +51,7 @@
             </a>
             
             <div class="logout-section">
-                <a href="{{ url_for('logout') }}" class="logout-link">
+                <a href="{{ url_for('admin_logout') }}" class="logout-link">
                     <i class="fas fa-sign-out-alt"></i>
                     Cerrar Sesión
                 </a>
