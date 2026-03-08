@@ -2377,6 +2377,317 @@ input:hover + .user-status-slider {
     color: var(--text-muted);
 }
 
+/* Users Table Professional Styles */
+.logs-table {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.users-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-md);
+}
+
+.users-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.users-table thead th {
+    background: var(--gradient-primary);
+    color: var(--text-inverse);
+    padding: var(--spacing-md) var(--spacing-sm);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.users-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition-normal);
+}
+
+.users-table tbody tr:hover {
+    background: var(--glass-bg);
+    transform: translateX(2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.users-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.users-table td {
+    padding: var(--spacing-md) var(--spacing-sm);
+    vertical-align: middle;
+    border: none;
+    color: var(--text-primary);
+}
+
+/* User Avatar and Profile Styles */
+.user-avatar-sm {
+    width: 32px;
+    height: 32px;
+    background: var(--gradient-primary);
+    color: var(--text-inverse);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+}
+
+.user-progress-mini {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    align-items: flex-start;
+}
+
+.user-level-badge {
+    background: var(--gradient-success);
+    color: var(--text-inverse);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.user-exercises-count {
+    color: var(--text-muted);
+    font-size: var(--font-size-xs);
+}
+
+/* User Status Toggle Professional */
+.user-status-toggle {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.user-status-toggle input[type="checkbox"] {
+    width: 44px;
+    height: 24px;
+    appearance: none;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: var(--transition-normal);
+    position: relative;
+}
+
+.user-status-toggle input[type="checkbox"]:checked {
+    background: var(--gradient-success);
+    border-color: var(--success-color);
+}
+
+.user-status-toggle input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: var(--text-secondary);
+    border-radius: 50%;
+    transition: var(--transition-fast);
+}
+
+.user-status-toggle input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+    background: var(--text-inverse);
+}
+
+.user-status-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--text-muted);
+    border-radius: var(--radius-lg);
+    transition: var(--transition-normal);
+}
+
+.user-status-toggle input[type="checkbox"]:checked + .user-status-slider {
+    background: var(--success-color);
+}
+
+/* Action Buttons Professional */
+.action-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    justify-content: center;
+}
+
+.action-buttons .btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: var(--transition-normal);
+    border: 2px solid var(--border-color);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    min-width: 80px;
+    justify-content: center;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.action-buttons .btn-outline-primary {
+    color: var(--primary-color);
+    background: transparent;
+}
+
+.action-buttons .btn-outline-primary:hover {
+    background: var(--gradient-primary);
+    color: var(--text-inverse);
+}
+
+.action-buttons .btn-outline-danger {
+    color: var(--danger-color);
+    background: transparent;
+}
+
+.action-buttons .btn-outline-danger:hover {
+    background: var(--gradient-danger);
+    color: var(--text-inverse);
+}
+
+/* Filter Controls Card Professional */
+.filter-controls-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.filter-controls-card .card-body {
+    padding: 0;
+}
+
+/* User Status Badges Professional */
+.badge {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge.bg-success {
+    background: var(--gradient-success);
+    color: var(--text-inverse);
+}
+
+.badge.bg-warning {
+    background: var(--gradient-warning);
+    color: var(--text-inverse);
+}
+
+.badge.bg-danger {
+    background: var(--gradient-danger);
+    color: var(--text-inverse);
+}
+
+/* Loading and Empty States Professional */
+#loading-state {
+    padding: var(--spacing-2xl);
+    text-align: center;
+    background: var(--glass-bg);
+    border-radius: var(--radius-lg);
+    margin: var(--spacing-lg);
+}
+
+#empty-state {
+    padding: var(--spacing-2xl);
+    text-align: center;
+    background: var(--glass-bg);
+    border-radius: var(--radius-lg);
+    margin: var(--spacing-lg);
+}
+
+/* Bulk Actions Professional */
+#bulk-actions {
+    margin-top: var(--spacing-lg);
+}
+
+#bulk-actions .card {
+    background: var(--gradient-warning);
+    border: none;
+    border-radius: var(--radius-lg);
+}
+
+#bulk-actions .card-body {
+    padding: var(--spacing-lg);
+}
+
+/* Pagination Professional */
+.pagination {
+    margin-top: var(--spacing-lg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.pagination .page-link {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    transition: var(--transition-normal);
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination .page-link:hover {
+    background: var(--gradient-primary);
+    color: var(--text-inverse);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--gradient-primary);
+    color: var(--text-inverse);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+}
+
 /* Professional Checkbox Styling */
 .form-check-input {
     width: 1.25rem;
