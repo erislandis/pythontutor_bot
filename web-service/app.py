@@ -2016,27 +2016,32 @@ def check_bot_service_health():
     """Check if bot service is actually running"""
     try:
         bot_service_url = os.getenv('BOT_SERVICE_URL', 'https://pythontutor-bot.onrender.com')
-        logger.info(f"Checking bot health at: {bot_service_url}")
+        logger.info(f"[HEALTH-CHECK] Starting health check for: {bot_service_url}")
+        logger.info(f"[HEALTH-CHECK] Environment variable BOT_SERVICE_URL: {os.getenv('BOT_SERVICE_URL')}")
         
         response = requests.get(f"{bot_service_url}/health", timeout=10)
-        logger.info(f"Health check response status: {response.status_code}")
+        logger.info(f"[HEALTH-CHECK] Response status: {response.status_code}")
+        logger.info(f"[HEALTH-CHECK] Response headers: {dict(response.headers)}")
         
         if response.status_code == 200:
             data = response.json()
-            logger.info(f"Health check response data: {data}")
+            logger.info(f"[HEALTH-CHECK] Response data: {data}")
             
             bot_running = data.get('bot_running', False)
             status_ok = data.get('status') == 'ok'
             
-            logger.info(f"Bot running: {bot_running}, Status OK: {status_ok}")
+            logger.info(f"[HEALTH-CHECK] Bot running: {bot_running}, Status OK: {status_ok}")
+            logger.info(f"[HEALTH-CHECK] Final result: {bot_running and status_ok}")
             
             return bot_running and status_ok
         else:
-            logger.warning(f"Health check failed with status: {response.status_code}")
+            logger.warning(f"[HEALTH-CHECK] Failed with status: {response.status_code}")
+            logger.warning(f"[HEALTH-CHECK] Response text: {response.text}")
             return False
             
     except Exception as e:
-        logger.error(f"Bot service health check failed: {e}")
+        logger.error(f"[HEALTH-CHECK] Exception occurred: {type(e).__name__}: {e}")
+        logger.error(f"[HEALTH-CHECK] Exception details: {str(e)}")
         return False
 
 def get_database_bot_status():
@@ -2287,6 +2292,109 @@ def get_registration_status():
             'registration_enabled': True,
             'message': 'Default: registration enabled'
         }), 200
+
+@app.route('/api/admin/debug/health', methods=['GET'])
+@admin_required
+def debug_health_check():
+    """Debug endpoint to test health check manually"""
+    try:
+        bot_service_url = os.getenv('BOT_SERVICE_URL', 'https://pythontutor-bot.onrender.com')
+        
+        result = {
+            'bot_service_url': bot_service_url,
+            'env_var_set': os.getenv('BOT_SERVICE_URL') is not None,
+            'default_url': 'https://pythontutor-bot.onrender.com',
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Test actual health check
+        try:
+            logger.info(f"[DEBUG-HEALTH] Testing URL: {bot_service_url}")
+            response = requests.get(f"{bot_service_url}/health", timeout=10)
+            result['health_check_status'] = response.status_code
+            result['health_check_response'] = response.json()
+            result['health_check_success'] = True
+            logger.info(f"[DEBUG-HEALTH] Response: {response.json()}")
+        except Exception as e:
+            result['health_check_error'] = str(e)
+            result['health_check_success'] = False
+            logger.error(f"[DEBUG-HEALTH] Error: {e}")
+        
+        # Test check_bot_service_health function
+        try:
+            service_healthy = check_bot_service_health()
+            result['check_function_result'] = service_healthy
+            logger.info(f"[DEBUG-HEALTH] Function result: {service_healthy}")
+        except Exception as e:
+            result['check_function_error'] = str(e)
+            logger.error(f"[DEBUG-HEALTH] Function error: {e}")
+        
+        # Check database status
+        try:
+            db_status = get_database_bot_status()
+            result['database_status'] = db_status
+            logger.info(f"[DEBUG-HEALTH] DB status: {db_status}")
+        except Exception as e:
+            result['database_error'] = str(e)
+            logger.error(f"[DEBUG-HEALTH] DB error: {e}")
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        logger.error(f"[DEBUG-HEALTH] General error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/bot/force-active', methods=['POST'])
+@admin_required
+def force_bot_active():
+    """Force bot status to active regardless of health check"""
+    try:
+        logger.info(f"[FORCE-ACTIVE] Forcing bot to active by {current_user.username}")
+        success = update_bot_status_in_db('active', 'Force set to active by admin', current_user.username)
+        if success:
+            logger.info("[FORCE-ACTIVE] Database updated successfully")
+            return jsonify({
+                'status': 'success',
+                'message': 'Bot status forced to ACTIVE'
+            }), 200
+        else:
+            logger.error("[FORCE-ACTIVE] Failed to update database")
+            return jsonify({
+                'status': 'error',
+                'message': 'Failed to update database'
+            }), 500
+    except Exception as e:
+        logger.error(f"[FORCE-ACTIVE] Error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/debug/database', methods=['GET'])
+@admin_required
+def debug_database():
+    """Check current database state"""
+    try:
+        # Get current bot status
+        bot_status = get_database_bot_status()
+        
+        # Get user stats
+        try:
+            users_response = supabase.table('users').select('*', count='exact').execute()
+            total_users = users_response.count if hasattr(users_response, 'count') else 0
+        except Exception as e:
+            total_users = 0
+            logger.error(f"[DEBUG-DB] User count error: {e}")
+        
+        result = {
+            'bot_status': bot_status,
+            'total_users': total_users,
+            'supabase_connected': supabase is not None,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        logger.info(f"[DEBUG-DB] Database state: {result}")
+        return jsonify(result), 200
+    except Exception as e:
+        logger.error(f"[DEBUG-DB] Error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/admin/bot/sync-status', methods=['POST'])
 @admin_required
