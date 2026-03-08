@@ -228,7 +228,7 @@
                                 </span>
                             </td>
                             <td>
-                                <div class="log-message">{{ log.message }}</div>
+                                <div class="log-message level-{{ log.level }}">{{ log.message }}</div>
                             </td>
                             <td>
                                 <span class="source-badge">
@@ -532,60 +532,117 @@
         }
 
         function clearAllLogs() {
-            if (confirm('⚠️ ¿Estás seguro de que quieres eliminar TODOS los logs? Esta acción no se puede deshacer.')) {
-                if (confirm('Esta acción eliminará permanentemente todos los logs del sistema. ¿Continuar?')) {
-                    fetch('/api/admin/logs', {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            delete_all: true
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            showNotification(data.error, 'danger');
-                        } else {
-                            showNotification(data.message, 'success');
-                            refreshLogs();
-                        }
-                    })
-                    .catch(error => {
-                        showNotification('Error al eliminar logs', 'danger');
-                    });
-                }
+            // Double confirmation for destructive action
+            if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar TODOS los logs?')) {
+                return;
             }
             
-            // Close modal
-            bootstrap.Modal.getInstance(document.getElementById('clearLogsModal')).hide();
+            if (!confirm('Esta acción eliminará permanentemente todos los logs del sistema. ¿Continuar?')) {
+                return;
+            }
+            
+            // Show loading state
+            const clearBtn = event.target;
+            const originalText = clearBtn.innerHTML;
+            clearBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+            clearBtn.disabled = true;
+            
+            fetch('/api/admin/logs', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({
+                    delete_all: true
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    showNotification(`Error: ${data.error}`, 'danger');
+                } else {
+                    showNotification(data.message || 'Logs eliminados exitosamente', 'success');
+                    refreshLogs();
+                    
+                    // Close modal if it's open
+                    const modal = document.getElementById('clearLogsModal');
+                    if (modal) {
+                        const modalInstance = bootstrap.Modal.getInstance(modal);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting logs:', error);
+                showNotification(`Error al eliminar logs: ${error.message}`, 'danger');
+            })
+            .finally(() => {
+                // Restore button state
+                clearBtn.innerHTML = originalText;
+                clearBtn.disabled = false;
+            });
         }
 
         function deleteLog(logId) {
-            if (confirm('¿Estás seguro de que quieres eliminar este log?')) {
-                fetch('/api/admin/logs', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        log_ids: [logId]
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        showNotification(data.error, 'danger');
-                    } else {
-                        showNotification('Log eliminado exitosamente', 'success');
-                        refreshLogs();
-                    }
-                })
-                .catch(error => {
-                    showNotification('Error al eliminar log', 'danger');
-                });
+            if (!confirm('¿Estás seguro de que quieres eliminar este log?')) {
+                return;
             }
+            
+            // Find and disable the delete button
+            const deleteBtn = document.querySelector(`button[onclick="deleteLog('${logId}')"]`);
+            if (deleteBtn) {
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                deleteBtn.disabled = true;
+            }
+            
+            fetch('/api/admin/logs', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({
+                    log_ids: [logId]
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    showNotification(`Error: ${data.error}`, 'danger');
+                } else {
+                    showNotification('Log eliminado exitosamente', 'success');
+                    // Remove the row from table
+                    const row = document.querySelector(`tr[data-log-id="${logId}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                    updateStats();
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting log:', error);
+                showNotification(`Error al eliminar log: ${error.message}`, 'danger');
+            })
+            .finally(() => {
+                // Restore button state
+                if (deleteBtn) {
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteBtn.disabled = false;
+                }
+            });
         }
 
         function viewLogDetails(logId) {

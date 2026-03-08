@@ -17,7 +17,14 @@ from io import StringIO
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Permitir peticiones del bot
+# Configurar CORS para permitir peticiones del bot y otros orígenes
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["*"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]
+    }
+})
 app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
 app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
 app.config['SESSION_COOKIE_HTTPONLY'] = os.getenv('SESSION_COOKIE_HTTPONLY', 'True').lower() == 'true'
@@ -169,10 +176,6 @@ def internal_server_error(e):
     return render_template('public/500.html'), 500
 
 # Routes - Public pages
-@app.route('/')
-def index():
-    return render_template('public/index.html')
-
 @app.route('/features')
 def features():
     return render_template('public/features.html')
@@ -755,6 +758,27 @@ def admin_exercises():
         return render_template('admin/exercises.html', exercises=[])
 
 # API Endpoints for Bot
+
+@app.route('/api/test', methods=['GET'])
+def api_test():
+    """Test endpoint for bot connectivity verification"""
+    try:
+        return jsonify({
+            'status': 'ok',
+            'message': 'API is working correctly',
+            'timestamp': datetime.now().isoformat(),
+            'service': 'pythontutor-web',
+            'database_connected': supabase is not None
+        }), 200
+    except Exception as e:
+        logger.error(f"API test error: {e}")
+        return jsonify({
+            'status': 'error',
+            'message': 'API test failed',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
 @app.route('/api/user/<int:telegram_id>', methods=['GET'])
 def get_user(telegram_id):
     """Get user by telegram_id for bot"""

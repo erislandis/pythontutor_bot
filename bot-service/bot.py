@@ -126,32 +126,83 @@ def invalidate_exercises_cache():
     logger.info("Exercise cache invalidated")
 
 # API functions
+def check_web_service_health():
+    """Verificar si el servicio web está disponible"""
+    try:
+        logger.info(f"Checking web service health at: {WEB_API_URL}/api/test")
+        response = requests.get(f"{WEB_API_URL}/api/test", timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json()
+            logger.info(f"Web service health check passed: {data}")
+            return True, data
+        else:
+            logger.error(f"Web service health check failed with status {response.status_code}")
+            return False, None
+            
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"Cannot connect to web service at {WEB_API_URL}: {e}")
+        return False, None
+    except requests.exceptions.Timeout:
+        logger.error("Web service health check timeout")
+        return False, None
+    except Exception as e:
+        logger.error(f"Web service health check error: {e}")
+        return False, None
+
+def create_local_user_session(telegram_id, user):
+    """Crear sesión de usuario local cuando el servicio web no está disponible"""
+    user_sessions[telegram_id] = {
+        'current_level': 'principiante',
+        'mode': None,
+        'learning_session': {
+            'current_exercise': 0,
+            'streak': 0,
+            'completed_today': 0
+        },
+        'practice_session': {
+            'target_count': 0,
+            'completed_count': 0,
+            'correct_count': 0,
+            'current_exercise': None
+        },
+        'score': 0,
+        'local_mode': True  # Flag to indicate this is a local session
+    }
+    logger.info(f"Created local session for user {telegram_id} ({user.first_name})")
+
 def get_user_from_api(telegram_id):
     """Obtener usuario desde la API del web service"""
     try:
         logger.info(f"Attempting to connect to API: {WEB_API_URL}/api/user/{telegram_id}")
         response = requests.get(f"{WEB_API_URL}/api/user/{telegram_id}", timeout=10)
         
+        logger.info(f"API Response Status: {response.status_code}")
+        logger.info(f"API Response Headers: {dict(response.headers)}")
+        
         if response.status_code == 404:
             # Usuario eliminado o no existe - no es error de servicio
-            logger.info(f"User {telegram_id} not found (possibly deleted)")
+            logger.info(f"User {telegram_id} not found in database (404)")
             return None
-            
-        if response.status_code == 200:
+        elif response.status_code == 200:
             logger.info(f"Successfully retrieved user {telegram_id}")
             return response.json()
         else:
-            logger.error(f"API error: {response.status_code} - {response.text}")
+            logger.error(f"API returned status {response.status_code}: {response.text}")
             return None
             
-    except requests.exceptions.ConnectionError:
-        logger.error(f"Cannot connect to API at {WEB_API_URL}")
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"Cannot connect to API at {WEB_API_URL}: {e}")
+        logger.error("This might indicate the web service is down or unreachable")
         return None
     except requests.exceptions.Timeout:
         logger.error(f"API connection timeout for user {telegram_id}")
         return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"API request failed for user {telegram_id}: {e}")
+        return None
     except Exception as e:
-        logger.error(f"Unexpected error getting user: {e}")
+        logger.error(f"Unexpected error getting user {telegram_id}: {e}")
         return None
 
 def create_user_in_api(user_data):
@@ -208,22 +259,69 @@ def update_progress_in_api(telegram_id, exercise_id, completed):
         return False
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start command handler - Enhanced with Duolingo-style interface"""
+    """Start command handler - Enhanced with service health check"""
     user = update.effective_user
     telegram_id = user.id
     
-    # Check if user exists in database
+    # Check web service health first
+    logger.info(f"User {telegram_id} ({user.first_name}) started the bot")
+    is_healthy, health_data = check_web_service_health()
+    
+    if not is_healthy:
+        # Service not available - create local session
+        await update.message.reply_text(
+            "⚠️ *El servicio web no está disponible en este momento*\n\n"
+            "📝 *Tu perfil será creado localmente*\n"
+            "🔄 *Se sincronizará automáticamente cuando el servicio vuelva*\n\n"
+            "🤖 *Puedes empezar a usar el bot de todas formas*",
+            parse_mode='Markdown'
+        )
+        
+        # Create local user session
+        create_local_user_session(telegram_id, user)
+        return
+    
+    # Service is healthy - check if user exists in database
     user_data = get_user_from_api(telegram_id)
     
     if not user_data:
-        # User not found - could be new user or deleted user
+        # User not found - create new user
         await update.message.reply_text(
             "👋 ¡Hola! Parece que eres un nuevo usuario.\n\n"
-            "📝 Vamos a crear tu perfil para que puedas empezar a aprender Python.\n"
-            "✅ Tu perfil está siendo creado localmente.\n"
-            "🔄 Se sincronizará cuando el servicio esté disponible."
+            "📝 *Creando tu perfil en la base de datos...*",
+            parse_mode='Markdown'
         )
-        return
+        
+        # Create user in database
+        new_user_data = {
+            'telegram_id': telegram_id,
+            'username': user.username or '',
+            'first_name': user.first_name or '',
+            'last_name': user.last_name or '',
+            'current_level': 'principiante',
+            'level_progress': 0,
+            'total_exercises_completed': 0,
+            'current_streak': 0,
+            'longest_streak': 0,
+            'created_at': datetime.now().isoformat(),
+            'last_activity': datetime.now().isoformat()
+        }
+        
+        created_user = create_user_in_api(new_user_data)
+        if created_user:
+            user_data = created_user
+            await update.message.reply_text(
+                "✅ *¡Perfil creado exitosamente!*\n\n"
+                "🎉 *¡Bienvenido a PythonBot!*",
+                parse_mode='Markdown'
+            )
+        else:
+            await update.message.reply_text(
+                "❌ *Error al crear tu perfil*\n\n"
+                "🔄 *Por favor intenta de nuevo en unos momentos*",
+                parse_mode='Markdown'
+            )
+            return
     
     # Check and update level based on progress
     updated_level = check_and_update_level(telegram_id, user_data)
