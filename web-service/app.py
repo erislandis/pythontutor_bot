@@ -275,6 +275,306 @@ def dashboard():
                              recent_exercises=0,
                              security_logs=[])
 
+@app.route('/admin/logs')
+@admin_required
+def admin_logs():
+    """Logs management page with real data"""
+    try:
+        if not supabase:
+            return render_template('admin/logs.html', 
+                                logs=[], 
+                                stats={'total': 0, 'info': 0, 'success': 0, 'warning': 0, 'error': 0})
+        
+        # Get logs with pagination and filtering
+        page = request.args.get('page', 1, type=int)
+        per_page = 50
+        level_filter = request.args.get('level', 'all')
+        source_filter = request.args.get('source', 'all')
+        search_filter = request.args.get('search', '')
+        
+        # Build query
+        query = supabase.table('system_logs').select('*')
+        
+        # Apply filters
+        if level_filter != 'all':
+            query = query.eq('level', level_filter)
+        
+        if source_filter != 'all':
+            query = query.eq('source', source_filter)
+        
+        if search_filter:
+            query = query.ilike('message', f'%{search_filter}%')
+        
+        # Get total count
+        count_query = query
+        try:
+            count_result = count_query.execute()
+            total_logs = len(count_result.data) if count_result.data else 0
+        except:
+            total_logs = 0
+        
+        # Apply pagination and ordering
+        offset = (page - 1) * per_page
+        query = query.order('created_at', desc=True).range(offset, offset + per_page - 1)
+        
+        try:
+            result = query.execute()
+            logs = result.data or []
+        except:
+            logs = []
+        
+        # Get statistics
+        stats = {'total': 0, 'info': 0, 'success': 0, 'warning': 0, 'error': 0}
+        try:
+            stats_result = supabase.table('system_logs').select('level').execute()
+            if stats_result.data:
+                all_logs = stats_result.data
+                stats['total'] = len(all_logs)
+                for log in all_logs:
+                    level = log.get('level', 'info')
+                    if level in stats:
+                        stats[level] += 1
+        except:
+            # Mock stats if table doesn't exist
+            stats = {'total': 0, 'info': 0, 'success': 0, 'warning': 0, 'error': 0}
+        
+        # Calculate pagination
+        total_pages = (total_logs + per_page - 1) // per_page
+        
+        return render_template('admin/logs.html', 
+                            logs=logs, 
+                            stats=stats,
+                            page=page,
+                            total_pages=total_pages,
+                            total_logs=total_logs,
+                            current_filters={
+                                'level': level_filter,
+                                'source': source_filter,
+                                'search': search_filter
+                            })
+    
+    except Exception as e:
+        logger.error(f"Logs page error: {e}")
+        flash('Error al cargar la página de logs', 'error')
+        return render_template('admin/logs.html', 
+                            logs=[], 
+                            stats={'total': 0, 'info': 0, 'success': 0, 'warning': 0, 'error': 0})
+
+@app.route('/api/admin/logs', methods=['GET'])
+@admin_required
+def api_get_logs():
+    """API endpoint to get logs with filtering"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get parameters
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 50, type=int)
+        level_filter = request.args.get('level', 'all')
+        source_filter = request.args.get('source', 'all')
+        search_filter = request.args.get('search', '')
+        
+        # Build query
+        query = supabase.table('system_logs').select('*')
+        
+        # Apply filters
+        if level_filter != 'all':
+            query = query.eq('level', level_filter)
+        
+        if source_filter != 'all':
+            query = query.eq('source', source_filter)
+        
+        if search_filter:
+            query = query.ilike('message', f'%{search_filter}%')
+        
+        # Get total count
+        try:
+            count_result = query.execute()
+            total_logs = len(count_result.data) if count_result.data else 0
+        except:
+            total_logs = 0
+        
+        # Apply pagination and ordering
+        offset = (page - 1) * per_page
+        query = query.order('created_at', desc=True).range(offset, offset + per_page - 1)
+        
+        try:
+            result = query.execute()
+            logs = result.data or []
+        except:
+            logs = []
+        
+        return jsonify({
+            'logs': logs,
+            'total': total_logs,
+            'page': page,
+            'per_page': per_page,
+            'total_pages': (total_logs + per_page - 1) // per_page
+        })
+        
+    except Exception as e:
+        logger.error(f"API get logs error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/logs', methods=['DELETE'])
+@admin_required
+def api_delete_logs():
+    """API endpoint to delete logs"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        data = request.json
+        log_ids = data.get('log_ids', [])
+        delete_all = data.get('delete_all', False)
+        older_than = data.get('older_than', '')  # Format: '7d', '30d', etc.
+        
+        deleted_count = 0
+        
+        if delete_all:
+            # Delete all logs
+            try:
+                result = supabase.table('system_logs').delete().execute()
+                deleted_count = len(result.data) if result.data else 0
+            except Exception as e:
+                logger.error(f"Error deleting all logs: {e}")
+                return jsonify({'error': 'Error deleting all logs'}), 500
+                
+        elif older_than:
+            # Delete logs older than specified time
+            try:
+                # Calculate cutoff date
+                days = int(older_than.replace('d', ''))
+                cutoff_date = datetime.now() - timedelta(days=days)
+                
+                result = supabase.table('system_logs').delete().lt('created_at', cutoff_date.isoformat()).execute()
+                deleted_count = len(result.data) if result.data else 0
+            except Exception as e:
+                logger.error(f"Error deleting old logs: {e}")
+                return jsonify({'error': 'Error deleting old logs'}), 500
+                
+        elif log_ids:
+            # Delete specific logs
+            try:
+                for log_id in log_ids:
+                    result = supabase.table('system_logs').delete().eq('id', log_id).execute()
+                    if result.data:
+                        deleted_count += 1
+            except Exception as e:
+                logger.error(f"Error deleting specific logs: {e}")
+                return jsonify({'error': 'Error deleting logs'}), 500
+        
+        # Log the deletion action
+        log_system_event(
+            level='info',
+            message=f'{deleted_count} logs eliminados por admin {current_user.username}',
+            source='admin',
+            user_id=current_user.id
+        )
+        
+        return jsonify({
+            'deleted_count': deleted_count,
+            'message': f'{deleted_count} logs eliminados exitosamente'
+        })
+        
+    except Exception as e:
+        logger.error(f"API delete logs error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/logs/export', methods=['GET'])
+@admin_required
+def api_export_logs():
+    """API endpoint to export logs"""
+    try:
+        if not supabase:
+            return jsonify({'error': 'Database connection error'}), 500
+        
+        # Get parameters
+        level_filter = request.args.get('level', 'all')
+        source_filter = request.args.get('source', 'all')
+        format_type = request.args.get('format', 'csv')
+        
+        # Build query
+        query = supabase.table('system_logs').select('*').order('created_at', desc=True)
+        
+        # Apply filters
+        if level_filter != 'all':
+            query = query.eq('level', level_filter)
+        
+        if source_filter != 'all':
+            query = query.eq('source', source_filter)
+        
+        # Limit to reasonable amount for export
+        query = query.limit(10000)
+        
+        try:
+            result = query.execute()
+            logs = result.data or []
+        except:
+            logs = []
+        
+        if format_type == 'csv':
+            # Create CSV
+            output = StringIO()
+            writer = csv.writer(output)
+            
+            # Write header
+            writer.writerow(['ID', 'Level', 'Message', 'Source', 'User ID', 'Created At'])
+            
+            # Write data
+            for log in logs:
+                writer.writerow([
+                    log.get('id', ''),
+                    log.get('level', ''),
+                    log.get('message', ''),
+                    log.get('source', ''),
+                    log.get('user_id', ''),
+                    log.get('created_at', '')
+                ])
+            
+            # Create response
+            csv_str = output.getvalue()
+            response = Response(csv_str, mimetype='text/csv')
+            response.headers['Content-Disposition'] = f'attachment; filename=logs_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+            
+            return response
+            
+        elif format_type == 'json':
+            # Create JSON response
+            json_str = json.dumps(logs, ensure_ascii=False, indent=2, default=str)
+            response = Response(json_str, mimetype='application/json')
+            response.headers['Content-Disposition'] = f'attachment; filename=logs_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+            
+            return response
+        
+        else:
+            return jsonify({'error': 'Invalid format. Use csv or json'}), 400
+            
+    except Exception as e:
+        logger.error(f"API export logs error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+def log_system_event(level, message, source, user_id=None, metadata=None):
+    """Helper function to log system events"""
+    try:
+        if not supabase:
+            return
+        
+        log_data = {
+            'level': level,
+            'message': message,
+            'source': source,
+            'user_id': user_id,
+            'metadata': json.dumps(metadata) if metadata else None,
+            'created_at': datetime.now().isoformat()
+        }
+        
+        supabase.table('system_logs').insert(log_data).execute()
+        
+    except Exception as e:
+        logger.error(f"Error logging system event: {e}")
+
 @app.route('/admin/bot-control')
 @admin_required
 def admin_bot_control():
