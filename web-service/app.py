@@ -1,7 +1,10 @@
 import os
+import secrets
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Response
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -18,14 +21,35 @@ import requests
 load_dotenv()
 
 app = Flask(__name__)
-# Configurar CORS para permitir peticiones del bot y otros orígenes
+
+# Lista de orígenes autorizados a llamar la API (nunca usar "*" junto con datos de usuario).
+# Configúrala en la variable de entorno ALLOWED_ORIGINS, separada por comas.
+# Si no hay origen de navegador que necesite llamar a la API (el bot la llama server-to-server,
+# donde CORS no aplica), deja la lista vacía: seguirá disponible por API key para llamadas directas,
+# pero un navegador en otro dominio no podrá invocarla via fetch/XHR.
+_allowed_origins = [o.strip() for o in os.getenv('ALLOWED_ORIGINS', '').split(',') if o.strip()]
+
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["*"],
+        "origins": _allowed_origins if _allowed_origins else [],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]
+        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "X-API-Key"]
     }
 })
+
+# Clave compartida entre bot-service y web-service para autenticar llamadas
+# servidor-a-servidor a la API pública (/api/user, /api/exercises, etc).
+# Debe configurarse igual en ambos servicios via la variable de entorno API_SECRET_KEY.
+API_SECRET_KEY = os.getenv('API_SECRET_KEY')
+
+# Rate limiting para mitigar abuso/spam incluso si una API key llegara a filtrarse
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per hour"],
+    storage_uri="memory://"
+)
+
 app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
 app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
 app.config['SESSION_COOKIE_HTTPONLY'] = os.getenv('SESSION_COOKIE_HTTPONLY', 'True').lower() == 'true'
@@ -168,6 +192,30 @@ def admin_required(f):
             logger.error(f"Admin_required error: {e}")
             return redirect(url_for('login'))
     return decorated_function
+
+def require_api_key(f):
+    """
+    Protege los endpoints que consume el bot-service (u otro cliente de confianza)
+    exigiendo un header X-API-Key que coincida con API_SECRET_KEY.
+
+    Estos endpoints operan con el cliente de Supabase inicializado con la
+    service_role key (privilegios de administrador, sin RLS), así que NUNCA
+    deben quedar accesibles sin autenticación.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not API_SECRET_KEY:
+            logger.error("API_SECRET_KEY no está configurada en el entorno; rechazando por seguridad")
+            return jsonify({'error': 'Server misconfiguration', 'error_type': 'ConfigError'}), 500
+
+        provided_key = request.headers.get('X-API-Key', '')
+        if not provided_key or not secrets.compare_digest(provided_key, API_SECRET_KEY):
+            logger.warning(f"Intento de acceso a {request.path} con API key inválida o ausente desde {request.remote_addr}")
+            return jsonify({'error': 'Invalid or missing API key', 'error_type': 'AuthError'}), 401
+
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 def admin_required_api(f):
     """Admin required decorator for API endpoints - returns JSON errors instead of redirects"""
@@ -330,6 +378,7 @@ def admin_backup():
 
 # Routes - Authentication
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("10 per minute")
 def login():
     logger.info(f"Accessing login route - Method: {request.method}")
     
@@ -629,6 +678,7 @@ def admin_exercises():
 # API Endpoints for Bot
 
 @app.route('/api/test', methods=['GET'])
+@limiter.limit("60 per minute")
 def api_test():
     """Test endpoint for bot connectivity verification"""
     try:
@@ -649,6 +699,7 @@ def api_test():
         }), 500
 
 @app.route('/api/user/<int:telegram_id>', methods=['GET'])
+@require_api_key
 def get_user(telegram_id):
     """Get user by telegram_id for bot"""
     try:
@@ -667,6 +718,8 @@ def get_user(telegram_id):
         return jsonify({'error': 'Database error'}), 500
 
 @app.route('/api/user', methods=['POST'])
+@require_api_key
+@limiter.limit("30 per minute")
 def create_user():
     """Create new user for bot with enhanced error handling"""
     try:
@@ -737,6 +790,7 @@ def create_user():
         return jsonify({'error': 'Internal server error', 'details': f'Error interno: {str(e)}'}), 500
 
 @app.route('/api/exercises/<level>', methods=['GET'])
+@require_api_key
 def get_exercises(level):
     """Get exercises by level for bot"""
     try:
@@ -770,6 +824,8 @@ def get_exercises(level):
         return jsonify({'error': 'Database error'}), 500
 
 @app.route('/api/user/progress', methods=['POST'])
+@require_api_key
+@limiter.limit("60 per minute")
 def update_progress():
     """Update user progress for bot"""
     try:
@@ -815,6 +871,7 @@ def update_progress():
         return jsonify({'error': 'Database error'}), 500
 
 @app.route('/api/user/progress/<int:telegram_id>/<level>', methods=['GET'])
+@require_api_key
 def get_level_progress(telegram_id, level):
     """Get user progress for specific level for bot"""
     try:
@@ -841,6 +898,7 @@ def get_level_progress(telegram_id, level):
         return jsonify({'error': 'Database error'}), 500
 
 @app.route('/api/user/stats/<int:telegram_id>', methods=['GET'])
+@require_api_key
 def get_user_stats(telegram_id):
     """Get user statistics for bot"""
     try:
@@ -867,6 +925,7 @@ def get_user_stats(telegram_id):
         return jsonify({'error': 'Database error'}), 500
 
 @app.route('/api/notify-bot-changes', methods=['POST'])
+@require_api_key
 def notify_bot_changes():
     """Notify bot that exercises have changed"""
     try:

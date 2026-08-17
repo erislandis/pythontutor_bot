@@ -1,6 +1,7 @@
 Flask
 flask-login
 flask-cors
+flask-limiter
 supabase
 python-dotenv
 werkzeug
