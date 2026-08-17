@@ -1,6 +1,7 @@
 import os
 import secrets
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Response
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -21,6 +22,10 @@ import requests
 load_dotenv()
 
 app = Flask(__name__)
+
+# Render ejecuta la aplicación detrás de un proxy. Confiamos en un solo salto
+# de proxy para que Flask pueda interpretar correctamente HTTPS y la IP real.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
 # Lista de orígenes autorizados a llamar la API (nunca usar "*" junto con datos de usuario).
 # Configúrala en la variable de entorno ALLOWED_ORIGINS, separada por comas.
@@ -50,10 +55,20 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
+
 app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
-app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+if app.secret_key == 'dev-key-change-in-production':
+    logger = logging.getLogger(__name__)
+    logger.warning('SECRET_KEY is not configured; set SECRET_KEY in Render for production.')
+# Render sirve la aplicación por HTTPS. El valor se puede sobrescribir mediante
+# SESSION_COOKIE_SECURE, pero en producción se recomienda True.
+_secure_cookie = os.getenv('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+app.config['SESSION_COOKIE_SECURE'] = _secure_cookie
 app.config['SESSION_COOKIE_HTTPONLY'] = os.getenv('SESSION_COOKIE_HTTPONLY', 'True').lower() == 'true'
 app.config['SESSION_COOKIE_SAMESITE'] = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
+app.config['REMEMBER_COOKIE_SECURE'] = _secure_cookie
+app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+app.config['REMEMBER_COOKIE_SAMESITE'] = app.config['SESSION_COOKIE_SAMESITE']
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
 # Increase max content length to handle large JSON files (16MB)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
@@ -91,6 +106,15 @@ def not_found_error(error):
     """Handle 404 errors"""
     logger.warning(f"404 error: {request.url}")
     return jsonify({'error': 'Page not found'}), 404
+
+@app.errorhandler(429)
+def rate_limit_error(error):
+    """Return a real 429 instead of converting rate-limit errors into 500."""
+    logger.warning("Rate limit exceeded: path=%s, method=%s, remote=%s", request.path, request.method, request.remote_addr)
+    if request.path == '/login':
+        flash('Demasiados intentos. Espera un minuto antes de volver a intentarlo.', 'error')
+        return render_template('public/login.html'), 429
+    return jsonify({'error': 'Too many requests'}), 429
 
 @app.errorhandler(500)
 def internal_error(error):
@@ -378,54 +402,134 @@ def admin_backup():
 
 # Routes - Authentication
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("10 per minute")
+@limiter.limit("10 per minute", methods=['POST'])
 def login():
+    """Authenticate an administrator using the admin_users table.
+
+    GET is intentionally not rate-limited so that Render's health/browser
+    traffic cannot consume the authentication-attempt quota. Only POST
+    requests count against the brute-force protection.
+    """
     logger.info(f"Accessing login route - Method: {request.method}")
-    
+
     if current_user.is_authenticated:
-        logger.info(f"User already authenticated: {current_user.username} - redirecting to dashboard")
+        logger.info(
+            f"User already authenticated: {current_user.username} - redirecting to dashboard"
+        )
         return redirect(url_for('dashboard'))
-        
+
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        logger.info(f"Login attempt: {username}")
-        
+        username = (request.form.get('username') or '').strip()
+        password = request.form.get('password') or ''
+
+        logger.info(
+            "Login attempt: username=%s, password_length=%d",
+            username,
+            len(password)
+        )
+
         if not username or not password:
             flash('Por favor completa todos los campos', 'error')
             return render_template('public/login.html')
-        
+
         try:
             if not supabase:
+                logger.error('Login attempted while Supabase client is unavailable')
                 flash('Error de conexión con la base de datos', 'error')
                 return render_template('public/login.html')
-                
-            response = supabase.table('admin_users').select('*').eq('username', username).execute()
-            
-            if response.data and check_password_hash(response.data[0]['password_hash'], password):
-                user = AdminUser(response.data[0]['id'], response.data[0]['username'])
-                
-                # Limpiar cache de invalidación si existe
-                if str(user.id) in user_cache.get('invalidated', set()):
-                    user_cache['invalidated'].remove(str(user.id))
-                    logger.info(f"User {user.id} removed from invalidation cache")
-                
-                login_user(user, remember=request.form.get('remember') == 'on')
-                
-                logger.info(f"Login successful: {username}")
-                
-                next_page = request.args.get('next')
-                if next_page:
-                    return redirect(next_page)
-                return redirect(url_for('dashboard'))
-            
-            flash('Credenciales inválidas', 'error')
-            logger.warning(f"Login failed: {username}")
+
+            response = (
+                supabase
+                .table('admin_users')
+                .select('id, username, password_hash')
+                .eq('username', username)
+                .limit(1)
+                .execute()
+            )
+
+            records = response.data or []
+            logger.info(
+                "Admin lookup: username=%s, records_found=%d",
+                username,
+                len(records)
+            )
+
+            if not records:
+                logger.warning("Login failed: administrator not found: %s", username)
+                flash('Credenciales inválidas', 'error')
+                return render_template('public/login.html')
+
+            admin_data = records[0]
+            stored_hash = admin_data.get('password_hash')
+
+            logger.info(
+                "Admin found: id=%s, username=%s, hash_present=%s, hash_scheme=%s",
+                admin_data.get('id'),
+                admin_data.get('username'),
+                bool(stored_hash),
+                stored_hash.split(':', 1)[0] if isinstance(stored_hash, str) and ':' in stored_hash else 'unknown'
+            )
+
+            if not stored_hash:
+                logger.error("Admin record has no password_hash: id=%s", admin_data.get('id'))
+                flash('Error en la configuración del usuario administrador', 'error')
+                return render_template('public/login.html')
+
+            try:
+                password_valid = check_password_hash(stored_hash, password)
+            except (ValueError, TypeError) as hash_error:
+                logger.error(
+                    "Password hash verification error for admin id=%s: %s",
+                    admin_data.get('id'),
+                    hash_error
+                )
+                password_valid = False
+
+            logger.info(
+                "Password verification result: %s",
+                password_valid
+            )
+
+            if not password_valid:
+                logger.warning("Login failed: password verification failed for %s", username)
+                flash('Credenciales inválidas', 'error')
+                return render_template('public/login.html')
+
+            user = AdminUser(admin_data['id'], admin_data['username'])
+
+            # Limpiar cache de invalidación si existe.
+            invalidated = user_cache.get('invalidated', set())
+            if str(user.id) in invalidated:
+                invalidated.remove(str(user.id))
+                logger.info("User %s removed from invalidation cache", user.id)
+
+            remember = request.form.get('remember') == 'on'
+            login_result = login_user(user, remember=remember)
+
+            logger.info(
+                "Flask-Login login_user completed: result=%s, authenticated=%s, user_id=%s",
+                login_result,
+                current_user.is_authenticated,
+                current_user.get_id() if current_user.is_authenticated else None
+            )
+
+            if not current_user.is_authenticated:
+                logger.error("login_user() did not establish an authenticated session")
+                flash('No se pudo crear la sesión de administrador', 'error')
+                return render_template('public/login.html')
+
+            logger.info("Login successful: %s", username)
+
+            next_page = request.args.get('next')
+            if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+                return redirect(next_page)
+
+            return redirect(url_for('dashboard'))
+
         except Exception as e:
-            logger.error(f"Login error: {e}")
-            flash('Error al conectar con la base de datos', 'error')
-    
+            logger.error("Login error: %s", e, exc_info=True)
+            flash('Error al procesar el inicio de sesión', 'error')
+
     logger.info("Rendering login template for unauthenticated user")
     return render_template('public/login.html')
 
