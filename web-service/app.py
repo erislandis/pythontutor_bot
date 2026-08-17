@@ -1,11 +1,12 @@
 import os
 import secrets
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Response
-from werkzeug.middleware.proxy_fix import ProxyFix
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Response, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_limiter.errors import RateLimitExceeded
+from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 from supabase import create_client, Client
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -23,8 +24,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Render ejecuta la aplicación detrás de un proxy. Confiamos en un solo salto
-# de proxy para que Flask pueda interpretar correctamente HTTPS y la IP real.
+# Render terminates HTTPS at its proxy and forwards requests to Gunicorn.
+# Trust the forwarded scheme/host so Flask generates correct HTTPS URLs
+# and Flask-Login cookies work correctly in production.
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
 # Lista de orígenes autorizados a llamar la API (nunca usar "*" junto con datos de usuario).
@@ -55,21 +57,17 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
-
-app.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
-if app.secret_key == 'dev-key-change-in-production':
+app.secret_key = os.getenv('SECRET_KEY')
+if not app.secret_key:
     logger = logging.getLogger(__name__)
-    logger.warning('SECRET_KEY is not configured; set SECRET_KEY in Render for production.')
-# Render sirve la aplicación por HTTPS. El valor se puede sobrescribir mediante
-# SESSION_COOKIE_SECURE, pero en producción se recomienda True.
-_secure_cookie = os.getenv('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
-app.config['SESSION_COOKIE_SECURE'] = _secure_cookie
+    logger.warning("SECRET_KEY is not configured; using a temporary development key.")
+    app.secret_key = secrets.token_hex(32)
+
+app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
 app.config['SESSION_COOKIE_HTTPONLY'] = os.getenv('SESSION_COOKIE_HTTPONLY', 'True').lower() == 'true'
 app.config['SESSION_COOKIE_SAMESITE'] = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
-app.config['REMEMBER_COOKIE_SECURE'] = _secure_cookie
-app.config['REMEMBER_COOKIE_HTTPONLY'] = True
-app.config['REMEMBER_COOKIE_SAMESITE'] = app.config['SESSION_COOKIE_SAMESITE']
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
+app.config['SESSION_COOKIE_NAME'] = os.getenv('SESSION_COOKIE_NAME', 'pythontutor_session')
 # Increase max content length to handle large JSON files (16MB)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
@@ -107,20 +105,29 @@ def not_found_error(error):
     logger.warning(f"404 error: {request.url}")
     return jsonify({'error': 'Page not found'}), 404
 
-@app.errorhandler(429)
-def rate_limit_error(error):
-    """Return a real 429 instead of converting rate-limit errors into 500."""
-    logger.warning("Rate limit exceeded: path=%s, method=%s, remote=%s", request.path, request.method, request.remote_addr)
-    if request.path == '/login':
-        flash('Demasiados intentos. Espera un minuto antes de volver a intentarlo.', 'error')
-        return render_template('public/login.html'), 429
-    return jsonify({'error': 'Too many requests'}), 429
-
 @app.errorhandler(500)
 def internal_error(error):
     """Handle 500 errors"""
     logger.error(f"500 error: {error}")
     return jsonify({'error': 'Internal server error'}), 500
+
+@app.errorhandler(RateLimitExceeded)
+def handle_rate_limit_exceeded(e):
+    """Return a real 429 instead of letting the global handler turn it into 500."""
+    logger.warning(
+        "Rate limit exceeded: endpoint=%s method=%s remote=%s",
+        request.endpoint,
+        request.method,
+        request.remote_addr,
+    )
+    if request.path == '/login':
+        flash('Demasiados intentos. Espera un minuto e inténtalo nuevamente.', 'error')
+        return render_template('public/login.html'), 429
+    return jsonify({
+        'error': 'Too many requests',
+        'error_type': 'RateLimitExceeded'
+    }), 429
+
 
 @app.errorhandler(Exception)
 def handle_exception(e):
@@ -402,180 +409,182 @@ def admin_backup():
 
 # Routes - Authentication
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("10 per minute", methods=['POST'])
+@limiter.limit("10 per minute", methods=["POST"])
 def login():
-    """Authenticate an administrator using the admin_users table.
-
-    GET is intentionally not rate-limited so that Render's health/browser
-    traffic cannot consume the authentication-attempt quota. Only POST
-    requests count against the brute-force protection.
-    """
-    logger.info(f"Accessing login route - Method: {request.method}")
+    """Authenticate an administrator against the admin_users table."""
+    logger.info("Accessing login route - Method: %s", request.method)
 
     if current_user.is_authenticated:
         logger.info(
-            f"User already authenticated: {current_user.username} - redirecting to dashboard"
+            "User already authenticated: %s - redirecting to dashboard",
+            getattr(current_user, 'username', current_user.get_id())
         )
         return redirect(url_for('dashboard'))
 
-    if request.method == 'POST':
-        username = (request.form.get('username') or '').strip()
-        password = request.form.get('password') or ''
+    if request.method == 'GET':
+        return render_template('public/login.html')
 
-        logger.info(
-            "Login attempt: username=%s, password_length=%d",
-            username,
-            len(password)
+    username = (request.form.get('username') or '').strip()
+    password = request.form.get('password') or ''
+    remember = request.form.get('remember') == 'on'
+
+    logger.info(
+        "Login attempt: username=%s, password_length=%d",
+        username,
+        len(password)
+    )
+
+    if not username or not password:
+        flash('Por favor completa todos los campos', 'error')
+        return render_template('public/login.html'), 400
+
+    if supabase is None:
+        logger.error("Login failed because Supabase is not initialized")
+        flash('Error de conexión con la base de datos', 'error')
+        return render_template('public/login.html'), 503
+
+    try:
+        response = (
+            supabase
+            .table('admin_users')
+            .select('id, username, password_hash')
+            .eq('username', username)
+            .limit(1)
+            .execute()
         )
 
-        if not username or not password:
-            flash('Por favor completa todos los campos', 'error')
-            return render_template('public/login.html')
+        records = response.data or []
+        logger.info(
+            "Admin lookup: username=%s, records_found=%d",
+            username,
+            len(records)
+        )
+
+        if not records:
+            logger.warning("Login failed: administrator not found: %s", username)
+            flash('Credenciales inválidas', 'error')
+            return render_template('public/login.html'), 401
+
+        admin_data = records[0]
+        admin_id = admin_data.get('id')
+        db_username = admin_data.get('username')
+        password_hash = admin_data.get('password_hash')
+
+        logger.info(
+            "Admin found: id=%s, username=%s, hash_present=%s, hash_scheme=%s",
+            admin_id,
+            db_username,
+            bool(password_hash),
+            str(password_hash).split(':', 1)[0] if password_hash else 'none'
+        )
+
+        if not admin_id or not db_username or not password_hash:
+            logger.error(
+                "Invalid admin_users record for username=%s: "
+                "id=%s username_present=%s hash_present=%s",
+                username,
+                admin_id,
+                bool(db_username),
+                bool(password_hash)
+            )
+            flash('Error en la configuración del usuario administrador', 'error')
+            return render_template('public/login.html'), 500
 
         try:
-            if not supabase:
-                logger.error('Login attempted while Supabase client is unavailable')
-                flash('Error de conexión con la base de datos', 'error')
-                return render_template('public/login.html')
-
-            response = (
-                supabase
-                .table('admin_users')
-                .select('id, username, password_hash')
-                .eq('username', username)
-                .limit(1)
-                .execute()
+            password_valid = check_password_hash(password_hash, password)
+        except (ValueError, TypeError) as password_error:
+            logger.error(
+                "Password hash verification error for user id=%s: %s",
+                admin_id,
+                password_error,
+                exc_info=True
             )
+            flash('Error al verificar las credenciales', 'error')
+            return render_template('public/login.html'), 500
 
-            records = response.data or []
-            logger.info(
-                "Admin lookup: username=%s, records_found=%d",
-                username,
-                len(records)
+        logger.info(
+            "Password verification result for user id=%s: %s",
+            admin_id,
+            password_valid
+        )
+
+        if not password_valid:
+            logger.warning("Login failed: invalid password for username=%s", username)
+            flash('Credenciales inválidas', 'error')
+            return render_template('public/login.html'), 401
+
+        user = AdminUser(admin_id, db_username)
+
+        # If a previous logout explicitly invalidated this user, remove the marker.
+        invalidated = user_cache.setdefault('invalidated', set())
+        invalidated.discard(str(user.id))
+
+        # Establish the Flask-Login session.
+        login_user(user, remember=remember, fresh=True)
+
+        logger.info(
+            "login_user completed: authenticated=%s, user_id=%s",
+            current_user.is_authenticated,
+            current_user.get_id()
+        )
+
+        if not current_user.is_authenticated:
+            logger.error(
+                "login_user() returned without an authenticated current_user "
+                "for admin id=%s",
+                user.id
             )
+            flash('No se pudo crear la sesión de administrador', 'error')
+            return render_template('public/login.html'), 500
 
-            if not records:
-                logger.warning("Login failed: administrator not found: %s", username)
-                flash('Credenciales inválidas', 'error')
-                return render_template('public/login.html')
+        # Only allow local relative redirects; never trust an external next URL.
+        next_page = request.args.get('next', '')
+        if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+            logger.info("Login successful: %s; redirecting to %s", username, next_page)
+            return redirect(next_page)
 
-            admin_data = records[0]
-            stored_hash = admin_data.get('password_hash')
+        logger.info("Login successful: %s; redirecting to dashboard", username)
+        return redirect(url_for('dashboard'))
 
-            logger.info(
-                "Admin found: id=%s, username=%s, hash_present=%s, hash_scheme=%s",
-                admin_data.get('id'),
-                admin_data.get('username'),
-                bool(stored_hash),
-                stored_hash.split(':', 1)[0] if isinstance(stored_hash, str) and ':' in stored_hash else 'unknown'
-            )
+    except Exception as e:
+        logger.error(
+            "Login error for username=%s: %s",
+            username,
+            e,
+            exc_info=True
+        )
+        flash('Error al procesar el inicio de sesión', 'error')
+        return render_template('public/login.html'), 500
 
-            if not stored_hash:
-                logger.error("Admin record has no password_hash: id=%s", admin_data.get('id'))
-                flash('Error en la configuración del usuario administrador', 'error')
-                return render_template('public/login.html')
-
-            try:
-                password_valid = check_password_hash(stored_hash, password)
-            except (ValueError, TypeError) as hash_error:
-                logger.error(
-                    "Password hash verification error for admin id=%s: %s",
-                    admin_data.get('id'),
-                    hash_error
-                )
-                password_valid = False
-
-            logger.info(
-                "Password verification result: %s",
-                password_valid
-            )
-
-            if not password_valid:
-                logger.warning("Login failed: password verification failed for %s", username)
-                flash('Credenciales inválidas', 'error')
-                return render_template('public/login.html')
-
-            user = AdminUser(admin_data['id'], admin_data['username'])
-
-            # Limpiar cache de invalidación si existe.
-            invalidated = user_cache.get('invalidated', set())
-            if str(user.id) in invalidated:
-                invalidated.remove(str(user.id))
-                logger.info("User %s removed from invalidation cache", user.id)
-
-            remember = request.form.get('remember') == 'on'
-            login_result = login_user(user, remember=remember)
-
-            logger.info(
-                "Flask-Login login_user completed: result=%s, authenticated=%s, user_id=%s",
-                login_result,
-                current_user.is_authenticated,
-                current_user.get_id() if current_user.is_authenticated else None
-            )
-
-            if not current_user.is_authenticated:
-                logger.error("login_user() did not establish an authenticated session")
-                flash('No se pudo crear la sesión de administrador', 'error')
-                return render_template('public/login.html')
-
-            logger.info("Login successful: %s", username)
-
-            next_page = request.args.get('next')
-            if next_page and next_page.startswith('/') and not next_page.startswith('//'):
-                return redirect(next_page)
-
-            return redirect(url_for('dashboard'))
-
-        except Exception as e:
-            logger.error("Login error: %s", e, exc_info=True)
-            flash('Error al procesar el inicio de sesión', 'error')
-
-    logger.info("Rendering login template for unauthenticated user")
-    return render_template('public/login.html')
 
 @app.route('/admin/logout')
 def admin_logout():
-    """Complete logout with cookie cleanup and user cache invalidation"""
+    """Log out the current administrator and clear the Flask session."""
     try:
-        # 1. Invalidar usuario actual en el cache
         if current_user.is_authenticated:
             user_cache.setdefault('invalidated', set()).add(str(current_user.id))
-        
-        # 2. Forzar logout de Flask-Login
-        from flask_login import logout_user
+            logger.info("Logging out admin user id=%s", current_user.id)
+
         logout_user()
-        
-        # 3. Limpiar sesión completamente
-        from flask import session
         session.clear()
         session.modified = True
-        
-        # 4. Eliminar cookies específicas de Flask-Login
-        from flask import make_response, redirect, url_for
-        response = make_response(redirect(url_for('index')))
-        response.delete_cookie('remember_token')
-        response.delete_cookie('session')
-        response.delete_cookie('_user_id')
-        
-        # 5. Mensaje de éxito
+
+        response = redirect(url_for('index'))
         try:
             flash('Has cerrado sesión exitosamente', 'success')
-        except:
-            pass  # Continuar sin flash si hay problemas
-        
+        except Exception:
+            pass
+
         return response
-        
+
     except Exception as e:
-        # Fallback completo con limpieza forzada
+        logger.error("Logout error: %s", e, exc_info=True)
         try:
-            from flask import session, redirect, url_for
             session.clear()
-            session.modified = True
-            return redirect(url_for('index'))
-        except Exception as e2:
-            # Último recurso: redirección manual
-            from flask import Response
-            return Response('', status=302, headers={'Location': '/'})
+        except Exception:
+            pass
+        return redirect(url_for('index'))
+
 
 # Routes - Admin Panel
 @app.route('/admin/dashboard')
