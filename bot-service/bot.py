@@ -134,17 +134,17 @@ logger.info("Health check server started in background thread")
 # ============================================
 
 # Verificar variables de entorno
-required_env_vars = ['SUPABASE_URL', 'SUPABASE_KEY', 'TELEGRAM_BOT_TOKEN']
+required_env_vars = ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY', 'TELEGRAM_BOT_TOKEN']
 missing_vars = [var for var in required_env_vars if not os.getenv(var)]
 if missing_vars:
     logger.error(f"Missing required environment variables: {missing_vars}")
     sys.exit(1)
 
-# Supabase initialization
+# Supabase initialization — use service_role key to bypass RLS
 try:
     supabase: Client = create_client(
         os.getenv('SUPABASE_URL'),
-        os.getenv('SUPABASE_KEY')
+        os.getenv('SUPABASE_SERVICE_KEY') or os.getenv('SUPABASE_KEY')
     )
     logger.info("Supabase connected successfully")
     

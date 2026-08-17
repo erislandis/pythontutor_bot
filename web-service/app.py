@@ -155,19 +155,19 @@ def admin():
     return redirect(url_for('login'))
 
 # Verificar variables de entorno críticas
-required_env_vars = ['SUPABASE_URL', 'SUPABASE_KEY']
+required_env_vars = ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY']
 missing_vars = [var for var in required_env_vars if not os.getenv(var)]
 if missing_vars:
     logger.error(f"Missing required environment variables: {missing_vars}")
 
-# Supabase initialization
+# Supabase initialization — use service_role key to bypass RLS
 try:
     supabase_url = os.getenv('SUPABASE_URL')
-    supabase_key = os.getenv('SUPABASE_KEY')
-    
+    supabase_key = os.getenv('SUPABASE_SERVICE_KEY') or os.getenv('SUPABASE_KEY')
+
     if supabase_url and supabase_key:
         supabase: Client = create_client(supabase_url, supabase_key)
-        logger.info("Supabase connected successfully")
+        logger.info("Supabase connected successfully with service key")
     else:
         supabase = None
         logger.error("Supabase credentials not found")
