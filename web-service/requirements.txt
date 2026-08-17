@@ -11,3 +11,4 @@ itsdangerous
 MarkupSafe
 blinker
 click
+requests
