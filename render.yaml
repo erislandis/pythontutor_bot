@@ -11,6 +11,10 @@ services:
         sync: false
       - key: SUPABASE_KEY
         sync: false
+      - key: API_SECRET_KEY
+        sync: false # debe tener el MISMO valor que en el servicio pythontutor-bot
+      - key: ALLOWED_ORIGINS
+        sync: false
       - key: SECRET_KEY
         generateValue: true
       - key: FLASK_ENV
@@ -39,6 +43,8 @@ services:
         sync: false
       - key: SUPABASE_KEY
         sync: false
+      - key: API_SECRET_KEY
+        sync: false # debe tener el MISMO valor que en el servicio pythontutor-web
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       - key: WEB_API_URL
