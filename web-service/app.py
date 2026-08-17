@@ -98,18 +98,20 @@ def health_check():
             'timestamp': datetime.now().isoformat()
         }), 500
 
-# Global error handlers
+# Global error handlers — return JSON for API calls, HTML for browser requests
 @app.errorhandler(404)
 def not_found_error(error):
-    """Handle 404 errors"""
     logger.warning(f"404 error: {request.url}")
-    return jsonify({'error': 'Page not found'}), 404
+    if request.path.startswith('/api/') or request.accept_mimetypes.best_match(['application/json']):
+        return jsonify({'error': 'Page not found'}), 404
+    return render_template('public/404.html'), 404
 
 @app.errorhandler(500)
 def internal_error(error):
-    """Handle 500 errors"""
     logger.error(f"500 error: {error}")
-    return jsonify({'error': 'Internal server error'}), 500
+    if request.path.startswith('/api/') or request.accept_mimetypes.best_match(['application/json']):
+        return jsonify({'error': 'Internal server error'}), 500
+    return render_template('public/500.html'), 500
 
 @app.errorhandler(RateLimitExceeded)
 def handle_rate_limit_exceeded(e):
@@ -276,16 +278,6 @@ def fromjson_filter(value):
         return value
     except:
         return []
-
-# Error handlers
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('public/404.html'), 404
-
-@app.errorhandler(500)
-def internal_server_error(e):
-    logger.error(f"Internal server error: {e}")
-    return render_template('public/500.html'), 500
 
 # Routes - Public pages
 @app.route('/features')
