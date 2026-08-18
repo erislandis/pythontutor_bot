@@ -146,7 +146,22 @@ def index():
     logger.info(f"Request method: {request.method}")
     logger.info(f"User authenticated: {current_user.is_authenticated}")
     logger.info("Serving landing page...")
-    return render_template('public/index.html')
+
+    total_users = 0
+    total_exercises = 0
+    if supabase:
+        try:
+            users_resp = supabase.table('users').select('*', count='exact').execute()
+            total_users = users_resp.count if hasattr(users_resp, 'count') else 0
+        except Exception as e:
+            logger.warning(f"Error getting user count: {e}")
+        try:
+            ex_resp = supabase.table('exercises').select('*', count='exact').execute()
+            total_exercises = ex_resp.count if hasattr(ex_resp, 'count') else 0
+        except Exception as e:
+            logger.warning(f"Error getting exercise count: {e}")
+
+    return render_template('public/index.html', total_users=total_users, total_exercises=total_exercises)
 
 @app.route('/admin')
 def admin():
@@ -295,12 +310,6 @@ def contact():
     """Contact page"""
     logger.info("=== ACCESSING CONTACT PAGE ===")
     return render_template('public/contact.html')
-
-@app.route('/pricing')
-def pricing():
-    """Pricing page"""
-    logger.info("=== ACCESSING PRICING PAGE ===")
-    return render_template('public/pricing.html')
 
 @app.route('/documentation')
 def documentation():
@@ -2264,17 +2273,22 @@ def admin_users():
         # Get user statistics
         try:
             total_users_response = supabase.table('users').select('*', count='exact').execute()
-            active_users_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
-            
+            total_count = total_users_response.count if hasattr(total_users_response, 'count') else 0
+
+            try:
+                active_users_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
+                active_count = active_users_response.count if hasattr(active_users_response, 'count') else 0
+            except Exception:
+                active_count = total_count
+
             # Get recent users (last 7 days)
             week_ago = (datetime.now() - timedelta(days=7)).isoformat()
             recent_response = supabase.table('users').select('*', count='exact').gte('created_at', week_ago).execute()
-            
+
             stats = {
-                'total': total_users_response.count if hasattr(total_users_response, 'count') else 0,
-                'active': active_users_response.count if hasattr(active_users_response, 'count') else 0,
-                'inactive': (total_users_response.count if hasattr(total_users_response, 'count') else 0) - 
-                            (active_users_response.count if hasattr(active_users_response, 'count') else 0),
+                'total': total_count,
+                'active': active_count,
+                'inactive': total_count - active_count,
                 'recent': recent_response.count if hasattr(recent_response, 'count') else 0
             }
         except Exception as e:
@@ -2317,9 +2331,15 @@ def api_get_users():
             query = query.or_(f"username.ilike.%{search}%,first_name.ilike.%{search}%,last_name.ilike.%{search}%")
         
         if status == 'active':
-            query = query.eq('is_active', True)
+            try:
+                query = query.eq('is_active', True)
+            except Exception:
+                pass
         elif status == 'inactive':
-            query = query.eq('is_active', False)
+            try:
+                query = query.eq('is_active', False)
+            except Exception:
+                pass
         
         # Get total count
         count_response = query.execute()
@@ -2355,15 +2375,16 @@ def api_update_user(user_id):
         
         data = request.json
         is_active = data.get('is_active')
-        
+
         if is_active is None:
             return jsonify({'error': 'Missing is_active field'}), 400
-        
-        # Update user
-        response = supabase.table('users').update({
-            'is_active': is_active,
-            'updated_at': datetime.now().isoformat()
-        }).eq('id', user_id).execute()
+
+        # Update user - include updated_at only if column exists
+        update_data = {'is_active': is_active}
+        try:
+            response = supabase.table('users').update({**update_data, 'updated_at': datetime.utcnow().isoformat()}).eq('id', user_id).execute()
+        except Exception:
+            response = supabase.table('users').update(update_data).eq('id', user_id).execute()
         
         if response.data:
             action = 'activado' if is_active else 'desactivado'
@@ -2409,7 +2430,13 @@ def api_get_user_stats():
         
         # Get basic stats
         total_response = supabase.table('users').select('*', count='exact').execute()
-        active_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
+        total_count = total_response.count if hasattr(total_response, 'count') else 0
+
+        try:
+            active_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
+            active_count = active_response.count if hasattr(active_response, 'count') else 0
+        except Exception:
+            active_count = total_count
         
         # Get recent users (last 7 days)
         week_ago = (datetime.now() - timedelta(days=7)).isoformat()
@@ -2505,12 +2532,17 @@ def change_password():
         
         # Hash new password
         new_password_hash = generate_password_hash(new_password)
-        
-        # Update password in database
-        update_response = supabase.table('admin_users').update({
-            'password_hash': new_password_hash,
-            'updated_at': datetime.now().isoformat()
-        }).eq('id', user_id).execute()
+
+        # Update password in database (try with updated_at, fallback without it)
+        try:
+            update_response = supabase.table('admin_users').update({
+                'password_hash': new_password_hash,
+                'updated_at': datetime.utcnow().isoformat()
+            }).eq('id', user_id).execute()
+        except Exception:
+            update_response = supabase.table('admin_users').update({
+                'password_hash': new_password_hash
+            }).eq('id', user_id).execute()
         
         if update_response.data:
             logger.info(f"Password updated successfully for user: {current_user.username}")
@@ -2701,10 +2733,13 @@ def get_bot_stats():
         # Get basic user stats
         try:
             total_response = supabase.table('users').select('*', count='exact').execute()
-            active_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
-            
-            stats['active_users'] = active_response.count if hasattr(active_response, 'count') else 0
             stats['total_users'] = total_response.count if hasattr(total_response, 'count') else 0
+
+            try:
+                active_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
+                stats['active_users'] = active_response.count if hasattr(active_response, 'count') else 0
+            except Exception:
+                stats['active_users'] = stats['total_users']
         except Exception as e:
             logger.error(f"Error getting user stats: {e}")
             stats['active_users'] = 0
