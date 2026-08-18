@@ -1,44 +1,141 @@
 {% extends "base.html" %}
 
-{% block title %}Política de Privacidad - Python Tutor Bot{% endblock %}
+{% block title %}Politica de Privacidad - Python Tutor Bot{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="text-center mb-5">
-                <h1 class="display-4 fw-bold">Política de Privacidad</h1>
-                <p class="lead text-muted">Tu privacidad es importante para nosotros</p>
-            </div>
-            
-            <div class="card">
-                <div class="card-body">
-                    <h5>🔒 Recopilación de Datos</h5>
-                    <p>Recopilamos únicamente:</p>
-                    <ul>
-                        <li>Tu ID de Telegram</li>
-                        <li>Nombre de usuario</li>
-                        <li>Progreso de aprendizaje</li>
-                        <li>Estadísticas de uso</li>
-                    </ul>
-                    
-                    <h5 class="mt-4">🛡️ Protección de Datos</h5>
-                    <p>Tus datos están almacenados de forma segura y nunca compartimos información personal con terceros.</p>
-                    
-                    <h5 class="mt-4">📊 Uso de Datos</h5>
-                    <p>Usamos tus datos para:</p>
-                    <ul>
-                        <li>Personalizar tu experiencia de aprendizaje</li>
-                        <li>Mejorar nuestro servicio</li>
-                        <li>Generar estadísticas anónimas</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="text-center mt-5">
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+<!-- Header -->
+<section class="pt-5 mt-5 pb-0" style="background:var(--ptb-gradient-hero);">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mb-3 px-3 py-2" style="font-size:0.78rem;">
+                    <i class="bi bi-shield-lock me-1"></i>Privacidad
+                </span>
+                <h1 class="display-5 fw-bold text-white mb-3">Politica de Privacidad</h1>
+                <p class="lead" style="color:rgba(255,255,255,0.7);">
+                    Ultima actualizacion: Enero 2026
+                </p>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Content -->
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="legal-section">
+                    <p class="lead text-muted">
+                        En Python Tutor Bot nos tomamos tu privacidad muy en serio. Esta politica describe como recopilamos, usamos y protegemos tu informacion cuando utilizas nuestro bot de Telegram y servicios asociados. Al usar Python Tutor Bot, aceptas las practicas descritas en esta politica.
+                    </p>
+                </div>
+
+                <div class="legal-section">
+                    <h4>1. Informacion que Recopilamos</h4>
+                    <p>Para ofrecerte el servicio, recopilamos la siguiente informacion:</p>
+                    <ul>
+                        <li><strong>ID de Telegram:</strong> Identificador unico de tu cuenta de Telegram utilizado para autenticarte y mantener tu perfil.</li>
+                        <li><strong>Datos de progreso:</strong> Ejercicios completados, niveles alcanzados, rachas de estudio y estadisticas de aprendizaje.</li>
+                        <li><strong>Mensajes enviados:</strong> El codigo y respuestas que envias durante los ejercicios para evaluacion y retroalimentacion.</li>
+                        <li><strong>Nombre de usuario:</strong> Tu nombre visible de Telegram para personalizar tu experiencia.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h4>2. Como Usamos tu Informacion</h4>
+                    <p>Utilizamos la informacion recopilada para los siguientes fines:</p>
+                    <ul>
+                        <li><strong>Personalizar tu experiencia:</strong> Adaptar el contenido, las recomendaciones de ejercicios y el ritmo de aprendizaje a tu nivel.</li>
+                        <li><strong>Seguimiento de progreso:</strong> Mantener un registro de tu avance, estadisticas y logros para que puedas continuar desde donde dejaste.</li>
+                        <li><strong>Mejorar el servicio:</strong> Analizar patrones de uso anonimizados para optimizar el contenido de las lecciones y corregir errores.</li>
+                        <li><strong>Comunicacion:</strong> Enviarte notificaciones sobre tu progreso, nuevas lecciones o actualizaciones importantes del servicio.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h4>3. Almacenamiento y Seguridad</h4>
+                    <p>Tu informacion se almacena de forma segura utilizando las siguientes medidas:</p>
+                    <ul>
+                        <li><strong>Supabase:</strong> Utilizamos Supabase como plataforma de base de datos, que ofrece almacenamiento en la nube con backups automaticos.</li>
+                        <li><strong>Cifrado:</strong> Todos los datos sensibles estan cifrados en transito (TLS) y en reposo.</li>
+                        <li><strong>Acceso restringido:</strong> Solo el equipo autorizado de Python Tutor Bot tiene acceso a los datos, bajo estrictos protocolos de seguridad.</li>
+                        <li><strong>Infraestructura:</strong> Nuestros servidores cuentan con sistemas de proteccion contra accesos no autorizados y monitoreo continuo.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h4>4. Compartir Informacion</h4>
+                    <p>Tu privacidad es nuestra prioridad. Sobre la comparticion de datos:</p>
+                    <ul>
+                        <li><strong>No vendemos datos:</strong> Jamas vendemos, alquilamos ni comercializamos tu informacion personal con terceros.</li>
+                        <li><strong>Proveedores de infraestructura:</strong> Compartimos datos exclusivamente con proveedores tecnologicos necesarios para operar el servicio (como Supabase y los servidores de ejecucion de codigo).</li>
+                        <li><strong>Obligaciones legales:</strong> Solo podemos divulgar informacion si requeridos por una orden judicial o disposicion legal aplicable.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h4>5. Tus Derechos</h4>
+                    <p>Tienes los siguientes derechos sobre tus datos personales:</p>
+                    <ul>
+                        <li><strong>Derecho de acceso:</strong> Puedes solicitar una copia completa de toda la informacion que almacenamos sobre ti.</li>
+                        <li><strong>Derecho de rectificacion:</strong> Puedes solicitar que corrijamos cualquier dato inexacto o incompleto.</li>
+                        <li><strong>Derecho de eliminacion:</strong> Puedes solicitar que eliminemos permanentemente todos tus datos de nuestros sistemas.</li>
+                        <li><strong>Derecho de portabilidad:</strong> Puedes solicitar tus datos en un formato estructurado y de uso comun.</li>
+                    </ul>
+                    <p>Para ejercer cualquiera de estos derechos, contactanos a traves de los canales indicados en la seccion de Contacto.</p>
+                </div>
+
+                <div class="legal-section">
+                    <h4>6. Cookies y Tecnologias</h4>
+                    <p>Python Tutor Bot opera a traves de Telegram y no utiliza cookies tradicionales en el bot. Sin embargo:</p>
+                    <ul>
+                        <li><strong>Sitio web:</strong> Nuestro sitio web puede utilizar cookies basicas para fines de analiticas y mejorar la experiencia de navegacion.</li>
+                        <li><strong>Sin rastreo publicitario:</strong> No utilizamos cookies de rastreo publicitario ni tecnologias de terceros para profiling.</li>
+                        <li><strong>Analiticas:</strong> Recopilamos datos de uso agregados y anonimizados para mejorar continuamente el servicio.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h4>7. Cambios en esta Politica</h4>
+                    <p>Nos reservamos el derecho de actualizar esta politica de privacidad en cualquier momento. Cuando realicemos cambios significativos:</p>
+                    <ul>
+                        <li>Notificaremos a los usuarios a traves del bot de Telegram con un mensaje informativo.</li>
+                        <li>Actualizaremos la fecha de "Ultima actualizacion" al inicio de esta pagina.</li>
+                        <li>El uso continuado del servicio despues de los cambios implica la aceptacion de la politica actualizada.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section">
+                    <h4>8. Contacto</h4>
+                    <p>Si tienes preguntas, inquietudes o deseas ejercer tus derechos sobre tus datos, puedes contactarnos a traves de:</p>
+                    <ul>
+                        <li><strong>Correo electronico:</strong> <a href="mailto:support@pythontutor.bot">support@pythontutor.bot</a></li>
+                        <li><strong>Telegram:</strong> Envia un mensaje directo a <a href="https://t.me/pythontutorbot" target="_blank">@pythontutorbot</a> con tu consulta.</li>
+                    </ul>
+                    <p>Nos comprometemos a responder todas las solicitudes relacionadas con la privacidad en un plazo maximo de 30 dias.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-white fw-bold mb-3">Tu privacidad importa</h2>
+                <p class="mb-4" style="color:rgba(255,255,255,0.7);font-size:1.1rem;">
+                    Si tienes alguna duda sobre como protegemos tus datos, no dudes en contactarnos.
+                </p>
+                <a href="{{ url_for('support') }}" class="btn btn-light btn-lg">
+                    <i class="bi bi-envelope me-2"></i>Contactar Soporte
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

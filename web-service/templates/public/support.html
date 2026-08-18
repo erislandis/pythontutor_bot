@@ -3,37 +3,211 @@
 {% block title %}Soporte - Python Tutor Bot{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="text-center mb-5">
-                <h1 class="display-4 fw-bold">Soporte</h1>
-                <p class="lead text-muted">Estamos aquí para ayudarte</p>
-            </div>
-            
-            <div class="card">
-                <div class="card-body">
-                    <h5>🛠️ ¿Necesitas ayuda?</h5>
-                    <p>Puedes contactarnos a través de:</p>
-                    <ul>
-                        <li><strong>Telegram:</strong> @PythonTutorBot</li>
-                        <li><strong>Email:</strong> support@pythontutor.bot</li>
-                    </ul>
-                    
-                    <h5 class="mt-4">📋 Reporta un problema</h5>
-                    <p>Si encuentras algún error, por favor repórtalo con:</p>
-                    <ul>
-                        <li>Descripción del problema</li>
-                        <li>Captura de pantalla (si aplica)</li>
-                        <li>Tu usuario de Telegram</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="text-center mt-5">
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+<!-- Header -->
+<section class="pt-5 mt-5 pb-0" style="background:var(--ptb-gradient-hero);">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mb-3 px-3 py-2" style="font-size:0.78rem;">
+                    <i class="bi bi-headset me-1"></i>Soporte
+                </span>
+                <h1 class="display-5 fw-bold text-white mb-3">Centro de Soporte</h1>
+                <p class="lead" style="color:rgba(255,255,255,0.7);">
+                    Estamos aqui para ayudarte. Encuentra respuestas rapidas o contacta a nuestro equipo de soporte.
+                </p>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Status -->
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-pulse text-success me-2"></i>Estado del Sistema
+                            </h5>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2">
+                                <i class="bi bi-check-circle-fill me-1"></i>Operativo
+                            </span>
+                        </div>
+                        <ul class="list-unstyled mb-0">
+                            <li class="d-flex align-items-center justify-content-between py-3 border-bottom">
+                                <span class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-robot text-primary"></i>Bot de Telegram
+                                </span>
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Operativo
+                                </span>
+                            </li>
+                            <li class="d-flex align-items-center justify-content-between py-3 border-bottom">
+                                <span class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-globe text-primary"></i>Servidor Web
+                                </span>
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Operativo
+                                </span>
+                            </li>
+                            <li class="d-flex align-items-center justify-content-between py-3">
+                                <span class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-database text-primary"></i>Base de Datos
+                                </span>
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Operativo
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Support Options -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header">
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Contacto</span>
+            <h2>Canaliza de soporte</h2>
+            <p>Elige el canal que mejor se adapte a tu necesidad.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <a href="https://t.me/pythontutorbot" class="text-decoration-none" target="_blank">
+                    <div class="support-card h-100">
+                        <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;">
+                            <i class="bi bi-telegram fs-2 text-primary"></i>
+                        </div>
+                        <h5 class="fw-bold">Telegram</h5>
+                        <p class="text-muted mb-2">Chatea con el bot</p>
+                        <span class="badge bg-success bg-opacity-10 text-success mb-3">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>Respuesta inmediata
+                        </span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="mailto:support@pythontutor.bot" class="text-decoration-none">
+                    <div class="support-card h-100">
+                        <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;">
+                            <i class="bi bi-envelope fs-2 text-success"></i>
+                        </div>
+                        <h5 class="fw-bold">Email</h5>
+                        <p class="text-muted mb-2">Email de soporte</p>
+                        <span class="badge bg-warning bg-opacity-10 text-warning mb-3">
+                            <i class="bi bi-clock-fill me-1"></i>24-48 horas
+                        </span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="https://github.com/pythontutorbot" class="text-decoration-none" target="_blank">
+                    <div class="support-card h-100">
+                        <div class="rounded-circle bg-dark bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;">
+                            <i class="bi bi-github fs-2 text-dark"></i>
+                        </div>
+                        <h5 class="fw-bold">GitHub</h5>
+                        <p class="text-muted mb-2">Reportar issues</p>
+                        <span class="badge bg-info bg-opacity-10 text-info mb-3">
+                            <i class="bi bi-calendar-fill me-1"></i>1-3 dias
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Common Issues -->
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h4 class="fw-bold mb-4">
+                    <i class="bi bi-exclamation-triangle text-warning me-2"></i>Problemas Comunes
+                </h4>
+                <div class="accordion mb-5" id="accordionIssues">
+                    <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#issue1">
+                                <i class="bi bi-bot me-2 text-primary"></i>El bot no responde
+                            </button>
+                        </h2>
+                        <div id="issue1" class="accordion-collapse collapse show" data-bs-parent="#accordionIssues">
+                            <div class="accordion-body text-muted">
+                                <ol class="mb-0">
+                                    <li class="mb-2">Verifica que tu conexion a internet este activa.</li>
+                                    <li class="mb-2">Asegurate de haber enviado el comando <code>/start</code> al bot.</li>
+                                    <li class="mb-2">Espera unos minutos y vuelve a intentar; el servidor puede estar temporalmente ocupado.</li>
+                                    <li class="mb-2">Si el problema persiste, revisa el <a href="https://status.pythontutor.bot" target="_blank">estado del sistema</a> o contacta por Telegram.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#issue2">
+                                <i class="bi bi-arrow-counterclockwise me-2 text-warning"></i>Perdi mi progreso
+                            </button>
+                        </h2>
+                        <div id="issue2" class="accordion-collapse collapse" data-bs-parent="#accordionIssues">
+                            <div class="accordion-body text-muted">
+                                <p class="mb-2">Tu progreso esta vinculado a tu cuenta de Telegram y se guarda automaticamente. En raras ocasiones puede ocurrir:</p>
+                                <ul class="mb-2">
+                                    <li>Si cambiaste de cuenta de Telegram, el progreso no se transfiere automaticamente.</li>
+                                    <li>Contacta a soporte con tu usuario de Telegram para intentar recuperar datos recientes.</li>
+                                </ul>
+                                <p class="mb-0 small text-muted">Recomendacion: usa el comando <code>/stats</code> periodicamente para verificar tu progreso.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-3 rounded-3 overflow-hidden">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#issue3">
+                                <i class="bi bi-code-slash me-2 text-info"></i>No puedo enviar codigo
+                            </button>
+                        </h2>
+                        <div id="issue3" class="accordion-collapse collapse" data-bs-parent="#accordionIssues">
+                            <div class="accordion-body text-muted">
+                                <ul class="mb-0">
+                                    <li class="mb-2">Envia tu codigo como <strong>mensaje de texto plano</strong>, no como archivo adjunto.</li>
+                                    <li class="mb-2">Envuelve bloques de codigo en triple backticks (<code>```</code>) para un formateo correcto.</li>
+                                    <li class="mb-2">Evita enviar archivos .py; el bot espera codigo directo en el chat.</li>
+                                    <li class="mb-0">Revisa que no haya caracteres invisibles o espacios extra al inicio de cada linea.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-white fw-bold mb-3">Necesitas ayuda adicional?</h2>
+                <p class="mb-4" style="color:rgba(255,255,255,0.7);font-size:1.1rem;">
+                    Nuestro equipo esta disponible para resolver cualquier problema que no encuentres aqui.
+                </p>
+                <a href="mailto:support@pythontutor.bot" class="btn btn-light btn-lg me-2">
+                    <i class="bi bi-envelope me-2"></i>Contactar Soporte
+                </a>
+                <a href="{{ url_for('faq') }}" class="btn btn-outline-light btn-lg">
+                    <i class="bi bi-question-circle me-2"></i>Ver FAQ
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

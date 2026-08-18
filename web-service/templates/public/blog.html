@@ -3,31 +3,214 @@
 {% block title %}Blog - Python Tutor Bot{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="text-center mb-5">
-                <h1 class="display-4 fw-bold">Blog</h1>
-                <p class="lead text-muted">Noticias y consejos sobre Python</p>
-            </div>
-            
-            <div class="card">
-                <div class="card-body">
-                    <h5>📝 Próximamente</h5>
-                    <p>Pronto encontrarás aquí artículos sobre:</p>
-                    <ul>
-                        <li>Consejos para aprender Python</li>
-                        <li>Mejores prácticas de programación</li>
-                        <li>Proyectos para principiantes</li>
-                        <li>Novedades del bot</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="text-center mt-5">
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+<!-- Header -->
+<section class="pt-5 mt-5 pb-0" style="background:var(--ptb-gradient-hero);">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mb-3 px-3 py-2" style="font-size:0.78rem;">
+                    <i class="bi bi-journal-richtext me-1"></i>Blog
+                </span>
+                <h1 class="display-5 fw-bold text-white mb-3">Blog</h1>
+                <p class="lead" style="color:rgba(255,255,255,0.7);">
+                    Tutoriales, noticias y consejos para aprender Python y sacar el maximo provecho del bot.
+                </p>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Filter -->
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <div class="btn-group" role="group" aria-label="Filtrar publicaciones">
+                    <button type="button" class="btn btn-primary active">
+                        <i class="bi bi-grid me-1"></i>Todos
+                    </button>
+                    <button type="button" class="btn btn-outline-primary">
+                        <i class="bi bi-book me-1"></i>Tutoriales
+                    </button>
+                    <button type="button" class="btn btn-outline-primary">
+                        <i class="bi bi-megaphone me-1"></i>Noticias
+                    </button>
+                    <button type="button" class="btn btn-outline-primary">
+                        <i class="bi bi-lightbulb me-1"></i>Consejos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blog Cards Grid -->
+        <div class="row g-4">
+            <!-- Card 1 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card blog-card h-100">
+                    <div class="blog-image" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                    <div class="blog-body">
+                        <div class="blog-meta">
+                            <i class="bi bi-calendar3 me-1"></i>12 Ago 2026
+                            <span class="mx-2">|</span>
+                            <i class="bi bi-clock me-1"></i>5 min de lectura
+                        </div>
+                        <h5>10 Tips para Principiantes en Python</h5>
+                        <p>Descubre los diez consejos mas importantes para comenzar tu camino en Python con el pie derecho.</p>
+                        <div class="mb-3">
+                            <span class="blog-tag">Consejos</span>
+                            <span class="blog-tag">Principiantes</span>
+                        </div>
+                        <a href="#" class="text-primary fw-semibold text-decoration-none">
+                            Leer mas <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card blog-card h-100">
+                    <div class="blog-image" style="background:linear-gradient(135deg,#0ea5e9,#06b6d4);">
+                        <i class="bi bi-rocket-takeoff"></i>
+                    </div>
+                    <div class="blog-body">
+                        <div class="blog-meta">
+                            <i class="bi bi-calendar3 me-1"></i>8 Ago 2026
+                            <span class="mx-2">|</span>
+                            <i class="bi bi-clock me-1"></i>3 min de lectura
+                        </div>
+                        <h5>Nuevas Funciones del Bot v2.0</h5>
+                        <p>Conoce todas las novedades de la version 2.0 del bot: ejercicios interactivos, rachas y logros.</p>
+                        <div class="mb-3">
+                            <span class="blog-tag">Noticias</span>
+                            <span class="blog-tag">Bot</span>
+                        </div>
+                        <a href="#" class="text-primary fw-semibold text-decoration-none">
+                            Leer mas <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card blog-card h-100">
+                    <div class="blog-image" style="background:linear-gradient(135deg,#10b981,#059669);">
+                        <i class="bi bi-calendar2-week"></i>
+                    </div>
+                    <div class="blog-body">
+                        <div class="blog-meta">
+                            <i class="bi bi-calendar3 me-1"></i>1 Ago 2026
+                            <span class="mx-2">|</span>
+                            <i class="bi bi-clock me-1"></i>7 min de lectura
+                        </div>
+                        <h5>Como Aprender Python en 30 Dias</h5>
+                        <p>Un plan de estudio estructurado para dominar los fundamentos de Python en un solo mes usando el bot.</p>
+                        <div class="mb-3">
+                            <span class="blog-tag">Tutoriales</span>
+                            <span class="blog-tag">Plan de Estudio</span>
+                        </div>
+                        <a href="#" class="text-primary fw-semibold text-decoration-none">
+                            Leer mas <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card blog-card h-100">
+                    <div class="blog-image" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <div class="blog-body">
+                        <div class="blog-meta">
+                            <i class="bi bi-calendar3 me-1"></i>25 Jul 2026
+                            <span class="mx-2">|</span>
+                            <i class="bi bi-clock me-1"></i>8 min de lectura
+                        </div>
+                        <h5>Estructuras de Datos Explicadas</h5>
+                        <p>Listas, diccionarios, conjuntos y tuplas: cuando usar cada uno y ejemplos practicos en Python.</p>
+                        <div class="mb-3">
+                            <span class="blog-tag">Tutoriales</span>
+                            <span class="blog-tag">Fundamentos</span>
+                        </div>
+                        <a href="#" class="text-primary fw-semibold text-decoration-none">
+                            Leer mas <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card blog-card h-100">
+                    <div class="blog-image" style="background:linear-gradient(135deg,#ec4899,#d946ef);">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <div class="blog-body">
+                        <div class="blog-meta">
+                            <i class="bi bi-calendar3 me-1"></i>18 Jul 2026
+                            <span class="mx-2">|</span>
+                            <i class="bi bi-clock me-1"></i>4 min de lectura
+                        </div>
+                        <h5>El Futuro del Aprendizaje con IA</h5>
+                        <p>Como la inteligencia artificial esta transformando la manera en que aprendemos a programar.</p>
+                        <div class="mb-3">
+                            <span class="blog-tag">Noticias</span>
+                            <span class="blog-tag">IA</span>
+                        </div>
+                        <a href="#" class="text-primary fw-semibold text-decoration-none">
+                            Leer mas <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card blog-card h-100">
+                    <div class="blog-image" style="background:linear-gradient(135deg,#ef4444,#f97316);">
+                        <i class="bi bi-fire"></i>
+                    </div>
+                    <div class="blog-body">
+                        <div class="blog-meta">
+                            <i class="bi bi-calendar3 me-1"></i>10 Jul 2026
+                            <span class="mx-2">|</span>
+                            <i class="bi bi-clock me-1"></i>4 min de lectura
+                        </div>
+                        <h5>Consejos para Mantener tu Racha</h5>
+                        <p>Estrategias comprobadas para no romper tu racha de estudio y crear el habito de programar a diario.</p>
+                        <div class="mb-3">
+                            <span class="blog-tag">Consejos</span>
+                            <span class="blog-tag">Habitos</span>
+                        </div>
+                        <a href="#" class="text-primary fw-semibold text-decoration-none">
+                            Leer mas <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-white fw-bold mb-3">No te pierdas ningun articulo</h2>
+                <p class="mb-4" style="color:rgba(255,255,255,0.7);font-size:1.1rem;">
+                    Unete a la comunidad en Telegram y recibe las ultimas novedades, tutoriales y consejos directamente en tu chat.
+                </p>
+                <a href="https://t.me/pythontutorbot" class="btn btn-light btn-lg" target="_blank">
+                    <i class="bi bi-telegram me-2"></i>Abrir Python Tutor Bot
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

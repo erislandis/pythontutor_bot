@@ -3,26 +3,297 @@
 {% block title %}Tutorial - Python Tutor Bot{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="text-center mb-5">
-                <h1 class="display-4 fw-bold">Tutorial</h1>
-                <p class="lead text-muted">Aprende a usar Python Tutor Bot paso a paso</p>
-            </div>
-            
-            <div class="card">
-                <div class="card-body">
-                    <h5>🚀 Primeros Pasos</h5>
-                    <p>Comienza tu viaje de aprendizaje Python con nuestro bot interactivo.</p>
-                    <p>Pronto disponible: Video tutoriales y guías detalladas.</p>
-                </div>
-            </div>
-            
-            <div class="text-center mt-5">
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+<!-- Header -->
+<section class="pt-5 mt-5 pb-0" style="background:var(--ptb-gradient-hero);">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mb-3 px-3 py-2" style="font-size:0.78rem;">
+                    <i class="bi bi-book me-1"></i>Tutorial
+                </span>
+                <h1 class="display-5 fw-bold text-white mb-3">Tutorial Paso a Paso</h1>
+                <p class="lead" style="color:rgba(255,255,255,0.7);">
+                    Sigue esta guia para empezar a aprender Python con Python Tutor Bot en cuestión de minutos.
+                </p>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Steps -->
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <!-- Step 1 -->
+                <div class="step-item mb-5">
+                    <div class="step-number bg-primary">1</div>
+                    <h5 class="fw-bold">Busca el Bot en Telegram</h5>
+                    <p class="text-muted mb-3">
+                        Abre Telegram en tu celular o computadora y busca <strong>@pythontutorbot</strong> en la barra de busqueda. Tambien puedes hacer clic en el boton de abajo para abrir el bot directamente. No necesitas descargar nada adicional.
+                    </p>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-dot red"></div>
+                            <div class="terminal-dot yellow"></div>
+                            <div class="terminal-dot green"></div>
+                            <span class="terminal-title">Telegram</span>
+                        </div>
+                        <div class="terminal-body">
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">$ </span><span class="terminal-command">Busca en Telegram: @pythontutorbot</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">&nbsp;</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-success">&#10004; Python Tutor Bot encontrado</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">Presiona "Iniciar" para comenzar.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-item mb-5">
+                    <div class="step-number bg-success">2</div>
+                    <h5 class="fw-bold">Inicia la Conversacion</h5>
+                    <p class="text-muted mb-3">
+                        Una vez dentro del chat, envia el comando <strong>/start</strong> para activar el bot. Este comando registra tu usuario y te da la bienvenida con un resumen de las funcionalidades disponibles.
+                    </p>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-dot red"></div>
+                            <div class="terminal-dot yellow"></div>
+                            <div class="terminal-dot green"></div>
+                            <span class="terminal-title">Chat con Python Tutor Bot</span>
+                        </div>
+                        <div class="terminal-body">
+                            <div class="terminal-line">
+                                <span class="terminal-output" style="color:var(--ptb-gray-400);">Tú:</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-command">/start</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">&nbsp;</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output" style="color:var(--ptb-gray-400);">Python Tutor Bot:</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-success">&#128218; ¡Bienvenido a Python Tutor Bot!</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">Tu guia personal de Python en Telegram.</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">Usa /learning para empezar a aprender.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-item mb-5">
+                    <div class="step-number bg-info">3</div>
+                    <h5 class="fw-bold">Elige tu Nivel</h5>
+                    <p class="text-muted mb-3">
+                        El bot te preguntara tu nivel de experiencia con Python. Puedes elegir entre principiante, intermedio o avanzado. Si no estas seguro, el bot puede hacerte una breve evaluacion para recomendarte el nivel ideal.
+                    </p>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-dot red"></div>
+                            <div class="terminal-dot yellow"></div>
+                            <div class="terminal-dot green"></div>
+                            <span class="terminal-title">Seleccion de Nivel</span>
+                        </div>
+                        <div class="terminal-body">
+                            <div class="terminal-line">
+                                <span class="terminal-output" style="color:var(--ptb-gray-400);">Python Tutor Bot:</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">¿Cual es tu nivel de Python?</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">1. Principiante</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">2. Intermedio</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">3. Avanzado</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">&nbsp;</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output" style="color:var(--ptb-gray-400);">Tú:</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-command">1</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-success">&#10004; Nivel Principiante seleccionado. ¡Vamos a empezar!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step-item mb-5">
+                    <div class="step-number bg-primary">4</div>
+                    <h5 class="fw-bold">Completa tu Primera Leccion</h5>
+                    <p class="text-muted mb-3">
+                        El bot te presentara lecciones ordenadas de lo mas basico a lo mas avanzado. Cada leccion incluye una explicacion clara del concepto, ejemplos de codigo y ejercicios practicos. Completaras la leccion antes de avanzar a la siguiente.
+                    </p>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-dot red"></div>
+                            <div class="terminal-dot yellow"></div>
+                            <div class="terminal-dot green"></div>
+                            <span class="terminal-title">Leccion 1: Variables</span>
+                        </div>
+                        <div class="terminal-body">
+                            <div class="terminal-line">
+                                <span class="terminal-success">&#128218; Leccion 1: Variables en Python</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">Una variable es un contenedor para almacenar datos.</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">En Python se crea simplemente asignando un valor:</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">&nbsp;</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-command">>>> </span><span class="terminal-command" style="color:#facc15;">nombre = "Python"</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-command">>>> </span><span class="terminal-command" style="color:#facc15;">edad = 30</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">&nbsp;</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-success">&#10004; ¡Leccion completada! Usa /next para continuar.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="step-item mb-5">
+                    <div class="step-number bg-success">5</div>
+                    <h5 class="fw-bold">Resuelve Ejercicios</h5>
+                    <p class="text-muted mb-3">
+                        Despues de cada leccion, el bot te propondra ejercicios para practicar lo aprendido. Escribe tu codigo directamente en el chat y recibe retroalimentacion instantanea sobre si es correcto o necesita mejoras.
+                    </p>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-dot red"></div>
+                            <div class="terminal-dot yellow"></div>
+                            <div class="terminal-dot green"></div>
+                            <span class="terminal-title">Ejercicio Practico</span>
+                        </div>
+                        <div class="terminal-body">
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">Ejercicio: </span><span class="terminal-command">Crea una variable llamada "ciudad"</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-command">y asignale el valor "Madrid".</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">&nbsp;</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-command">>>> </span><span class="terminal-command" style="color:#facc15;">ciudad = "Madrid"</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">&nbsp;</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-success">&#10004; ¡Correcto! Tu codigo es valido.</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-warning">+10 XP ganados</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="step-item mb-5">
+                    <div class="step-number bg-info">6</div>
+                    <h5 class="fw-bold">Sigue tu Progreso</h5>
+                    <p class="text-muted mb-3">
+                        Usa el comando <strong>/stats</strong> en cualquier momento para ver tus estadisticas: lecciones completadas, ejercicios resueltos, racha de estudio y nivel actual. Manten tu racha activa para ganar insignias especiales.
+                    </p>
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-dot red"></div>
+                            <div class="terminal-dot yellow"></div>
+                            <div class="terminal-dot green"></div>
+                            <span class="terminal-title">Estadisticas Personales</span>
+                        </div>
+                        <div class="terminal-body">
+                            <div class="terminal-line">
+                                <span class="terminal-output" style="color:var(--ptb-gray-400);">Tú:</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-command">/stats</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">&nbsp;</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-success">&#128200; Tus Estadisticas</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">Nivel: Principiante</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">Lecciones completadas: 3/20</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">Ejercicios resueltos: 12</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">Racha actual: 5 dias</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">XP total: 240</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-warning">&#127942; Insignia: "Primera Semana"</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-white fw-bold mb-3">¿Listo para empezar?</h2>
+                <p class="mb-4" style="color:rgba(255,255,255,0.7);font-size:1.1rem;">
+                    Abre Telegram y comienza a aprender Python ahora. Es gratis, es rapido, y puedes empezar en segundos.
+                </p>
+                <a href="https://t.me/pythontutorbot" class="btn btn-light btn-lg" target="_blank">
+                    <i class="bi bi-telegram me-2"></i>Abrir Python Tutor Bot
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

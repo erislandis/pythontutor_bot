@@ -2362,7 +2362,7 @@ def api_update_user(user_id):
         # Update user
         response = supabase.table('users').update({
             'is_active': is_active,
-            'updated_at': 'now()'
+            'updated_at': datetime.now().isoformat()
         }).eq('id', user_id).execute()
         
         if response.data:
@@ -2509,7 +2509,7 @@ def change_password():
         # Update password in database
         update_response = supabase.table('admin_users').update({
             'password_hash': new_password_hash,
-            'updated_at': 'now()'
+            'updated_at': datetime.now().isoformat()
         }).eq('id', user_id).execute()
         
         if update_response.data:

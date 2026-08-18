@@ -1,42 +1,189 @@
 {% extends "base.html" %}
 
-{% block title %}Términos de Servicio - Python Tutor Bot{% endblock %}
+{% block title %}Terminos de Uso - Python Tutor Bot{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="text-center mb-5">
-                <h1 class="display-4 fw-bold">Términos de Servicio</h1>
-                <p class="lead text-muted">Condiciones de uso de Python Tutor Bot</p>
-            </div>
-            
-            <div class="card">
-                <div class="card-body">
-                    <h5>📋 Aceptación de Términos</h5>
-                    <p>Al usar Python Tutor Bot, aceptas estos términos y condiciones.</p>
-                    
-                    <h5 class="mt-4">🎯 Uso del Servicio</h5>
-                    <p>El bot está diseñado para fines educativos y de aprendizaje de programación Python.</p>
-                    
-                    <h5 class="mt-4">⚠️ Prohibiciones</h5>
-                    <p>No está permitido:</p>
-                    <ul>
-                        <li>Uso comercial sin autorización</li>
-                        <li>Intentos de hackeo o manipulación</li>
-                        <li>Compartir contenido inapropiado</li>
-                        <li>Violar derechos de autor</li>
-                    </ul>
-                    
-                    <h5 class="mt-4">🔄 Modificaciones</h5>
-                    <p>Nos reservamos el derecho de modificar estos términos en cualquier momento.</p>
-                </div>
-            </div>
-            
-            <div class="text-center mt-5">
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+<!-- Header -->
+<section class="pt-5 mt-5 pb-0" style="background:var(--ptb-gradient-hero);">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 mb-3 px-3 py-2" style="font-size:0.78rem;">
+                    <i class="bi bi-file-earmark-text me-1"></i>Terminos
+                </span>
+                <h1 class="display-5 fw-bold text-white mb-3">Terminos de Uso</h1>
+                <p class="lead" style="color:rgba(255,255,255,0.7);">
+                    Ultima actualizacion: Enero 2026
+                </p>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Introduction -->
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <p class="lead text-muted mb-5">
+                    Bienvenido a Python Tutor Bot. Estos terminos de uso regulan el acceso y uso de nuestro servicio de aprendizaje interactivo de programacion Python a traves de Telegram. Al acceder o utilizar Python Tutor Bot, usted acepta cumplir con estos terminos en su totalidad.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Legal Sections -->
+<section class="section pt-0">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-check-circle text-primary me-2"></i>1. Aceptacion de Terminos</h4>
+                    <p class="text-muted">
+                        Al utilizar Python Tutor Bot, ya sea de forma directa o a traves de cualquier metodo de acceso, usted declara haber leido, comprendido y aceptado estos terminos de uso en su totalidad. Si no esta de acuerdo con alguno de los puntos aqui establecidos, le solicitamos que no utilice el servicio.
+                    </p>
+                    <p class="text-muted mb-0">
+                        El uso continuado del servicio despues de cualquier modificacion de estos terminos constituye la aceptacion de las nuevas condiciones.
+                    </p>
+                </div>
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-bullseye text-success me-2"></i>2. Uso del Servicio</h4>
+                    <p class="text-muted">
+                        Python Tutor Bot esta disenado exclusivamente para fines educativos y de aprendizaje de programacion Python. Los usuarios pueden:
+                    </p>
+                    <ul class="text-muted">
+                        <li>Acceder a lecciones y ejercicios de programacion Python</li>
+                        <li>Recibir retroalimentacion sobre su codigo</li>
+                        <li>Seguir su progreso de aprendizaje</li>
+                        <li>Participar en ejercicios interactivos</li>
+                    </ul>
+                    <p class="text-muted mb-0">
+                        Se espera que todos los usuarios hagan un uso justo y responsable del servicio. Queda prohibido el uso automatizado, el scraping, o cualquier forma de acceso masivo que sobrecargue los servidores.
+                    </p>
+                </div>
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-person-lock text-warning me-2"></i>3. Cuentas de Usuario</h4>
+                    <p class="text-muted">
+                        El acceso a Python Tutor Bot se realiza a traves de su cuenta de Telegram. El usuario es el unico responsable de:
+                    </p>
+                    <ul class="text-muted">
+                        <li>Mantener la seguridad y confidencialidad de su cuenta de Telegram</li>
+                        <li>Todas las actividades que se realicen desde su cuenta</li>
+                        <li>Notificar inmediatamente cualquier uso no autorizado</li>
+                        <li>Asegurarse de que su informacion de perfil sea veraz y actualizada</li>
+                    </ul>
+                    <p class="text-muted mb-0">
+                        Python Tutor Bot no se hace responsable por el uso indebido de cuentas de usuario ni por los danos derivados de la falta de seguridad en las mismas.
+                    </p>
+                </div>
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-shield-lock text-info me-2"></i>4. Contenido y Propiedad Intelectual</h4>
+                    <p class="text-muted">
+                        Todo el contenido educativo proporcionado por Python Tutor Bot, incluyendo pero no limitado a lecciones, ejercicios, explicaciones, disenos, graficos y codigo de ejemplo, es propiedad exclusiva de Python Tutor Bot y esta protegido por las leyes de propiedad intelectual aplicables.
+                    </p>
+                    <p class="text-muted mb-0">
+                        Sin embargo, el codigo que usted escriba y envie a traves del bot le pertenece exclusivamente a usted. Python Tutor Bot no reclama ningun derecho de propiedad sobre el codigo fuente que los usuarios crean durante su proceso de aprendizaje.
+                    </p>
+                </div>
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle text-danger me-2"></i>5. Limitacion de Responsabilidad</h4>
+                    <p class="text-muted">
+                        Python Tutor Bot se proporciona tal cual esta, sin garantias de ningun tipo, ya sean expresas o implicitas. No garantizamos que el servicio este libre de interrupciones, errores o virus.
+                    </p>
+                    <ul class="text-muted">
+                        <li>No nos responsabilizamos por perdida de datos</li>
+                        <li>No garantizamos disponibilidad ininterrumpida del servicio</li>
+                        <li>No somos responsables por danos indirectos o consecuentes</li>
+                        <li>El contenido educativo se ofrece con fines informativos</li>
+                    </ul>
+                    <p class="text-muted mb-0">
+                        En ningun caso nuestra responsabilidad total excedera el monto pagado por el usuario, si aplica.
+                    </p>
+                </div>
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-eye text-secondary me-2"></i>6. Privacidad</h4>
+                    <p class="text-muted">
+                        Su uso de Python Tutor Bot esta sujeto a nuestra <a href="{{ url_for('privacy') }}" class="fw-semibold">Politica de Privacidad</a>, que describe como recopilamos, usamos y protegemos su informacion personal. Al utilizar el servicio, usted consiente las practicas de datos descritas en dicha politica.
+                    </p>
+                    <p class="text-muted mb-0">
+                        Le recomendamos revisar periodicamente nuestra politica de privacidad para mantenerse informado sobre como protegemos su informacion.
+                    </p>
+                </div>
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-arrow-repeat text-primary me-2"></i>7. Modificaciones</h4>
+                    <p class="text-muted">
+                        Python Tutor Bot se reserva el derecho de modificar, actualizar o reemplazar estos terminos de uso en cualquier momento y sin previo aviso. Las modificaciones entraran en vigor inmediatamente despues de su publicacion en esta pagina.
+                    </p>
+                    <p class="text-muted mb-0">
+                        Se recomienda a los usuarios revisar esta pagina periodicamente. El uso continuado del servicio despues de cualquier modificacion constituye la aceptacion de los terminos actualizados.
+                    </p>
+                </div>
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-slash-circle text-danger me-2"></i>8. Terminacion</h4>
+                    <p class="text-muted">
+                        Python Tutor Bot se reserva el derecho de suspender o terminar el acceso de cualquier usuario al servicio, de forma temporal o permanente, sin previo aviso, en los siguientes casos:
+                    </p>
+                    <ul class="text-muted">
+                        <li>Uso indebido o abusivo del servicio</li>
+                        <li>Violacion de cualquiera de estos terminos de uso</li>
+                        <li>Conducta que afecte negativamente a otros usuarios</li>
+                        <li>Intentos de manipular o comprometer la seguridad del sistema</li>
+                        <li>Uso con fines ilicitos o no autorizados</li>
+                    </ul>
+                    <p class="text-muted mb-0">
+                        En caso de terminacion, el usuario perdera el acceso a su progreso y datos asociados al servicio.
+                    </p>
+                </div>
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-gavel text-warning me-2"></i>9. Ley Aplicable</h4>
+                    <p class="text-muted mb-0">
+                        Estos terminos de uso se rigen e interpretan de conformidad con las leyes vigentes en la jurisdiccion correspondiente. Cualquier disputa derivada de o relacionada con estos terminos se sometera a la jurisdiccion exclusiva de los tribunales competentes.
+                    </p>
+                </div>
+
+                <div class="legal-section mb-5 p-4 bg-body rounded-3 shadow-sm border">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-envelope text-info me-2"></i>10. Contacto</h4>
+                    <p class="text-muted">
+                        Si tiene preguntas, comentarios o inquietudes sobre estos terminos de uso, no dude en comunicarse con nuestro equipo a traves de:
+                    </p>
+                    <ul class="text-muted">
+                        <li>Correo electronico: <a href="mailto:soporte@pythontutorbot.com" class="fw-semibold">soporte@pythontutorbot.com</a></li>
+                        <li>Soporte en Telegram: <a href="{{ url_for('support') }}" class="fw-semibold">Pagina de soporte</a></li>
+                    </ul>
+                    <p class="text-muted mb-0">
+                        Nuestro equipo le respondera lo antes posible para atender su consulta.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-white fw-bold mb-3">Tienes preguntas sobre los terminos?</h2>
+                <p class="mb-4" style="color:rgba(255,255,255,0.7);font-size:1.1rem;">
+                    Nuestro equipo esta disponible para aclarar cualquier duda que tengas sobre el uso de Python Tutor Bot.
+                </p>
+                <a href="{{ url_for('support') }}" class="btn btn-light btn-lg">
+                    <i class="bi bi-headset me-2"></i>Contactar Soporte
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

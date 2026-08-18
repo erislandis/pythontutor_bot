@@ -3,24 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Python Tutor Bot - Aprende Python de forma interactiva a traves de Telegram.">
     <title>{% block title %}Python Tutor Bot{% endblock %}</title>
-    
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Bootstrap CSS -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
-    
+
     {% block extra_css %}{% endblock %}
 </head>
-<body class="{% block body_class %}{% endblock %}">
-    <!-- Flash Messages -->
+<body class="login-section">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="flash-messages position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999; margin-top: 20px;">
+            <div class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index:9999;width:90%;max-width:480px;">
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow" role="alert">
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show shadow-lg" role="alert">
+                        <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -29,14 +35,11 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Main Content -->
     {% block content %}{% endblock %}
 
     <!-- Bootstrap JS -->
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

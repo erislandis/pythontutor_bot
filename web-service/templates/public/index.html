@@ -1,71 +1,84 @@
 {% extends "base.html" %}
 
-{% block title %}Python Tutor Bot - Aprende Python Interactivamente{% endblock %}
-
+{% block title %}Python Tutor Bot - Aprende Python con Telegram{% endblock %}
 {% block main_class %}landing-page{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
+<!-- Hero -->
 <section class="hero-section">
     <div class="container">
-        <div class="row align-items-center min-vh-100">
-            <div class="col-lg-6">
-                <div class="hero-content">
-                    <h1 class="display-4 fw-bold text-white mb-4">
-                        Aprende <span class="text-warning">Python</span> con tu Tutor Personal
-                    </h1>
-                    <p class="lead text-white-50 mb-4">
-                        Domina la programación en Python de manera interactiva a través de Telegram. 
-                        Ejercicios prácticos, feedback instantáneo y progreso personalizado.
-                    </p>
-                    <div class="d-flex gap-3 flex-wrap">
-                        <a href="{{ url_for('login') }}" class="btn btn-warning btn-lg px-4 me-3">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Acceso Admin
-                        </a>
-                        <a href="{{ url_for('features') }}" class="btn btn-outline-light btn-lg px-4">
-                            <i class="bi bi-info-circle me-2"></i>Ver Características
-                        </a>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 hero-content">
+                <div class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 mb-3 px-3 py-2" style="font-size:0.78rem;">
+                    <i class="bi bi-lightning-fill me-1"></i>Plataforma de aprendizaje activa
+                </div>
+                <h1>
+                    Aprende <span class="text-gradient">Python</span> con un tutor que nunca duerme
+                </h1>
+                <p class="lead">
+                    Recibe lecciones interactivas, ejercicios praticos y feedback en tiempo real directamente en Telegram. Sin configuracion, sin instalaciones. Solo abre el chat y empieza a programar.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="https://t.me/pythontutorbot" class="btn btn-primary btn-lg" target="_blank">
+                        <i class="bi bi-telegram me-2"></i>Empezar Gratis
+                    </a>
+                    <a href="{{ url_for('features') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-play-circle me-2"></i>Ver Como Funciona
+                    </a>
+                </div>
+                <div class="hero-stats d-flex gap-4">
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="{{ total_users }}">0</div>
+                        <div class="stat-label">Usuarios Activos</div>
                     </div>
-                    
-                    <!-- Stats -->
-                    <div class="row mt-5">
-                        <div class="col-4">
-                            <div class="text-center">
-                                <h3 class="text-white fw-bold">1000+</h3>
-                                <p class="text-white-50 small mb-0">Ejercicios</p>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="text-center">
-                                <h3 class="text-white fw-bold">4</h3>
-                                <p class="text-white-50 small mb-0">Niveles</p>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="text-center">
-                                <h3 class="text-white fw-bold">24/7</h3>
-                                <p class="text-white-50 small mb-0">Disponibilidad</p>
-                            </div>
-                        </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="{{ total_exercises }}">0</div>
+                        <div class="stat-label">Ejercicios</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="24">24</div>
+                        <div class="stat-label">7 Disponible</div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="hero-image text-center">
-                    <div class="robot-animation">
-                        <i class="bi bi-robot display-1 text-warning"></i>
+            <div class="col-lg-6 hero-image">
+                <div class="terminal-window slide-up">
+                    <div class="terminal-header">
+                        <div class="terminal-dot red"></div>
+                        <div class="terminal-dot yellow"></div>
+                        <div class="terminal-dot green"></div>
+                        <span class="terminal-title">Python Tutor Bot</span>
                     </div>
-                    <div class="mt-4">
-                        <div class="card bg-dark bg-opacity-50 text-white">
-                            <div class="card-body">
-                                <h5 class="card-title">¿Cómo funciona?</h5>
-                                <ol class="small">
-                                    <li>Regístrate en Telegram</li>
-                                    <li>Selecciona tu nivel</li>
-                                    <li>Resuelve ejercicios</li>
-                                    <li>Recibe feedback inmediato</li>
-                                </ol>
-                            </div>
+                    <div class="terminal-body">
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">>>> </span><span class="terminal-command">from tutor_bot import Leccion</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">>>> </span><span class="terminal-command">leccion = Leccion("listas")</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-output"></span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-success">&#10004; Leccion: Listas en Python</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-output">Una lista almacena multiples valores en una variable.</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-output">Ejercicio: Crea una lista con los numeros del 1 al 5</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-output"></span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-command">>>> </span><span class="terminal-command" style="color:#facc15;">numeros = [1, 2, 3, 4, 5]</span><span class="terminal-cursor"></span>
+                        </div>
+                        <div class="terminal-line" style="margin-top:8px;">
+                            <span class="terminal-success">&#10004; Correcto! Bien hecho.</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-warning">Siguiente leccion: Tuplas &#8594;</span>
                         </div>
                     </div>
                 </div>
@@ -74,57 +87,78 @@
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="py-5 bg-light">
+<!-- Features -->
+<section class="section section-alt" id="features">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center mb-5">
-                <h2 class="display-5 fw-bold">Características Principales</h2>
-                <p class="lead text-muted">Todo lo que necesitas para aprender Python efectivamente</p>
-            </div>
+        <div class="section-header">
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">Caracteristicas</span>
+            <h2>Todo lo que necesitas para aprender Python</h2>
+            <p>Disenado para que aprendas de forma efectiva, sin distracciones ni configuraciones complicadas.</p>
         </div>
         <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="bi bi-chat-dots-fill text-primary display-4"></i>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="icon-wrapper bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-chat-dots fs-3"></i>
                         </div>
-                        <h5 class="card-title">Interfaz Telegram</h5>
-                        <p class="card-text text-muted">Aprende directamente desde Telegram sin necesidad de aplicaciones adicionales</p>
+                        <h5>Aprendizaje Conversacional</h5>
+                        <p>Dialoga con el bot como haria con un profesor. Haz preguntas, pide ejemplos y recibe explicaciones personalizadas.</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="bi bi-graph-up text-success display-4"></i>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="icon-wrapper bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-lightning-charge fs-3"></i>
                         </div>
-                        <h5 class="card-title">Progresión Adaptativa</h5>
-                        <p class="card-text text-muted">Ejercicios que se adaptan a tu nivel y ritmo de aprendizaje</p>
+                        <h5>Feedback Instantaneo</h5>
+                        <p>Recibe calificaciones y correcciones en tiempo real. No esperes dias para saber si tu codigo es correcto.</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="bi bi-check-circle-fill text-info display-4"></i>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="icon-wrapper bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-graph-up-arrow fs-3"></i>
                         </div>
-                        <h5 class="card-title">Feedback Instantáneo</h5>
-                        <p class="card-text text-muted">Recibe corrección y explicaciones inmediatas después de cada ejercicio</p>
+                        <h5>Seguimiento de Progreso</h5>
+                        <p>Visualiza tu avance con estadisticas detalladas. Sigue tu racha de estudio y celebra tus logros.</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon mb-3">
-                            <i class="bi bi-trophy-fill text-warning display-4"></i>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="icon-wrapper bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-book fs-3"></i>
                         </div>
-                        <h5 class="card-title">Certificación</h5>
-                        <p class="card-text text-muted">Obtén certificados al completar niveles y demostrar tu competencia</p>
+                        <h5>Estructura Curricular</h5>
+                        <p>Desde variables basicas hasta programacion orientada a objetos. Un camino claro de aprendizaje paso a paso.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="icon-wrapper bg-danger bg-opacity-10 text-danger">
+                            <i class="bi bi-phone fs-3"></i>
+                        </div>
+                        <h5>Desde tu Celular</h5>
+                        <p>Aprende en cualquier lugar con Telegram. No necesitas computadora ni configurar entornos de desarrollo.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body">
+                        <div class="icon-wrapper bg-dark bg-opacity-10 text-dark">
+                            <i class="bi bi-trophy fs-3"></i>
+                        </div>
+                        <h5>Sistema de Logros</h5>
+                        <p>Gana insignias por completar lecciones y mantener rachas. El gamificacion mantiene tu motivacion alta.</p>
                     </div>
                 </div>
             </div>
@@ -132,92 +166,165 @@
     </div>
 </section>
 
-<!-- Learning Path Section -->
-<section class="py-5">
+<!-- How it works -->
+<section class="section" id="how-it-works">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="display-5 fw-bold mb-4">Tu Ruta de Aprendizaje</h2>
-                <p class="lead text-muted mb-4">
-                    Desde principiante hasta experto, te guiamos en cada paso del camino
-                </p>
-                
-                <div class="learning-path">
-                    <div class="path-item mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="path-icon bg-primary text-white rounded-circle p-3 me-3">
-                                <i class="bi bi-1-lg"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Principiante</h5>
-                                <p class="text-muted mb-0">Sintaxis básica, variables, tipos de datos</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="path-item mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="path-icon bg-success text-white rounded-circle p-3 me-3">
-                                <i class="bi bi-2-lg"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Intermedio</h5>
-                                <p class="text-muted mb-0">Estructuras de datos, funciones, POO básico</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="path-item mb-4">
-                        <div class="d-flex align-items-center">
-                            <div class="path-icon bg-warning text-white rounded-circle p-3 me-3">
-                                <i class="bi bi-3-lg"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Avanzado</h5>
-                                <p class="text-muted mb-0">Decoradores, generadores, manejo de archivos</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="path-item">
-                        <div class="d-flex align-items-center">
-                            <div class="path-icon bg-danger text-white rounded-circle p-3 me-3">
-                                <i class="bi bi-4-lg"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Experto</h5>
-                                <p class="text-muted mb-0">Testing, optimización, patrones de diseño</p>
-                            </div>
-                        </div>
-                    </div>
+        <div class="section-header">
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Como Funciona</span>
+            <h2>Tres pasos para empezar</h2>
+            <p>Configuracion minima. Aprendizaje maximo.</p>
+        </div>
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-4">
+                <div class="step-item">
+                    <div class="step-number bg-primary">1</div>
+                    <h5 class="fw-bold">Busca el Bot en Telegram</h5>
+                    <p class="text-muted">Abre Telegram y busca <strong>@pythontutorbot</strong> o haz clic en el boton de abajo. Sin descargas, sin registro largo.</p>
+                    <a href="https://t.me/pythontutorbot" class="btn btn-sm btn-primary" target="_blank">
+                        <i class="bi bi-telegram me-1"></i>Abrir Bot
+                    </a>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="text-center">
-                    <img src="{{ url_for('static', filename='img/learning-path.svg') }}" 
-                         alt="Python Learning Path - Desde principiante hasta experto con ejercicios interactivos y seguimiento de progreso" 
-                         class="learning-path-img">
+            <div class="col-lg-4">
+                <div class="step-item">
+                    <div class="step-number bg-success">2</div>
+                    <h5 class="fw-bold">Elige tu Nivel</h5>
+                    <p class="text-muted">El bot evalua tu nivel actual o comienza desde cero. Se adapta a tu ritmo de aprendizaje y ajusta la dificultad automaticamente.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="step-item">
+                    <div class="step-number bg-info">3</div>
+                    <h5 class="fw-bold">Aprende Practicando</h5>
+                    <p class="text-muted">Cada leccion incluye ejercicios reales. Escribe codigo, recibe retroalimentacion y avanza cuando estes listo.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="py-5 bg-primary text-white">
-    <div class="container text-center">
-        <h2 class="display-5 fw-bold mb-4">¿Listo para Comenzar?</h2>
-        <p class="lead mb-4">
-            Únete a miles de estudiantes que ya están aprendiendo Python con nuestro bot
-        </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-            <a href="{{ url_for('login') }}" class="btn btn-warning btn-lg px-4">
-                <i class="bi bi-rocket-takeoff me-2"></i>Acceso Admin
-            </a>
-            <a href="{{ url_for('about') }}" class="btn btn-outline-light btn-lg px-4">
-                <i class="bi bi-question-circle me-2"></i>Saber Más
-            </a>
+<!-- Social Proof -->
+<section class="section section-dark">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="p-4">
+                    <div class="fs-1 fw-bold text-gradient mb-2" data-count="{{ total_users }}">0</div>
+                    <div style="color:var(--ptb-gray-400);">Estudiantes Activos</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4">
+                    <div class="fs-1 fw-bold text-gradient mb-2" data-count="{{ total_exercises }}">0</div>
+                    <div style="color:var(--ptb-gray-400);">Ejercicios Completados</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4">
+                    <div class="fs-1 fw-bold text-gradient mb-2">4.8</div>
+                    <div style="color:var(--ptb-gray-400);">Satisfaccion Promedio</div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
+
+<!-- Pricing Preview -->
+<section class="section" id="pricing">
+    <div class="container">
+        <div class="section-header">
+            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">Precios</span>
+            <h2>Empieza gratis, crece cuando quieras</h2>
+            <p>Acceso completo a lecciones basicas sin costo. Desbloquea todo con planes premium.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="pricing-card">
+                    <h5 class="text-muted mb-0">Gratis</h5>
+                    <div class="pricing-price">$0<small>/mes</small></div>
+                    <ul class="pricing-features">
+                        <li><i class="bi bi-check-circle-fill"></i>Acceso a lecciones basicas</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Ejercicios interactivos</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Seguimiento de progreso</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Soporte comunitario</li>
+                    </ul>
+                    <a href="https://t.me/pythontutorbot" class="btn btn-outline-primary w-100" target="_blank">
+                        Empezar Gratis
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="pricing-card featured">
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <span class="badge bg-warning text-dark px-3 py-2 shadow-sm" style="border-radius:20px;">Popular</span>
+                    </div>
+                    <h5>Premium</h5>
+                    <div class="pricing-price">$9<small>/mes</small></div>
+                    <ul class="pricing-features">
+                        <li><i class="bi bi-check-circle-fill"></i>Todo lo del plan Gratis</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Todas las lecciones avanzadas</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Ejercicios desafiantes</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Soporte prioritario</li>
+                        <li><i class="bi bi-check-circle-fill"></i>Sin limites</li>
+                    </ul>
+                    <a href="{{ url_for('pricing') }}" class="btn btn-light w-100">
+                        Ver Planes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-white fw-bold mb-3">Listo para empezar a programar?</h2>
+                <p class="mb-4" style="color:rgba(255,255,255,0.7);font-size:1.1rem;">
+                    Unete a miles de personas que ya estan aprendiendo Python con Python Tutor Bot. Es gratis, es rapido, y puedes empezar ahora mismo.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="https://t.me/pythontutorbot" class="btn btn-light btn-lg" target="_blank">
+                        <i class="bi bi-telegram me-2"></i>Abrir en Telegram
+                    </a>
+                    <a href="{{ url_for('about') }}" class="btn btn-outline-light btn-lg">
+                        Conoce Mas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-count]').forEach(function(el) {
+        var target = parseInt(el.getAttribute('data-count')) || 0;
+        var duration = 2000;
+        var start = 0;
+        var startTime = null;
+
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var progress = Math.min((timestamp - startTime) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(eased * target).toLocaleString('es-ES');
+            if (progress < 1) requestAnimationFrame(animate);
+            else el.textContent = target.toLocaleString('es-ES') + '+';
+        }
+
+        var observer = new IntersectionObserver(function(entries) {
+            if (entries[0].isIntersecting) {
+                requestAnimationFrame(animate);
+                observer.unobserve(el);
+            }
+        }, { threshold: 0.5 });
+        observer.observe(el);
+    });
+});
+</script>
 {% endblock %}

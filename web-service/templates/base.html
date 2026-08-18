@@ -3,55 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Python Tutor Bot - Aprende Python de forma interactiva a traves de Telegram. Ejercicios praticos, feedback instantaneo y seguimiento personalizado.">
     <title>{% block title %}Python Tutor Bot{% endblock %}</title>
-    
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Bootstrap CSS -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
-    
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
-                <i class="bi bi-robot me-2"></i>Python Tutor Bot
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="bi bi-terminal-fill me-2"></i>Python Tutor Bot
             </a>
-            
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('index') }}">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('features') }}">Características</a>
+                        <a class="nav-link" href="{{ url_for('features') }}">Caracteristicas</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('about') }}">Acerca de</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('pricing') }}">Precios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('documentation') }}">Docs</a>
+                    </li>
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i>{{ current_user.username }}
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                <span class="rounded-circle bg-primary bg-opacity-25 text-primary d-inline-flex align-items-center justify-content-center me-2" style="width:32px;height:32px;font-size:0.8rem;">
+                                    <i class="bi bi-person-fill"></i>
+                                </span>
+                                {{ current_user.username }}
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">Panel Admin</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('admin_logout') }}">Cerrar Sesión</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2">
+                                <li><a class="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2" href="{{ url_for('dashboard') }}"><i class="bi bi-grid-1x2"></i>Panel Admin</a></li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li><a class="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2 text-danger" href="{{ url_for('admin_logout') }}"><i class="bi bi-box-arrow-right"></i>Cerrar Sesion</a></li>
                             </ul>
                         </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a href="{{ url_for('login') }}" class="btn btn-outline-light">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Acceso Admin
+                        <li class="nav-item ms-lg-2">
+                            <a href="{{ url_for('login') }}" class="btn btn-sm btn-outline-light px-3">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Acceso Admin
                             </a>
                         </li>
                     {% endif %}
@@ -66,6 +81,7 @@
             <div class="container mt-5 pt-3">
                 {% for category, message in messages %}
                     <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -79,109 +95,86 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Professional Footer -->
-    <footer class="bg-gradient-dark text-light py-5 mt-5">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/footer-enhancements.css') }}">
-        
+    <!-- Footer -->
+    <footer class="py-5">
         <div class="container">
-            <div class="row">
-                <!-- Brand Section -->
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="footer-brand">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="bi bi-robot fs-2 text-primary me-3"></i>
-                            <div>
-                                <h4 class="mb-0">Python Tutor Bot</h4>
-                                <small class="text-white-50">Aprende Python Interactivo</small>
-                            </div>
-                        </div>
-                        <p class="text-white">Domina Python con lecciones interactivas, ejercicios prácticos y seguimiento personalizado de progreso.</p>
-                        <div class="footer-social">
-                            <a href="https://t.me/pythontutorbot" class="social-icon" target="_blank" title="Telegram">
-                                <i class="bi bi-telegram"></i>
-                            </a>
-                            <a href="https://github.com/pythontutorbot" class="social-icon" target="_blank" title="GitHub">
-                                <i class="bi bi-github"></i>
-                            </a>
-                            <a href="mailto:support@pythontutor.bot" class="social-icon" title="Email">
-                                <i class="bi bi-envelope"></i>
-                            </a>
-                            <a href="https://twitter.com/pythontutorbot" class="social-icon" target="_blank" title="Twitter">
-                                <i class="bi bi-twitter"></i>
-                            </a>
-                        </div>
+            <div class="row g-4">
+                <!-- Brand -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-terminal-fill fs-3 text-primary me-2"></i>
+                        <span class="fs-5 fw-bold text-white">Python Tutor Bot</span>
+                    </div>
+                    <p class="small mb-4">
+                        Aprende Python con lecciones interactivas, ejercicios practicos y seguimiento personalizado de progreso, directamente desde Telegram.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a href="https://t.me/pythontutorbot" class="social-icon" target="_blank" title="Telegram">
+                            <i class="bi bi-telegram"></i>
+                        </a>
+                        <a href="https://github.com/pythontutorbot" class="social-icon" target="_blank" title="GitHub">
+                            <i class="bi bi-github"></i>
+                        </a>
+                        <a href="mailto:support@pythontutor.bot" class="social-icon" title="Email">
+                            <i class="bi bi-envelope"></i>
+                        </a>
                     </div>
                 </div>
-                
-                <!-- Quick Links -->
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="footer-heading">Navegación</h6>
+
+                <!-- Producto -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-white fw-semibold mb-3">Producto</h6>
                     <ul class="footer-links">
-                        <li><a href="{{ url_for('index') }}">Inicio</a></li>
-                        <li><a href="{{ url_for('features') }}">Características</a></li>
-                        <li><a href="{{ url_for('about') }}">Acerca de</a></li>
+                        <li><a href="{{ url_for('features') }}">Caracteristicas</a></li>
                         <li><a href="{{ url_for('pricing') }}">Precios</a></li>
-                        <li><a href="{{ url_for('contact') }}">Contacto</a></li>
+                        <li><a href="{{ url_for('documentation') }}">Documentacion</a></li>
+                        <li><a href="{{ url_for('tutorial') }}">Tutorial</a></li>
                     </ul>
                 </div>
-                
-                <!-- Resources -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h6 class="footer-heading">Recursos</h6>
+
+                <!-- Recursos -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-white fw-semibold mb-3">Recursos</h6>
                     <ul class="footer-links">
-                        <li><a href="{{ url_for('documentation') }}">Documentación</a></li>
-                        <li><a href="{{ url_for('tutorial') }}">Tutorial</a></li>
                         <li><a href="{{ url_for('faq') }}">FAQ</a></li>
                         <li><a href="{{ url_for('blog') }}">Blog</a></li>
                         <li><a href="{{ url_for('support') }}">Soporte</a></li>
+                        <li><a href="{{ url_for('about') }}">Acerca de</a></li>
                     </ul>
                 </div>
-                
-                <!-- Legal & Stats -->
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h6 class="footer-heading">Legal & Estadísticas</h6>
+
+                <!-- Legal -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-white fw-semibold mb-3">Legal</h6>
                     <ul class="footer-links">
-                        <li><a href="{{ url_for('privacy') }}">Política de Privacidad</a></li>
-                        <li><a href="{{ url_for('terms') }}">Términos de Servicio</a></li>
+                        <li><a href="{{ url_for('privacy') }}">Privacidad</a></li>
+                        <li><a href="{{ url_for('terms') }}">Terminos</a></li>
                     </ul>
-                    <div class="footer-stats mt-3">
-                        <div class="stat-item">
-                            <i class="bi bi-people-fill text-primary"></i>
-                            <span id="footerUsers" class="text-white">+1000</span> <span class="text-white-50">Estudiantes</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="bi bi-code-slash text-success"></i>
-                            <span id="footerExercises" class="text-white">+50</span> <span class="text-white-50">Ejercicios</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="bi bi-check-circle-fill text-info"></i>
-                            <span id="footerSuccess" class="text-white">98%</span> <span class="text-white-50">Éxito</span>
-                        </div>
-                    </div>
+                </div>
+
+                <!-- Comunidad -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-white fw-semibold mb-3">Comunidad</h6>
+                    <ul class="footer-links">
+                        <li><a href="https://t.me/pythontutorbot" target="_blank">Telegram Bot</a></li>
+                        <li><a href="https://github.com/pythontutorbot" target="_blank">GitHub</a></li>
+                        <li><a href="mailto:support@pythontutor.bot">Contacto</a></li>
+                    </ul>
                 </div>
             </div>
-            
-            <!-- Bottom Bar -->
-            <div class="footer-bottom mt-4 pt-4 border-top border-secondary">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <p class="mb-0 text-white">
-                            © 2024 Python Tutor Bot. Hecho con <i class="bi bi-heart-fill text-danger"></i> para la comunidad Python.
-                        </p>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        <div class="footer-badges">
-                            <span class="badge bg-success me-2" id="footerStatus">
-                                <i class="bi bi-check-circle"></i> Activo
-                            </span>
-                            <span class="badge bg-info">
-                                <i class="bi bi-shield-check"></i> Seguro
-                            </span>
-                            <span class="badge bg-warning">
-                                <i class="bi bi-lightning-fill"></i> Gratuito
-                            </span>
-                        </div>
-                    </div>
+
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.08);">
+
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0 small" style="color: var(--ptb-gray-400);">
+                        &copy; 2026 Python Tutor Bot. Hecho con <i class="bi bi-heart-fill text-danger"></i> para la comunidad Python.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
+                        <i class="bi bi-circle-fill me-1" style="font-size: 0.4rem;"></i>Sistema Operativo
+                    </span>
                 </div>
             </div>
         </div>
@@ -191,102 +184,24 @@
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    
-    <!-- Footer Stats Update Script -->
+
+    <!-- Navbar scroll effect -->
     <script>
-        // Update footer stats when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            updateFooterStats();
-            updateFooterStatus();
-            // Update every 30 seconds
-            setInterval(updateFooterStats, 30000);
-            setInterval(updateFooterStatus, 10000);
-        });
-
-        function updateFooterStats() {
-            // Fetch user statistics
-            fetch('/api/admin/users/stats', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data && !data.error) {
-                    // Update users count
-                    const usersElement = document.getElementById('footerUsers');
-                    if (usersElement) {
-                        if (data.total > 1000) {
-                            usersElement.textContent = `+${Math.floor(data.total / 100) * 100}`;
-                        } else {
-                            usersElement.textContent = data.total;
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.log('Could not fetch user stats for footer');
-            });
-
-            // Fetch bot statistics for exercises
-            fetch('/api/admin/bot/stats', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data && !data.error) {
-                    // Update exercises count
-                    const exercisesElement = document.getElementById('footerExercises');
-                    if (exercisesElement && data.exercises_completed) {
-                        if (data.exercises_completed > 50) {
-                            exercisesElement.textContent = `+${Math.floor(data.exercises_completed / 10) * 10}`;
-                        } else {
-                            exercisesElement.textContent = data.exercises_completed;
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.log('Could not fetch bot stats for footer');
-            });
+    (function() {
+        var nav = document.getElementById('mainNav');
+        if (!nav) return;
+        function onScroll() {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
         }
-
-        function updateFooterStatus() {
-            // Fetch bot status
-            fetch('/api/admin/bot/status', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    const statusElement = document.getElementById('footerStatus');
-                    if (statusElement) {
-                        if (data.bot_status === 'active' && data.connection_status === 'connected') {
-                            statusElement.innerHTML = '<i class="bi bi-check-circle"></i> Activo';
-                            statusElement.className = 'badge bg-success me-2';
-                        } else if (data.bot_status === 'maintenance') {
-                            statusElement.innerHTML = '<i class="bi bi-tools"></i> Mantenimiento';
-                            statusElement.className = 'badge bg-warning me-2';
-                        } else {
-                            statusElement.innerHTML = '<i class="bi bi-x-circle"></i> Inactivo';
-                            statusElement.className = 'badge bg-danger me-2';
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.log('Could not fetch bot status for footer');
-            });
-        }
+        window.addEventListener('scroll', onScroll);
+        onScroll();
+    })();
     </script>
-    
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

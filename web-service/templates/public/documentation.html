@@ -1,38 +1,436 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
-{% block title %}Documentación - Python Tutor Bot{% endblock %}
+{% block title %}Documentacion - Python Tutor Bot{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="text-center mb-5">
-                <h1 class="display-4 fw-bold">Documentación</h1>
-                <p class="lead text-muted">Guías completas para usar Python Tutor Bot</p>
-            </div>
-            
-            <div class="card">
-                <div class="card-body">
-                    <h5>📖 Guía de Inicio Rápido</h5>
-                    <p>1. Abre Telegram y busca @PythonTutorBot</p>
-                    <p>2. Presiona /start para comenzar</p>
-                    <p>3. Sigue las lecciones interactivas</p>
-                    
-                    <h5 class="mt-4">🎯 Comandos Disponibles</h5>
-                    <ul>
-                        <li><code>/start</code> - Iniciar sesión</li>
-                        <li><code>/learning</code> - Modo aprendizaje</li>
-                        <li><code>/practice</code> - Modo práctica</li>
-                        <li><code>/ranking</code> - Ver rankings</li>
-                        <li><code>/stats</code> - Estadísticas personales</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="text-center mt-5">
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+<!-- Header -->
+<section class="pt-5 mt-5 pb-0" style="background:var(--ptb-gradient-hero);">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mb-3 px-3 py-2" style="font-size:0.78rem;">
+                    <i class="bi bi-book me-1"></i>Documentacion
+                </span>
+                <h1 class="display-5 fw-bold text-white mb-3">Guia completa de Python Tutor Bot</h1>
+                <p class="lead" style="color:rgba(255,255,255,0.7);">
+                    Aprende a usar el bot paso a paso. Desde los primeros comandos hasta ejercicios avanzados.
+                </p>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Tab Navigation -->
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <ul class="nav nav-pills mb-4 p-1 bg-light rounded-3 d-inline-flex mx-auto" role="tablist" style="width:fit-content;">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-2 px-4 py-2" data-bs-toggle="pill" data-bs-target="#primeros-pasos" type="button" role="tab">
+                            <i class="bi bi-rocket-takeoff me-1"></i>Primeros Pasos
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-2 px-4 py-2" data-bs-toggle="pill" data-bs-target="#comandos" type="button" role="tab">
+                            <i class="bi bi-terminal me-1"></i>Comandos
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-2 px-4 py-2" data-bs-toggle="pill" data-bs-target="#lecciones" type="button" role="tab">
+                            <i class="bi bi-journal-text me-1"></i>Lecciones
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-2 px-4 py-2" data-bs-toggle="pill" data-bs-target="#ejercicios" type="button" role="tab">
+                            <i class="bi bi-code-slash me-1"></i>Ejercicios
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+
+                    <!-- PRIMEROS PASOS -->
+                    <div class="tab-pane fade show active" id="primeros-pasos" role="tabpanel">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4 p-lg-5">
+                                <h3 class="fw-bold mb-4">
+                                    <i class="bi bi-rocket-takeoff text-primary me-2"></i>Primeros Pasos
+                                </h3>
+                                <p class="text-muted mb-4">
+                                    Sigue estos pasos para comenzar a aprender Python con el bot en minutos.
+                                </p>
+
+                                <div class="d-flex gap-3 mb-4 p-3 rounded-3" style="background:var(--ptb-gray-50);">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width:40px;height:40px;font-size:1rem;">1</div>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Busca el bot en Telegram</h5>
+                                        <p class="text-muted mb-2">
+                                            Abre Telegram y busca <span class="cmd-badge">@PythonTutorBot</span> en la barra de busqueda.
+                                        </p>
+                                        <a href="https://t.me/pythontutorbot" class="btn btn-sm btn-outline-primary" target="_blank">
+                                            <i class="bi bi-telegram me-1"></i>Abrir en Telegram
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-3 mb-4 p-3 rounded-3" style="background:var(--ptb-gray-50);">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width:40px;height:40px;font-size:1rem;">2</div>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Inicia sesion con el bot</h5>
+                                        <p class="text-muted mb-2">
+                                            Envia el comando <span class="cmd-badge">/start</span> para registrarte y activar tu perfil de aprendizaje.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-3 mb-4 p-3 rounded-3" style="background:var(--ptb-gray-50);">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width:40px;height:40px;font-size:1rem;">3</div>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Explora la ayuda</h5>
+                                        <p class="text-muted mb-2">
+                                            Usa <span class="cmd-badge">/help</span> para ver todos los comandos disponibles y una descripcion de cada uno.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-3 mb-4 p-3 rounded-3" style="background:var(--ptb-gray-50);">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width:40px;height:40px;font-size:1rem;">4</div>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Comienza tu primera leccion</h5>
+                                        <p class="text-muted mb-2">
+                                            Envia <span class="cmd-badge">/lesson</span> para recibir la siguiente leccion del curriculum. El bot te guiara paso a paso.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-3 mb-4 p-3 rounded-3" style="background:var(--ptb-gray-50);">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width:40px;height:40px;font-size:1rem;">5</div>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Practica con ejercicios</h5>
+                                        <p class="text-muted mb-2">
+                                            Usa <span class="cmd-badge">/exercises</span> para acceder a ejercicios interactivos y practicar lo aprendido.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-3 p-3 rounded-3" style="background:var(--ptb-gray-50);">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width:40px;height:40px;font-size:1rem;">6</div>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1">Sigue tu progreso</h5>
+                                        <p class="text-muted mb-2">
+                                            Consulta <span class="cmd-badge">/progress</span> en cualquier momento para ver tus estadisticas, racha y logros alcanzados.
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMANDOS -->
+                    <div class="tab-pane fade" id="comandos" role="tabpanel">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4 p-lg-5">
+                                <h3 class="fw-bold mb-4">
+                                    <i class="bi bi-terminal text-primary me-2"></i>Comandos Disponibles
+                                </h3>
+                                <p class="text-muted mb-4">
+                                    Todos los comandos se envian directamente en el chat del bot. Aqui tienes la lista completa.
+                                </p>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/start</span></div>
+                                            <p class="text-muted small mb-0">Registra tu usuario y activa tu perfil de aprendizaje. Es el primer paso para usar el bot.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/help</span></div>
+                                            <p class="text-muted small mb-0">Muestra la lista completa de comandos con sus descripciones y uso.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/lesson</span></div>
+                                            <p class="text-muted small mb-0">Entrega la siguiente leccion del curriculum segun tu nivel actual.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/lesson [numero]</span></div>
+                                            <p class="text-muted small mb-0">Accede a una leccion especifica por su numero. Repite lecciones anteriores cuando quieras.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/exercises</span></div>
+                                            <p class="text-muted small mb-0">Muestra los ejercicios disponibles para practicar el tema actual.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/exercises [numero]</span></div>
+                                            <p class="text-muted small mb-0">Selecciona un ejercicio especifico para resolver.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/progress</span></div>
+                                            <p class="text-muted small mb-0">Muestra tu progreso: lecciones completadas, ejercicios resueltos, racha y nivel.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/reset</span></div>
+                                            <p class="text-muted small mb-0">Reinicia tu progreso completo. Util si quieres empezar desde cero.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/streak</span></div>
+                                            <p class="text-muted small mb-0">Consulta tu racha actual de estudio y los dias consecutivos que llevas practicando.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/leaderboard</span></div>
+                                            <p class="text-muted small mb-0">Muestra el ranking de los usuarios con mayor progreso y racha.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/stats</span></div>
+                                            <p class="text-muted small mb-0">Estadisticas detalladas: tiempo total, ejercicios por tema, tasa de aciertos.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 h-100" style="background:var(--ptb-gray-50);">
+                                            <div class="mb-2"><span class="cmd-badge">/language</span></div>
+                                            <p class="text-muted small mb-0">Cambia el idioma de las lecciones y respuestas del bot.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LECCIONES -->
+                    <div class="tab-pane fade" id="lecciones" role="tabpanel">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4 p-lg-5">
+                                <h3 class="fw-bold mb-4">
+                                    <i class="bi bi-journal-text text-primary me-2"></i>Cómo funcionan las Lecciones
+                                </h3>
+                                <p class="text-muted mb-4">
+                                    El curriculum esta organizado en temas que van desde lo basico hasta conceptos avanzados. Cada leccion incluye una explicacion clara, ejemplos de codigo y un ejercicio para practicar.
+                                </p>
+
+                                <h5 class="fw-bold mb-3">Estructura del curriculum</h5>
+                                <ul class="list-unstyled mb-4">
+                                    <li class="d-flex align-items-start gap-3 mb-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                                                <i class="bi bi-1-circle text-primary small fw-bold"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <strong>Variables y tipos de datos</strong>
+                                            <p class="text-muted small mb-0">Strings, integers, floats, booleans y listas.</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex align-items-start gap-3 mb-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                                                <i class="bi bi-2-circle text-primary small fw-bold"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <strong>Operadores y expresiones</strong>
+                                            <p class="text-muted small mb-0">Aritmeticos, comparacion, logicos y asignacion.</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex align-items-start gap-3 mb-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                                                <i class="bi bi-3-circle text-primary small fw-bold"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <strong>Condicionales</strong>
+                                            <p class="text-muted small mb-0">if, elif, else y operador ternario.</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex align-items-start gap-3 mb-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                                                <i class="bi bi-4-circle text-primary small fw-bold"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <strong>Bucles</strong>
+                                            <p class="text-muted small mb-0">for, while, range y comprensiones de listas.</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex align-items-start gap-3 mb-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                                                <i class="bi bi-5-circle text-primary small fw-bold"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <strong>Funciones</strong>
+                                            <p class="text-muted small mb-0">Definicion, argumentos, retorno y scope.</p>
+                                        </div>
+                                    </li>
+                                    <li class="d-flex align-items-start gap-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                                                <i class="bi bi-6-circle text-primary small fw-bold"></i>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <strong>POO y conceptos avanzados</strong>
+                                            <p class="text-muted small mb-0">Clases, objetos, herencia y polimorfismo.</p>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <h5 class="fw-bold mb-3">Ejemplo de leccion</h5>
+                                <div class="doc-content">
+                                    <pre><code>'''Leccion 4: Condicionales'''
+
+# Los condicionales permiten ejecutar codigo
+# dependiendo de si una condicion es verdadera o falsa.
+
+edad = 18
+
+if edad >= 18:
+    print("Eres mayor de edad")
+elif edad >= 13:
+    print("Eres adolescente")
+else:
+    print("Eres menor de edad")
+
+# Salida: Eres mayor de edad</code></pre>
+                                </div>
+
+                                <div class="alert alert-info mt-4 d-flex align-items-start gap-2" style="border-radius:var(--ptb-radius-sm);">
+                                    <i class="bi bi-lightbulb fs-5 mt-1"></i>
+                                    <div>
+                                        <strong>Tip:</strong> Puedes repetir cualquier leccion enviando <span class="cmd-badge">/lesson [numero]</span>. No hay limite de repeticiones.
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EJERCICIOS -->
+                    <div class="tab-pane fade" id="ejercicios" role="tabpanel">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4 p-lg-5">
+                                <h3 class="fw-bold mb-4">
+                                    <i class="bi bi-code-slash text-primary me-2"></i>Cómo funcionan los Ejercicios
+                                </h3>
+                                <p class="text-muted mb-4">
+                                    Despues de cada leccion, el bot te propone ejercicios para practicar. Solo tienes que escribir tu codigo Python directamente en el chat y el bot lo evaluara al instante.
+                                </p>
+
+                                <h5 class="fw-bold mb-3">Proceso de un ejercicio</h5>
+                                <ol class="mb-4" style="color:var(--ptb-gray-600);line-height:2;">
+                                    <li>El bot presenta el enunciado del ejercicio.</li>
+                                    <li>Escribes tu codigo Python en el chat.</li>
+                                    <li>El bot ejecuta y valida tu solucion.</li>
+                                    <li>Recibes retroalimentacion inmediata: si es correcto o que debes mejorar.</li>
+                                </ol>
+
+                                <h5 class="fw-bold mb-3">Ejemplo: Ejercicio de Variables</h5>
+                                <div class="doc-content">
+                                    <pre><code># Enunciado:
+# Crea una variable llamada "nombre" con tu nombre,
+# y otra llamada "edad" con tu edad.
+# Luego imprime: "Hola, me llamo [nombre] y tengo [edad] anos"
+
+nombre = "Carlos"
+edad = 25
+print(f"Hola, me llamo {nombre} y tengo {edad} anos")</code></pre>
+                                </div>
+
+                                <div class="alert alert-success mt-3 d-flex align-items-start gap-2" style="border-radius:var(--ptb-radius-sm);">
+                                    <i class="bi bi-check-circle-fill fs-5 mt-1"></i>
+                                    <div>
+                                        <strong>Correcto!</strong> Tu solucion es valida. Has completado el ejercicio 1 del tema Variables.
+                                    </div>
+                                </div>
+
+                                <h5 class="fw-bold mb-3 mt-4">Ejemplo: Ejercicio de Condicionales</h5>
+                                <div class="doc-content">
+                                    <pre><code># Enunciado:
+# Escribe un programa que determine si un numero
+# es par o impar.
+
+numero = 7
+
+if numero % 2 == 0:
+    print("Par")
+else:
+    print("Impar")</code></pre>
+                                </div>
+
+                                <div class="alert alert-danger mt-3 d-flex align-items-start gap-2" style="border-radius:var(--ptb-radius-sm);">
+                                    <i class="bi bi-x-circle-fill fs-5 mt-1"></i>
+                                    <div>
+                                        <strong>Intento fallido.</strong> El output esperado era "Impar" pero tu codigo produjo "Par". Revisa la logica de tu condicion.
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info mt-4 d-flex align-items-start gap-2" style="border-radius:var(--ptb-radius-sm);">
+                                    <i class="bi bi-lightbulb fs-5 mt-1"></i>
+                                    <div>
+                                        <strong>Tip:</strong> Puedes intentar un ejercicio cuantas veces quieras. El bot te guiara hasta que lo resuelvas correctamente.
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section py-5">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-white fw-bold mb-3">Listo para empezar?</h2>
+                <p class="mb-4" style="color:rgba(255,255,255,0.7);font-size:1.1rem;">
+                    Abre Telegram y envia /start para comenzar a aprender Python ahora mismo.
+                </p>
+                <a href="https://t.me/pythontutorbot" class="btn btn-light btn-lg" target="_blank">
+                    <i class="bi bi-telegram me-2"></i>Abrir Python Tutor Bot
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
