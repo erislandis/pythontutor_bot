@@ -192,7 +192,11 @@ body {
     border-radius: var(--ptb-radius-lg);
     background: var(--admin-card-bg);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    transition: box-shadow 0.2s ease;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .card-header {
@@ -212,60 +216,111 @@ body {
     border: none;
     border-left: 4px solid transparent;
     border-radius: var(--ptb-radius-lg);
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    opacity: 0.05;
+    transform: translate(20px, -20px);
+    transition: transform 0.3s ease;
 }
 
 .stat-card:hover {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+}
+
+.stat-card:hover::after {
+    transform: translate(15px, -15px) scale(1.2);
 }
 
 .stat-card.stat-primary {
     border-left-color: var(--admin-primary);
 }
 
+.stat-card.stat-primary::after {
+    background: var(--admin-primary);
+}
+
 .stat-card.stat-success {
     border-left-color: var(--admin-success);
+}
+
+.stat-card.stat-success::after {
+    background: var(--admin-success);
 }
 
 .stat-card.stat-info {
     border-left-color: var(--admin-info);
 }
 
+.stat-card.stat-info::after {
+    background: var(--admin-info);
+}
+
 .stat-card.stat-warning {
     border-left-color: var(--admin-warning);
+}
+
+.stat-card.stat-warning::after {
+    background: var(--admin-warning);
 }
 
 .stat-card.stat-danger {
     border-left-color: var(--admin-danger);
 }
 
+.stat-card.stat-danger::after {
+    background: var(--admin-danger);
+}
+
 .stat-label {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.72rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
     color: var(--admin-text-muted);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.35rem;
 }
 
 .stat-value {
-    font-size: 1.5rem;
+    font-size: 1.65rem;
     font-weight: 800;
     color: var(--admin-text);
     line-height: 1.2;
+    letter-spacing: -0.02em;
 }
 
 .stat-icon {
-    font-size: 2rem;
+    font-size: 2.2rem;
     color: var(--admin-text-muted);
-    opacity: 0.4;
+    opacity: 0.3;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.stat-card:hover .stat-icon {
+    opacity: 0.5;
+    transform: scale(1.1);
 }
 
 /* ---------- Activity Items ---------- */
 .activity-item {
-    padding: 0.75rem 0;
+    padding: 0.85rem 0;
     border-bottom: 1px solid var(--admin-border);
+    transition: background 0.15s ease;
+}
+
+.activity-item:hover {
+    background: rgba(99, 102, 241, 0.02);
 }
 
 .activity-item:last-child {
@@ -273,20 +328,26 @@ body {
 }
 
 .activity-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.activity-item:hover .activity-icon {
+    transform: scale(1.08);
 }
 
 /* ---------- Chart Area ---------- */
 .chart-area {
     position: relative;
     height: 280px;
+    padding: 0.5rem;
 }
 
 .chart-area canvas {
@@ -377,10 +438,12 @@ body {
     background: var(--admin-bg);
     border-radius: 1rem;
     height: 8px;
+    overflow: hidden;
 }
 
 .progress-bar {
     border-radius: 1rem;
+    transition: width 0.6s ease;
 }
 
 /* ---------- Alerts ---------- */
@@ -394,12 +457,47 @@ body {
     padding-right: 3rem;
 }
 
+/* ---------- System Health Cards ---------- */
+.card .bg-light {
+    background: var(--admin-bg) !important;
+    border-radius: var(--ptb-radius);
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.card .bg-light:hover {
+    border-color: var(--admin-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ---------- Dashboard Quick Actions ---------- */
+.card .d-grid .btn {
+    border-radius: var(--ptb-radius);
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.card .d-grid .btn:hover {
+    transform: translateX(4px);
+}
+
 /* ---------- Badges ---------- */
 .badge {
     font-weight: 600;
     font-size: 0.72rem;
     padding: 0.35em 0.65em;
     border-radius: var(--ptb-radius-sm);
+    letter-spacing: 0.01em;
+}
+
+.badge.bg-success {
+    background: var(--admin-success) !important;
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
 }
 
 /* ---------- Modals ---------- */
@@ -476,7 +574,11 @@ body {
     }
 
     .stat-card .stat-value {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
+    }
+
+    .stat-card .stat-icon {
+        font-size: 1.6rem;
     }
 
     .chart-area {
@@ -485,6 +587,10 @@ body {
 
     .table {
         font-size: 0.8rem;
+    }
+
+    .activity-item {
+        padding: 0.65rem 0;
     }
 }
 
@@ -503,6 +609,10 @@ body {
 
     .stat-card .stat-icon {
         display: none;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1.1rem;
     }
 }
 
