@@ -718,56 +718,6 @@ footer h6 {
     box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-.login-section .form-control {
-    border: 1.5px solid var(--ptb-gray-200);
-    border-radius: var(--ptb-radius);
-    padding: 0.7rem 0.85rem;
-    font-size: 0.9rem;
-    background: var(--ptb-gray-50);
-    transition: all 0.2s ease;
-}
-
-.login-section .form-control:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
-    background: #fff;
-}
-
-.login-section .input-group-text {
-    border: 1.5px solid var(--ptb-gray-200);
-    background: var(--ptb-gray-50);
-    color: var(--ptb-gray-400);
-    transition: all 0.2s ease;
-}
-
-.login-section .input-group:focus-within .input-group-text {
-    border-color: #6366f1;
-    background: #fff;
-    color: #6366f1;
-}
-
-.login-section .pwd-toggle {
-    border: 1.5px solid var(--ptb-gray-200) !important;
-    background: var(--ptb-gray-50);
-    color: var(--ptb-gray-400);
-    transition: all 0.2s ease;
-}
-
-.login-section .pwd-toggle:hover {
-    background: var(--ptb-gray-100);
-    color: var(--ptb-gray-600);
-    border-color: var(--ptb-gray-300) !important;
-}
-
-.login-section .pwd-toggle:focus,
-.login-section .pwd-toggle:active {
-    outline: none;
-    box-shadow: none;
-    border-color: #6366f1 !important;
-    color: #6366f1;
-    background: rgba(99, 102, 241, 0.05);
-}
-
 .login-section .btn-primary {
     font-size: 0.95rem;
     letter-spacing: 0.01em;
@@ -782,6 +732,80 @@ footer h6 {
     color: var(--ptb-gray-700);
     font-size: 0.82rem;
     letter-spacing: 0.01em;
+    margin-bottom: 0.4rem;
+}
+
+/* ---------- Login Input Groups ---------- */
+.login-input-group {
+    border: 1.5px solid var(--ptb-gray-200);
+    border-radius: var(--ptb-radius);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: #fff;
+}
+
+.login-input-group:focus-within {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.login-input-group .input-group-text {
+    border: none;
+    background: var(--ptb-gray-50);
+    color: var(--ptb-gray-400);
+    font-size: 0.95rem;
+    padding: 0.65rem 0.85rem;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+.login-input-group:focus-within .input-group-text {
+    background: rgba(99, 102, 241, 0.04);
+    color: #6366f1;
+}
+
+.login-input-group .form-control {
+    border: none;
+    border-left: 1px solid var(--ptb-gray-200);
+    border-radius: 0;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+    background: transparent;
+    box-shadow: none;
+    transition: border-color 0.2s ease;
+}
+
+.login-input-group:focus-within .form-control {
+    border-left-color: rgba(99, 102, 241, 0.2);
+}
+
+.login-input-group .form-control:focus {
+    box-shadow: none;
+}
+
+.login-input-group .pwd-toggle {
+    border: none !important;
+    border-left: 1px solid var(--ptb-gray-200) !important;
+    background: var(--ptb-gray-50);
+    color: var(--ptb-gray-400);
+    padding: 0.65rem 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.login-input-group:focus-within .pwd-toggle {
+    border-left-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+.login-input-group .pwd-toggle:hover {
+    background: var(--ptb-gray-100);
+    color: var(--ptb-gray-600);
+}
+
+.login-input-group .pwd-toggle:focus,
+.login-input-group .pwd-toggle:active {
+    outline: none;
+    box-shadow: none;
+    color: #6366f1;
+    background: rgba(99, 102, 241, 0.05);
 }
 
 /* ---------- Animations ---------- */
