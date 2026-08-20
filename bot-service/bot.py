@@ -638,7 +638,7 @@ Soy tu tutor personal de Python. Te ayudaré a aprender programación con ejerci
 • Nivel Actual: {current_level.title()}
 • Preguntas Respondidas: {total_answered}
 • Respuestas Correctas: {user_data.get('correct_answers', 0)}
-• Progreso del Nivel: {level_progress}/50
+• Progreso del Nivel: {min(100, int(level_progress / 50 * 100))}% completado ({level_progress}/50)
 
 {next_level_info}
 
@@ -776,18 +776,18 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 {question}
 
-📊 *Progreso del Nivel:* {progress_bar} {level_progress}/50
+📊 *Progreso del Nivel:* {progress_bar} completado ({level_progress}/50)
 🔥 *Racha Actual:* {streak} preguntas seguidas
 🏆 *Total Respondidas:* {total_answered} preguntas
 
-🔘 *Opciones:*
+Responde con el número de tu opción:
 """
     
     keyboard = []
     for i, option in enumerate(options):
-        exercise_text += f"{i+1}. {option}\n"
+        exercise_text += f"{i+1}) {option}    "
         keyboard.append([InlineKeyboardButton(
-            f"{i+1}. {option}", 
+            f"{i+1}) {option}", 
             callback_data=f"learning_answer_{exercise['id']}_{i}"
         )])
     
@@ -932,14 +932,14 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
 
 📚 *Recuerda:* Este modo no afecta tu progreso en la base de datos
 
-🔘 *Opciones:*
+Responde con el número de tu opción:
 """
     
     keyboard = []
     for i, option in enumerate(options):
-        exercise_text += f"{i+1}. {option}\n"
+        exercise_text += f"{i+1}) {option}    "
         keyboard.append([InlineKeyboardButton(
-            f"{i+1}. {option}", 
+            f"{i+1}) {option}", 
             callback_data=f"practice_answer_{exercise['id']}_{i}"
         )])
     
@@ -1093,7 +1093,7 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 📚 *Progreso Actual:*
 • Nivel Actual: {current_level.title()}
-• Progreso del Nivel: {progress_bar} {level_progress}/50
+• Progreso del Nivel: {progress_bar} completado ({level_progress}/50)
 • Preguntas Respondidas: {total_answered}
 • Respuestas Correctas: {correct_answers}
 • Precisión: {accuracy:.1f}%
@@ -1484,14 +1484,14 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
 
 📚 *Recuerda:* Este modo no afecta tu progreso en la base de datos
 
-🔘 *Opciones:*
+Responde con el número de tu opción:
 """
     
     keyboard = []
     for i, option in enumerate(options):
-        exercise_text += f"{i+1}. {option}\n"
+        exercise_text += f"{i+1}) {option}    "
         keyboard.append([InlineKeyboardButton(
-            f"{i+1}. {option}", 
+            f"{i+1}) {option}", 
             callback_data=f"practice_answer_{exercise['id']}_{i}"
         )])
     
@@ -1556,17 +1556,17 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
 
 {question}
 
-📊 *Progreso del Nivel:* {progress_bar} {level_progress}/50
+📊 *Progreso del Nivel:* {progress_bar} completado ({level_progress}/50)
 🔥 *Racha Actual:* {streak} preguntas seguidas
 
-🔘 *Opciones:*
+Responde con el número de tu opción:
 """
     
     keyboard = []
     for i, option in enumerate(options):
-        exercise_text += f"{i+1}. {option}\n"
+        exercise_text += f"{i+1}) {option}    "
         keyboard.append([InlineKeyboardButton(
-            f"{i+1}. {option}", 
+            f"{i+1}) {option}", 
             callback_data=f"learning_answer_{exercise['id']}_{i}"
         )])
     
@@ -1639,14 +1639,11 @@ def get_next_level_info(current_level, total_answered):
     return ""
 
 def create_progress_bar(current, total, length=10):
-    """Create a text progress bar"""
+    """Create a text progress percentage"""
     if total == 0:
-        return "□" * length
-    
-    filled = int((current / total) * length)
-    empty = length - filled
-    
-    return "■" * filled + "□" * empty
+        return "0%"
+    percentage = min(100, int((current / total) * 100))
+    return f"{percentage}%"
 
 def get_user_achievements(user_data):
     """Get user achievements based on their progress"""
@@ -1774,7 +1771,10 @@ def main():
     
     # Start the bot
     logger.info("PythonBot is now running and polling for updates...")
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    application.run_polling(
+        allowed_updates=Update.ALL_TYPES,
+        drop_pending_updates=True
+    )
 
 if __name__ == '__main__':
     main()

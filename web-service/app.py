@@ -1098,7 +1098,7 @@ def notify_bot_changes():
 
 # API Endpoints for Exercises Management
 @app.route('/api/admin/exercises', methods=['GET'])
-@admin_required
+@admin_required_api
 def api_get_exercises():
     """Get all exercises - MEJORADO"""
     try:

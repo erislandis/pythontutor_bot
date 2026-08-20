@@ -7,9 +7,6 @@
     <h1 class="h2">Gestión de Ejercicios</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshExercises()">
-                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
-            </button>
             <div class="btn-group">
                 <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
                     <i class="bi bi-download me-1"></i>Exportar
@@ -115,7 +112,7 @@
                         <td>
                             <span class="badge bg-primary">Opción {{ exercise.correct_answer }}</span>
                         </td>
-                        <td>{{ exercise.created_at.strftime('%d/%m/%Y') if exercise.created_at else 'N/A' }}</td>
+                        <td>{% if exercise.created_at %}{% if exercise.created_at is string %}{{ exercise.created_at[:10] }}{% else %}{{ exercise.created_at.strftime('%d/%m/%Y') }}{% endif %}{% else %}N/A{% endif %}</td>
                         <td>
                             <div class="btn-group btn-group-sm" role="group">
                                 <button type="button" class="btn btn-outline-primary" onclick="viewExercise('{{ exercise.id }}')" title="Ver">
@@ -538,6 +535,9 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('✗ Error initializing table:', error);
     }
     
+    // Load exercises from API on page load
+    loadExercisesFromAPI();
+    
     // Form submission
     try {
         document.getElementById('exerciseForm').addEventListener('submit', saveExercise);
@@ -632,8 +632,30 @@ function getSelectedFormat() {
 }
 
 function initializeTable() {
-    // Add any table initialization here
     console.log('Table initialized with', exercisesData.length, 'exercises');
+}
+
+async function loadExercisesFromAPI() {
+    try {
+        const response = await fetch('/api/admin/exercises');
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        
+        if (Array.isArray(data) && data.length > 0) {
+            exercisesData = data;
+            updateExerciseTable(data);
+            
+            const countEl = document.getElementById('exerciseCount');
+            if (countEl) countEl.textContent = data.length + ' ejercicios';
+            
+            const dataEl = document.getElementById('exercises-data');
+            if (dataEl) dataEl.textContent = JSON.stringify(data);
+            
+            console.log('Loaded ' + data.length + ' exercises from API');
+        }
+    } catch (e) {
+        console.warn('API load failed, using server-rendered data:', e);
+    }
 }
 
 function openExerciseModal(exerciseId = null) {
