@@ -776,11 +776,10 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 {question}
 
-📊 *Progreso del Nivel:* {progress_bar} completado ({level_progress}/50)
+📊 *Progreso del Nivel:* {progress_bar} completado
 🔥 *Racha Actual:* {streak} preguntas seguidas
 🏆 *Total Respondidas:* {total_answered} preguntas
 
-Responde con el número de tu opción:
 """
     
     keyboard = []
@@ -932,7 +931,6 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
 
 📚 *Recuerda:* Este modo no afecta tu progreso en la base de datos
 
-Responde con el número de tu opción:
 """
     
     keyboard = []
@@ -1484,7 +1482,6 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
 
 📚 *Recuerda:* Este modo no afecta tu progreso en la base de datos
 
-Responde con el número de tu opción:
 """
     
     keyboard = []
@@ -1557,9 +1554,10 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
 {question}
 
 📊 *Progreso del Nivel:* {progress_bar} completado ({level_progress}/50)
+
 🔥 *Racha Actual:* {streak} preguntas seguidas
 
-Responde con el número de tu opción:
+Respuestas Correctas: {total_answered} preguntas
 """
     
     keyboard = []
