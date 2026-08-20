@@ -784,7 +784,6 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard = []
     for i, option in enumerate(options):
-        exercise_text += f"{i+1}) {option}    "
         keyboard.append([InlineKeyboardButton(
             f"{i+1}) {option}", 
             callback_data=f"learning_answer_{exercise['id']}_{i}"
@@ -935,7 +934,6 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
     
     keyboard = []
     for i, option in enumerate(options):
-        exercise_text += f"{i+1}) {option}    "
         keyboard.append([InlineKeyboardButton(
             f"{i+1}) {option}", 
             callback_data=f"practice_answer_{exercise['id']}_{i}"
@@ -1486,7 +1484,6 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
     
     keyboard = []
     for i, option in enumerate(options):
-        exercise_text += f"{i+1}) {option}    "
         keyboard.append([InlineKeyboardButton(
             f"{i+1}) {option}", 
             callback_data=f"practice_answer_{exercise['id']}_{i}"
@@ -1562,7 +1559,6 @@ Respuestas Correctas: {total_answered} preguntas
     
     keyboard = []
     for i, option in enumerate(options):
-        exercise_text += f"{i+1}) {option}    "
         keyboard.append([InlineKeyboardButton(
             f"{i+1}) {option}", 
             callback_data=f"learning_answer_{exercise['id']}_{i}"
