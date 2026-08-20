@@ -595,6 +595,7 @@ def dashboard():
         # Get counts for dashboard
         total_exercises = 0
         recent_exercises = 0
+        active_users = 0
         security_logs = []
         
         if supabase:
@@ -606,6 +607,18 @@ def dashboard():
             week_ago = (datetime.now() - timedelta(days=7)).isoformat()
             recent_response = supabase.table('exercises').select('*', count='exact').gte('created_at', week_ago).execute()
             recent_exercises = recent_response.count if hasattr(recent_response, 'count') else 0
+            
+            # Get active users count
+            try:
+                active_users_response = supabase.table('users').select('*', count='exact').eq('is_active', True).execute()
+                active_users = active_users_response.count if hasattr(active_users_response, 'count') else 0
+            except Exception:
+                # Fallback: count all users if is_active column doesn't exist
+                try:
+                    all_users_response = supabase.table('users').select('*', count='exact').execute()
+                    active_users = all_users_response.count if hasattr(all_users_response, 'count') else 0
+                except Exception:
+                    active_users = 0
             
             # Get recent security logs (if table exists)
             try:
@@ -624,6 +637,7 @@ def dashboard():
         return render_template('admin/dashboard.html', 
                              total_exercises=total_exercises,
                              recent_exercises=recent_exercises,
+                             active_users=active_users,
                              security_logs=security_logs)
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
@@ -631,6 +645,7 @@ def dashboard():
         return render_template('admin/dashboard.html', 
                              total_exercises=0,
                              recent_exercises=0,
+                             active_users=0,
                              security_logs=[])
 
 @app.route('/admin/bot-control')
@@ -743,7 +758,7 @@ def admin_exercises():
         
         # Get all exercises from Supabase
         logger.info("Fetching exercises from Supabase...")
-        exercises_response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
+        exercises_response = supabase.table('exercises').select('*').order('id', desc=False).execute()
         exercises = exercises_response.data or []
         
         logger.info(f"Raw response from Supabase: {len(exercises)} exercises")
@@ -882,6 +897,7 @@ def create_user():
                 'total_exercises_completed': max(0, user_data.get('total_exercises_completed', 0)),
                 'current_streak': max(0, user_data.get('current_streak', 0)),
                 'longest_streak': max(0, user_data.get('longest_streak', 0)),
+                'is_active': True,
                 'created_at': datetime.now().isoformat(),
                 'last_activity': datetime.now().isoformat()
             }
@@ -1776,7 +1792,7 @@ def api_export_exercises_json():
             return jsonify({'error': 'Database connection error'}), 500
         
         # Get all exercises
-        response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
+        response = supabase.table('exercises').select('*').order('id', desc=False).execute()
         exercises = response.data or []
         
         # Process exercises for export
@@ -2022,7 +2038,7 @@ def api_export_exercises_csv():
             return jsonify({'error': 'Database connection error'}), 500
         
         # Get all exercises
-        response = supabase.table('exercises').select('*').order('created_at', desc=True).execute()
+        response = supabase.table('exercises').select('*').order('id', desc=False).execute()
         exercises = response.data or []
         
         # Create CSV in memory

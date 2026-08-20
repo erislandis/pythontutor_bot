@@ -335,8 +335,8 @@ function updateUsersTable(users) {
                 <small>${formatDate(user.last_activity)}</small>
             </td>
             <td>
-                <span class="badge bg-${user.status === 'active' ? 'success' : 'secondary'}">
-                    ${user.status === 'active' ? 'Activo' : 'Inactivo'}
+                <span class="badge bg-${user.is_active === true ? 'success' : 'secondary'}">
+                    ${user.is_active === true ? 'Activo' : 'Inactivo'}
                 </span>
             </td>
             <td>
@@ -444,7 +444,7 @@ async function editUser(userId) {
     
     document.getElementById('editUserId').value = user.id;
     document.getElementById('editUserLevel').value = user.current_level;
-    document.getElementById('editUserStatus').value = user.status || 'active';
+    document.getElementById('editUserStatus').value = user.is_active ? 'active' : 'inactive';
     
     new bootstrap.Modal(document.getElementById('editUserModal')).show();
 }
@@ -453,9 +453,10 @@ async function updateUser(e) {
     e.preventDefault();
     
     const userId = document.getElementById('editUserId').value;
+    const statusValue = document.getElementById('editUserStatus').value;
     const userData = {
         current_level: document.getElementById('editUserLevel').value,
-        status: document.getElementById('editUserStatus').value
+        is_active: statusValue === 'active'
     };
     
     try {
@@ -526,7 +527,8 @@ function applyFilters(e) {
     }
     
     if (statusFilter) {
-        filtered = filtered.filter(user => user.status === statusFilter);
+        const wantActive = statusFilter === 'active';
+        filtered = filtered.filter(user => user.is_active === wantActive);
     }
     
     updateUsersTable(filtered);

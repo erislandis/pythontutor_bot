@@ -343,6 +343,7 @@ def create_user_in_supabase(user_data):
             'level_progress': 0,
             'total_questions_answered': 0,
             'correct_answers': 0,
+            'is_active': True,
             'last_activity': datetime.now().isoformat(),
             'created_at': datetime.now().isoformat()
         }

@@ -61,6 +61,7 @@
             <div class="col-md-3">
                 <label for="sortBy" class="form-label">Ordenar por</label>
                 <select class="form-select" id="sortBy">
+                    <option value="id">ID (menor a mayor)</option>
                     <option value="created_at">Fecha de creación</option>
                     <option value="level">Nivel</option>
                     <option value="question">Pregunta</option>
@@ -824,8 +825,10 @@ function applyFilters(e) {
     
     // Apply sorting
     filtered.sort((a, b) => {
-        if (sortBy === 'created_at') {
-            return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        if (sortBy === 'id') {
+            return (a.id || 0) - (b.id || 0);
+        } else if (sortBy === 'created_at') {
+            return new Date(a.created_at || 0) - new Date(b.created_at || 0);
         } else if (sortBy === 'level') {
             return a.level.localeCompare(b.level);
         } else if (sortBy === 'question') {
