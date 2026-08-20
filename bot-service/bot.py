@@ -1312,22 +1312,18 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
         response_text += f"💔 *Racha perdida*\n\n"
     
     if exercise.get('explanation'):
-        response_text += f"💡 *Explicación:*\n{exercise['explanation']}\n\n"
+        safe_explanation = exercise['explanation'].replace('*', '\\*').replace('_', '\\_')
+        response_text += f"💡 *Explicación:*\n{safe_explanation}\n\n"
     
     response_text += f"🏆 *Puntos de sesión:* {user_sessions[telegram_id].get('score', 0)}"
     
-    keyboard = [
-        [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")],
-        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")],
-        [InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
     await query.edit_message_text(
         response_text,
-        parse_mode='Markdown',
-        reply_markup=reply_markup
+        parse_mode='Markdown'
     )
+    
+    await asyncio.sleep(2)
+    await next_learning_exercise(update, context)
 
 async def practice_answer_callback(query, context, exercise_id, answer_index):
     """Handle practice mode answer callback - No database updates"""
@@ -1365,7 +1361,8 @@ async def practice_answer_callback(query, context, exercise_id, answer_index):
         response_text += f"La respuesta correcta es: {options[correct_answer]}\n\n"
     
     if exercise.get('explanation'):
-        response_text += f"💡 *Explicación:*\n{exercise['explanation']}\n\n"
+        safe_explanation = exercise['explanation'].replace('*', '\\*').replace('_', '\\_')
+        response_text += f"💡 *Explicación:*\n{safe_explanation}\n\n"
     
     # Practice session progress
     unlimited = session.get('unlimited', False)
@@ -1379,18 +1376,13 @@ async def practice_answer_callback(query, context, exercise_id, answer_index):
         await complete_practice_session(query, context)
         return
     
-    keyboard = [
-        [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_practice_exercise")],
-        [InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")],
-        [InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
     await query.edit_message_text(
         response_text,
-        parse_mode='Markdown',
-        reply_markup=reply_markup
+        parse_mode='Markdown'
     )
+    
+    await asyncio.sleep(2)
+    await next_practice_exercise(update, context)
 
 async def complete_practice_session(query, context):
     """Complete practice session handler"""
