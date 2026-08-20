@@ -1541,6 +1541,7 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
     
     session = user_sessions[telegram_id]['learning_session']
     user_data = get_user_from_supabase(telegram_id)
+    total_answered = user_data.get('total_questions_answered', 0) if user_data else 0
     level_progress = user_data.get('level_progress', 0) if user_data else 0
     progress_bar = create_progress_bar(level_progress, 50)
     streak = session.get('streak', 0)
