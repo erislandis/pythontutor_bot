@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
                 datasets: [{
                     label: 'Ejercicios Completados',
-                    data: [0, 0, 0, 0, 0, 0, 0],
+                    data: {{ chart_data.exercises | tojson }},
                     borderColor: '#4f46e5',
                     backgroundColor: 'rgba(79,70,229,0.08)',
                     fill: true,
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     pointBackgroundColor: '#4f46e5'
                 }, {
                     label: 'Usuarios Activos',
-                    data: [0, 0, 0, 0, 0, 0, 0],
+                    data: {{ chart_data.users | tojson }},
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16,185,129,0.08)',
                     fill: true,

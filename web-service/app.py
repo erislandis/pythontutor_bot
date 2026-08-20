@@ -633,12 +633,40 @@ def dashboard():
                     {'action': 'Contraseña cambiada', 'created_at': datetime.now() - timedelta(days=2)},
                     {'action': 'Ejercicio agregado', 'created_at': datetime.now() - timedelta(days=3)}
                 ]
+            
+            # Get weekly activity data for chart
+            weekly_exercises = [0] * 7
+            weekly_users = [0] * 7
+            try:
+                for i in range(7):
+                    day = datetime.now() - timedelta(days=6 - i)
+                    day_start = day.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+                    day_end = day.replace(hour=23, minute=59, second=59, microsecond=999999).isoformat()
+                    
+                    day_exercises = supabase.table('exercises').select('*', count='exact').gte('created_at', day_start).lte('created_at', day_end).execute()
+                    weekly_exercises[i] = day_exercises.count if hasattr(day_exercises, 'count') else 0
+                    
+                    try:
+                        day_users = supabase.table('user_progress').select('*', count='exact').gte('completed_at', day_start).lte('completed_at', day_end).execute()
+                        weekly_users[i] = day_users.count if hasattr(day_users, 'count') else 0
+                    except Exception:
+                        weekly_users[i] = 0
+            except Exception as e:
+                logger.warning(f"Could not load weekly activity: {e}")
+            
+            chart_data = {
+                'exercises': weekly_exercises,
+                'users': weekly_users
+            }
+        else:
+            chart_data = {'exercises': [0]*7, 'users': [0]*7}
         
         return render_template('admin/dashboard.html', 
                              total_exercises=total_exercises,
                              recent_exercises=recent_exercises,
                              active_users=active_users,
-                             security_logs=security_logs)
+                             security_logs=security_logs,
+                             chart_data=chart_data)
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
         flash('Error al cargar el dashboard', 'error')
@@ -646,7 +674,8 @@ def dashboard():
                              total_exercises=0,
                              recent_exercises=0,
                              active_users=0,
-                             security_logs=[])
+                             security_logs=[],
+                             chart_data={'exercises': [0]*7, 'users': [0]*7})
 
 @app.route('/admin/bot-control')
 @admin_required
@@ -1640,8 +1669,8 @@ def api_import_exercises():
                     
                     batch_duplicate_questions.add(question)
                     
-                    # Check for duplicates en base de datos (temporarily disabled for testing)
-                    if False and is_duplicate_exercise(normalized_exercise['question']):
+                    # Check for duplicates en base de datos
+                    if is_duplicate_exercise(normalized_exercise['question']):
                         error_msg = f"Ejercicio {exercise_index}: Pregunta duplicada en base de datos - omitido"
                         logger.info(error_msg)
                         skipped_duplicates += 1
@@ -1993,7 +2022,15 @@ def process_exercises_import(exercises):
                 try:
                     normalized = normalize_exercise_data(exercise)
                     if normalized:
-                        batch_data.append(normalized)
+                        exercise_data = {
+                            'question': normalized['question'],
+                            'level': normalized['level'],
+                            'options': json.dumps(normalized['options']),
+                            'correct_answer': normalized['correct_answer'],
+                            'explanation': normalized.get('explanation', ''),
+                            'created_at': datetime.now().isoformat()
+                        }
+                        batch_data.append(exercise_data)
                 except Exception as e:
                     errors.append(f"Exercise normalization error: {str(e)}")
                     validation_errors += 1

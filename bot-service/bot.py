@@ -1282,7 +1282,7 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
         return
     
     correct_answer = exercise['correct_answer']
-    is_correct = answer_index == correct_answer
+    is_correct = (answer_index + 1) == correct_answer
     
     # Update progress in Supabase
     update_progress_in_supabase(telegram_id, exercise_id, is_correct)
@@ -1347,7 +1347,7 @@ async def practice_answer_callback(query, context, exercise_id, answer_index):
         return
     
     correct_answer = exercise['correct_answer']
-    is_correct = answer_index == correct_answer
+    is_correct = (answer_index + 1) == correct_answer
     
     # Update practice session (no database updates)
     if telegram_id not in user_sessions or 'practice_session' not in user_sessions[telegram_id]:
