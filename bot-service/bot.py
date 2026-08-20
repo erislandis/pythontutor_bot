@@ -806,7 +806,6 @@ async def learning_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard.append([InlineKeyboardButton("💡 Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
     keyboard.append([InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")])
-    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")])
     keyboard.append([InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -956,7 +955,6 @@ async def setup_practice(update: Update, context: ContextTypes.DEFAULT_TYPE, tar
     
     keyboard.append([InlineKeyboardButton("💡 Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
     keyboard.append([InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_practice_exercise")])
-    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")])
     keyboard.append([InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -1517,7 +1515,6 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
     
     keyboard.append([InlineKeyboardButton("💡 Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
     keyboard.append([InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_practice_exercise")])
-    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")])
     keyboard.append([InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -1596,7 +1593,6 @@ Respuestas Correctas: {total_answered} preguntas
     
     keyboard.append([InlineKeyboardButton("💡 Ver Explicación", callback_data=f"explanation_{exercise['id']}")])
     keyboard.append([InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")])
-    keyboard.append([InlineKeyboardButton("📊 Ver Estadísticas", callback_data="stats")])
     keyboard.append([InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")])
     
     reply_markup = InlineKeyboardMarkup(keyboard)
