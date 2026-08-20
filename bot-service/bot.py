@@ -1790,11 +1790,22 @@ def main():
     application.add_handler(CommandHandler("menu", main_menu))
     application.add_handler(CallbackQueryHandler(button_callback))
     
+    # Error handler to suppress Conflict errors during redeploy
+    async def error_handler(update, context):
+        from telegram.error import Conflict
+        if isinstance(context.error, Conflict):
+            logger.warning("Conflict detected (another instance running), retrying...")
+            return True
+        logger.error(f"Unhandled exception: {context.error}")
+    
+    application.add_error_handler(error_handler)
+    
     # Start the bot
     logger.info("PythonBot is now running and polling for updates...")
     application.run_polling(
         allowed_updates=Update.ALL_TYPES,
-        drop_pending_updates=True
+        drop_pending_updates=True,
+        bootstrap_retries=5
     )
 
 if __name__ == '__main__':
