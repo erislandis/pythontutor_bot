@@ -446,6 +446,21 @@ def update_progress_in_supabase(telegram_id, exercise_id, completed):
         # Update user
         update_user_in_supabase(telegram_id, updates)
         
+        # Check for level up
+        updated_user = get_user_from_supabase(telegram_id)
+        if updated_user:
+            new_level = check_and_update_level(telegram_id, updated_user)
+            old_level = user.get('current_level', 'principiante')
+            if new_level != old_level:
+                # Level up! Update in Supabase and reset progress
+                update_user_in_supabase(telegram_id, {
+                    'current_level': new_level,
+                    'level_progress': 0
+                })
+                logger.info(f"User {telegram_id} leveled up: {old_level} -> {new_level}")
+                # Return level change info
+                return {'leveled_up': True, 'old_level': old_level, 'new_level': new_level}
+        
         # Record exercise completion in user_progress table if it exists
         try:
             # Get user's internal ID from users table
@@ -1085,7 +1100,6 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 📊 *Mis Estadísticas - PythonBot*
 
 👤 *Perfil:* {user_data.get('first_name', 'N/A')}
-📱 *ID:* {user_data.get('telegram_id', 'N/A')}
 
 📚 *Progreso Actual:*
 • Nivel Actual: {current_level.title()}
@@ -1281,11 +1295,20 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     is_correct = (answer_index + 1) == correct_answer
     
     # Update progress in Supabase
-    update_progress_in_supabase(telegram_id, exercise_id, is_correct)
+    progress_result = update_progress_in_supabase(telegram_id, exercise_id, is_correct)
+    
+    # Handle level up
+    level_up_text = ""
+    if isinstance(progress_result, dict) and progress_result.get('leveled_up'):
+        old_level = progress_result['old_level']
+        new_level = progress_result['new_level']
+        if telegram_id in user_sessions:
+            user_sessions[telegram_id]['current_level'] = new_level
+        level_up_text = f"\n\n🎉 *¡FELICIDADES! ¡Has subido de nivel!*\n🌱 {old_level.title()} → 🌿 {new_level.title()}\n📝 *¡Sigue practicando para alcanzar el siguiente nivel!*\n"
     
     # Update learning session streak (in memory only)
     if telegram_id not in user_sessions:
-        user_sessions[telegram_id] = {'learning_session': {'streak': 0, 'completed_today': 0}, 'score': 0}
+        user_sessions[telegram_id] = {'learning_session': {'streak': 0, 'completed_today': 0}, 'score': 0, 'current_level': progress_result.get('new_level', 'principiante') if isinstance(progress_result, dict) else 'principiante'}
     
     session = user_sessions[telegram_id].get('learning_session', {'streak': 0, 'completed_today': 0})
     if is_correct:
@@ -1316,9 +1339,11 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
         response_text += f"💡 *Explicación:*\n{safe_explanation}\n\n"
     
     response_text += f"🏆 *Puntos de sesión:* {user_sessions[telegram_id].get('score', 0)}"
+    response_text += level_up_text
     
     keyboard = [
-        [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")]
+        [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")],
+        [InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -1380,7 +1405,8 @@ async def practice_answer_callback(query, context, exercise_id, answer_index):
         return
     
     keyboard = [
-        [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_practice_exercise")]
+        [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_practice_exercise")],
+        [InlineKeyboardButton("🔙 Menú Principal", callback_data="main_menu")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -1605,18 +1631,18 @@ def check_and_update_level(telegram_id, user_data):
     total_answered = user_data.get('total_questions_answered', 0)
     current_level = user_data.get('current_level', 'principiante')
     
-    # Check each level requirement
+    # Find the highest level the user qualifies for
+    new_level = current_level
     for level in LEVELS:
         if total_answered >= LEVEL_REQUIREMENTS[level]:
-            if LEVELS.index(level) > LEVELS.index(current_level) if current_level in LEVELS else 0:
-                # User should level up
-                return level
+            if LEVELS.index(level) > LEVELS.index(new_level) if new_level in LEVELS else 0:
+                new_level = level
     
     # Check if user should be graduated
     if total_answered >= LEVEL_REQUIREMENTS['graduado']:
-        return 'graduado'
+        new_level = 'graduado'
     
-    return current_level
+    return new_level
 
 def get_next_level_info(current_level, total_answered):
     """Get information about next level unlock"""
