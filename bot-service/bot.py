@@ -1414,14 +1414,11 @@ async def complete_practice_session(query, context):
 async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get next practice exercise"""
     if update.callback_query:
-        await update.callback_query.answer()
         telegram_id = update.callback_query.from_user.id
-        message = update.callback_query.message
-        reply_func = message.reply_text
+        chat_id = update.callback_query.message.chat_id
     else:
         telegram_id = update.effective_user.id
-        message = update.message
-        reply_func = message.reply_text
+        chat_id = update.message.chat_id
     
     # Check if user has active practice session
     if telegram_id not in user_sessions or user_sessions[telegram_id].get('mode') != 'practice':
@@ -1444,8 +1441,9 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
     exercises = get_cached_exercises(current_level)
     
     if not exercises:
-        await reply_func(
-            "❌ No hay ejercicios disponibles en este nivel. Por favor intenta más tarde."
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="❌ No hay ejercicios disponibles en este nivel. Por favor intenta más tarde."
         )
         return
     
@@ -1488,8 +1486,9 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await reply_func(
-        exercise_text,
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=exercise_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
@@ -1497,14 +1496,11 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
 async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Get next learning exercise"""
     if update.callback_query:
-        await update.callback_query.answer()
         telegram_id = update.callback_query.from_user.id
-        message = update.callback_query.message
-        reply_func = message.reply_text
+        chat_id = update.callback_query.message.chat_id
     else:
         telegram_id = update.effective_user.id
-        message = update.message
-        reply_func = message.reply_text
+        chat_id = update.message.chat_id
     
     # Check if user has active learning session
     if telegram_id not in user_sessions or user_sessions[telegram_id].get('mode') != 'learning':
@@ -1516,8 +1512,9 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
     exercises = get_cached_exercises(current_level)
     
     if not exercises:
-        await reply_func(
-            "❌ No hay ejercicios disponibles en este nivel. Por favor intenta más tarde."
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="❌ No hay ejercicios disponibles en este nivel. Por favor intenta más tarde."
         )
         return
     
@@ -1564,8 +1561,9 @@ Respuestas Correctas: {total_answered} preguntas
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await reply_func(
-        exercise_text,
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=exercise_text,
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
