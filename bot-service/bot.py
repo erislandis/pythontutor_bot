@@ -1317,13 +1317,16 @@ async def learning_answer_callback(query, context, exercise_id, answer_index):
     
     response_text += f"🏆 *Puntos de sesión:* {user_sessions[telegram_id].get('score', 0)}"
     
+    keyboard = [
+        [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_learning_exercise")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
     await query.edit_message_text(
         response_text,
-        parse_mode='Markdown'
+        parse_mode='Markdown',
+        reply_markup=reply_markup
     )
-    
-    await asyncio.sleep(2)
-    await next_learning_exercise(update, context)
 
 async def practice_answer_callback(query, context, exercise_id, answer_index):
     """Handle practice mode answer callback - No database updates"""
@@ -1376,13 +1379,16 @@ async def practice_answer_callback(query, context, exercise_id, answer_index):
         await complete_practice_session(query, context)
         return
     
+    keyboard = [
+        [InlineKeyboardButton("⏭️ Siguiente Ejercicio", callback_data="next_practice_exercise")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
     await query.edit_message_text(
         response_text,
-        parse_mode='Markdown'
+        parse_mode='Markdown',
+        reply_markup=reply_markup
     )
-    
-    await asyncio.sleep(2)
-    await next_practice_exercise(update, context)
 
 async def complete_practice_session(query, context):
     """Complete practice session handler"""
@@ -1416,6 +1422,10 @@ async def next_practice_exercise(update: Update, context: ContextTypes.DEFAULT_T
     if update.callback_query:
         telegram_id = update.callback_query.from_user.id
         chat_id = update.callback_query.message.chat_id
+        try:
+            await update.callback_query.message.delete()
+        except Exception:
+            pass
     else:
         telegram_id = update.effective_user.id
         chat_id = update.message.chat_id
@@ -1498,6 +1508,10 @@ async def next_learning_exercise(update: Update, context: ContextTypes.DEFAULT_T
     if update.callback_query:
         telegram_id = update.callback_query.from_user.id
         chat_id = update.callback_query.message.chat_id
+        try:
+            await update.callback_query.message.delete()
+        except Exception:
+            pass
     else:
         telegram_id = update.effective_user.id
         chat_id = update.message.chat_id
