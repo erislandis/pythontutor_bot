@@ -60,6 +60,34 @@ function setupEventListeners() {
     dynamicLinks.forEach(link => {
         link.addEventListener('click', loadDynamicContent);
     });
+    
+    // Password visibility toggle
+    const toggleButtons = document.querySelectorAll('[data-toggle-password]');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', togglePasswordVisibility);
+    });
+}
+
+/**
+ * Toggle password visibility
+ */
+function togglePasswordVisibility(e) {
+    const button = e.currentTarget;
+    const targetId = button.dataset.target || button.getAttribute('data-toggle-password');
+    const passwordField = document.getElementById(targetId);
+    const icon = button.querySelector('i');
+    
+    if (passwordField) {
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
 }
 
 /**
